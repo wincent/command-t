@@ -1,4 +1,4 @@
-class CommandT
+module CommandT
   class Matcher
     attr_accessor :paths
 
@@ -25,4 +25,4 @@ class CommandT
       end
     end
   end # class Matcher
-end # class CommandT
+end # module CommandT
