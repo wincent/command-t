@@ -19,6 +19,7 @@ module CommandT
     end
 
     def matches_for str
+      raise ArgumentError.new('nil str') if str.nil?
       regexp = self.class.regexp_for str
       @paths.select do |path|
         !path.match(regexp).nil?

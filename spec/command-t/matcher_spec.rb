@@ -21,6 +21,12 @@ describe CommandT::Matcher do
   end
 
   describe 'matches_for method' do
+    it 'should raise an ArgumentError if passed nil' do
+      @matcher = CommandT::Matcher.new
+      lambda { @matcher.matches_for(nil) }.
+        should raise_error(ArgumentError)
+    end
+
     it 'should return empty array when source array empty' do
       @no_paths = CommandT::Matcher.new
       @no_paths.matches_for('foo').should == []
