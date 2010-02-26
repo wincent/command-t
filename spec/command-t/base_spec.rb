@@ -23,5 +23,10 @@ describe CommandT::Base do
     it 'should return all files when query string is empty' do
       @base.matches_for('').should == @all_fixtures
     end
+
+    it 'should return matching files' do
+      @base.matches_for('ba').should == ['./bar/abc', './bar/xyz', './baz',
+        './foo/beta']
+    end
   end
 end
