@@ -17,4 +17,12 @@ describe CommandT::Scanner do
         './foo/alpha/t1', './foo/alpha/t2', './foo/beta']
     end
   end
+
+  describe 'flush method' do
+    it 'should force a rescan on next call to paths method' do
+      first = @scanner.paths
+      @scanner.flush
+      @scanner.paths.object_id.should_not == first.object_id
+    end
+  end
 end
