@@ -43,6 +43,7 @@ module CommandT
               @depth += 1
               raise DepthLimitExceeded if @depth > @max_depth
               add_paths_for_directory path, accumulator
+              @depth -= 1
             end
           end
         end
