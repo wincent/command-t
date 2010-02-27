@@ -3,7 +3,7 @@
 if exists("f:command_t_loaded")
   finish
 endif
-let g:command_t_loaded = "loaded"
+let g:command_t_loaded = 1
 
 if !has("ruby")
   finish
