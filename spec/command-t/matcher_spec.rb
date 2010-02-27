@@ -43,5 +43,10 @@ describe CommandT::Matcher do
       @foo_paths.matches_for('z').should == ['./foo/baz']
       @foo_paths.matches_for('bg').should == ['./bing']
     end
+
+    it 'should perform case-insensitive matching' do
+      @path = CommandT::Matcher.new './Foo'
+      @path.matches_for('f').should == ['./Foo']
+    end
   end
 end
