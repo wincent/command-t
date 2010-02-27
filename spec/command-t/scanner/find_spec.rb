@@ -8,8 +8,8 @@ describe CommandT::Scanner::Find do
 
   describe 'paths method' do
     it 'should return a list of regular files' do
-      @scanner.paths.should == ['./bar/abc', './bar/xyz', './baz', './bing',
-        './foo/alpha/t1', './foo/alpha/t2', './foo/beta']
+      @scanner.paths.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
+        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta']
     end
   end
 

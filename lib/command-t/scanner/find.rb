@@ -17,7 +17,8 @@ module CommandT
         begin
           pwd = Dir.pwd
           Dir.chdir @path
-          @paths = `find . -type f -maxdepth #{@max_depth} 2> /dev/null`.split("\n")
+          @paths = `find . -type f -maxdepth #{@max_depth} 2> /dev/null`.
+            split("\n").map { |path| path[2..-1] }
         ensure
           Dir.chdir pwd
         end

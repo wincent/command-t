@@ -5,13 +5,13 @@ describe CommandT::Base do
     @base = CommandT::Base.new File.join(File.dirname(__FILE__), '..',
       '..', 'fixtures')
     @all_fixtures = [
-      './bar/abc',
-      './bar/xyz',
-      './baz',
-      './bing',
-      './foo/alpha/t1',
-      './foo/alpha/t2',
-      './foo/beta'
+      'bar/abc',
+      'bar/xyz',
+      'baz',
+      'bing',
+      'foo/alpha/t1',
+      'foo/alpha/t2',
+      'foo/beta'
     ]
   end
 
@@ -25,8 +25,8 @@ describe CommandT::Base do
     end
 
     it 'should return matching files' do
-      @base.matches_for('ba').should == ['./bar/abc', './bar/xyz', './baz',
-        './foo/beta']
+      @base.matches_for('ba').should == ['bar/abc', 'bar/xyz', 'baz',
+        'foo/beta']
     end
   end
 end
