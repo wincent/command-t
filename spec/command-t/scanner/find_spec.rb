@@ -2,13 +2,8 @@ require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
 
 describe CommandT::Scanner::Find do
   before :all do
-    @pwd = Dir.pwd
-    Dir.chdir File.join(File.dirname(__FILE__), '..', '..', '..', 'fixtures')
-    @scanner = CommandT::Scanner::Find.new
-  end
-
-  after :all do
-    Dir.chdir @pwd
+    dir = File.join(File.dirname(__FILE__), '..', '..', '..', 'fixtures')
+    @scanner = CommandT::Scanner::Find.new dir
   end
 
   describe 'paths method' do
