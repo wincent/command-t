@@ -1,6 +1,6 @@
 module CommandT
   module Scanner
-    class Ruby
+    class Ruby < Base
       class DepthLimitExceeded < ::RuntimeError; end
       class FileLimitExceeded < ::RuntimeError; end
 
@@ -9,10 +9,6 @@ module CommandT
         @max_depth  = options[:max_depth] || 15
         @max_files  = options[:max_files] || 10_000
         @exclude    = options[:excludes] || /\A(\.git)\z/
-      end
-
-      def flush
-        @paths = nil
       end
 
       def paths
@@ -28,7 +24,7 @@ module CommandT
         @paths
       end
 
-      private
+    private
 
       def add_paths_for_directory dir, accumulator
         Dir.foreach(dir) do |entry|

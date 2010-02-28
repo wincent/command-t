@@ -1,15 +1,11 @@
 module CommandT
   module Scanner
     # Simplistic scanner that wraps 'find . -type f'.
-    class Find
+    class Find < Base
       def initialize path = Dir.pwd, options = {}
         @path = path
         @max_depth = 15
         @max_depth = options[:max_depth].to_i unless options[:max_depth].nil?
-      end
-
-      def flush
-        @paths = nil
       end
 
       def paths
