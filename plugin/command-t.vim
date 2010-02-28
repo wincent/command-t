@@ -106,6 +106,13 @@ ruby << EOF
     class Prompt
       attr_accessor :abbrev
 
+      # Erase whatever is displayed in the prompt line,
+      # effectively disposing of the prompt
+      def self.dispose
+        VIM::command 'echo'
+        VIM::command 'redraw'
+      end
+
       def initialize
         @abbrev = '' # abbreviation entered so far
       end
@@ -150,6 +157,7 @@ ruby << EOF
 
     class MatchWindow
       def initialize
+        # create match window and set it up
         [
           'silent! botright 1split GoToFile',
           'setlocal bufhidden=delete', # delete buf when no longer displayed
@@ -165,7 +173,12 @@ ruby << EOF
           'setlocal textwidth=0'
         ].each { |command| VIM::command command }
 
-        # global settings (saved and restored using Settings class)
+        # sanity check: make sure the buffer really was created
+        raise "Can't find buffer" unless $curbuf.name.match /GoToFile/
+
+        # global settings (must manually save and restore)
+        @settings = Settings.new
+        @settings.save
         VIM::set_option 'timeoutlen=0'
         VIM::set_option 'noinsertmode'
         VIM::set_option 'noshowcmd'
@@ -178,11 +191,21 @@ ruby << EOF
         # VIM::command returns nil, so can't be used to capture highlight info
         #@cursor_highlight = VIM::command('highlight Cursor').sub(/\ACursor\s+xxx\s+/, '')
 
-        @window = $curwin
-        @buffer = $curbuf
         @focus = :prompt
         @selection = nil
         @abbrev = ''
+        @window = $curwin
+        @buffer = $curbuf
+
+        # sanity check
+        #raise @buffer.name
+        #raise "Can't find buffer" unless @buffer.name == 'GoToFile'
+      end
+
+      def close
+        VIM::command "bwipeout! #{@buffer.number}"
+        @settings.restore
+        Prompt.dispose
       end
 
       def toggle_focus
@@ -267,6 +290,7 @@ ruby << EOF
       end
 
     private
+
       def get_number setting
         VIM::evaluate "&#{setting}"
       end
@@ -304,7 +328,9 @@ ruby << EOF
       end
 
       def hide
+        @match_window.close
         @settings.restore
+        #VIM::command "silent b #{}"
       end
 
       def create_match_window
