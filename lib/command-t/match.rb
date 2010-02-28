@@ -32,7 +32,7 @@ module CommandT
       len = str.length
       return (@score = 1.0) if @match.length == len + 1
       @score = 0.0
-      max_score_per_char = 1.0 / len
+      max_score_per_char = 1.0 / (@match.length - 1)
       for i in 1..(@match.length - 1) do
         score_for_char = max_score_per_char
         offset = @match.offset(i).first
@@ -40,14 +40,14 @@ module CommandT
           factor = nil
           case str[offset - 1, 1]
           when '/'
-            factor = 1.0
-          when '-', '_', '0'..'9'
             factor = 0.9
-          when '.'
+          when '-', '_', '0'..'9'
             factor = 0.8
+          when '.'
+            factor = 0.7
           when 'a'..'z'
             if @match[i] =~ /[A-Z]/
-              factor = 0.9
+              factor = 0.8
             end
           end
           if factor.nil?
