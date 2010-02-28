@@ -5,9 +5,12 @@ module CommandT
       @matcher = Matcher.new *@scanner.paths
     end
 
-    # TODO: add :limit => 50
-    # when no search string ret in alph order
-    # when search string ret in score order
+    # Options:
+    #   :limit (integer): limit the number of returned matches
+    def sorted_matches_for str, options = {}
+      @matcher.sorted_matches_for str, options
+    end
+
     def matches_for str
       @matcher.matches_for str
     end
