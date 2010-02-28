@@ -5,7 +5,7 @@ module CommandT
     autoload :Ruby, 'command-t/scanner/ruby'
 
     def self.scanner path = nil
-      Find.new path
+      Ruby.new path
     end
   end # module Scanner
 end # module CommandT
