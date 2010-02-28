@@ -87,12 +87,12 @@ ruby << EOF
   module VIM
     class Window
       def select
-        return if selected?
+        return true if selected?
         initial = $curwin
         while true do
-          VIM::command 'wincmd w'     # cycle through windows
-          break if $curwin == self    # have selected desired window
-          break if $curwin == initial # have already looped through all windows
+          VIM::command 'wincmd w'             # cycle through windows
+          return true if $curwin == self      # have selected desired window
+          return false if $curwin == initial  # have already looped through all
         end
       end
 
@@ -346,8 +346,9 @@ ruby << EOF
       def hide
         @match_window.close
         @settings.restore
-        @initial_window.select
-        VIM::command "silent b #{@initial_buffer.number}"
+        if @initial_window.select
+          VIM::command "silent b #{@initial_buffer.number}"
+        end
       end
 
       def create_match_window
