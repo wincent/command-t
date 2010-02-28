@@ -85,6 +85,22 @@ ruby << EOF
   end # module Screen
 
   module VIM
+    class Window
+      def self.select window
+        return if window.selected?
+        initial = $curwin
+        while true do
+          VIM::command 'wincmd w'     # cycle through windows
+          break if $curwin == window  # have selected desired window
+          break if $curwin == initial # have already looped through all windows
+        end
+      end
+
+      def selected?
+        $curwin == self
+      end
+    end # class Window
+
     def self.has_syntax?
       VIM.evaluate('has("syntax")') != '0'
     end
@@ -330,7 +346,8 @@ ruby << EOF
       def hide
         @match_window.close
         @settings.restore
-        #VIM::command "silent b #{}"
+        VIM::Window.select @initial_window
+        VIM::command "silent b #{@initial_buffer.number}"
       end
 
       def create_match_window
