@@ -92,6 +92,12 @@ ruby << EOF
     def self.pwd
       VIM.evaluate('getcwd()')
     end
+
+    # Escape a string for safe inclusion in a Vim single-quoted string
+    # (single quotes escaped by doubling, everything else is literal)
+    def self.escape_for_single_quotes str
+      str.gsub "'", "''"
+    end
   end
 
   module CommandT
@@ -111,10 +117,12 @@ ruby << EOF
 
       def add! char
         @abbrev += char
+        redraw
       end
 
       def backspace!
         @abbrev.chop!
+        redraw
       end
 
       def redraw
@@ -132,6 +140,7 @@ ruby << EOF
         # after our echo commands
         VIM::command 'redraw'
         while (highlight = args.shift) and  (text = args.shift) do
+          text = VIM::escape_for_single_quotes text
           VIM::command "echohl #{highlight}"
           VIM::command "echon '#{text}'"
         end
@@ -299,7 +308,7 @@ ruby << EOF
       end
 
       def create_match_window
-        MatchWindow.new
+        @match_window = MatchWindow.new
       end
 
       def show_prompt
@@ -313,10 +322,16 @@ ruby << EOF
       end
 
       def register_for_key_presses
-        'abcdefghijklmnopqrstuvwxyz' +
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-        '0123456789!"$%&/()=?\\\'{}[] '.each_byte do |b|
+        # "normal" keys (interpreted literally)
+        numbers     = ('0'..'9').to_a.join
+        lowercase   = ('a'..'z').to_a.join
+        uppercase   = lowercase.upcase
+        punctuation = '<>`@#~!"$%&/()=+*-_.,;:?\\\'{}[] ' # and space
+        (numbers + lowercase + uppercase + punctuation).each_byte do |b|
           map "<Char-#{b}>", 'KeyPressed', b
+        end
+
+        # "special" keys
         map '<BS>',   'BackspacePressed'
         map '<CR>',   'AcceptSelection'
         # TODO: maps for opening in split windows, tabs etc
@@ -327,15 +342,15 @@ ruby << EOF
         map '<C-p>',  'SelectPrev'
         map '<Down>', 'SelectNext'
         map '<Up>',   'SelectPrev'
-        end
       end
 
       def key_pressed
-        key = VIM::evaluate('a:arg').to_i
-        # add key.char to prompt text
+        key = VIM::evaluate('a:arg').to_i.chr
+        @prompt.add! key
       end
 
       def backspace_pressed
+        @prompt.backspace!
       end
 
       def accept_selection
