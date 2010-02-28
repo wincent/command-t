@@ -25,7 +25,13 @@ module CommandT
     def sorted_matches_for str, options = {}
       matches = matches_for str
       unless str.empty? # override alphabetical sorting
-        matches = matches.sort { |a, b| (a.score <=> b.score) * -1 }
+        matches = matches.sort do |a, b|
+          comp = (a.score <=> b.score) * -1
+          if comp == 0
+            comp = (a.to_s <=> b.to_s)
+          end
+          comp
+        end
       end
       limit = options[:limit] || 0
       if matches.length < limit or limit == 0

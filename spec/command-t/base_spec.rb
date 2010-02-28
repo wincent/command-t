@@ -56,7 +56,7 @@ describe CommandT::Base do
       @base.sorted_matches_for('ba').should == ['bar/abc', 'bar/xyz', 'baz',
         'foo/beta']
       @base.sorted_matches_for('a').should == ['foo/alpha/t1',
-        'foo/alpha/t2', 'bar/abc', 'baz', 'bar/xyz', 'foo/beta']
+        'foo/alpha/t2', 'bar/abc', 'bar/xyz', 'baz', 'foo/beta']
     end
 
     it 'should obey the :limit option for empty search strings'
