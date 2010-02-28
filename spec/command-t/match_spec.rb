@@ -92,6 +92,18 @@ describe CommandT::Match do
       special_match = match_for('./fooBar', 'b')
       special_match.score.should > normal_match.score
     end
+
+    it 'should prioritize matches earlier in the string' do
+      early_match = match_for('**b*****', 'b')
+      late_match  = match_for('******b*', 'b')
+      early_match.score.should > late_match.score
+    end
+
+    it 'should prioritize matches closer to previous matches' do
+      early_match = match_for('**bc****', 'bc')
+      late_match  = match_for('**b***c*', 'bc')
+      early_match.score.should > late_match.score
+    end
   end
 
   describe 'to_s method' do

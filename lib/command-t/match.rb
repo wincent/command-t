@@ -37,7 +37,7 @@ module CommandT
         score_for_char = max_score_per_char
         offset = @match.offset(i).first
         if offset > 0
-          factor = 0.5
+          factor = nil
           case str[offset - 1, 1]
           when '/'
             factor = 1.0
@@ -50,7 +50,15 @@ module CommandT
               factor = 0.9
             end
           end
-          # TODO: apply weighting according to position in string
+          if factor.nil?
+            # factor falls the farther we are from last matched char
+            if i > 1
+              distance = offset - @match.offset(i - 1).first
+              factor = 1.0 / distance
+            else
+              factor = 1.0 / (offset + 1)
+            end
+          end
           score_for_char *= factor
         end
         @score += score_for_char
