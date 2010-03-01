@@ -274,8 +274,9 @@ ruby << EOF
         unlock
         clear
         match_count = @matches.length
+        actual_lines = 1
         if match_count == 0
-          @window.height = 1
+          @window.height = actual_lines
           @buffer[1] = '-- NO MATCHES --' # TODO: use syntax highlighting for this
         else
           max_lines = Screen.lines - 5
@@ -290,6 +291,11 @@ ruby << EOF
               @buffer.append line - 1, prefix + @matches[line -1]
             end
           end
+        end
+
+        # delete excess lines
+        (actual_lines..@buffer.count).each do |line|
+          @buffer.delete line
         end
         lock
       end
