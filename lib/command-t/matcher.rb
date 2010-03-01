@@ -37,7 +37,7 @@ module CommandT
       if matches.length < limit or limit == 0
         return matches.map { |m| m.to_s }
       end
-      matches[0..limit].map { |m| m.to_s }
+      matches[0..limit-1].map { |m| m.to_s }
     end
 
     # Returns an array of Match objects.

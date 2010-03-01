@@ -59,7 +59,13 @@ describe CommandT::Base do
         'foo/alpha/t2', 'bar/abc', 'bar/xyz', 'baz', 'foo/beta']
     end
 
-    it 'should obey the :limit option for empty search strings'
-    it 'should obey the :limit option for non-empty search strings'
+    it 'should obey the :limit option for empty search strings' do
+      @base.sorted_matches_for('', :limit => 2).should == ['bar/abc', 'bar/xyz']
+    end
+
+    it 'should obey the :limit option for non-empty search strings' do
+      @base.sorted_matches_for('a', :limit => 3).should == ['foo/alpha/t1',
+        'foo/alpha/t2', 'bar/abc']
+    end
   end
 end
