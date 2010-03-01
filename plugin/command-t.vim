@@ -354,9 +354,12 @@ ruby << EOF
       def initialize
         @settings = Settings.new
         @prompt = Prompt.new
+        @scanner = CommandT::Base.new
       end
 
       def show
+        @scanner.path = VIM::pwd
+
         @initial_window = $curwin
         @initial_buffer = $curbuf
         @settings.save
