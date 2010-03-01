@@ -227,8 +227,6 @@ ruby << EOF
 
         # syntax coloring
         if VIM::has_syntax?
-          # would be nice if we could highlight the selection right up to the
-          # end of the window but unfortunately cannot
           VIM::command 'syntax match CommandTSelection "^> .\+$" '
           VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
           VIM::command 'highlight link CommandTSelection Search'
@@ -285,20 +283,28 @@ ruby << EOF
         clear
         match_count = @matches.length
         actual_lines = 1
+        width = @window.width
         if match_count == 0
           @window.height = actual_lines
-          @buffer[1] = '-- NO MATCHES --' # TODO: use syntax highlighting for this
+          @buffer[1] = '-- NO MATCHES --'
         else
           max_lines = Screen.lines - 5
           max_lines = 1 if max_lines < 0
           actual_lines = match_count > max_lines ? max_lines : match_count
           @window.height = actual_lines
           (1..actual_lines).each do |line|
-            prefix = (line - 1 == @selection) ? '> ' : '  '
-            if @buffer.count >= line
-              @buffer[line] = prefix + @matches[line - 1]
+            match = @matches[line - 1]
+            if (line - 1 == @selection)
+              prefix = '> '
+              suffix = (match.length > width) ? '' : ' ' * (width - match.length)
             else
-              @buffer.append line - 1, prefix + @matches[line -1]
+              prefix = '  '
+              suffix = ''
+            end
+            if @buffer.count >= line
+              @buffer[line] = prefix + match + suffix
+            else
+              @buffer.append line - 1, prefix + match + suffix
             end
           end
         end
