@@ -66,7 +66,9 @@ describe CommandT::Matcher do
       matches = @path.matches_for('f')
       matches.map { |m| m.to_s }.should == ['./Foo']
     end
+  end
 
+  describe 'sorted_matches_for method' do
     it 'should return matches in score order'
     it 'should return matches in alphabetical order if no search string is supplied'
   end
