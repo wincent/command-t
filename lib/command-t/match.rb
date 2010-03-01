@@ -20,7 +20,7 @@ module CommandT
     #   - matched characters appear closer to the start of the nearest
     #     path component
     #   - matched characters appear immediately after special "boundary"
-    #     characters such as "/", "_", "-" and "."
+    #     characters such as "/", "_", "-", "." and " "
     #   - matched characters are uppercase letters immediately after
     #     lowercase letters of numbers
     #   - matched characters are lowercase letters immediately after
@@ -41,7 +41,7 @@ module CommandT
           case str[offset - 1, 1]
           when '/'
             factor = 0.9
-          when '-', '_', '0'..'9'
+          when '-', '_', ' ', '0'..'9'
             factor = 0.8
           when '.'
             factor = 0.7

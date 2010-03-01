@@ -46,6 +46,11 @@ describe CommandT::Match do
       normal_match = match_for('./foo.bar', 'b')
       special_match = match_for('./foo/bar', 'b')
       special_match.score.should > normal_match.score
+
+      # and spaces
+      normal_match = match_for('./foo bar', 'b')
+      special_match = match_for('./foo/bar', 'b')
+      special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matches after "-"' do
@@ -67,6 +72,17 @@ describe CommandT::Match do
       # _ also beats .
       normal_match = match_for('./foo.bar', 'b')
       special_match = match_for('./foo_bar', 'b')
+      special_match.score.should > normal_match.score
+    end
+
+    it 'should prioritize matches after " "' do
+      normal_match = match_for('./fooobar', 'b')
+      special_match = match_for('./foo bar', 'b')
+      special_match.score.should > normal_match.score
+
+      # " " also beats .
+      normal_match = match_for('./foo.bar', 'b')
+      special_match = match_for('./foo bar', 'b')
       special_match.score.should > normal_match.score
     end
 
