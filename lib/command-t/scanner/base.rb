@@ -1,6 +1,6 @@
 module CommandT
   module Scanner
-    # Common methods to be inhertied by concrete subclasses.
+    # Common methods to be inherited by concrete subclasses.
     class Base
       def flush
         @paths = nil
