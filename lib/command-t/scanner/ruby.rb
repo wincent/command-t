@@ -43,6 +43,8 @@ module CommandT
             end
           end
         end
+      rescue Errno::EACCES
+        # skip over directories for which we don't have access
       end
     end # class Ruby
   end # module Scanner
