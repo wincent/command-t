@@ -1,7 +1,5 @@
 module CommandT
   class Matcher
-    attr_accessor :paths
-
     # Turn a search string like:
     #
     #   foo
@@ -27,8 +25,9 @@ module CommandT
         Regexp::IGNORECASE)
     end
 
-    def initialize *paths
-      @paths = paths
+    def initialize scanner
+      raise ArgumentError.new('nil scanner') if scanner.nil?
+      @scanner = scanner
     end
 
     # Unlike the matches_for method, sorted_matches_for returns an
@@ -57,7 +56,7 @@ module CommandT
       raise ArgumentError.new('nil str') if str.nil?
       regexp = self.class.regexp_for str
       matches = []
-      @paths.each do |path|
+      @scanner.paths.each do |path|
         match = path.match(regexp)
         matches << Match.new(match) unless match.nil?
       end
