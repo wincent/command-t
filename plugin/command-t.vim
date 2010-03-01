@@ -226,6 +226,16 @@ ruby << EOF
         VIM::set_option 'sidescrolloff=0'
 
         # syntax coloring
+        if VIM::has_syntax?
+          # would be nice if we could highlight the selection right up to the
+          # end of the window but unfortunately cannot
+          VIM::command 'syntax match CommandTSelection "^> .\+$" '
+          VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
+          VIM::command 'highlight link CommandTSelection Search'
+          VIM::command 'highlight link CommandTNoEntries Error'
+        end
+
+        # hide cursor
         @cursor_highlight = get_cursor_highlight
         hide_cursor
 
