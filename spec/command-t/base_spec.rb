@@ -15,29 +15,6 @@ describe CommandT::Base do
     ]
   end
 
-  describe 'matches_for method' do
-    it 'should return an empty array when no matches' do
-      @base.matches_for('kung foo fighting').should == []
-    end
-
-    it 'should return all files when query string is empty' do
-      matches = @base.matches_for('')
-      matches.map { |m| m.to_s }.should == @all_fixtures
-    end
-
-    it 'should return files in alphabetical order when query string is empty' do
-      matches = @base.matches_for('')
-      matches = matches.map { |m| m.to_s }
-      matches.should == matches.sort
-    end
-
-    it 'should return matching files' do
-      matches = @base.matches_for('ba')
-      matches.map { |m| m.to_s}.should == ['bar/abc', 'bar/xyz', 'baz',
-        'foo/beta']
-    end
-  end
-
   describe 'sorted_matches_for method' do
     it 'should return an empty array when no matches' do
       @base.sorted_matches_for('kung foo fighting').should == []
