@@ -7,8 +7,10 @@ module CommandT
       end
 
       def path= str
-        @path = str
-        flush
+        if @path != str
+          @path = str
+          flush
+        end
       end
     end # class AbstractScanner
   end # module Scanner
