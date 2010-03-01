@@ -294,7 +294,7 @@ ruby << EOF
         end
 
         # delete excess lines
-        (actual_lines..@buffer.count).each do |line|
+        while (line = @buffer.count) > actual_lines do
           @buffer.delete line
         end
         lock
