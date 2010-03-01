@@ -283,10 +283,11 @@ ruby << EOF
           actual_lines = match_count > max_lines ? max_lines : match_count
           @window.height = actual_lines
           (1..actual_lines).each do |line|
+            prefix = (line - 1 == @selection) ? '> ' : '  '
             if @buffer.count >= line
-              @buffer[line] = @matches[line - 1]
+              @buffer[line] = prefix + @matches[line - 1]
             else
-              @buffer.append line - 1, @matches[line -1]
+              @buffer.append line - 1, prefix + @matches[line -1]
             end
           end
         end
