@@ -398,6 +398,33 @@ ruby << EOF
         end
       end
 
+      def key_pressed
+        key = VIM::evaluate('a:arg').to_i.chr
+        @prompt.add! key
+      end
+
+      def backspace_pressed
+        @prompt.backspace!
+      end
+
+      def accept_selection
+      end
+
+      def toggle_focus
+      end
+
+      def cancel
+        hide
+      end
+
+      def select_next
+      end
+
+      def select_prev
+      end
+
+    private
+
       def create_match_window
         @match_window = MatchWindow.new
       end
@@ -433,31 +460,6 @@ ruby << EOF
         map '<C-p>',  'SelectPrev'
         map '<Down>', 'SelectNext'
         map '<Up>',   'SelectPrev'
-      end
-
-      def key_pressed
-        key = VIM::evaluate('a:arg').to_i.chr
-        @prompt.add! key
-      end
-
-      def backspace_pressed
-        @prompt.backspace!
-      end
-
-      def accept_selection
-      end
-
-      def toggle_focus
-      end
-
-      def cancel
-        hide
-      end
-
-      def select_next
-      end
-
-      def select_prev
       end
     end # class Controller
   end # module commandT
