@@ -374,7 +374,6 @@ ruby << EOF
 
     class Controller
       def initialize
-        @settings = Settings.new
         @prompt = Prompt.new
         @scanner = CommandT::Base.new
       end
@@ -384,15 +383,13 @@ ruby << EOF
 
         @initial_window = $curwin
         @initial_buffer = $curbuf
-        @settings.save
         create_match_window
         register_for_key_presses
         show_prompt
       end
 
       def hide
-        @match_window.close
-        @settings.restore
+        destroy_match_window
         if @initial_window.select
           VIM::command "silent b #{@initial_buffer.number}"
         end
@@ -427,6 +424,10 @@ ruby << EOF
 
       def create_match_window
         @match_window = MatchWindow.new
+      end
+
+      def destroy_match_window
+        @match_window.close
       end
 
       def show_prompt
