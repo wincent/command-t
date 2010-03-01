@@ -204,24 +204,21 @@ ruby << EOF
         VIM::set_option 'sidescrolloff=0'
 
         # syntax coloring
-        # VIM::command returns nil, so can't be used to capture highlight info
-        #@cursor_highlight = VIM::command('highlight Cursor').sub(/\ACursor\s+xxx\s+/, '')
+        @cursor_highlight = get_cursor_highlight
+        hide_cursor
 
         @focus = :prompt
         @selection = nil
         @abbrev = ''
         @window = $curwin
         @buffer = $curbuf
-
-        # sanity check
-        #raise @buffer.name
-        #raise "Can't find buffer" unless @buffer.name == 'GoToFile'
       end
 
       def close
         VIM::command "bwipeout! #{@buffer.number}"
         @settings.restore
         Prompt.dispose
+        show_cursor
       end
 
       def toggle_focus
@@ -251,13 +248,38 @@ ruby << EOF
         VIM::command 'silent %d _'
       end
 
+      def get_cursor_highlight
+        # as :highlight returns nothing and only prints,
+        # must redirect its output to a variable
+        VIM::command 'silent redir => g:command_t_cursor_highlight'
+
+        # force 0 verbosity to ensure origin information isn't printed as well
+        VIM::command 'silent 0verbose highlight Cursor'
+        VIM::command 'silent redir END'
+
+        # there are 3 possible formats to check for, each needing to be
+        # transformed in a certain way in order to reapply the highlight:
+        #   Cursor xxx guifg=bg guibg=fg      -> :hi! Cursor guifg=bg guibg=fg
+        #   Cursor xxx links to SomethingElse -> :hi! link Cursor SomethingElse
+        #   Cursor xxx cleared                -> :hi! clear Cursor
+        highlight = VIM::evaluate 'g:command_t_cursor_highlight'
+        if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/
+          "link Cursor #{$~[1]}"
+        elsif highlight =~ /^Cursor\s+xxx\s+cleared/
+          'clear Cursor'
+        elsif highlight =~ /Cursor\s+xxx\s+(.+)/
+          "Cursor #{$~[1]}"
+        else # last resort fallback
+          'Cursor guifg=bg guibg=fg'
+        end
+      end
+
       def hide_cursor
-        VIM::command 'highlight Cursor NONE'
+        VIM::command 'highlight! Cursor NONE'
       end
 
       def show_cursor
-        #VIM::command "highlight Cursor #{@cursor_highlight}"
-        VIM::command 'highlight Cursor guibg=fg guifg=bg'
+        VIM::command "highlight! #{@cursor_highlight}"
       end
 
       def lock
