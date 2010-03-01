@@ -3,9 +3,21 @@ module CommandT
     attr_accessor :paths
 
     # Turn a search string like:
+    #
     #   foo
+    #
     # Into a regular expression like:
+    #
     #   /\A.*?(f).*?(o).*?(o).*?\z/i
+    #
+    # We use capturing parentheses so that we can look at the offsets in the
+    # match data and assign a score based on the position within the string.
+    #
+    # We use non-greedy globs so that higher scoring matches (further to the
+    # left) will be selected if they exist.
+    #
+    # For empty search strings we just return /.*/ so as to slurp up the entire
+    # string.
     def self.regexp_for str
       raise ArgumentError.new('nil str') if str.nil?
       return /.*/ if str.empty?
