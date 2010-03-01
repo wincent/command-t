@@ -253,15 +253,45 @@ ruby << EOF
 
       def add! char
         @abbrev += char
-        relist
       end
 
       def backspace!
         @abbrev.chop!
-        relist
+      end
+
+      def matches= matches
+        if matches != @matches
+          @matches =  matches
+          @selection = 0
+          print_matches
+        end
       end
 
       private
+
+      def print_matches
+        return unless Window.select(@window)
+        unlock
+        clear
+        match_count = @matches.length
+        if match_count == 0
+          @window.height = 1
+          @buffer[1] = '-- NO MATCHES --' # TODO: use syntax highlighting for this
+        else
+          max_lines = Screen.lines - 5
+          max_lines = 1 if max_lines < 0
+          actual_lines = match_count > max_lines ? max_lines : match_count
+          @window.height = actual_lines
+          (1..actual_lines).each do |line|
+            if @buffer.count >= line
+              @buffer[line] = @matches[line - 1]
+            else
+              @buffer.append line - 1, @matches[line -1]
+            end
+          end
+        end
+        lock
+      end
 
       def clear
         # range = % (whole buffer)
@@ -310,10 +340,6 @@ ruby << EOF
 
       def unlock
         VIM::command 'setlocal modifiable'
-      end
-
-      def relist
-        # update path list for new abbreviation
       end
 
       def focus_results
@@ -380,12 +406,12 @@ ruby << EOF
 
       def show
         @scanner.path = VIM::pwd
-
         @initial_window = $curwin
         @initial_buffer = $curbuf
         create_match_window
         register_for_key_presses
         show_prompt
+        list_matches
       end
 
       def hide
@@ -398,10 +424,12 @@ ruby << EOF
       def key_pressed
         key = VIM::evaluate('a:arg').to_i.chr
         @prompt.add! key
+        list_matches
       end
 
       def backspace_pressed
         @prompt.backspace!
+        list_matches
       end
 
       def accept_selection
@@ -461,6 +489,18 @@ ruby << EOF
         map '<C-p>',  'SelectPrev'
         map '<Down>', 'SelectNext'
         map '<Up>',   'SelectPrev'
+      end
+
+      # Returns the desired maximum number of matches, based on available
+      # vertical space.
+      def match_limit
+        limit = Screen.lines - 5
+        limit < 0 ? 1 : limit
+      end
+
+      def list_matches
+        matches = @scanner.sorted_matches_for @prompt.abbrev, :limit => match_limit
+        @match_window.matches = matches
       end
     end # class Controller
   end # module commandT
