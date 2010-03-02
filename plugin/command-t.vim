@@ -205,6 +205,10 @@ ruby << EOF
     end # class Prompt
 
     class MatchWindow
+      @@selection_marker  = '> '
+      @@marker_length     = @@selection_marker.length
+      @@unselected_marker = ' ' * @@marker_length
+
       def initialize
         # create match window and set it up
         [
@@ -238,7 +242,7 @@ ruby << EOF
 
         # syntax coloring
         if VIM::has_syntax?
-          VIM::command 'syntax match CommandTSelection "^> .\+$" '
+          VIM::command "syntax match CommandTSelection \"^#{@@selection_marker}.\\+$\""
           VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
           VIM::command 'highlight link CommandTSelection Visual'
           VIM::command 'highlight link CommandTNoEntries Error'
@@ -306,10 +310,10 @@ ruby << EOF
           (1..actual_lines).each do |line|
             match = truncated_match @matches[line - 1]
             if (line - 1 == @selection)
-              prefix = '> '
+              prefix = @@selection_marker
               suffix = padding_for_selected_match match
             else
-              prefix = '  '
+              prefix = @@unselected_marker
               suffix = ''
             end
             if @buffer.count >= line
@@ -331,10 +335,10 @@ ruby << EOF
       # highlighting extends all the way to the right edge of the window.
       def padding_for_selected_match str
         len = str.length
-        if len >= @window_width - 2
+        if len >= @window_width - @@marker_length
           ''
         else
-          ' ' * (@window_width - 2 - len)
+          ' ' * (@window_width - @@marker_length - len)
         end
       end
 
@@ -342,7 +346,7 @@ ruby << EOF
       # window width.
       def truncated_match str
         len = str.length
-        available_width = @window_width - 2
+        available_width = @window_width - @@marker_length
         return str if len <= available_width
         left = (available_width / 2) - 1
         right = (available_width / 2) - 2 + (available_width % 2)
