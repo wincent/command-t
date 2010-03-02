@@ -282,6 +282,26 @@ ruby << EOF
         @abbrev.chop!
       end
 
+      def select_next
+        if @selection < @matches.length - 1
+          @selection += 1
+          print_match(@selection - 1) # redraw old selection (removes marker)
+          print_match(@selection)     # redraw new selection (adds marker)
+        else
+          # loop or scroll
+        end
+      end
+
+      def select_prev
+        if @selection > 0
+          @selection -= 1
+          print_match(@selection)     # redraw new selection (adds marker)
+          print_match(@selection + 1) # redraw old selection (removes marker)
+        else
+          # loop or scroll
+        end
+      end
+
       def matches= matches
         if matches != @matches
           @matches =  matches
@@ -292,6 +312,23 @@ ruby << EOF
 
       private
 
+      # Print just the specified match.
+      def print_match idx
+        return unless Window.select(@window)
+        unlock
+        match = truncated_match @matches[idx]
+        if idx == @selection
+          prefix = @@selection_marker
+          suffix = padding_for_selected_match match
+        else
+          prefix = @@unselected_marker
+          suffix = ''
+        end
+        @buffer[idx + 1] = prefix + match + suffix
+        lock
+      end
+
+      # Print all matches.
       def print_matches
         return unless Window.select(@window)
         unlock
@@ -514,9 +551,11 @@ ruby << EOF
       end
 
       def select_next
+        @match_window.select_next
       end
 
       def select_prev
+        @match_window.select_prev
       end
 
     private
