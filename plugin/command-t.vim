@@ -213,17 +213,17 @@ ruby << EOF
         # create match window and set it up
         [
           'silent! botright 1split GoToFile',
-          'setlocal bufhidden=delete', # delete buf when no longer displayed
-          'setlocal buftype=nofile', # buffer is not related to any file
-          'setlocal nomodifiable',
-          'setlocal noswapfile',
-          'setlocal nowrap',
-          'setlocal nonumber',
-          'setlocal foldcolumn=0',
-          'setlocal nocursorline',
-          'setlocal nospell',
-          'setlocal nobuflisted', # don't show up in the buffer list
-          'setlocal textwidth=0'
+          'setlocal bufhidden=delete',  # delete buf when no longer displayed
+          'setlocal buftype=nofile',    # buffer is not related to any file
+          'setlocal nomodifiable',      # prevent manual edits
+          'setlocal noswapfile',        # don't create a swapfile
+          'setlocal nowrap',            # don't soft-wrap
+          'setlocal nonumber',          # don't show line numbers
+          'setlocal foldcolumn=0',      # don't show a fold column at side
+          'setlocal nocursorline',      # don't highlight line cursor is on
+          'setlocal nospell',           # spell-checking off
+          'setlocal nobuflisted',       # don't show up in the buffer list
+          'setlocal textwidth=0'        # don't hard-wrap (break long lines)
         ].each { |command| VIM::command command }
 
         # sanity check: make sure the buffer really was created
@@ -232,13 +232,13 @@ ruby << EOF
         # global settings (must manually save and restore)
         @settings = Settings.new
         @settings.save
-        VIM::set_option 'timeoutlen=0'
-        VIM::set_option 'noinsertmode'
-        VIM::set_option 'noshowcmd'
-        VIM::set_option 'nolist'
-        VIM::set_option 'report=9999'
-        VIM::set_option 'sidescroll=0'
-        VIM::set_option 'sidescrolloff=0'
+        VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
+        VIM::set_option 'noinsertmode'    # don't make Insert mode the default
+        VIM::set_option 'noshowcmd'       # don't show command info on last line
+        VIM::set_option 'nolist'          # don't use List mode (visible tabs etc)
+        VIM::set_option 'report=9999'     # don't show "X lines changed" reports
+        VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
+        VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
 
         # syntax coloring
         if VIM::has_syntax?
