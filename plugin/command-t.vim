@@ -349,6 +349,7 @@ ruby << EOF
         @settings = Settings.new
         @settings.save
         VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
+        VIM::set_option 'nohlsearch'      # don't highlight search strings
         VIM::set_option 'noinsertmode'    # don't make Insert mode the default
         VIM::set_option 'noshowcmd'       # don't show command info on last line
         VIM::set_option 'nolist'          # don't use List mode (visible tabs etc)
@@ -578,6 +579,7 @@ ruby << EOF
         @sidescroll     = get_number 'sidescroll'
         @sidescrolloff  = get_number 'sidescrolloff'
         @splitbelow     = get_bool 'splitbelow'
+        @hlsearch       = get_bool 'hlsearch'
         @insertmode     = get_bool 'insertmode'
         @showcmd        = get_bool 'showcmd'
         @list           = get_bool 'list'
@@ -589,6 +591,7 @@ ruby << EOF
         set_number 'sidescroll', @sidescroll
         set_number 'sidescrolloff', @sidescrolloff
         set_bool 'splitbelow', @splitbelow
+        set_bool 'hlsearch', @hlsearch
         set_bool 'insertmode', @insertmode
         set_bool 'showcmd', @showcmd
         set_bool 'list', @list
