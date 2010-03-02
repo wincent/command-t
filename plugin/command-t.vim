@@ -77,6 +77,10 @@ function! CommandTBackspacePressed()
   ruby $command_t.backspace_pressed
 endfunction
 
+function! CommandTDeletePressed()
+  ruby $command_t.delete_pressed
+endfunction
+
 function! CommandTAcceptSelection()
   ruby $command_t.accept_selection
 endfunction
@@ -186,6 +190,7 @@ ruby << EOF
         redraw
       end
 
+      # Insert a character at (before) the current cursor position.
       def add! char
         left, cursor, right = abbrev_segments
         @abbrev = left + char + cursor + right
@@ -193,11 +198,21 @@ ruby << EOF
         redraw
       end
 
+      # Delete a character to the left of the current cursor position.
       def backspace!
         if @col > 0
           left, cursor, right = abbrev_segments
           @abbrev = left.chop! + cursor + right
           @col -= 1
+          redraw
+        end
+      end
+
+      # Delete a character at the current cursor position.
+      def delete!
+        if @col < @abbrev.length
+          left, cursor, right = abbrev_segments
+          @abbrev = left + right
           redraw
         end
       end
@@ -586,6 +601,11 @@ ruby << EOF
         list_matches
       end
 
+      def delete_pressed
+        @prompt.delete!
+        list_matches
+      end
+
       def accept_selection
       end
 
@@ -645,6 +665,7 @@ ruby << EOF
 
         # "special" keys
         map '<BS>',     'BackspacePressed'
+        map '<Del>',    'DeletePressed'
         map '<CR>',     'AcceptSelection'
         # TODO: maps for opening in split windows, tabs etc
         map '<Tab>',    'ToggleFocus'
