@@ -312,10 +312,7 @@ ruby << EOF
 
       private
 
-      # Print just the specified match.
-      def print_match idx
-        return unless Window.select(@window)
-        unlock
+      def match_text_for_idx idx
         match = truncated_match @matches[idx]
         if idx == @selection
           prefix = @@selection_marker
@@ -324,7 +321,14 @@ ruby << EOF
           prefix = @@unselected_marker
           suffix = ''
         end
-        @buffer[idx + 1] = prefix + match + suffix
+        prefix + match + suffix
+      end
+
+      # Print just the specified match.
+      def print_match idx
+        return unless Window.select(@window)
+        unlock
+        @buffer[idx + 1] = match_text_for_idx idx
         lock
       end
 
@@ -345,18 +349,11 @@ ruby << EOF
           actual_lines = match_count > max_lines ? max_lines : match_count
           @window.height = actual_lines
           (1..actual_lines).each do |line|
-            match = truncated_match @matches[line - 1]
-            if (line - 1 == @selection)
-              prefix = @@selection_marker
-              suffix = padding_for_selected_match match
-            else
-              prefix = @@unselected_marker
-              suffix = ''
-            end
+            idx = line - 1
             if @buffer.count >= line
-              @buffer[line] = prefix + match + suffix
+              @buffer[line] = match_text_for_idx idx
             else
-              @buffer.append line - 1, prefix + match + suffix
+              @buffer.append line - 1, match_text_for_idx(idx)
             end
           end
         end
