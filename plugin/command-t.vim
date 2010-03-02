@@ -182,7 +182,7 @@ ruby << EOF
       def initialize
         @abbrev     = ''  # abbreviation entered so far
         @col        = 0   # cursor position
-        @has_focus  = true
+        @has_focus  = false
       end
 
       # Erase whatever is displayed in the prompt line,
