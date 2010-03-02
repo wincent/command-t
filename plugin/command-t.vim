@@ -323,8 +323,6 @@ ruby << EOF
       @@marker_length     = @@selection_marker.length
       @@unselected_marker = ' ' * @@marker_length
 
-      attr_reader :focus
-
       def initialize options = {}
         @prompt = options[:prompt]
 
