@@ -187,14 +187,16 @@ ruby << EOF
       end
 
       def add! char
-        @abbrev += char
+        left, cursor, right = abbrev_segments
+        @abbrev = left + char + cursor + right
         @col += 1
         redraw
       end
 
       def backspace!
         if @col > 0
-          @abbrev.chop!
+          left, cursor, right = abbrev_segments
+          @abbrev = left.chop! + cursor + right
           @col -= 1
           redraw
         end
