@@ -227,28 +227,28 @@ ruby << EOF
       end
 
       def cursor_left
-        if @col > 0
+        if @col > 0 and @has_focus
           @col -= 1
           redraw
         end
       end
 
       def cursor_right
-        if @col < @abbrev.length
+        if @col < @abbrev.length and @has_focus
           @col += 1
           redraw
         end
       end
 
       def cursor_end
-        if @col < @abbrev.length
+        if @col < @abbrev.length and @has_focus
           @col = @abbrev.length
           redraw
         end
       end
 
       def cursor_start
-        if @col != 0
+        if @col != 0 and @has_focus
           @col = 0
           redraw
         end
