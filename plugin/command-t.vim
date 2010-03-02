@@ -334,6 +334,7 @@ ruby << EOF
           VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
           VIM::command 'highlight link CommandTSelection Visual'
           VIM::command 'highlight link CommandTNoEntries Error'
+          VIM::evaluate 'clearmatches()'
         end
 
         # hide cursor
