@@ -11,6 +11,10 @@ module CommandT
       @matcher.sorted_matches_for str, options
     end
 
+    def flush
+      @scanner.flush
+    end
+
     def path= path
       @scanner.path = path
     end

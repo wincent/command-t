@@ -41,12 +41,23 @@ endif
 let g:command_t_loaded = 1
 
 command CommandT :call <SID>CommandTShow()
+command CommandTFlush :call <SID>CommandTFlush()
 
 nmap <silent> <Leader>t :CommandT<CR>
 
 function! s:CommandTShow()
   if has('ruby')
     ruby $command_t.show
+  else
+    echohl WarningMsg
+    echo "command-t.vim requires Vim to be compiled with Ruby support"
+    echohl none
+  endif
+endfunction
+
+function! s:CommandTFlush()
+  if has('ruby')
+    ruby $command_t.flush
   else
     echohl WarningMsg
     echo "command-t.vim requires Vim to be compiled with Ruby support"
@@ -442,6 +453,10 @@ ruby << EOF
         if @initial_window.select
           VIM::command "silent b #{@initial_buffer.number}"
         end
+      end
+
+      def flush
+        @scanner.flush
       end
 
       def key_pressed
