@@ -113,6 +113,14 @@ function! CommandTCursorRight()
   ruby $command_t.cursor_right
 endfunction
 
+function! CommandTCursorEnd()
+  ruby $command_t.cursor_end
+endfunction
+
+function! CommandTCursorStart()
+  ruby $command_t.cursor_start
+endfunction
+
 ruby << EOF
   begin
     require 'command-t'
@@ -227,6 +235,20 @@ ruby << EOF
       def cursor_right
         if @col < @abbrev.length
           @col += 1
+          redraw
+        end
+      end
+
+      def cursor_end
+        if @col < @abbrev.length
+          @col = @abbrev.length
+          redraw
+        end
+      end
+
+      def cursor_start
+        if @col != 0
+          @col = 0
           redraw
         end
       end
@@ -638,6 +660,14 @@ ruby << EOF
         @prompt.cursor_right
       end
 
+      def cursor_end
+        @prompt.cursor_end
+      end
+
+      def cursor_start
+        @prompt.cursor_start
+      end
+
     private
 
       def create_match_window
@@ -680,6 +710,8 @@ ruby << EOF
         map '<Right>',  'CursorRight'
         map '<C-h>',    'CursorLeft'
         map '<C-l>',    'CursorRight'
+        map '<C-e>',    'CursorEnd'
+        map '<C-a>',    'CursorStart'
       end
 
       # Returns the desired maximum number of matches, based on available
