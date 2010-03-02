@@ -97,6 +97,10 @@ function! CommandTSelectPrev()
   ruby $command_t.select_prev
 endfunction
 
+function! CommandTClear()
+  ruby $command_t.clear
+endfunction
+
 ruby << EOF
   begin
     require 'command-t'
@@ -169,6 +173,7 @@ ruby << EOF
       # Clear any entered text.
       def clear!
         @abbrev = ''
+        redraw
       end
 
       def add! char
@@ -510,8 +515,7 @@ ruby << EOF
         @initial_buffer = $curbuf
         create_match_window
         register_for_key_presses
-        show_prompt
-        list_matches
+        clear # clear prompt and list matches
       end
 
       def hide
@@ -555,6 +559,11 @@ ruby << EOF
         @match_window.select_prev
       end
 
+      def clear
+        @prompt.clear!
+        list_matches
+      end
+
     private
 
       def create_match_window
@@ -563,11 +572,6 @@ ruby << EOF
 
       def destroy_match_window
         @match_window.close
-      end
-
-      def show_prompt
-        @prompt.clear!
-        @prompt.redraw
       end
 
       def map key, function, param = nil
@@ -596,6 +600,7 @@ ruby << EOF
         map '<C-p>',  'SelectPrev'
         map '<Down>', 'SelectNext'
         map '<Up>',   'SelectPrev'
+        map '<C-u>',  'Clear'
       end
 
       # Returns the desired maximum number of matches, based on available
