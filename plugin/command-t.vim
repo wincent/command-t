@@ -215,22 +215,29 @@ ruby << EOF
       end
 
       def redraw
-        # abbrev is divided up into 3 sections:
-        #   - left segment (to left of cursor)
-        #   - cursor segment (character at cursor)
-        #   - right segment (to right of cursor)
-        left    = @abbrev[0, @col]        # may be empty
-        cursor  = @abbrev[@col, 1]        # may be empty
-        right   = @abbrev[(@col + 1)..-1] # may be nil or empty
+        left, cursor, right = abbrev_segments
         components = ['Comment', '>>', 'None', ' ']
         components += ['None', left] unless left.empty?
         components += ['Underlined', cursor] unless cursor.empty?
-        components += ['None', right] unless right.nil? || right.empty?
+        components += ['None', right] unless right.empty?
         components += ['Underlined', ' '] if cursor.empty?
         set_status *components
       end
 
     private
+
+      # Returns the @abbrev string divided up into three sections, any of
+      # which may actually be zero width, depending on the location of the
+      # cursor:
+      #   - left segment (to left of cursor)
+      #   - cursor segment (character at cursor)
+      #   - right segment (to right of cursor)
+      def abbrev_segments
+        left    = @abbrev[0, @col]
+        cursor  = @abbrev[@col, 1]
+        right   = @abbrev[(@col + 1)..-1] || ''
+        [left, cursor, right]
+      end
 
       def set_status *args
         # see ':help :echo' for why forcing a redraw here helps
