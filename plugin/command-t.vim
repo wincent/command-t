@@ -179,16 +179,16 @@ ruby << EOF
     class Prompt
       attr_accessor :abbrev
 
-      # Erase whatever is displayed in the prompt line,
-      # effectively disposing of the prompt
-      def self.dispose
-        VIM::command 'echo'
-        VIM::command 'redraw'
-      end
-
       def initialize
         @abbrev = ''  # abbreviation entered so far
         @col    = 0   # cursor position
+      end
+
+      # Erase whatever is displayed in the prompt line,
+      # effectively disposing of the prompt
+      def dispose
+        VIM::command 'echo'
+        VIM::command 'redraw'
       end
 
       # Clear any entered text.
@@ -297,7 +297,11 @@ ruby << EOF
       @@marker_length     = @@selection_marker.length
       @@unselected_marker = ' ' * @@marker_length
 
-      def initialize
+      attr_reader :focus
+
+      def initialize options = {}
+        @prompt = options[:prompt]
+
         # create match window and set it up
         [
           'silent! botright 1split GoToFile',
@@ -351,7 +355,7 @@ ruby << EOF
       def close
         VIM::command "bwipeout! #{@buffer.number}"
         @settings.restore
-        Prompt.dispose
+        @prompt.dispose
         show_cursor
       end
 
@@ -672,7 +676,7 @@ ruby << EOF
     private
 
       def create_match_window
-        @match_window = MatchWindow.new
+        @match_window = MatchWindow.new :prompt => @prompt
       end
 
       def destroy_match_window
