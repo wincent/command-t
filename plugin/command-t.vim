@@ -201,15 +201,17 @@ ruby << EOF
 
       # Insert a character at (before) the current cursor position.
       def add! char
-        left, cursor, right = abbrev_segments
-        @abbrev = left + char + cursor + right
-        @col += 1
-        redraw
+        if @has_focus
+          left, cursor, right = abbrev_segments
+          @abbrev = left + char + cursor + right
+          @col += 1
+          redraw
+        end
       end
 
       # Delete a character to the left of the current cursor position.
       def backspace!
-        if @col > 0
+        if @col > 0 and @has_focus
           left, cursor, right = abbrev_segments
           @abbrev = left.chop! + cursor + right
           @col -= 1
@@ -219,7 +221,7 @@ ruby << EOF
 
       # Delete a character at the current cursor position.
       def delete!
-        if @col < @abbrev.length
+        if @col < @abbrev.length and @has_focus
           left, cursor, right = abbrev_segments
           @abbrev = left + right
           redraw
