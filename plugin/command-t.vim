@@ -101,6 +101,14 @@ function! CommandTClear()
   ruby $command_t.clear
 endfunction
 
+function! CommandTCursorLeft()
+  ruby $command_t.cursor_left
+endfunction
+
+function! CommandTCursorRight()
+  ruby $command_t.cursor_right
+endfunction
+
 ruby << EOF
   begin
     require 'command-t'
@@ -167,30 +175,59 @@ ruby << EOF
       end
 
       def initialize
-        @abbrev = '' # abbreviation entered so far
+        @abbrev = ''  # abbreviation entered so far
+        @col    = 0   # cursor position
       end
 
       # Clear any entered text.
       def clear!
         @abbrev = ''
+        @col    = 0
         redraw
       end
 
       def add! char
         @abbrev += char
+        @col += 1
         redraw
       end
 
       def backspace!
-        @abbrev.chop!
-        redraw
+        if @col > 0
+          @abbrev.chop!
+          @col -= 1
+          redraw
+        end
+      end
+
+      def cursor_left
+        if @col > 0
+          @col -= 1
+          redraw
+        end
+      end
+
+      def cursor_right
+        if @col < @abbrev.length
+          @col += 1
+          redraw
+        end
       end
 
       def redraw
-        set_status 'Comment', '>>',
-          'None', ' ',
-          'None', @abbrev,
-          'Underlined', ' '
+        # abbrev is divided up into 3 sections:
+        #   - left segment (to left of cursor)
+        #   - cursor segment (character at cursor)
+        #   - right segment (to right of cursor)
+        left    = @abbrev[0, @col]        # may be empty
+        cursor  = @abbrev[@col, 1]        # may be empty
+        right   = @abbrev[(@col + 1)..-1] # may be nil or empty
+        components = ['Comment', '>>', 'None', ' ']
+        components += ['None', left] unless left.empty?
+        components += ['Underlined', cursor] unless cursor.empty?
+        components += ['None', right] unless right.nil? || right.empty?
+        components += ['Underlined', ' '] if cursor.empty?
+        set_status *components
       end
 
     private
@@ -564,6 +601,14 @@ ruby << EOF
         list_matches
       end
 
+      def cursor_left
+        @prompt.cursor_left
+      end
+
+      def cursor_right
+        @prompt.cursor_right
+      end
+
     private
 
       def create_match_window
@@ -590,17 +635,21 @@ ruby << EOF
         end
 
         # "special" keys
-        map '<BS>',   'BackspacePressed'
-        map '<CR>',   'AcceptSelection'
+        map '<BS>',     'BackspacePressed'
+        map '<CR>',     'AcceptSelection'
         # TODO: maps for opening in split windows, tabs etc
-        map '<Tab>',  'ToggleFocus'
-        map '<Esc>',  'Cancel'
-        map '<C-c>',  'Cancel'
-        map '<C-n>',  'SelectNext'
-        map '<C-p>',  'SelectPrev'
-        map '<Down>', 'SelectNext'
-        map '<Up>',   'SelectPrev'
-        map '<C-u>',  'Clear'
+        map '<Tab>',    'ToggleFocus'
+        map '<Esc>',    'Cancel'
+        map '<C-c>',    'Cancel'
+        map '<C-n>',    'SelectNext'
+        map '<C-p>',    'SelectPrev'
+        map '<Down>',   'SelectNext'
+        map '<Up>',     'SelectPrev'
+        map '<C-u>',    'Clear'
+        map '<Left>',   'CursorLeft'
+        map '<Right>',  'CursorRight'
+        map '<C-h>',    'CursorLeft'
+        map '<C-l>',    'CursorRight'
       end
 
       # Returns the desired maximum number of matches, based on available
