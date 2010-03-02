@@ -180,8 +180,9 @@ ruby << EOF
       attr_accessor :abbrev
 
       def initialize
-        @abbrev = ''  # abbreviation entered so far
-        @col    = 0   # cursor position
+        @abbrev     = ''  # abbreviation entered so far
+        @col        = 0   # cursor position
+        @has_focus  = true
       end
 
       # Erase whatever is displayed in the prompt line,
@@ -254,13 +255,36 @@ ruby << EOF
       end
 
       def redraw
+        if @has_focus
+          prompt_highlight = 'Comment'
+          normal_highlight = 'None'
+          cursor_highlight = 'Underlined'
+        else
+          prompt_highlight = 'NonText'
+          normal_highlight = 'NonText'
+          cursor_highlight = 'NonText'
+        end
         left, cursor, right = abbrev_segments
-        components = ['Comment', '>>', 'None', ' ']
-        components += ['None', left] unless left.empty?
-        components += ['Underlined', cursor] unless cursor.empty?
-        components += ['None', right] unless right.empty?
-        components += ['Underlined', ' '] if cursor.empty?
+        components = [prompt_highlight, '>>', 'None', ' ']
+        components += [normal_highlight, left] unless left.empty?
+        components += [cursor_highlight, cursor] unless cursor.empty?
+        components += [normal_highlight, right] unless right.empty?
+        components += [cursor_highlight, ' '] if cursor.empty?
         set_status *components
+      end
+
+      def focus
+        unless @has_focus
+          @has_focus = true
+          redraw
+        end
+      end
+
+      def unfocus
+        if @has_focus
+          @has_focus = false
+          redraw
+        end
       end
 
     private
@@ -531,6 +555,7 @@ ruby << EOF
 
       def focus_results
         @focus = :results
+        @prompt.unfocus
         if VIM::has_syntax?
           VIM::command 'highlight link CommandTSelection Search'
         end
@@ -538,6 +563,7 @@ ruby << EOF
 
       def focus_prompt
         @focus = :prompt
+        @prompt.focus
         if VIM::has_syntax?
           VIM::command 'highlight link CommandTSelection Visual'
         end
