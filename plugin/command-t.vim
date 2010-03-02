@@ -294,7 +294,7 @@ ruby << EOF
         clear
         match_count = @matches.length
         actual_lines = 1
-        width = @window.width
+        @window_width = @window.width # update cached value
         if match_count == 0
           @window.height = actual_lines
           @buffer[1] = '-- NO MATCHES --'
@@ -304,10 +304,10 @@ ruby << EOF
           actual_lines = match_count > max_lines ? max_lines : match_count
           @window.height = actual_lines
           (1..actual_lines).each do |line|
-            match = @matches[line - 1]
+            match = truncated_match @matches[line - 1]
             if (line - 1 == @selection)
               prefix = '> '
-              suffix = (match.length > width) ? '' : ' ' * (width - match.length)
+              suffix = padding_for_selected_match match
             else
               prefix = '  '
               suffix = ''
@@ -325,6 +325,28 @@ ruby << EOF
           @buffer.delete line
         end
         lock
+      end
+
+      # Prepare padding for match text (trailing spaces) so that selection
+      # highlighting extends all the way to the right edge of the window.
+      def padding_for_selected_match str
+        len = str.length
+        if len >= @window_width - 2
+          ''
+        else
+          ' ' * (@window_width - 2 - len)
+        end
+      end
+
+      # Convert "really/long/path" into "really...path" based on available
+      # window width.
+      def truncated_match str
+        len = str.length
+        available_width = @window_width - 2
+        return str if len <= available_width
+        left = (available_width / 2) - 1
+        right = (available_width / 2) - 2 + (available_width % 2)
+        str[0, left] + '...' + str[-right, right]
       end
 
       def clear
