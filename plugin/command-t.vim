@@ -240,7 +240,7 @@ ruby << EOF
         if VIM::has_syntax?
           VIM::command 'syntax match CommandTSelection "^> .\+$" '
           VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
-          VIM::command 'highlight link CommandTSelection Search'
+          VIM::command 'highlight link CommandTSelection Visual'
           VIM::command 'highlight link CommandTNoEntries Error'
         end
 
@@ -248,7 +248,7 @@ ruby << EOF
         @cursor_highlight = get_cursor_highlight
         hide_cursor
 
-        @focus = :prompt
+        focus_prompt
         @selection = nil
         @abbrev = ''
         @window = $curwin
@@ -378,10 +378,16 @@ ruby << EOF
 
       def focus_results
         @focus = :results
+        if VIM::has_syntax?
+          VIM::command 'highlight link CommandTSelection Search'
+        end
       end
 
       def focus_prompt
         @focus = :prompt
+        if VIM::has_syntax?
+          VIM::command 'highlight link CommandTSelection Visual'
+        end
       end
     end
 
@@ -474,6 +480,7 @@ ruby << EOF
       end
 
       def toggle_focus
+        @match_window.toggle_focus
       end
 
       def cancel
