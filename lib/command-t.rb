@@ -6,5 +6,6 @@ module CommandT
   autoload :Scanner, 'command-t/scanner'
 
   # high-level modules (VIM integration)
+  autoload :MatchWindow, 'command-t/match_window'
   autoload :Prompt, 'command-t/prompt'
 end # module CommandT
