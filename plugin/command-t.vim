@@ -201,17 +201,15 @@ ruby << EOF
 
       # Insert a character at (before) the current cursor position.
       def add! char
-        if @has_focus
-          left, cursor, right = abbrev_segments
-          @abbrev = left + char + cursor + right
-          @col += 1
-          redraw
-        end
+        left, cursor, right = abbrev_segments
+        @abbrev = left + char + cursor + right
+        @col += 1
+        redraw
       end
 
       # Delete a character to the left of the current cursor position.
       def backspace!
-        if @col > 0 and @has_focus
+        if @col > 0
           left, cursor, right = abbrev_segments
           @abbrev = left.chop! + cursor + right
           @col -= 1
@@ -221,7 +219,7 @@ ruby << EOF
 
       # Delete a character at the current cursor position.
       def delete!
-        if @col < @abbrev.length and @has_focus
+        if @col < @abbrev.length
           left, cursor, right = abbrev_segments
           @abbrev = left + right
           redraw
@@ -229,28 +227,28 @@ ruby << EOF
       end
 
       def cursor_left
-        if @col > 0 and @has_focus
+        if @col > 0
           @col -= 1
           redraw
         end
       end
 
       def cursor_right
-        if @col < @abbrev.length and @has_focus
+        if @col < @abbrev.length
           @col += 1
           redraw
         end
       end
 
       def cursor_end
-        if @col < @abbrev.length and @has_focus
+        if @col < @abbrev.length
           @col = @abbrev.length
           redraw
         end
       end
 
       def cursor_start
-        if @col != 0 and @has_focus
+        if @col != 0
           @col = 0
           redraw
         end
@@ -370,11 +368,11 @@ ruby << EOF
         @cursor_highlight = get_cursor_highlight
         hide_cursor
 
-        focus_prompt
-        @selection = nil
-        @abbrev = ''
-        @window = $curwin
-        @buffer = $curbuf
+        @has_focus  = false
+        @selection  = nil
+        @abbrev     = ''
+        @window     = $curwin
+        @buffer     = $curbuf
       end
 
       def close
@@ -382,14 +380,6 @@ ruby << EOF
         @settings.restore
         @prompt.dispose
         show_cursor
-      end
-
-      def toggle_focus
-        if @focus == :prompt
-          focus_results
-        else
-          focus_prompt
-        end
       end
 
       def add! char
@@ -406,7 +396,7 @@ ruby << EOF
           print_match(@selection - 1) # redraw old selection (removes marker)
           print_match(@selection)     # redraw new selection (adds marker)
         else
-          # loop or scroll
+          # (possibly) loop or scroll
         end
       end
 
@@ -416,7 +406,7 @@ ruby << EOF
           print_match(@selection)     # redraw new selection (adds marker)
           print_match(@selection + 1) # redraw old selection (removes marker)
         else
-          # loop or scroll
+          # (possibly) loop or scroll
         end
       end
 
@@ -428,7 +418,28 @@ ruby << EOF
         end
       end
 
-      private
+      def focus
+        unless @has_focus
+          @has_focus = true
+          if VIM::has_syntax?
+            VIM::command 'highlight link CommandTSelection Search'
+          end
+        end
+      end
+
+      def unfocus
+        if @has_focus
+          @has_focus = false
+          if VIM::has_syntax?
+            VIM::command 'highlight link CommandTSelection Visual'
+          end
+        end
+      end
+
+      def find char
+      end
+
+    private
 
       def match_text_for_idx idx
         match = truncated_match @matches[idx]
@@ -553,22 +564,6 @@ ruby << EOF
       def unlock
         VIM::command 'setlocal modifiable'
       end
-
-      def focus_results
-        @focus = :results
-        @prompt.unfocus
-        if VIM::has_syntax?
-          VIM::command 'highlight link CommandTSelection Search'
-        end
-      end
-
-      def focus_prompt
-        @focus = :prompt
-        @prompt.focus
-        if VIM::has_syntax?
-          VIM::command 'highlight link CommandTSelection Visual'
-        end
-      end
     end
 
     # Convenience class for saving and restoring global settings.
@@ -627,16 +622,18 @@ ruby << EOF
       end
 
       def show
-        @scanner.path = VIM::pwd
+        @scanner.path   = VIM::pwd
         @initial_window = $curwin
         @initial_buffer = $curbuf
-        create_match_window
+        @match_window   = MatchWindow.new :prompt => @prompt
+        @focus          = @prompt
+        @prompt.focus
         register_for_key_presses
-        clear # clear prompt and list matches
+        clear # clears prompt and list matches
       end
 
       def hide
-        destroy_match_window
+        @match_window.close
         if @initial_window.select
           VIM::command "silent b #{@initial_buffer.number}"
         end
@@ -648,25 +645,39 @@ ruby << EOF
 
       def key_pressed
         key = VIM::evaluate('a:arg').to_i.chr
-        @prompt.add! key
-        list_matches
+        if @focus == @prompt
+          @prompt.add! key
+          list_matches
+        else
+          @match_window.find key
+        end
       end
 
       def backspace_pressed
-        @prompt.backspace!
-        list_matches
+        if @focus == @prompt
+          @prompt.backspace!
+          list_matches
+        end
       end
 
       def delete_pressed
-        @prompt.delete!
-        list_matches
+        if @focus == @prompt
+          @prompt.delete!
+          list_matches
+        end
       end
 
       def accept_selection
       end
 
       def toggle_focus
-        @match_window.toggle_focus
+        @focus.unfocus # old focus
+        if @focus == @prompt
+          @focus = @match_window
+        else
+          @focus = @prompt
+        end
+        @focus.focus # new focus
       end
 
       def cancel
@@ -687,30 +698,22 @@ ruby << EOF
       end
 
       def cursor_left
-        @prompt.cursor_left
+        @prompt.cursor_left if @focus == @prompt
       end
 
       def cursor_right
-        @prompt.cursor_right
+        @prompt.cursor_right if @focus == @prompt
       end
 
       def cursor_end
-        @prompt.cursor_end
+        @prompt.cursor_end if @focus == @prompt
       end
 
       def cursor_start
-        @prompt.cursor_start
+        @prompt.cursor_start if @focus == @prompt
       end
 
     private
-
-      def create_match_window
-        @match_window = MatchWindow.new :prompt => @prompt
-      end
-
-      def destroy_match_window
-        @match_window.close
-      end
 
       def map key, function, param = nil
         VIM::command "noremap <silent> <buffer> #{key} " \
