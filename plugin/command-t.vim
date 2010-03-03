@@ -124,44 +124,12 @@ endfunction
 ruby << EOF
   begin
     require 'command-t'
-    require 'vim/screen'
+    require 'vim'
   rescue LoadError
     lib = "#{ENV['HOME']}/.vim/ruby"
     raise if $LOAD_PATH.include?(lib)
     $LOAD_PATH << lib
     retry
-  end
-
-  module VIM
-    class Window
-      def select
-        return true if selected?
-        initial = $curwin
-        while true do
-          VIM::command 'wincmd w'             # cycle through windows
-          return true if $curwin == self      # have selected desired window
-          return false if $curwin == initial  # have already looped through all
-        end
-      end
-
-      def selected?
-        $curwin == self
-      end
-    end # class Window
-
-    def self.has_syntax?
-      VIM.evaluate('has("syntax")') != '0'
-    end
-
-    def self.pwd
-      VIM.evaluate('getcwd()')
-    end
-
-    # Escape a string for safe inclusion in a Vim single-quoted string
-    # (single quotes escaped by doubling, everything else is literal)
-    def self.escape_for_single_quotes str
-      str.gsub "'", "''"
-    end
   end
 
   module CommandT
