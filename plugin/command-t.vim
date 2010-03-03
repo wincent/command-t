@@ -740,6 +740,8 @@ ruby << EOF
         map '<C-c>',    'Cancel'
         map '<C-n>',    'SelectNext'
         map '<C-p>',    'SelectPrev'
+        map '<C-j>',    'SelectNext'
+        map '<C-k>',    'SelectPrev'
         map '<Down>',   'SelectNext'
         map '<Up>',     'SelectPrev'
         map '<C-u>',    'Clear'
