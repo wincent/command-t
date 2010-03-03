@@ -124,22 +124,13 @@ endfunction
 ruby << EOF
   begin
     require 'command-t'
+    require 'vim/screen'
   rescue LoadError
     lib = "#{ENV['HOME']}/.vim/ruby"
     raise if $LOAD_PATH.include?(lib)
     $LOAD_PATH << lib
     retry
   end
-
-  module Screen
-    def self.lines
-      VIM.evaluate('&lines').to_i
-    end
-
-    def self.columns
-      VIM.evaluate('&columns').to_i
-    end
-  end # module Screen
 
   module VIM
     class Window
@@ -497,7 +488,7 @@ ruby << EOF
           @window.height = actual_lines
           @buffer[1] = '-- NO MATCHES --'
         else
-          max_lines = Screen.lines - 5
+          max_lines = VIM::Screen.lines - 5
           max_lines = 1 if max_lines < 0
           actual_lines = match_count > max_lines ? max_lines : match_count
           @window.height = actual_lines
@@ -795,7 +786,7 @@ ruby << EOF
       # Returns the desired maximum number of matches, based on available
       # vertical space.
       def match_limit
-        limit = Screen.lines - 5
+        limit = VIM::Screen.lines - 5
         limit < 0 ? 1 : limit
       end
 
