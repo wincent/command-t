@@ -458,6 +458,11 @@ ruby << EOF
         end
       end
 
+      # Returns the currently selected item as a String.
+      def selection
+        @matches[@selection]
+      end
+
     private
 
       def match_text_for_idx idx
@@ -687,6 +692,9 @@ ruby << EOF
       end
 
       def accept_selection
+        selection = @match_window.selection
+        hide
+        open_selection selection
       end
 
       def toggle_focus
@@ -733,6 +741,18 @@ ruby << EOF
       end
 
     private
+
+      # Backslash-escape space, \, |, %, #, "
+      def sanitize_path_string str
+        # for details on escaping command-line mode arguments see: :h :
+        # (that is, help on ":") in the Vim documentation.
+        str.gsub(/[ \\|%#"]/, '\\\\\0')
+      end
+
+      def open_selection selection
+        selection = sanitize_path_string selection
+        VIM::command "silent e #{selection}"
+      end
 
       def map key, function, param = nil
         VIM::command "noremap <silent> <buffer> #{key} " \
