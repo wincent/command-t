@@ -447,11 +447,12 @@ ruby << EOF
         @last_key_time = now
 
         # see if there's anything up ahead that matches
-        @matches[@selection..-1].each_with_index do |match, idx|
+        @matches.each_with_index do |match, idx|
           if match[0, @find_string.length] == @find_string
-            @selection += idx
-            print_match(@selection - idx) # redraw old selection (removes marker)
-            print_match(@selection)       # redraw new selection (adds marker)
+            old_selection = @selection
+            @selection = idx
+            print_match(old_selection)  # redraw old selection (removes marker)
+            print_match(@selection)     # redraw new selection (adds marker)
             break
           end
         end
