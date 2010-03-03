@@ -403,8 +403,8 @@ ruby << EOF
       def select_prev
         if @selection > 0
           @selection -= 1
-          print_match(@selection)     # redraw new selection (adds marker)
           print_match(@selection + 1) # redraw old selection (removes marker)
+          print_match(@selection)     # redraw new selection (adds marker)
         else
           # (possibly) loop or scroll
         end
@@ -437,6 +437,24 @@ ruby << EOF
       end
 
       def find char
+        # is this a new search or the continuation of a previous one?
+        now = Time.now
+        if @last_key_time.nil? or @last_key_time < (now - 0.5)
+          @find_string = char
+        else
+          @find_string += char
+        end
+        @last_key_time = now
+
+        # see if there's anything up ahead that matches
+        @matches[@selection..-1].each_with_index do |match, idx|
+          if match[0, @find_string.length] == @find_string
+            @selection += idx
+            print_match(@selection - idx) # redraw old selection (removes marker)
+            print_match(@selection)       # redraw new selection (adds marker)
+            break
+          end
+        end
       end
 
     private
