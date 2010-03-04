@@ -2,6 +2,14 @@ module CommandT
   class Match
     attr_reader :match
 
+    def self.match str, regex
+      if str.match(regex)
+        new($~)
+      else
+        nil
+      end
+    end
+
     def initialize match
       @match = match
     end

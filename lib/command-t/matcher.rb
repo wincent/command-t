@@ -57,8 +57,8 @@ module CommandT
       regexp = self.class.regexp_for str
       matches = []
       @scanner.paths.each do |path|
-        match = path.match(regexp)
-        matches << Match.new(match) unless match.nil?
+        match = Match.match path, regexp
+        matches << match unless match.nil?
       end
       matches
     end
