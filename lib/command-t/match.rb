@@ -7,12 +7,12 @@ module CommandT
       @offsets  = []
       str       = str.downcase    # perform case-insensitive comparison
       abbrev    = abbrev.downcase # perform case-insensitive comparison
-      last      = 0
+      cursor    = 0
       abbrev.each_char do |char|
-        idx = str.index char, last
+        idx = str.index char, cursor
         if idx
           @offsets << idx
-          last = idx
+          cursor = idx + 1
         else
           @offsets = nil
           return
