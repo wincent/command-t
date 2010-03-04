@@ -1,6 +1,6 @@
 module CommandT
   class Match
-    attr_reader :match
+    attr_reader :offsets
 
     def self.match str, regex
       if str.match(regex)
@@ -11,7 +11,11 @@ module CommandT
     end
 
     def initialize match
-      @match = match
+      @str = match[0]
+      @offsets = []
+      (1..(match.length - 1)).each do |i|
+        @offsets << match.offset(i).first
+      end
     end
 
     # Return a normalized score ranging from 0.0 to 1.0 indicating the
@@ -35,18 +39,17 @@ module CommandT
     #     numbers
     def score
       return @score unless @score.nil?
-      return (@score = 0.0) if @match.nil?
-      str = to_s
-      len = str.length
-      return (@score = 1.0) if @match.length == len + 1
+      return (@score = 0.0) if @offsets.empty?
+      len = @str.length
+      return (@score = 1.0) if @offsets.length == len
       @score = 0.0
-      max_score_per_char = 1.0 / (@match.length - 1)
-      for i in 1..(@match.length - 1) do
+      max_score_per_char = 1.0 / @offsets.length
+      for i in 0..(@offsets.length - 1) do
         score_for_char = max_score_per_char
-        offset = @match.offset(i).first
+        offset = @offsets[i]
         if offset > 0
           factor = nil
-          case str[offset - 1, 1]
+          case @str[offset - 1, 1]
           when '/'
             factor = 0.9
           when '-', '_', ' ', '0'..'9'
@@ -54,14 +57,14 @@ module CommandT
           when '.'
             factor = 0.7
           when 'a'..'z'
-            if @match[i] =~ /[A-Z]/
+            if @str[offset, 1] =~ /[A-Z]/
               factor = 0.8
             end
           end
           if factor.nil?
             # factor falls the farther we are from last matched char
             if i > 1
-              distance = offset - @match.offset(i - 1).first
+              distance = offset - @offsets[i - 1]
               factor = 1.0 / distance
             else
               factor = 1.0 / (offset + 1)
@@ -75,7 +78,7 @@ module CommandT
     end
 
     def to_s
-      @str ||= @match[0]
+      @str
     end
   end
 end # module CommandT

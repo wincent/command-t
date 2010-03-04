@@ -4,14 +4,20 @@ describe CommandT::Match do
   def match_for path, pattern
     # reuse Matcher code rather than replicate it
     regexp = CommandT::Matcher.regexp_for pattern
-    CommandT::Match.new(regexp.match(path))
+    CommandT::Match.match path, regexp
+  end
+
+  describe 'match class method' do
+    it 'should return a match with score zero for empty search string' do
+      match_for('./foo', '').score.should == 0.0
+    end
+
+    it 'should return nil for non-matches' do
+      match_for('./foo', 'bar').should be_nil
+    end
   end
 
   describe 'score method' do
-    it 'should assign non-matches a score of zero' do
-      match_for('./foo', 'bar').score.should == 0.0
-    end
-
     it 'should assign perfect matches a score of one' do
       match_for('./foo', './foo').score.should == 1.0
     end
