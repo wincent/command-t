@@ -2,22 +2,20 @@ require File.join(File.dirname(__FILE__), '..', 'spec_helper')
 
 describe CommandT::Match do
   def match_for path, pattern
-    # reuse Matcher code rather than replicate it
-    regexp = CommandT::Matcher.regexp_for pattern
-    CommandT::Match.match path, regexp
+    CommandT::Match.new path, pattern
   end
 
-  describe 'match class method' do
-    it 'should return a match with score zero for empty search string' do
-      match_for('./foo', '').score.should == 0.0
-    end
-
-    it 'should return nil for non-matches' do
-      match_for('./foo', 'bar').should be_nil
+  describe 'matches? method' do
+    it 'should return false for non-matches' do
+      match_for('./foo', 'bar').matches?.should == false
     end
   end
 
   describe 'score method' do
+    it 'should return a match with score zero for empty search string' do
+      match_for('./foo', '').score.should == 0.0
+    end
+
     it 'should assign perfect matches a score of one' do
       match_for('./foo', './foo').score.should == 1.0
     end

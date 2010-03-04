@@ -2,20 +2,26 @@ module CommandT
   class Match
     attr_reader :offsets
 
-    def self.match str, regex
-      if str.match(regex)
-        new($~)
-      else
-        nil
+    def initialize str, abbrev
+      @str      = str
+      @offsets  = []
+      str       = str.downcase    # perform case-insensitive comparison
+      abbrev    = abbrev.downcase # perform case-insensitive comparison
+      last      = 0
+      abbrev.each_char do |char|
+        idx = str.index char, last
+        if idx
+          @offsets << idx
+          last = idx
+        else
+          @offsets = nil
+          return
+        end
       end
     end
 
-    def initialize match
-      @str = match[0]
-      @offsets = []
-      (1..(match.length - 1)).each do |i|
-        @offsets << match.offset(i).first
-      end
+    def matches?
+      !@offsets.nil?
     end
 
     # Return a normalized score ranging from 0.0 to 1.0 indicating the
@@ -39,7 +45,7 @@ module CommandT
     #     numbers
     def score
       return @score unless @score.nil?
-      return (@score = 0.0) if @offsets.empty?
+      return (@score = 0.0) if @offsets.nil? || @offsets.empty?
       len = @str.length
       return (@score = 1.0) if @offsets.length == len
       @score = 0.0

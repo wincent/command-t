@@ -8,25 +8,6 @@ describe CommandT::Matcher do
     end
   end
 
-  describe 'regexp_for method' do
-    it 'should insert globs before and after every character' do
-      CommandT::Matcher.regexp_for('foo').should == /\A.*?(f).*?(o).*?(o).*?\z/i
-    end
-
-    it 'should return a greedy match-all regexp for empty search string' do
-      CommandT::Matcher.regexp_for('').should == /.*/ # match all files
-    end
-
-    it 'should raise an ArgumentError if passed nil' do
-      lambda { CommandT::Matcher.regexp_for(nil) }.
-        should raise_error(ArgumentError)
-    end
-
-    it 'should escape characters which have special meaning' do
-      CommandT::Matcher.regexp_for('.rb').should == /\A.*?(\.).*?(r).*?(b).*?\z/i
-    end
-  end
-
   describe 'matches_for method' do
     before :each do
       @scanner = mock(CommandT::Scanner::Base)
