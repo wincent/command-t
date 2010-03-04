@@ -7,13 +7,25 @@ describe CommandT::Match do
 
   describe 'matches? method' do
     it 'should return false for non-matches' do
-      match_for('./foo', 'bar').matches?.should == false
+      match_for('foo', 'bar').matches?.should == false
+    end
+
+    it 'should return true for matches' do
+      match_for('foo', 'foo').matches?.should == true
+    end
+
+    it 'should return true for empty search strings' do
+      match_for('foo', '').matches?.should == true
     end
   end
 
   describe 'score method' do
-    it 'should return a match with score zero for empty search string' do
+    it 'should assign a score of zero for empty search string' do
       match_for('./foo', '').score.should == 0.0
+    end
+
+    it 'should assign a score of zero for a non-match' do
+      match_for('./foo', 'bar').score.should == 0.0
     end
 
     it 'should assign perfect matches a score of one' do
