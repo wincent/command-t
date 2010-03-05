@@ -1,10 +1,10 @@
 module CommandT
   # C extension
   autoload :Match,        'command-t/ext'
+  autoload :Matcher,      'command-t/ext'
 
   # low-level modules (independent specs)
   autoload :Base,         'command-t/base'
-  autoload :Matcher,      'command-t/matcher'
   autoload :Scanner,      'command-t/scanner'
 
   # high-level modules (VIM integration)
