@@ -51,10 +51,10 @@ module CommandT
       end
     end
 
-    def accept_selection
+    def accept_selection options = {}
       selection = @match_window.selection
       hide
-      open_selection selection
+      open_selection selection, options
     end
 
     def toggle_focus
@@ -109,9 +109,10 @@ module CommandT
       str.gsub(/[ \\|%#"]/, '\\\\\0')
     end
 
-    def open_selection selection
+    def open_selection selection, options = {}
+      command = options[:command] || 'e'
       selection = sanitize_path_string selection
-      VIM::command "silent e #{selection}"
+      VIM::command "silent #{command} #{selection}"
     end
 
     def map key, function, param = nil
@@ -133,7 +134,10 @@ module CommandT
       map '<BS>',     'BackspacePressed'
       map '<Del>',    'DeletePressed'
       map '<CR>',     'AcceptSelection'
-      # TODO: maps for opening in split windows, tabs etc
+      map '<C-CR>',   'AcceptSelectionSplit'
+      map '<C-s>',    'AcceptSelectionSplit'
+      map '<C-t>',    'AcceptSelectionTab'
+      map '<C-v>',    'AcceptSelectionVSplit'
       map '<Tab>',    'ToggleFocus'
       map '<Esc>',    'Cancel'
       map '<C-c>',    'Cancel'

@@ -85,6 +85,18 @@ function! CommandTAcceptSelection()
   ruby $command_t.accept_selection
 endfunction
 
+function! CommandTAcceptSelectionTab()
+  ruby $command_t.accept_selection :command => 'tabe'
+endfunction
+
+function! CommandTAcceptSelectionSplit()
+  ruby $command_t.accept_selection :command => 'sp'
+endfunction
+
+function! CommandTAcceptSelectionVSplit()
+  ruby $command_t.accept_selection :command => 'vs'
+endfunction
+
 function! CommandTToggleFocus()
   ruby $command_t.toggle_focus
 endfunction
