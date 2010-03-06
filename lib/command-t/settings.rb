@@ -28,7 +28,7 @@ module CommandT
   private
 
     def get_number setting
-      VIM::evaluate "&#{setting}".to_i
+      VIM::evaluate("&#{setting}").to_i
     end
 
     def get_bool setting
