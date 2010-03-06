@@ -13,6 +13,19 @@ module CommandT
         @windows << VIM::Window[i].height
       end
 
+      # global settings (must manually save and restore)
+      @settings = Settings.new
+      @settings.save
+      VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
+      VIM::set_option 'nohlsearch'      # don't highlight search strings
+      VIM::set_option 'noinsertmode'    # don't make Insert mode the default
+      VIM::set_option 'noshowcmd'       # don't show command info on last line
+      VIM::set_option 'nolist'          # don't use List mode (visible tabs etc)
+      VIM::set_option 'report=9999'     # don't show "X lines changed" reports
+      VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
+      VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
+      VIM::set_option 'noequalalways'   # don't auto-balance window sizes
+
       # create match window and set it up
       [
         'silent! botright 1split GoToFile',
@@ -31,18 +44,6 @@ module CommandT
 
       # sanity check: make sure the buffer really was created
       raise "Can't find buffer" unless $curbuf.name.match /GoToFile/
-
-      # global settings (must manually save and restore)
-      @settings = Settings.new
-      @settings.save
-      VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
-      VIM::set_option 'nohlsearch'      # don't highlight search strings
-      VIM::set_option 'noinsertmode'    # don't make Insert mode the default
-      VIM::set_option 'noshowcmd'       # don't show command info on last line
-      VIM::set_option 'nolist'          # don't use List mode (visible tabs etc)
-      VIM::set_option 'report=9999'     # don't show "X lines changed" reports
-      VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
-      VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
 
       # syntax coloring
       if VIM::has_syntax?
