@@ -70,7 +70,7 @@ VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE option
     long limit = 0;
     if (rb_funcall(options, rb_intern("has_key?"), 1, ID2SYM(rb_intern("limit"))) == Qtrue)
         limit = NUM2LONG(rb_hash_aref(options, ID2SYM(rb_intern("limit"))));
-    if ((limit == 0) || (RARRAY(matches)->len < limit))
+    if (limit == 0 || RARRAY(matches)->len < limit)
         limit = RARRAY(matches)->len;
 
     // will return an array of strings, not an array of Match objects

@@ -16,15 +16,15 @@ VALUE CommandTMatch_initialize(VALUE self, VALUE str, VALUE abbrev)
     for (long i = 0; i < abbrev_len; i++)
     {
         char c = abbrev_p[i];
-        if ((c >= 'A') && (c <= 'Z'))
+        if (c >= 'A' && c <= 'Z')
             c += ('a' - 'A'); // add 32 to make lowercase
 
         VALUE found = Qfalse;
         for (long j = cursor; j < str_len; j++, cursor++)
         {
             char d = str_p[j];
-            if ((d >= 'A') && (d <= 'Z'))
-                d += ('a' - 'A'); // add 32 to make lowercase
+            if (d >= 'A' && d <= 'Z')
+                d += 'a' - 'A'; // add 32 to make lowercase
             if (c == d)
             {
                 rb_ary_push(offsets, LONG2FIX(cursor));
@@ -78,7 +78,7 @@ VALUE CommandTMatch_score(VALUE self)
 
     // nil or empty offsets array means a score of 0.0
     VALUE offsets = rb_iv_get(self, "@offsets");
-    if (NIL_P(offsets) || (RARRAY(offsets)->len == 0))
+    if (NIL_P(offsets) || RARRAY(offsets)->len == 0)
     {
         score = rb_float_new(0.0);
         rb_iv_set(self, "@score", score);
@@ -112,15 +112,15 @@ VALUE CommandTMatch_score(VALUE self)
             // - need to think about sequences like "9-"
             if (last == '/')
                 factor = 0.9;
-            else if ((last == '-') ||
-                     (last == '_') ||
-                     (last == ' ') ||
-                     ((last >= '0') && (last <= '9')))
+            else if (last == '-' ||
+                     last == '_' ||
+                     last == ' ' ||
+                     (last >= '0' && last <= '9'))
                 factor = 0.8;
             else if (last == '.')
                 factor = 0.7;
-            else if (((last >= 'a') && (last <= 'z')) &&
-                     ((curr >= 'A') && (curr <= 'Z')))
+            else if (last >= 'a' && last <= 'z' &&
+                     curr >= 'A' && curr <= 'Z')
                 factor = 0.8;
             else
             {
