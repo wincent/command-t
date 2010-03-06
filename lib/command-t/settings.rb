@@ -6,7 +6,6 @@ module CommandT
       @report         = get_number 'report'
       @sidescroll     = get_number 'sidescroll'
       @sidescrolloff  = get_number 'sidescrolloff'
-      @splitbelow     = get_bool 'splitbelow'
       @hlsearch       = get_bool 'hlsearch'
       @insertmode     = get_bool 'insertmode'
       @showcmd        = get_bool 'showcmd'
@@ -18,7 +17,6 @@ module CommandT
       set_number 'report', @report
       set_number 'sidescroll', @sidescroll
       set_number 'sidescrolloff', @sidescrolloff
-      set_bool 'splitbelow', @splitbelow
       set_bool 'hlsearch', @hlsearch
       set_bool 'insertmode', @insertmode
       set_bool 'showcmd', @showcmd
