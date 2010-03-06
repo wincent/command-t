@@ -28,11 +28,11 @@ module CommandT
   private
 
     def get_number setting
-      VIM::evaluate "&#{setting}"
+      VIM::evaluate "&#{setting}".to_i
     end
 
     def get_bool setting
-      VIM::evaluate("&#{setting}") == '1'
+      VIM::evaluate("&#{setting}").to_i == 1
     end
 
     def set_number setting, value
