@@ -7,6 +7,12 @@ module CommandT
     def initialize options = {}
       @prompt = options[:prompt]
 
+      # save existing window dimensions so we can restore them later
+      @windows = []
+      (0..(VIM::Window.count - 1)).each do |i|
+        @windows << VIM::Window[i].height
+      end
+
       # create match window and set it up
       [
         'silent! botright 1split GoToFile',
@@ -60,6 +66,12 @@ module CommandT
 
     def close
       VIM::command "bwipeout! #{@buffer.number}"
+
+      # restore window dimensions
+      @windows.each_with_index do |w, i|
+        VIM::Window[i].height = w
+      end
+
       @settings.restore
       @prompt.dispose
       show_cursor
