@@ -1,0 +1,255 @@
+*command-t.txt* Command-T plug-in for VIM
+
+CONTENTS                                        *command-t-contents*
+
+ 1. Introduction            |command-t|
+ 2. Requirments             |command-t-requirements|
+ 3. Installation            |command-t-installation|
+ 4. Usage                   |command-t-usage|
+ 5. Commands                |command-t-commands|
+ 6. Mappings                |command-t-mappings|
+ 7. Author                  |command-t-author|
+ 8. Website                 |command-t-website|
+ 9. License                 |command-t-license|
+10. History                 |command-t-history|
+
+
+INTRODUCTION                                    *command-t*
+
+The Command-T plug-in provides an extremely fast, intuitive mechanism for
+opening files with a minimal number of keystrokes. It's named "Command-T"
+because it is inspired by the "Go to File" window bound to Command-T in
+TextMate.
+
+Files are selected by typing characters that appear in their paths, and are
+ordered by an algorithm which knows that characters that appear in certain
+locations (for example, immediately after a path separator) should be given
+more weight.
+
+A preview screencast introducing the plug-in can be viewed at:
+
+  https://wincent.com/blog/bringing-textmate-style-command-t-to-vim
+
+
+REQUIREMENTS                                    *command-t-requirements*
+
+1. VIM compiled with Ruby support
+
+Command-T requires VIM to be compiled with Ruby support. (MacVim, for example,
+comes with Ruby support while the command-line version of Vim shipped with Mac
+OS X Snow Leopard does not.)
+
+You can check for Ruby support by launching VIM with the --version switch:
+
+  vim --version
+
+If "+ruby" appears in the version information then your version of VIM has
+Ruby support.
+
+Another way to check is to simply try using the :ruby command from within VIM
+itself:
+
+  :ruby 1
+
+If your VIM lacks support you'll see an error message like this:
+
+  E319: Sorry, the command is not available in this version
+
+2. Ruby 1.8.7 or later
+
+The plug-in is developed and tested using Ruby 1.8.7, and makes use of at
+least one method which is not present in Ruby 1.8.6 (String#each_char). Rather
+than target multiple versions which I cannot properly test, I prefer to
+support one known, tested version.
+
+3. C compiler
+
+Part of Command-T is implemented in C as a Ruby extension for speed, allowing
+it to work responsively even on directory hierarchies containing enormous
+numbers of files. As such, a C compiler is required in order to build the
+extension and complete the installation.
+
+
+INSTALLATION                                    *command-t-installation*
+
+Command-T is distributed as a "vimball" which means that it can be installed
+by opening it in VIM and then sourcing it:
+
+  :e command-t.vba
+  :so %
+
+The files will be installed in your |'runtimepath'|. To check where this is
+you can issue:
+
+  :echo &rtp
+
+The C extension must then be built, which can be done from the shell. If you
+use a typical |'runtimepath'| then the files were installed inside ~/.vim and
+you can build the extension with:
+
+  cd ~/.vim/ruby/command-t
+  ruby extconf
+  make
+
+
+USAGE                                           *command-t-usage*
+
+Bring up the Command-T match window by typing:
+
+  <Leader>t
+
+If a mapping for <Leader>t already exists at the time the plug-in is loaded
+then Command-T will not overwrite it. You can instead open the match window by
+issuing the command:
+
+  :CommandT
+
+A prompt will appear at the bottom of the screen along with a match window
+showing all of the files in the current directory (as returned by the
+|:pwd| command).
+
+Type letters in the prompt to narrow down the selection, showing only the
+files whose paths contain those letters in the specified order. Letters do not
+need to appear consecutively in a path in order for it to be classified as a
+match.
+
+Once you the desired file has been selected it can be opened by pressing <CR>.
+
+The following mappings are active when the prompt has focus:
+
+    <BS>        delete the character to the left of the cursor
+    <Del>       delete the cursor at the cursor
+    <Left>      move the cursor one character to the left
+    <C-h>       move the cursor one character to the left
+    <Right>     move the cursor one character to the right
+    <C-l>       move the cursor one character to the right
+    <C-a>       move the cursor to the start (left)
+    <C-e>       move the cursor to the end (right)
+    <C-u>       clear the contents of the prompt
+    <Tab>       change focus to the match listing
+
+The following mappings are active when either the prompt or the match listing
+has focus:
+
+    <CR>        open the selected file
+    <C-CR>      open the selected file in a new split window
+    <C-s>       open the selected file in a new split window
+    <C-v>       open the selected file in a new vertical split window
+    <C-t>       open the selected file in a new tab
+    <C-j>       select next file in the match listing
+    <C-n>       select next file in the match listing
+    <Down>      select next file in the match listing
+    <C-k>       select previous file in the match listing
+    <C-p>       select previous file in the match listing
+    <Up>        select previous file in the match listing
+    <Esc>       cancel (dismisses match listing)
+    <C-c>       cancel (dismisses match listing)
+
+The following mappings are active when the match listing has focus:
+
+    <Tab>       change focus to the prompt
+
+In addition, when the match listing has focus, typing a character will cause
+the selection to jump to the first path which begins with that character.
+Typing multiple characters consecutively can be used to distinguish between
+paths which begin with the same prefix.
+
+
+COMMANDS                                        *command-t-commands*
+
+                                                *CommandT*
+|:CommandT|     brings up the Command-T match window, starting in the
+                current working directory as returned by the|:pwd|
+                command.
+
+                                                *CommandTFlush*
+                                                *command-t-flush*
+|:CommandTFlush|instructs the plug-in to flush its path cache, causing
+                the directory to be rescanned for new or deleted paths
+                the next time the match window is shown
+
+
+MAPPINGS                                        *command-t-mappings*
+
+By default Command-T comes with only one mapping:
+
+  <Leader>t     bring up the Command-T match window
+
+However, Command-T won't overwrite a pre-existing mapping so if you prefer
+to define a different mapping use a line like this in your ~/.vimrc:
+
+  nmap <silent> <Leader>t :CommandT<CR>
+
+Replacing "<Leader>t" with your mapping of choice.
+
+
+AUTHOR                                          *command-t-author*
+
+Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
+
+As this was the first VIM plug-in I had ever written I was heavily influenced
+by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
+is one of the largest Ruby-based VIM plug-ins to date.
+
+While the Command-T codebase doesn't contain any code directly copied from
+LustyExplorer, I did use it as a reference for answers to basic questions (like
+"How do you do 'X' in a Ruby-based VIM plug-in?"), and also copied some basic
+architectural decisions (like the division of the code into Prompt, Settings
+and MatchWindow classes).
+
+LustyExplorer is available from:
+
+  http://www.vim.org/scripts/script.php?script_id=1890
+
+
+WEBSITE                                         *command-t-website*
+
+The official website for Command-T is:
+
+  https://wincent.com/products/command-t
+
+The latest release will always be available from there.
+
+Development in progress can be inspected via the project's Git repository
+browser at:
+
+  http://git.wincent.com/command-t.git
+
+A copy of each release is also available from the official VIM scripts site
+at:
+
+  http://www.vim.org/scripts/
+
+
+LICENSE                                         *command-t-license*
+
+Copyright 2010 Wincent Colaiuta. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+
+HISTORY                                         *command-t-history*
+
+No public release.
+
+------------------------------------------------------------------------------
+vim:tw=78:ft=help:
