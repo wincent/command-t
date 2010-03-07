@@ -32,23 +32,26 @@ command CommandTFlush :call <SID>CommandTFlush()
 
 nmap <unique> <silent> <Leader>t :CommandT<CR>
 
-function! s:CommandTShow()
+function s:CommandTRubyWarning()
+  echohl WarningMsg
+  echo "command-t.vim requires Vim to be compiled with Ruby support"
+  echo "For more information type:  :help command-t"
+  echohl none
+endfunction
+
+function s:CommandTShow()
   if has('ruby')
     ruby $command_t.show
   else
-    echohl WarningMsg
-    echo "command-t.vim requires Vim to be compiled with Ruby support"
-    echohl none
+    call s:CommandTRubyWarning()
   endif
 endfunction
 
-function! s:CommandTFlush()
+function s:CommandTFlush()
   if has('ruby')
     ruby $command_t.flush
   else
-    echohl WarningMsg
-    echo "command-t.vim requires Vim to be compiled with Ruby support"
-    echohl none
+    call s:CommandTRubyWarning()
   endif
 endfunction
 
