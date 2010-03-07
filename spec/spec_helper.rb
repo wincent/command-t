@@ -21,8 +21,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-unless $LOAD_PATH.include? './lib'
-  $LOAD_PATH.unshift './lib'
+unless $LOAD_PATH.include? './ruby'
+  $LOAD_PATH.unshift './ruby'
 end
 
 require 'command-t'
