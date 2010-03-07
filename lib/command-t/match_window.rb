@@ -185,7 +185,7 @@ module CommandT
 
     # Print just the specified match.
     def print_match idx
-      return unless Window.select(@window)
+      return unless @window.select
       unlock
       @buffer[idx + 1] = match_text_for_idx idx
       lock
@@ -193,7 +193,7 @@ module CommandT
 
     # Print all matches.
     def print_matches
-      return unless Window.select(@window)
+      return unless @window.select
       unlock
       clear
       match_count = @matches.length
