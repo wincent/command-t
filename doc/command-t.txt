@@ -220,6 +220,10 @@ at:
 
   http://www.vim.org/scripts/
 
+Bug reports should be submitted to the issue tracker at:
+
+  https://wincent.com/issues
+
 
 LICENSE                                         *command-t-license*
 
