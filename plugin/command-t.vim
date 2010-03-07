@@ -124,6 +124,7 @@ function CommandTCursorStart()
 endfunction
 
 ruby << EOF
+  # require Ruby files
   begin
     require 'vim'
     require 'command-t'
@@ -134,5 +135,11 @@ ruby << EOF
     retry
   end
 
-  $command_t = CommandT::Controller.new
+  # prepare controller
+  begin
+    $command_t = CommandT::Controller.new
+  rescue LoadError
+    # most likely didn't build the C extension yet
+    $command_t = CommandT::Stub.new
+  end
 EOF

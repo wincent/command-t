@@ -12,4 +12,5 @@ module CommandT
   autoload :MatchWindow,  'command-t/match_window'
   autoload :Prompt,       'command-t/prompt'
   autoload :Settings,     'command-t/settings'
+  autoload :Stub,         'command-t/stub'
 end # module CommandT
