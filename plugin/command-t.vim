@@ -59,67 +59,67 @@ if !has('ruby')
   finish
 endif
 
-function! CommandTKeyPressed(arg)
+function CommandTKeyPressed(arg)
   ruby $command_t.key_pressed
 endfunction
 
-function! CommandTBackspacePressed()
+function CommandTBackspacePressed()
   ruby $command_t.backspace_pressed
 endfunction
 
-function! CommandTDeletePressed()
+function CommandTDeletePressed()
   ruby $command_t.delete_pressed
 endfunction
 
-function! CommandTAcceptSelection()
+function CommandTAcceptSelection()
   ruby $command_t.accept_selection
 endfunction
 
-function! CommandTAcceptSelectionTab()
+function CommandTAcceptSelectionTab()
   ruby $command_t.accept_selection :command => 'tabe'
 endfunction
 
-function! CommandTAcceptSelectionSplit()
+function CommandTAcceptSelectionSplit()
   ruby $command_t.accept_selection :command => 'sp'
 endfunction
 
-function! CommandTAcceptSelectionVSplit()
+function CommandTAcceptSelectionVSplit()
   ruby $command_t.accept_selection :command => 'vs'
 endfunction
 
-function! CommandTToggleFocus()
+function CommandTToggleFocus()
   ruby $command_t.toggle_focus
 endfunction
 
-function! CommandTCancel()
+function CommandTCancel()
   ruby $command_t.cancel
 endfunction
 
-function! CommandTSelectNext()
+function CommandTSelectNext()
   ruby $command_t.select_next
 endfunction
 
-function! CommandTSelectPrev()
+function CommandTSelectPrev()
   ruby $command_t.select_prev
 endfunction
 
-function! CommandTClear()
+function CommandTClear()
   ruby $command_t.clear
 endfunction
 
-function! CommandTCursorLeft()
+function CommandTCursorLeft()
   ruby $command_t.cursor_left
 endfunction
 
-function! CommandTCursorRight()
+function CommandTCursorRight()
   ruby $command_t.cursor_right
 endfunction
 
-function! CommandTCursorEnd()
+function CommandTCursorEnd()
   ruby $command_t.cursor_end
 endfunction
 
-function! CommandTCursorStart()
+function CommandTCursorStart()
   ruby $command_t.cursor_start
 endfunction
 
