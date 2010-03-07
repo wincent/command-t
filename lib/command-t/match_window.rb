@@ -1,3 +1,5 @@
+require 'ostruct'
+
 module CommandT
   class MatchWindow
     @@selection_marker  = '> '
@@ -10,7 +12,8 @@ module CommandT
       # save existing window dimensions so we can restore them later
       @windows = []
       (0..(VIM::Window.count - 1)).each do |i|
-        @windows << VIM::Window[i].height
+        window = OpenStruct.new :index => i, :height => VIM::Window[i].height
+        @windows << window
       end
 
       # global settings (must manually save and restore)
@@ -67,12 +70,7 @@ module CommandT
 
     def close
       VIM::command "bwipeout! #{@buffer.number}"
-
-      # restore window dimensions
-      @windows.each_with_index do |w, i|
-        VIM::Window[i].height = w
-      end
-
+      restore_window_dimensions
       @settings.restore
       @prompt.dispose
       show_cursor
@@ -160,6 +158,18 @@ module CommandT
     end
 
   private
+
+    def restore_window_dimensions
+      # sort from tallest to shortest
+      @windows.sort! { |a, b| b.height <=> a.height }
+
+      # starting with the tallest ensures that there are no constraints
+      # preventing windows on the side of vertical splits from regaining
+      # their original full size
+      @windows.each do |w|
+        VIM::Window[w.index].height = w.height
+      end
+    end
 
     def match_text_for_idx idx
       match = truncated_match @matches[idx]
