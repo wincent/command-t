@@ -21,19 +21,6 @@
 " CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 " ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 " POSSIBILITY OF SUCH DAMAGE.
-"
-" Largely derived from from Stephen Bach's lusty-explorer.vim plugin
-" (http://www.vim.org/scripts/script.php?script_id=1890) version 2.1.1, which
-" contains the following notice:
-"
-"    Copyright: Copyright (C) 2007-2009 Stephen Bach
-"               Permission is hereby granted to use and distribute this code,
-"               with or without modifications, provided that this copyright
-"               notice is copied with it. Like anything else that's free,
-"               lusty-explorer.vim is provided *as is* and comes with no
-"               warranty of any kind, either expressed or implied. In no
-"               event will the copyright holder be liable for any damages
-"               resulting from the use of this software.
 
 if exists("g:command_t_loaded")
   finish
