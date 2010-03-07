@@ -30,7 +30,7 @@ let g:command_t_loaded = 1
 command CommandT :call <SID>CommandTShow()
 command CommandTFlush :call <SID>CommandTFlush()
 
-nmap <silent> <Leader>t :CommandT<CR>
+nmap <unique> <silent> <Leader>t :CommandT<CR>
 
 function! s:CommandTShow()
   if has('ruby')
