@@ -39,6 +39,23 @@ VALUE CommandTMatch_initialize(VALUE self, VALUE str, VALUE abbrev)
     rb_iv_set(self, "@str", str);
     VALUE offsets = rb_ary_new();
 
+    // special case for zero-length search string: filter out dot-files
+    if (abbrev_len == 0)
+    {
+        for (long i = 0; i < str_len; i++)
+        {
+            char c = str_p[i];
+            if (c == '.')
+            {
+                if (i == 0 || str_p[i - 1] == '/')
+                {
+                    dot_file = 1;
+                    break;
+                }
+            }
+        }
+    }
+
     for (long i = 0; i < abbrev_len; i++)
     {
         char c = abbrev_p[i];
