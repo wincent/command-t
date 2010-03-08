@@ -28,6 +28,15 @@ VALUE mCommandT         = 0; // module CommandT
 VALUE cCommandTMatch    = 0; // class CommandT::Match
 VALUE cCommandTMatcher  = 0; // class CommandT::Matcher
 
+VALUE CommandT_option_from_hash(const char *option, VALUE hash)
+{
+    VALUE key = ID2SYM(rb_intern(option));
+    if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue)
+        return rb_hash_aref(hash, key);
+    else
+        return Qnil;
+}
+
 void Init_ext()
 {
     // module CommandT

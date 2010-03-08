@@ -67,15 +67,6 @@ int comp(const void *a, const void *b)
     }
 }
 
-static VALUE option_from_hash(const char *option, VALUE hash)
-{
-    VALUE key = ID2SYM(rb_intern(option));
-    if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue)
-        return rb_hash_aref(hash, key);
-    else
-        return Qnil;
-}
-
 VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 {
     // process arguments: 1 mandatory, 1 optional
@@ -93,10 +84,10 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     {
         if (TYPE(options) != T_HASH)
             rb_raise(rb_eArgError, "options not a hash");
-        always_show_dot_files = option_from_hash("always_show_dot_files", options);
+        always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
         if (always_show_dot_files != Qtrue)
             always_show_dot_files = Qfalse;
-        never_show_dot_files = option_from_hash("never_show_dot_files", options);
+        never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
         if (never_show_dot_files != Qtrue)
             never_show_dot_files = Qfalse;
     }
