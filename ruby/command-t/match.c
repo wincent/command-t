@@ -25,13 +25,16 @@
 
 VALUE CommandTMatch_initialize(VALUE self, VALUE str, VALUE abbrev)
 {
-    abbrev          = StringValue(abbrev);
-    char *abbrev_p  = RSTRING_PTR(abbrev);
-    long abbrev_len = RSTRING_LEN(abbrev);
-    str             = StringValue(str);
-    char *str_p     = RSTRING_PTR(str);
-    long str_len    = RSTRING_LEN(str);
-    long cursor     = 0;
+    abbrev                  = StringValue(abbrev);
+    char *abbrev_p          = RSTRING_PTR(abbrev);
+    long abbrev_len         = RSTRING_LEN(abbrev);
+    str                     = StringValue(str);
+    char *str_p             = RSTRING_PTR(str);
+    long str_len            = RSTRING_LEN(str);
+    long cursor             = 0;
+    int dot_file            = 0; // true if path is a dot-file
+    int dot_search          = 0; // true if abbrev definitely matches a dot-file
+    int pending_dot_search  = 0; // true if abbrev might match a dot-file
 
     rb_iv_set(self, "@str", str);
     VALUE offsets = rb_ary_new();
@@ -41,15 +44,34 @@ VALUE CommandTMatch_initialize(VALUE self, VALUE str, VALUE abbrev)
         char c = abbrev_p[i];
         if (c >= 'A' && c <= 'Z')
             c += ('a' - 'A'); // add 32 to make lowercase
+        else if (c == '.')
+            pending_dot_search = 1;
 
         VALUE found = Qfalse;
         for (long j = cursor; j < str_len; j++, cursor++)
         {
             char d = str_p[j];
-            if (d >= 'A' && d <= 'Z')
+            if (d == '.')
+            {
+                if (j == 0)
+                {
+                    dot_file = 1; // initial dot
+                    if (pending_dot_search)
+                        dot_search = 1; // this is a dot-search in progress
+                }
+                else if (str_p[j - 1] == '/')
+                {
+                    dot_file = 1; // dot after path separator
+                    if (pending_dot_search)
+                        dot_search = 1; // this is a dot-search in progress
+                }
+            }
+            else if (d >= 'A' && d <= 'Z')
                 d += 'a' - 'A'; // add 32 to make lowercase
             if (c == d)
             {
+                if (c != '.')
+                    pending_dot_search = 0;
                 rb_ary_push(offsets, LONG2FIX(cursor));
                 cursor++;
                 found = Qtrue;
@@ -64,6 +86,8 @@ VALUE CommandTMatch_initialize(VALUE self, VALUE str, VALUE abbrev)
         }
     }
 
+    if (dot_file && !dot_search)
+        offsets = Qnil;
     rb_iv_set(self, "@offsets", offsets);
     return Qnil;
 }
