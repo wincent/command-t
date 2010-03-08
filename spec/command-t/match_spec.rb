@@ -44,107 +44,107 @@ describe CommandT::Match do
 
   describe 'score method' do
     it 'should assign a score of zero for empty search string' do
-      match_for('./foo', '').score.should == 0.0
+      match_for('foo', '').score.should == 0.0
     end
 
     it 'should assign a score of zero for a non-match' do
-      match_for('./foo', 'bar').score.should == 0.0
+      match_for('foo', 'bar').score.should == 0.0
     end
 
     it 'should assign perfect matches a score of one' do
-      match_for('./foo', './foo').score.should == 1.0
+      match_for('foo', 'foo').score.should == 1.0
     end
 
     it 'should prioritize matches with more matching characters' do
-      few_matches = match_for('./foobar', 'fb')
-      many_matches = match_for('./foobar', 'fbar')
+      few_matches = match_for('foobar', 'fb')
+      many_matches = match_for('foobar', 'fbar')
       many_matches.score.should > few_matches.score
     end
 
     it 'should prioritize matches after "/"' do
-      normal_match = match_for('./fooobar', 'b')
-      special_match = match_for('./foo/bar', 'b')
+      normal_match = match_for('fooobar', 'b')
+      special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
 
       # note that / beats _
-      normal_match = match_for('./foo_bar', 'b')
-      special_match = match_for('./foo/bar', 'b')
+      normal_match = match_for('foo_bar', 'b')
+      special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
 
       # / also beats -
-      normal_match = match_for('./foo-bar', 'b')
-      special_match = match_for('./foo/bar', 'b')
+      normal_match = match_for('foo-bar', 'b')
+      special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
 
       # and numbers
-      normal_match = match_for('./foo9bar', 'b')
-      special_match = match_for('./foo/bar', 'b')
+      normal_match = match_for('foo9bar', 'b')
+      special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
 
       # and periods
-      normal_match = match_for('./foo.bar', 'b')
-      special_match = match_for('./foo/bar', 'b')
+      normal_match = match_for('foo.bar', 'b')
+      special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
 
       # and spaces
-      normal_match = match_for('./foo bar', 'b')
-      special_match = match_for('./foo/bar', 'b')
+      normal_match = match_for('foo bar', 'b')
+      special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matches after "-"' do
-      normal_match = match_for('./fooobar', 'b')
-      special_match = match_for('./foo-bar', 'b')
+      normal_match = match_for('fooobar', 'b')
+      special_match = match_for('foo-bar', 'b')
       special_match.score.should > normal_match.score
 
       # - also beats .
-      normal_match = match_for('./foo.bar', 'b')
-      special_match = match_for('./foo-bar', 'b')
+      normal_match = match_for('foo.bar', 'b')
+      special_match = match_for('foo-bar', 'b')
       special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matches after "_"' do
-      normal_match = match_for('./fooobar', 'b')
-      special_match = match_for('./foo_bar', 'b')
+      normal_match = match_for('fooobar', 'b')
+      special_match = match_for('foo_bar', 'b')
       special_match.score.should > normal_match.score
 
       # _ also beats .
-      normal_match = match_for('./foo.bar', 'b')
-      special_match = match_for('./foo_bar', 'b')
+      normal_match = match_for('foo.bar', 'b')
+      special_match = match_for('foo_bar', 'b')
       special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matches after " "' do
-      normal_match = match_for('./fooobar', 'b')
-      special_match = match_for('./foo bar', 'b')
+      normal_match = match_for('fooobar', 'b')
+      special_match = match_for('foo bar', 'b')
       special_match.score.should > normal_match.score
 
       # " " also beats .
-      normal_match = match_for('./foo.bar', 'b')
-      special_match = match_for('./foo bar', 'b')
+      normal_match = match_for('foo.bar', 'b')
+      special_match = match_for('foo bar', 'b')
       special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matches after numbers' do
-      normal_match = match_for('./fooobar', 'b')
-      special_match = match_for('./foo9bar', 'b')
+      normal_match = match_for('fooobar', 'b')
+      special_match = match_for('foo9bar', 'b')
       special_match.score.should > normal_match.score
 
       # numbers also beat .
-      normal_match = match_for('./foo.bar', 'b')
-      special_match = match_for('./foo9bar', 'b')
+      normal_match = match_for('foo.bar', 'b')
+      special_match = match_for('foo9bar', 'b')
       special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matches after periods' do
-      normal_match = match_for('./fooobar', 'b')
-      special_match = match_for('./foo.bar', 'b')
+      normal_match = match_for('fooobar', 'b')
+      special_match = match_for('foo.bar', 'b')
       special_match.score.should > normal_match.score
     end
 
     it 'should prioritize matching capitals following lowercase' do
-      normal_match = match_for('./foobar', 'b')
-      special_match = match_for('./fooBar', 'b')
+      normal_match = match_for('foobar', 'b')
+      special_match = match_for('fooBar', 'b')
       special_match.score.should > normal_match.score
     end
 

@@ -50,25 +50,25 @@ describe CommandT::Matcher do
     end
 
     it 'should return empty array when no matches' do
-      @scanner.stub(:paths).and_return(['./foo/bar', './foo/baz', './bing'])
+      @scanner.stub(:paths).and_return(['foo/bar', 'foo/baz', 'bing'])
       @no_matches = CommandT::Matcher.new @scanner
       @no_matches.matches_for('xyz').should == []
     end
 
     it 'should return matching paths' do
-      @scanner.stub(:paths).and_return(['./foo/bar', './foo/baz', './bing'])
+      @scanner.stub(:paths).and_return(['foo/bar', 'foo/baz', 'bing'])
       @foo_paths = CommandT::Matcher.new @scanner
       matches = @foo_paths.matches_for('z')
-      matches.map { |m| m.to_s }.should == ['./foo/baz']
+      matches.map { |m| m.to_s }.should == ['foo/baz']
       matches = @foo_paths.matches_for('bg')
-      matches.map { |m| m.to_s }.should == ['./bing']
+      matches.map { |m| m.to_s }.should == ['bing']
     end
 
     it 'should perform case-insensitive matching' do
-      @scanner.stub(:paths).and_return(['./Foo'])
+      @scanner.stub(:paths).and_return(['Foo'])
       @path = CommandT::Matcher.new @scanner
       matches = @path.matches_for('f')
-      matches.map { |m| m.to_s }.should == ['./Foo']
+      matches.map { |m| m.to_s }.should == ['Foo']
     end
   end
 end
