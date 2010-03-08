@@ -49,7 +49,7 @@ void Init_ext()
     cCommandTMatcher = rb_define_class_under(mCommandT, "Matcher", rb_cObject);
 
     // methods
-    rb_define_method(cCommandTMatcher, "initialize", CommandTMatcher_initialize, 1);
+    rb_define_method(cCommandTMatcher, "initialize", CommandTMatcher_initialize, -1);
     rb_define_method(cCommandTMatcher, "sorted_matches_for", CommandTMatcher_sorted_matchers_for, 2);
     rb_define_method(cCommandTMatcher, "matches_for", CommandTMatcher_matches_for, 1);
 }

@@ -25,7 +25,7 @@ module CommandT
   class Base
     def initialize path = Dir.pwd, options = {}
       @scanner = Scanner.scanner path, options
-      @matcher = Matcher.new @scanner
+      @matcher = Matcher.new @scanner, options
     end
 
     # Options:

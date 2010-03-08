@@ -67,11 +67,41 @@ int comp(const void *a, const void *b)
     }
 }
 
-VALUE CommandTMatcher_initialize(VALUE self, VALUE scanner)
+static VALUE option_from_hash(const char *option, VALUE hash)
 {
+    VALUE key = ID2SYM(rb_intern(option));
+    if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue)
+        return rb_hash_aref(hash, key);
+    else
+        return Qnil;
+}
+
+VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
+{
+    // process arguments: 1 mandatory, 1 optional
+    VALUE scanner, options;
+    if (rb_scan_args(argc, argv, "11", &scanner, &options) == 1)
+        options = Qnil;
     if (NIL_P(scanner))
         rb_raise(rb_eArgError, "nil scanner");
     rb_iv_set(self, "@scanner", scanner);
+
+    // check optional options hash for overrides
+    VALUE always_show_dot_files = Qfalse;
+    VALUE never_show_dot_files = Qfalse;
+    if (!NIL_P(options))
+    {
+        if (TYPE(options) != T_HASH)
+            rb_raise(rb_eArgError, "options not a hash");
+        always_show_dot_files = option_from_hash("always_show_dot_files", options);
+        if (always_show_dot_files != Qtrue)
+            always_show_dot_files = Qfalse;
+        never_show_dot_files = option_from_hash("never_show_dot_files", options);
+        if (never_show_dot_files != Qtrue)
+            never_show_dot_files = Qfalse;
+    }
+    rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
+    rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
     return Qnil;
 }
 

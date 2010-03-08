@@ -26,9 +26,11 @@ module CommandT
     def initialize
       @prompt = Prompt.new
       @scanner = CommandT::Base.new nil,
-        :max_files            => get_number('g:CommandTMaxFiles'),
-        :max_depth            => get_number('g:CommandTMaxDepth'),
-        :scan_dot_directories => get_bool('g:CommandTScanDotDirectories')
+        :max_files              => get_number('g:CommandTMaxFiles'),
+        :max_depth              => get_number('g:CommandTMaxDepth'),
+        :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
+        :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
+        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
     end
 
     def show
