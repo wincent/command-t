@@ -85,7 +85,9 @@ VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE option
     VALUE matches = CommandTMatcher_matches_for(self, abbrev);
 
     abbrev = StringValue(abbrev);
-    if (RSTRING(abbrev)->len > 0)
+    if (RSTRING(abbrev)->len == 1 && RSTRING(abbrev)->ptr[0] == '.')
+        ; // maintain alphabetic order if search string is only "."
+    else if (RSTRING(abbrev)->len > 0)
         // we have a non-empty search string, so sort by score
         qsort(RARRAY(matches)->ptr, RARRAY(matches)->len, sizeof(VALUE), comp);
 
