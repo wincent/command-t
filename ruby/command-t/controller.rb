@@ -77,7 +77,7 @@ module CommandT
     def accept_selection options = {}
       selection = @match_window.selection
       hide
-      open_selection selection, options
+      open_selection(selection, options) unless selection.nil?
     end
 
     def toggle_focus
