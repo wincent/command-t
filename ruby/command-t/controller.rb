@@ -26,8 +26,9 @@ module CommandT
     def initialize
       @prompt = Prompt.new
       @scanner = CommandT::Base.new nil,
-        :max_files => get_number('g:CommandTMaxFiles'),
-        :max_depth => get_number('g:CommandTMaxDepth')
+        :max_files            => get_number('g:CommandTMaxFiles'),
+        :max_depth            => get_number('g:CommandTMaxDepth'),
+        :scan_dot_directories => get_bool('g:CommandTScanDotDirectories')
     end
 
     def show
@@ -130,6 +131,11 @@ module CommandT
     def get_number name
       return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
       VIM::evaluate("#{name}").to_i
+    end
+
+    def get_bool name
+      return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
+      VIM::evaluate("#{name}").to_i != 0
     end
 
     # Backslash-escape space, \, |, %, #, "

@@ -28,10 +28,11 @@ module CommandT
       class FileLimitExceeded < ::RuntimeError; end
 
       def initialize path = Dir.pwd, options = {}
-        @path       = path
-        @max_depth  = options[:max_depth] || 15
-        @max_files  = options[:max_files] || 10_000
-        @exclude    = options[:excludes] || /\A(\.git)\z/
+        @path                 = path
+        @max_depth            = options[:max_depth] || 15
+        @max_files            = options[:max_files] || 10_000
+        @scan_dot_directories = options[:scan_dot_directories] || false
+        @exclude              = options[:excludes] || /\A(\.git)\z/
       end
 
       def paths
@@ -59,6 +60,7 @@ module CommandT
               raise FileLimitExceeded if @files > @max_files
               accumulator << path[@prefix_len + 1..-1]
             elsif File.directory?(path)
+              next if (entry.match(/\A\./) && !@scan_dot_directories)
               @depth += 1
               raise DepthLimitExceeded if @depth > @max_depth
               add_paths_for_directory path, accumulator
