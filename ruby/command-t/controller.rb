@@ -25,7 +25,9 @@ module CommandT
   class Controller
     def initialize
       @prompt = Prompt.new
-      @scanner = CommandT::Base.new
+      @scanner = CommandT::Base.new nil,
+        :max_files => get_number('g:CommandTMaxFiles'),
+        :max_depth => get_number('g:CommandTMaxDepth')
     end
 
     def show
@@ -124,6 +126,11 @@ module CommandT
     end
 
   private
+
+    def get_number name
+      return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
+      VIM::evaluate("#{name}").to_i
+    end
 
     # Backslash-escape space, \, |, %, #, "
     def sanitize_path_string str

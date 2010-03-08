@@ -8,10 +8,11 @@ CONTENTS                                        *command-t-contents*
  4. Usage                   |command-t-usage|
  5. Commands                |command-t-commands|
  6. Mappings                |command-t-mappings|
- 7. Author                  |command-t-author|
- 8. Website                 |command-t-website|
- 9. License                 |command-t-license|
-10. History                 |command-t-history|
+ 7. Options                 |command-t-options|
+ 8. Author                  |command-t-author|
+ 9. Website                 |command-t-website|
+10. License                 |command-t-license|
+11. History                 |command-t-history|
 
 
 INTRODUCTION                                    *command-t*
@@ -181,6 +182,29 @@ to define a different mapping use a line like this in your ~/.vimrc:
   nmap <silent> <Leader>t :CommandT<CR>
 
 Replacing "<Leader>t" with your mapping of choice.
+
+
+OPTIONS                                         *command-t-options*
+
+A number of options may be set in your ~/.vimrc to influence the behaviour of
+the plug-in. To set an option, you include a line like this in your ~/.vimrc:
+
+    let g:CommandTMaxFiles=20000
+
+Following is a list of all available options:
+
+                                                *command-t-max-files*
+  |g:CommandTMaxFiles|                           number (default 10000)
+
+      The maximum number of files that will be considered when scanning the
+      current directory. Upon reaching this number scanning stops.
+
+                                                *command-t-max-depth*
+  |g:CommandTMaxDepth|                           number (default 15)
+
+      The maximum depth (levels of recursion) to be explored when scanning the
+      current directory. Any directories at levels beyond this depth will be
+      skipped.
 
 
 AUTHOR                                          *command-t-author*
