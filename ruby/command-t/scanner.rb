@@ -28,8 +28,8 @@ module CommandT
     autoload :Find, 'command-t/scanner/find'
     autoload :Ruby, 'command-t/scanner/ruby'
 
-    def self.scanner path = nil
-      Ruby.new path
+    def self.scanner path = nil, options = {}
+      Ruby.new path, options
     end
   end # module Scanner
 end # module CommandT
