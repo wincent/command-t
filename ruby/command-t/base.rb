@@ -23,8 +23,8 @@
 
 module CommandT
   class Base
-    def initialize path = Dir.pwd
-      @scanner = Scanner.scanner path
+    def initialize path = Dir.pwd, options = {}
+      @scanner = Scanner.scanner path, options
       @matcher = Matcher.new @scanner
     end
 
