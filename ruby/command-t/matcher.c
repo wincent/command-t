@@ -78,19 +78,12 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     rb_iv_set(self, "@scanner", scanner);
 
     // check optional options hash for overrides
-    VALUE always_show_dot_files = Qfalse;
-    VALUE never_show_dot_files = Qfalse;
-    if (!NIL_P(options))
-    {
-        if (TYPE(options) != T_HASH)
-            rb_raise(rb_eArgError, "options not a hash");
-        always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
-        if (always_show_dot_files != Qtrue)
-            always_show_dot_files = Qfalse;
-        never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
-        if (never_show_dot_files != Qtrue)
-            never_show_dot_files = Qfalse;
-    }
+    VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
+    if (always_show_dot_files != Qtrue)
+        always_show_dot_files = Qfalse;
+    VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
+    if (never_show_dot_files != Qtrue)
+        never_show_dot_files = Qfalse;
     rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
     rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
     return Qnil;
@@ -98,9 +91,8 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 
 VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE options)
 {
-    // confirm that we actually got a valid options hash
-    if (NIL_P(options) || TYPE(options) != T_HASH)
-        rb_raise(rb_eArgError, "options not a hash");
+    // process optional options hash
+    VALUE limit_option = CommandT_option_from_hash("limit", options);
 
     // get matches in default (alphabetical) ordering
     VALUE matches = CommandTMatcher_matches_for(self, abbrev);
@@ -112,8 +104,7 @@ VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE option
         // we have a non-empty search string, so sort by score
         qsort(RARRAY(matches)->ptr, RARRAY(matches)->len, sizeof(VALUE), comp);
 
-    // handle optional limit option
-    VALUE limit_option = CommandT_option_from_hash("limit", options);
+    // apply optional limit option
     long limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
     if (limit == 0 || RARRAY(matches)->len < limit)
         limit = RARRAY(matches)->len;

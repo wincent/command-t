@@ -27,4 +27,7 @@ extern VALUE mCommandT;         // module CommandT
 extern VALUE cCommandTMatch;    // class CommandT::Match
 extern VALUE cCommandTMatcher;  // class CommandT::Matcher
 
+// Encapsulates common pattern of checking for an option in an optional
+// options hash. The hash itself may be nil, but an exception will be
+// raised if it is not nil and not a hash.
 VALUE CommandT_option_from_hash(const char *option, VALUE hash);
