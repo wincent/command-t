@@ -113,9 +113,8 @@ VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE option
         qsort(RARRAY(matches)->ptr, RARRAY(matches)->len, sizeof(VALUE), comp);
 
     // handle optional limit option
-    long limit = 0;
-    if (rb_funcall(options, rb_intern("has_key?"), 1, ID2SYM(rb_intern("limit"))) == Qtrue)
-        limit = NUM2LONG(rb_hash_aref(options, ID2SYM(rb_intern("limit"))));
+    VALUE limit_option = CommandT_option_from_hash("limit", options);
+    long limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
     if (limit == 0 || RARRAY(matches)->len < limit)
         limit = RARRAY(matches)->len;
 
