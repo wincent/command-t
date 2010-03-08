@@ -23,14 +23,19 @@
 
 #include "match.h"
 
-VALUE CommandTMatch_initialize(VALUE self, VALUE str, VALUE abbrev)
+// Match.new abbrev, string, options = {}
+VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
 {
-    abbrev                  = StringValue(abbrev);
-    char *abbrev_p          = RSTRING_PTR(abbrev);
-    long abbrev_len         = RSTRING_LEN(abbrev);
+    // process arguments: 2 mandatory, 1 optional
+    VALUE str, abbrev, options;
+    if (rb_scan_args(argc, argv, "21", &str, &abbrev, &options) == 2)
+        options = Qnil;
     str                     = StringValue(str);
     char *str_p             = RSTRING_PTR(str);
     long str_len            = RSTRING_LEN(str);
+    abbrev                  = StringValue(abbrev);
+    char *abbrev_p          = RSTRING_PTR(abbrev);
+    long abbrev_len         = RSTRING_LEN(abbrev);
     long cursor             = 0;
     int dot_file            = 0; // true if path is a dot-file
     int dot_search          = 0; // true if abbrev definitely matches a dot-file
