@@ -206,6 +206,44 @@ Following is a list of all available options:
       current directory. Any directories at levels beyond this depth will be
       skipped.
 
+                                                *command-t-always-show-dot-files*
+  |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
+
+      By default Command-T will show dot-files only if the entered search
+      string contains a dot that could cause a dot-file to match. When set to
+      a non-zero value, this setting instructs Command-T to always include
+      matching dot-files in the match list regardless of whether the search
+      string contains a dot. See also |g:CommandTNeverShowDotFiles|.
+
+                                                *command-t-never-show-dot-files*
+  |g:CommandTNeverShowDotFiles|                  boolean (default: 0)
+
+      By default Command-T will show dot-files if the entered search string
+      contains a dot that could cause a dot-file to match. When set to a
+      non-zero value, this setting instructs Command-T to never show dot-files
+      under any circumstances. Note that it is contradictory to set both this
+      setting and |g:CommandTAlwaysShowDotFiles| to true, and if you do so VIM
+      will suffer from headaches, nervous twitches, and sudden mood swings.
+
+                                                *command-t-scan-dot-directories*
+  |g:CommandTScanDotDirectories|                 boolean (default: 0)
+
+      Normally Command-T will not recurse into "dot-directories" (directories
+      whose names begin with a dot) while performing its initial scan. Set
+      this setting to a non-zero value to override this behavior and recurse.
+      Note that this setting is completely independent of the
+      |g:CommandTAlwaysShowDotFiles| and |g:CommandTNeverShowDotFiles|
+      settings; those apply only to the selection and display of matches
+      (after scanning has been performed), whereas
+      |g:CommandTScanDotDirectories| affects the behaviour at scan-time.
+
+      Note also that even with this setting on you can still use Command-T to
+      open files inside a "dot-directory" such as ~/.vim, but you have to use
+      the |:cd| command to change into that directory first. For example:
+
+        :cd ~/.vim
+        :CommandT
+
 
 AUTHOR                                          *command-t-author*
 

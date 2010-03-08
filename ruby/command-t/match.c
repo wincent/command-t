@@ -22,6 +22,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "match.h"
+#include "ext.h"
 
 // Match.new abbrev, string, options = {}
 VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
@@ -36,6 +37,11 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     abbrev                  = StringValue(abbrev);
     char *abbrev_p          = RSTRING_PTR(abbrev);
     long abbrev_len         = RSTRING_LEN(abbrev);
+
+    // check optional options hash for overrides
+    VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
+    VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
+
     long cursor             = 0;
     int dot_file            = 0; // true if path is a dot-file
     int dot_search          = 0; // true if abbrev definitely matches a dot-file
@@ -45,7 +51,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     VALUE offsets = rb_ary_new();
 
     // special case for zero-length search string: filter out dot-files
-    if (abbrev_len == 0)
+    if (abbrev_len == 0 && always_show_dot_files != Qtrue)
     {
         for (long i = 0; i < str_len; i++)
         {
@@ -108,8 +114,12 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
         }
     }
 
-    if (dot_file && !dot_search)
-        offsets = Qnil;
+    if (dot_file)
+    {
+        if (never_show_dot_files == Qtrue ||
+            (!dot_search && always_show_dot_files != Qtrue))
+            offsets = Qnil;
+    }
     rb_iv_set(self, "@offsets", offsets);
     return Qnil;
 }
