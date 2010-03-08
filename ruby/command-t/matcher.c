@@ -138,11 +138,24 @@ VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
         rb_raise(rb_eArgError, "nil abbrev");
     VALUE matches = rb_ary_new();
     VALUE scanner = rb_iv_get(self, "@scanner");
+    VALUE always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
+    VALUE never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
+    VALUE options = Qnil;
+    if (always_show_dot_files == Qtrue)
+    {
+        options = rb_hash_new();
+        rb_hash_aset(options, ID2SYM(rb_intern("always_show_dot_files")), always_show_dot_files);
+    }
+    else if (never_show_dot_files == Qtrue)
+    {
+        options = rb_hash_new();
+        rb_hash_aset(options, ID2SYM(rb_intern("never_show_dot_files")), never_show_dot_files);
+    }
     VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
     for (long i = 0, max = RARRAY(paths)->len; i < max; i++)
     {
         VALUE path = RARRAY(paths)->ptr[i];
-        VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 2, path, abbrev);
+        VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 3, path, abbrev, options);
         if (rb_funcall(match, rb_intern("matches?"), 0) == Qtrue)
             rb_funcall(matches, rb_intern("push"), 1, match);
     }
