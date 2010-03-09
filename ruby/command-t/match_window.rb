@@ -165,7 +165,7 @@ module CommandT
 
       # see if there's anything up ahead that matches
       @matches.each_with_index do |match, idx|
-        if match[0, @find_string.length] == @find_string
+        if match[0, @find_string.length].casecmp(@find_string) == 0
           old_selection = @selection
           @selection = idx
           print_match(old_selection)  # redraw old selection (removes marker)
