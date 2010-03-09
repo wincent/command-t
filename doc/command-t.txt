@@ -183,6 +183,15 @@ to define a different mapping use a line like this in your ~/.vimrc:
 
 Replacing "<Leader>t" with your mapping of choice.
 
+Note that in the case of MacVim you actually can map to Command-T (written
+as <D-t> in VIM) in your ~/.gvimrc file if you first unmap the existing menu
+binding of Command-T to "New Tab":
+
+  if has("gui_macvim")
+    macmenu &File.New\ Tab key=<nop>
+    map <D-t> :CommandT<CR>
+  endif
+
 
 OPTIONS                                         *command-t-options*
 
