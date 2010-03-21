@@ -89,7 +89,7 @@ use a typical |'runtimepath'| then the files were installed inside ~/.vim and
 you can build the extension with:
 
   cd ~/.vim/ruby/command-t
-  ruby extconf
+  ruby extconf.rb
   make
 
 
