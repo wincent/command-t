@@ -289,7 +289,7 @@ browser at:
 A copy of each release is also available from the official VIM scripts site
 at:
 
-  http://www.vim.org/scripts/
+  http://www.vim.org/scripts/script.php?script_id=3025
 
 Bug reports should be submitted to the issue tracker at:
 
