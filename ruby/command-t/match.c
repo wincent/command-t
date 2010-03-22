@@ -23,6 +23,7 @@
 
 #include "match.h"
 #include "ext.h"
+#include "ruby_compat.h"
 
 // Match.new abbrev, string, options = {}
 VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)

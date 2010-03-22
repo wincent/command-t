@@ -25,6 +25,7 @@
 #include <string.h> /* for strcmp() */
 #include "matcher.h"
 #include "ext.h"
+#include "ruby_compat.h"
 
 // comparison function for use with qsort
 int comp(const void *a, const void *b)
