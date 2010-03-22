@@ -157,7 +157,7 @@ VALUE CommandTMatch_score(VALUE self)
 
     // nil or empty offsets array means a score of 0.0
     VALUE offsets = rb_iv_get(self, "@offsets");
-    if (NIL_P(offsets) || RARRAY(offsets)->len == 0)
+    if (NIL_P(offsets) || RARRAY_LEN(offsets) == 0)
     {
         score = rb_float_new(0.0);
         rb_iv_set(self, "@score", score);
@@ -166,7 +166,7 @@ VALUE CommandTMatch_score(VALUE self)
 
     // if search string is equal to actual string score is 1.0
     VALUE str = rb_iv_get(self, "@str");
-    if (RARRAY(offsets)->len == RSTRING(str)->len)
+    if (RARRAY_LEN(offsets) == RSTRING_LEN(str))
     {
         score = rb_float_new(1.0);
         rb_iv_set(self, "@score", score);
@@ -174,16 +174,16 @@ VALUE CommandTMatch_score(VALUE self)
     }
 
     double score_d = 0.0;
-    double max_score_per_char = 1.0 / RARRAY(offsets)->len;
-    for (long i = 0, max = RARRAY(offsets)->len; i < max; i++)
+    double max_score_per_char = 1.0 / RARRAY_LEN(offsets);
+    for (long i = 0, max = RARRAY_LEN(offsets); i < max; i++)
     {
         double score_for_char = max_score_per_char;
-        long offset = FIX2LONG(RARRAY(offsets)->ptr[i]);
+        long offset = FIX2LONG(RARRAY_PTR(offsets)[i]);
         if (offset > 0)
         {
             double factor   = 0.0;
-            char curr       = RSTRING(str)->ptr[offset];
-            char last       = RSTRING(str)->ptr[offset - 1];
+            char curr       = RSTRING_PTR(str)[offset];
+            char last       = RSTRING_PTR(str)[offset - 1];
 
             // look at previous character to see if it is "special"
             // NOTE: possible improvements here:
@@ -207,7 +207,7 @@ VALUE CommandTMatch_score(VALUE self)
                 // as distance from last matched char increases
                 if (i > 1)
                 {
-                    long distance = offset - FIX2LONG(RARRAY(offsets)->ptr[i - 1]);
+                    long distance = offset - FIX2LONG(RARRAY_PTR(offsets)[i - 1]);
                     factor = 1.0 / distance;
                 }
                 else

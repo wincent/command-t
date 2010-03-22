@@ -44,10 +44,10 @@ int comp(const void *a, const void *b)
         // fall back to alphabetical ordering
         VALUE a_str = rb_funcall(a_val, to_s, 0);
         VALUE b_str = rb_funcall(b_val, to_s, 0);
-        char *a_p = RSTRING(a_str)->ptr;
-        long a_len = RSTRING(a_str)->len;
-        char *b_p = RSTRING(b_str)->ptr;
-        long b_len = RSTRING(b_str)->len;
+        char *a_p = RSTRING_PTR(a_str);
+        long a_len = RSTRING_LEN(a_str);
+        char *b_p = RSTRING_PTR(b_str);
+        long b_len = RSTRING_LEN(b_str);
         int order = 0;
         if (a_len > b_len)
         {
@@ -98,28 +98,28 @@ VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE option
     VALUE matches = CommandTMatcher_matches_for(self, abbrev);
 
     abbrev = StringValue(abbrev);
-    if (RSTRING(abbrev)->len == 1 && RSTRING(abbrev)->ptr[0] == '.')
+    if (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.')
         ; // maintain alphabetic order if search string is only "."
-    else if (RSTRING(abbrev)->len > 0)
+    else if (RSTRING_LEN(abbrev) > 0)
         // we have a non-empty search string, so sort by score
-        qsort(RARRAY(matches)->ptr, RARRAY(matches)->len, sizeof(VALUE), comp);
+        qsort(RARRAY_PTR(matches), RARRAY_LEN(matches), sizeof(VALUE), comp);
 
     // apply optional limit option
     long limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
-    if (limit == 0 || RARRAY(matches)->len < limit)
-        limit = RARRAY(matches)->len;
+    if (limit == 0 || RARRAY_LEN(matches)< limit)
+        limit = RARRAY_LEN(matches);
 
     // will return an array of strings, not an array of Match objects
     for (long i = 0; i < limit; i++)
     {
-        VALUE str = rb_funcall(RARRAY(matches)->ptr[i], rb_intern("to_s"), 0);
-        RARRAY(matches)->ptr[i] = str;
+        VALUE str = rb_funcall(RARRAY_PTR(matches)[i], rb_intern("to_s"), 0);
+        RARRAY_PTR(matches)[i] = str;
     }
 
     // trim off any items beyond the limit
-    if (limit < RARRAY(matches)->len)
+    if (limit < RARRAY_LEN(matches))
         (void)rb_funcall(matches, rb_intern("slice!"), 2, LONG2NUM(limit),
-            LONG2NUM(RARRAY(matches)->len - limit));
+            LONG2NUM(RARRAY_LEN(matches) - limit));
     return matches;
 }
 
@@ -143,9 +143,9 @@ VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
         rb_hash_aset(options, ID2SYM(rb_intern("never_show_dot_files")), never_show_dot_files);
     }
     VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
-    for (long i = 0, max = RARRAY(paths)->len; i < max; i++)
+    for (long i = 0, max = RARRAY_LEN(paths); i < max; i++)
     {
-        VALUE path = RARRAY(paths)->ptr[i];
+        VALUE path = RARRAY_PTR(paths)[i];
         VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 3, path, abbrev, options);
         if (rb_funcall(match, rb_intern("matches?"), 0) == Qtrue)
             rb_funcall(matches, rb_intern("push"), 1, match);
