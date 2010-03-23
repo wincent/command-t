@@ -346,6 +346,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+0.2 (23 March 2010)
+
+- compatibility fixes for compilation under Ruby 1.9 series
+- compatibility fixes for compilation under Ruby 1.8.5
+- compatibility fixes for Windows and other non-UNIX platforms
+- suppress "mapping already exists" message if <Leader>t mapping is already
+  defined when plug-in is loaded
+- exclude paths based on |'wildignore'| setting rather than a hardcoded
+  regular expression
+
 0.1 (22 March 2010)
 
 - initial public release
