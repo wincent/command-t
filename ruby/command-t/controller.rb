@@ -30,7 +30,8 @@ module CommandT
         :max_depth              => get_number('g:CommandTMaxDepth'),
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
-        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
+        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
+        :excludes               => get_string('&wildignore')
     end
 
     def show
@@ -138,6 +139,11 @@ module CommandT
     def get_bool name
       return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
       VIM::evaluate("#{name}").to_i != 0
+    end
+
+    def get_string name
+      return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
+      VIM::evaluate("#{name}").to_s
     end
 
     # Backslash-escape space, \, |, %, #, "

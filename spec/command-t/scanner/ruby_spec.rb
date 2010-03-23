@@ -58,4 +58,12 @@ describe CommandT::Scanner::Ruby do
       @scanner.paths.should == ['t1', 't2']
     end
   end
+
+  describe ':excludes option' do
+    it 'should exclude based on file glob patterns' do
+      @scanner = CommandT::Scanner::Ruby.new @dir, :excludes => 'bar,*ng'
+      @scanner.paths.should == ['baz', 'foo/alpha/t1', 'foo/alpha/t2',
+        'foo/beta']
+    end
+  end
 end

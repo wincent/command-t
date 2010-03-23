@@ -250,6 +250,22 @@ Following is a list of all available options:
         :cd ~/.vim
         :CommandT
 
+In addition to the options provided by Command-T itself, some of VIM's own
+settings can be used to control behavior:
+
+                                                *command-t-wildignore*
+  |'wildignore'|                                 string (default: '')
+
+      VIM's |'wildignore'| setting is used to determine which files should be
+      excluded from listings. This is a comma-separated list of file glob
+      patterns. It defaults to the empty string, but common settings include
+      "*.o,*.obj" (to exclude object files) or ".git,.svn" (to exclude SCM
+      metadata directories). For example:
+
+        :set wildignore+=*.o,*.obj,.git
+
+      See the |'wildignore'| documentation for more information.
+
 
 AUTHOR                                          *command-t-author*
 
