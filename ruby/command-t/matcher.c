@@ -34,8 +34,8 @@ int comp(const void *a, const void *b)
     VALUE b_val = *(VALUE *)b;
     ID score = rb_intern("score");
     ID to_s = rb_intern("to_s");
-    double a_score = RFLOAT(rb_funcall(a_val, score, 0))->value;
-    double b_score = RFLOAT(rb_funcall(b_val, score, 0))->value;
+    double a_score = RFLOAT_VALUE(rb_funcall(a_val, score, 0));
+    double b_score = RFLOAT_VALUE(rb_funcall(b_val, score, 0));
     if (a_score > b_score)
         return -1; // a scores higher, a should appear sooner
     else if (a_score < b_score)
