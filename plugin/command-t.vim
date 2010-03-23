@@ -129,13 +129,15 @@ ruby << EOF
     require 'vim'
     require 'command-t'
   rescue LoadError
-    rtp = Vim::evaluate('&runtimepath').to_s.split(',').first
-    if rtp.nil? || rtp.length == 0
-      rtp = "#{ENV['HOME']}"
+    load_path_modified = false
+    Vim::evaluate('&runtimepath').to_s.split(',').each do |path|
+      lib = "#{path}/ruby"
+      if !$LOAD_PATH.include?(lib) and File.exist?(lib)
+        $LOAD_PATH << lib
+        load_path_modified = true
+      end
     end
-    lib = "#{rtp}/ruby"
-    raise if $LOAD_PATH.include?(lib)
-    $LOAD_PATH << lib
+    raise unless load_path_modified
     retry
   end
 
