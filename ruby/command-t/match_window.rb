@@ -79,11 +79,12 @@ module CommandT
         VIM::command 'highlight link CommandTSelection Visual'
         VIM::command 'highlight link CommandTNoEntries Error'
         VIM::evaluate 'clearmatches()'
+
+        # hide cursor
+        @cursor_highlight = get_cursor_highlight
+        hide_cursor
       end
 
-      # hide cursor
-      @cursor_highlight = get_cursor_highlight
-      hide_cursor
 
       @has_focus  = false
       @selection  = nil
@@ -283,7 +284,7 @@ module CommandT
       VIM::command 'silent redir => g:command_t_cursor_highlight'
 
       # force 0 verbosity to ensure origin information isn't printed as well
-      VIM::command 'silent 0verbose highlight Cursor'
+      VIM::command 'silent! 0verbose highlight Cursor'
       VIM::command 'silent redir END'
 
       # there are 3 possible formats to check for, each needing to be
@@ -298,17 +299,21 @@ module CommandT
         'clear Cursor'
       elsif highlight =~ /Cursor\s+xxx\s+(.+)/
         "Cursor #{$~[1]}"
-      else # last resort fallback
-        'Cursor guifg=bg guibg=fg'
+      else # likely cause E411 Cursor highlight group not found
+        nil
       end
     end
 
     def hide_cursor
-      VIM::command 'highlight! Cursor NONE'
+      if @cursor_highlight
+        VIM::command 'highlight Cursor NONE'
+      end
     end
 
     def show_cursor
-      VIM::command "highlight! #{@cursor_highlight}"
+      if @cursor_highlight
+        VIM::command "highlight #{@cursor_highlight}"
+      end
     end
 
     def lock
