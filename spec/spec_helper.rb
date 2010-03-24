@@ -24,5 +24,3 @@
 unless $LOAD_PATH.include? './ruby'
   $LOAD_PATH.unshift './ruby'
 end
-
-require 'command-t'

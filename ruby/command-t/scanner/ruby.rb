@@ -21,6 +21,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/scanner/base'
+
 module CommandT
   module Scanner
     class Ruby < Base

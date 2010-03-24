@@ -21,6 +21,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/ext' # CommandT::Matcher
+require 'command-t/scanner'
+
 module CommandT
   class Base
     def initialize path = Dir.pwd, options = {}

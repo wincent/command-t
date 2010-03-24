@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require 'command-t/base'
 
 describe CommandT::Base do
   before :all do

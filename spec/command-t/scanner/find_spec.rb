@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require File.join(File.dirname(__FILE__), '..', '..', 'spec_helper')
+require 'command-t/scanner/find'
 
 describe CommandT::Scanner::Find do
   before :all do

@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'ostruct'
+require 'command-t/settings'
 
 module CommandT
   class MatchWindow

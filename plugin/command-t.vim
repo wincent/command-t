@@ -126,8 +126,10 @@ endfunction
 ruby << EOF
   # require Ruby files
   begin
+    # prepare controller
     require 'vim'
-    require 'command-t'
+    require 'command-t/controller'
+    $command_t = CommandT::Controller.new
   rescue LoadError
     load_path_modified = false
     Vim::evaluate('&runtimepath').to_s.split(',').each do |path|
@@ -137,15 +139,10 @@ ruby << EOF
         load_path_modified = true
       end
     end
-    raise unless load_path_modified
-    retry
-  end
+    retry if load_path_modified
 
-  # prepare controller
-  begin
-    $command_t = CommandT::Controller.new
-  rescue LoadError
-    # most likely didn't build the C extension yet
+    # could get here if C extension was not compiled
+    require 'command-t/stub'
     $command_t = CommandT::Stub.new
   end
 EOF
