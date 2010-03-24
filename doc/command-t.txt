@@ -212,6 +212,13 @@ Following is a list of all available options:
       current directory. Any directories at levels beyond this depth will be
       skipped.
 
+                                                *command-t-max-height*
+  |g:CommandTMaxHeight|                          number (default: 0)
+
+      The maximum height in lines the match window is allowed to expand to.
+      If set to 0, the window will occupy as much of the available space as
+      needed to show matching entries.
+
                                                 *command-t-always-show-dot-files*
   |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
 
