@@ -353,6 +353,18 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+0.3 (24 March 2010)
+
+- add |g:CommandTMaxHeight| setting for controlling the maximum height of the
+  match window (patch from Lucas de Vries)
+- fix bug where |'list'| setting might be inappropriately set after dismissing
+  Command-T
+- compatibility fix for different behaviour of "autoload" under Ruby 1.9.1
+- avoid "highlight group not found" warning when run under a version of VIM
+  that does not have syntax highlighting support
+- open in split when opening normally would fail due to |'hidden'| and
+  |'modified'| values
+
 0.2 (23 March 2010)
 
 - compatibility fixes for compilation under Ruby 1.9 series
