@@ -158,8 +158,16 @@ module CommandT
       str.gsub(/[ \\|%#"]/, '\\\\\0')
     end
 
+    def default_open_command
+      if !get_bool('&hidden') && get_bool('&modified')
+        'sp'
+      else
+        'e'
+      end
+    end
+
     def open_selection selection, options = {}
-      command = options[:command] || 'e'
+      command = options[:command] || default_open_command
       selection = sanitize_path_string selection
       VIM::command "silent #{command} #{selection}"
     end
