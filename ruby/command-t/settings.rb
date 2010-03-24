@@ -33,7 +33,6 @@ module CommandT
       @hlsearch       = get_bool 'hlsearch'
       @insertmode     = get_bool 'insertmode'
       @showcmd        = get_bool 'showcmd'
-      @list           = get_bool 'list'
     end
 
     def restore
@@ -45,7 +44,6 @@ module CommandT
       set_bool 'hlsearch', @hlsearch
       set_bool 'insertmode', @insertmode
       set_bool 'showcmd', @showcmd
-      set_bool 'list', @list
     end
 
   private

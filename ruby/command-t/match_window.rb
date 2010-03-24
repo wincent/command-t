@@ -46,7 +46,6 @@ module CommandT
       VIM::set_option 'nohlsearch'      # don't highlight search strings
       VIM::set_option 'noinsertmode'    # don't make Insert mode the default
       VIM::set_option 'noshowcmd'       # don't show command info on last line
-      VIM::set_option 'nolist'          # don't use List mode (visible tabs etc)
       VIM::set_option 'report=9999'     # don't show "X lines changed" reports
       VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
       VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
@@ -61,6 +60,7 @@ module CommandT
         'setlocal noswapfile',        # don't create a swapfile
         'setlocal nowrap',            # don't soft-wrap
         'setlocal nonumber',          # don't show line numbers
+        'setlocal nolist',            # don't use List mode (visible tabs etc)
         'setlocal foldcolumn=0',      # don't show a fold column at side
         'setlocal nocursorline',      # don't highlight line cursor is on
         'setlocal nospell',           # spell-checking off
