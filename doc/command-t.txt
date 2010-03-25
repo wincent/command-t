@@ -257,6 +257,17 @@ Following is a list of all available options:
         :cd ~/.vim
         :CommandT
 
+                                                *command-t-match-window-at-top*
+  |g:CommandTMatchWindowAtTop|                   boolean (default: 0)
+
+    When this settings is off (the default) the match window will appear at
+    the bottom so as to keep it near to the prompt. Turning it on causes the
+    match window to appear at the top instead. This may be preferable if you
+    want the best match (usually the first one) to appear in a fixed location
+    on the screen rather than moving as the number of matches changes during
+    typing.
+
+
 In addition to the options provided by Command-T itself, some of VIM's own
 settings can be used to control behavior:
 

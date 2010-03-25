@@ -53,8 +53,10 @@ module CommandT
       VIM::set_option 'noequalalways'   # don't auto-balance window sizes
 
       # create match window and set it up
+      split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
+      split_command = "silent! #{split_location} 1split GoToFile"
       [
-        'silent! botright 1split GoToFile',
+        split_command,
         'setlocal bufhidden=delete',  # delete buf when no longer displayed
         'setlocal buftype=nofile',    # buffer is not related to any file
         'setlocal nomodifiable',      # prevent manual edits
