@@ -111,7 +111,12 @@ files whose paths contain those letters in the specified order. Letters do not
 need to appear consecutively in a path in order for it to be classified as a
 match.
 
-Once you the desired file has been selected it can be opened by pressing <CR>.
+Once the desired file has been selected it can be opened by pressing <CR>.
+(By default files are opened in the current window, but there are other
+mappings that you can use to open in a vertical or horizontal split, or in
+a new tab.) Note that if you have |'nohidden'| set and there are unsaved
+changes in the current window when you press <CR> then opening in the current
+window would fail; in this case Command-T will open the file in a new split.
 
 The following mappings are active when the prompt has focus:
 
