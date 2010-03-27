@@ -21,7 +21,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/base'
+require 'command-t/finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
 
@@ -30,7 +30,7 @@ module CommandT
     def initialize
       @prompt = Prompt.new
       @max_height = get_number('g:CommandTMaxHeight') || 0
-      @scanner = CommandT::Base.new nil,
+      @finder = CommandT::Finder.new nil,
         :max_files              => get_number('g:CommandTMaxFiles'),
         :max_depth              => get_number('g:CommandTMaxDepth'),
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
@@ -40,7 +40,7 @@ module CommandT
     end
 
     def show
-      @scanner.path   = VIM::pwd
+      @finder.path    = VIM::pwd
       @initial_window = $curwin
       @initial_buffer = $curbuf
       @match_window   = MatchWindow.new \
@@ -60,7 +60,7 @@ module CommandT
     end
 
     def flush
-      @scanner.flush
+      @finder.flush
     end
 
     def key_pressed
@@ -225,7 +225,7 @@ module CommandT
     end
 
     def list_matches
-      matches = @scanner.sorted_matches_for @prompt.abbrev, :limit => match_limit
+      matches = @finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
       @match_window.matches = matches
     end
   end # class Controller

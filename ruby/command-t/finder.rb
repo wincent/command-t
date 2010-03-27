@@ -25,7 +25,10 @@ require 'command-t/ext' # CommandT::Matcher
 require 'command-t/scanner'
 
 module CommandT
-  class Base
+  # Encapsulates a Scanner instance (which builds up a list of available files
+  # in a directory) and a Matcher instance (which selects from that list based
+  # on a search string).
+  class Finder
     def initialize path = Dir.pwd, options = {}
       @scanner = Scanner.new path, options
       @matcher = Matcher.new @scanner, options
@@ -44,5 +47,5 @@ module CommandT
     def path= path
       @scanner.path = path
     end
-  end # class Base
+  end # class Finder
 end # CommandT
