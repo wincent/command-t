@@ -21,13 +21,72 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/scanner/ruby'
-
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
-  module Scanner
-    def self.scanner path = nil, options = {}
-      Ruby.new path, options
+  class Scanner
+    class DepthLimitExceeded < ::RuntimeError; end
+    class FileLimitExceeded < ::RuntimeError; end
+
+    def initialize path = Dir.pwd, options = {}
+      @path                 = path
+      @max_depth            = options[:max_depth] || 15
+      @max_files            = options[:max_files] || 10_000
+      @scan_dot_directories = options[:scan_dot_directories] || false
+      @excludes             = (options[:excludes] || '*.o,*.obj,.git').split(',')
     end
-  end # module Scanner
+
+    def paths
+      return @paths unless @paths.nil?
+      begin
+        @paths = []
+        @depth = 0
+        @files = 0
+        @prefix_len = @path.length
+        add_paths_for_directory @path, @paths
+      rescue FileLimitExceeded, DepthLimitExceeded
+      end
+      @paths
+    end
+
+    def flush
+      @paths = nil
+    end
+
+    def path= str
+      if @path != str
+        @path = str
+        flush
+      end
+    end
+
+  private
+
+    def path_excluded? path
+      @excludes.any? do |pattern|
+        File.fnmatch pattern, path, File::FNM_DOTMATCH
+      end
+    end
+
+    def add_paths_for_directory dir, accumulator
+      Dir.foreach(dir) do |entry|
+        next if ['.', '..'].include?(entry)
+        path = File.join(dir, entry)
+        unless path_excluded?(entry)
+          if File.file?(path)
+            @files += 1
+            raise FileLimitExceeded if @files > @max_files
+            accumulator << path[@prefix_len + 1..-1]
+          elsif File.directory?(path)
+            next if (entry.match(/\A\./) && !@scan_dot_directories)
+            @depth += 1
+            raise DepthLimitExceeded if @depth > @max_depth
+            add_paths_for_directory path, accumulator
+            @depth -= 1
+          end
+        end
+      end
+    rescue Errno::EACCES
+      # skip over directories for which we don't have access
+    end
+  end # class Scanner
 end # module CommandT
