@@ -243,11 +243,6 @@ module CommandT
           end
         end
       end
-
-      # delete excess lines
-      while (line = @buffer.count) > actual_lines do
-        @buffer.delete line
-      end
       lock
     end
 
