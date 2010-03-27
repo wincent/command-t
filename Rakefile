@@ -26,5 +26,13 @@ task :multispec do
   system './multi-spec.sh'
 end
 
+desc 'Check that the current HEAD is tagged'
+task :check_tag do
+  system 'git describe --exact-match HEAD 2> /dev/null'
+  if $?.exitstatus != 0
+    puts 'warning: current HEAD is not tagged'
+  end
+end
+
 desc 'Run checks prior to release'
 task :prerelease => [:compile, :multispec, :make]
