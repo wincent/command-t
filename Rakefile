@@ -35,4 +35,4 @@ task :check_tag do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => [:compile, :multispec, :make]
+task :prerelease => [:compile, :multispec, :make, :check_tag]
