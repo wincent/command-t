@@ -29,14 +29,8 @@ module CommandT
   class Controller
     def initialize
       @prompt = Prompt.new
-      @max_height = get_number('g:CommandTMaxHeight') || 0
-      @finder = CommandT::Finder.new nil,
-        :max_files              => get_number('g:CommandTMaxFiles'),
-        :max_depth              => get_number('g:CommandTMaxDepth'),
-        :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
-        :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
-        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
-        :excludes               => get_string('&wildignore')
+      set_up_max_height
+      set_up_finder
     end
 
     def show
@@ -60,7 +54,8 @@ module CommandT
     end
 
     def flush
-      @finder.flush
+      set_up_max_height
+      set_up_finder
     end
 
     def key_pressed
@@ -137,6 +132,20 @@ module CommandT
     end
 
   private
+
+    def set_up_max_height
+      @max_height = get_number('g:CommandTMaxHeight') || 0
+    end
+
+    def set_up_finder
+      @finder = CommandT::Finder.new nil,
+        :max_files              => get_number('g:CommandTMaxFiles'),
+        :max_depth              => get_number('g:CommandTMaxDepth'),
+        :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
+        :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
+        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
+        :excludes               => get_string('&wildignore')
+    end
 
     def get_number name
       return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
