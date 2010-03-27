@@ -3,10 +3,10 @@ begin
 rescue LoadError
 end
 
-SPEC_FILES = FileList['spec/**/*_spec.rb']
+task :default => :spec
 
 desc "Run specs"
 Spec::Rake::SpecTask.new do |t|
-  t.spec_files  = SPEC_FILES
+  t.spec_files  = FileList['spec/**/*_spec.rb']
   t.spec_opts   = ['--options', 'spec/spec.opts']
 end
