@@ -369,6 +369,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+0.4 (27 March 2010)
+
+- add |g:CommandTMatchWindowAtTop| setting (patch from Zak Johnson)
+- documentation fixes and enhancements
+- internal refactoring and simplification
+
 0.3 (24 March 2010)
 
 - add |g:CommandTMaxHeight| setting for controlling the maximum height of the
