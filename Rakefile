@@ -27,4 +27,4 @@ task :multispec do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => [:compile, :multispec]
+task :prerelease => [:compile, :multispec, :make]
