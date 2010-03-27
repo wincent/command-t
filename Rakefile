@@ -15,3 +15,8 @@ desc "Compile under all multiruby versions"
 task :compile do
   system './compile-test.sh'
 end
+
+desc "Run specs under all multiruby versions"
+task :multispec do
+  system './multi-spec.sh'
+end
