@@ -58,7 +58,7 @@ module CommandT
       set_up_finder
     end
 
-    def key_pressed
+    def handle_key
       key = VIM::evaluate('a:arg').to_i.chr
       if @focus == @prompt
         @prompt.add! key
@@ -68,14 +68,14 @@ module CommandT
       end
     end
 
-    def backspace_pressed
+    def backspace
       if @focus == @prompt
         @prompt.backspace!
         list_matches
       end
     end
 
-    def delete_pressed
+    def delete
       if @focus == @prompt
         @prompt.delete!
         list_matches
@@ -195,12 +195,12 @@ module CommandT
       uppercase   = lowercase.upcase
       punctuation = '<>`@#~!"$%&/()=+*-_.,;:?\\\'{}[] ' # and space
       (numbers + lowercase + uppercase + punctuation).each_byte do |b|
-        map "<Char-#{b}>", 'KeyPressed', b
+        map "<Char-#{b}>", 'HandleKey', b
       end
 
       # "special" keys
-      map '<BS>',     'BackspacePressed'
-      map '<Del>',    'DeletePressed'
+      map '<BS>',     'Backspace'
+      map '<Del>',    'Delete'
       map '<CR>',     'AcceptSelection'
       map '<C-CR>',   'AcceptSelectionSplit'
       map '<C-s>',    'AcceptSelectionSplit'
