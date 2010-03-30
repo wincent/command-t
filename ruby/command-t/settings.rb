@@ -24,6 +24,10 @@
 module CommandT
   # Convenience class for saving and restoring global settings.
   class Settings
+    def initialize
+      save
+    end
+
     def save
       @timeoutlen     = get_number 'timeoutlen'
       @report         = get_number 'report'
