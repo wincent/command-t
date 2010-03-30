@@ -24,7 +24,6 @@
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
   class Scanner
-    class DepthLimitExceeded < ::RuntimeError; end
     class FileLimitExceeded < ::RuntimeError; end
 
     def initialize path = Dir.pwd, options = {}
@@ -43,7 +42,7 @@ module CommandT
         @files = 0
         @prefix_len = @path.length
         add_paths_for_directory @path, @paths
-      rescue FileLimitExceeded, DepthLimitExceeded
+      rescue FileLimitExceeded
       end
       @paths
     end
@@ -77,9 +76,9 @@ module CommandT
             raise FileLimitExceeded if @files > @max_files
             accumulator << path[@prefix_len + 1..-1]
           elsif File.directory?(path)
+            next if @depth >= @max_depth
             next if (entry.match(/\A\./) && !@scan_dot_directories)
             @depth += 1
-            raise DepthLimitExceeded if @depth > @max_depth
             add_paths_for_directory path, accumulator
             @depth -= 1
           end

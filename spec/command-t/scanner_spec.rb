@@ -66,4 +66,11 @@ describe CommandT::Scanner do
         'foo/beta']
     end
   end
+
+  describe ':max_depth option' do
+    it 'should not descend below "max_depth" levels' do
+      @scanner = CommandT::Scanner.new @dir, :max_depth => 1
+      @scanner.paths.should == ['bar/abc', 'bar/xyz', 'baz', 'bing', 'foo/beta']
+    end
+  end
 end
