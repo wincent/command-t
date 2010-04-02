@@ -188,6 +188,14 @@ module CommandT
         ":call CommandT#{function}(#{param})<CR>"
     end
 
+    def xterm?
+      !!(VIM::evaluate('&term') =~ /\Axterm/)
+    end
+
+    def vt100?
+      !!(VIM::evaluate('&term') =~ /\Avt100/)
+    end
+
     def register_for_key_presses
       # "normal" keys (interpreted literally)
       numbers     = ('0'..'9').to_a.join
@@ -207,7 +215,6 @@ module CommandT
       map '<C-t>',    'AcceptSelectionTab'
       map '<C-v>',    'AcceptSelectionVSplit'
       map '<Tab>',    'ToggleFocus'
-      map '<Esc>',    'Cancel'
       map '<C-c>',    'Cancel'
       map '<C-n>',    'SelectNext'
       map '<C-p>',    'SelectPrev'
@@ -222,6 +229,12 @@ module CommandT
       map '<C-l>',    'CursorRight'
       map '<C-e>',    'CursorEnd'
       map '<C-a>',    'CursorStart'
+
+      unless xterm? or vt100?
+        # can't map <Esc> for these terminals without breaking cursor keys
+        # see: :help vt100-cursor-keys
+        map '<Esc>',  'Cancel'
+      end
     end
 
     # Returns the desired maximum number of matches, based on available
