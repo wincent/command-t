@@ -121,7 +121,7 @@ window would fail; in this case Command-T will open the file in a new split.
 The following mappings are active when the prompt has focus:
 
     <BS>        delete the character to the left of the cursor
-    <Del>       delete the cursor at the cursor
+    <Del>       delete the character at the cursor
     <Left>      move the cursor one character to the left
     <C-h>       move the cursor one character to the left
     <Right>     move the cursor one character to the right
