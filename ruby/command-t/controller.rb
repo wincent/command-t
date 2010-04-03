@@ -222,8 +222,12 @@ module CommandT
         'CursorRight'           => ['<Right>', '<C-l>'],
         'CursorEnd'             => '<C-e>',
         'CursorStart'           => '<C-a>' }.each do |key, value|
-        value.to_a.each do |mapping|
-          map mapping, key unless mapping == '<Esc>' && (xterm? || vt100?)
+        if override = get_string("g:CommandT#{key}Map")
+          map override, key
+        else
+          value.to_a.each do |mapping|
+            map mapping, key unless mapping == '<Esc>' && (xterm? || vt100?)
+          end
         end
       end
     end
