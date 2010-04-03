@@ -131,6 +131,10 @@ The following mappings are active when the prompt has focus:
     <C-u>       clear the contents of the prompt
     <Tab>       change focus to the match listing
 
+The following mappings are active when the match listing has focus:
+
+    <Tab>       change focus to the prompt
+
 The following mappings are active when either the prompt or the match listing
 has focus:
 
@@ -145,12 +149,14 @@ has focus:
     <C-k>       select previous file in the match listing
     <C-p>       select previous file in the match listing
     <Up>        select previous file in the match listing
-    <Esc>       cancel (dismisses match listing)
     <C-c>       cancel (dismisses match listing)
 
-The following mappings are active when the match listing has focus:
+The following is also available on terminals which support it:
 
-    <Tab>       change focus to the prompt
+    <Esc>       cancel (dismisses match listing)
+
+Note that the default mappings can be overriden by setting options in your
+~/.vimrc file (see the OPTIONS section for a full list of available options).
 
 In addition, when the match listing has focus, typing a character will cause
 the selection to jump to the first path which begins with that character.
@@ -160,16 +166,19 @@ paths which begin with the same prefix.
 
 COMMANDS                                        *command-t-commands*
 
-                                                *CommandT*
-|:CommandT|     brings up the Command-T match window, starting in the
+                                                *:CommandT*
+|:CommandT|     Brings up the Command-T match window, starting in the
                 current working directory as returned by the|:pwd|
                 command.
 
-                                                *CommandTFlush*
+                                                *:CommandTFlush*
                                                 *command-t-flush*
-|:CommandTFlush|instructs the plug-in to flush its path cache, causing
+|:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
-                the next time the match window is shown
+                the next time the match window is shown. In addition, all
+                configuration settings are re-evaluated, causing any
+                changes made to settings via the |:let| command to be picked
+                up.
 
 
 MAPPINGS                                        *command-t-mappings*
@@ -272,6 +281,54 @@ Following is a list of all available options:
       on the screen rather than moving as the number of matches changes during
       typing.
 
+As well as the basic options listed above, there are a number of settings that
+can be used to override the default key mappings used by Command-T. For
+example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
+window, you would add the following to your ~/.vimrc:
+
+  let g:CommandTCancelMap='<C-x>'
+
+Following is a list of all map settings:
+
+   Setting                                      Default mapping(s)
+
+  |g:CommandTBackspaceMap|                      <BS>
+
+  |g:CommandTDeleteMap|                         <Del>
+
+  |g:CommandTAcceptSelectionMap|                <CR>
+
+  |g:CommandTAcceptSelectionSplitMap|           <C-CR>
+                                                <C-s>
+
+  |g:CommandTAcceptSelectionTabMap|             <C-t>
+
+  |g:CommandTAcceptSelectionVSplitMap|          <C-v>
+
+  |g:CommandTToggleFocusMap|                    <Tab>
+
+  |g:CommandTCancelMap|                         <C-c>
+                                                <Esc> (not on all terminals)
+
+  |g:CommandTSelectNextMap|                     <C-n>
+                                                <C-j>
+                                                <Down>
+
+  |g:CommandTSelectPrevMap|                     <C-p>
+                                                <C-k>
+                                                <Up>
+
+  |g:CommandTClearMap|                          <C-u>
+
+  |g:CommandTCursorLeftMap|                     <Left>
+                                                <C-h>
+
+  |g:CommandTCursorRightMap|                    <Right>
+                                                <C-l>
+
+  |g:CommandTCursorEndMap|                      <C-e>
+
+  |g:CommandTCursorStartMap|                    <C-a>
 
 In addition to the options provided by Command-T itself, some of VIM's own
 settings can be used to control behavior:
@@ -368,6 +425,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+0.5 (3 April 2010)
+
+- |:CommandTFlush| now re-evaluates settings, allowing changes made via |let|
+  to be picked up without having to restart VIM
+- fix premature abort when scanning very deep directory hierarchies
+- remove broken |<Esc>| key mapping on vt100 and xterm terminals
+- provide settings for overriding default mappings
+- minor performance optimization
 
 0.4 (27 March 2010)
 
