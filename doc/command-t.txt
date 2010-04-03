@@ -172,7 +172,6 @@ COMMANDS                                        *command-t-commands*
                 command.
 
                                                 *:CommandTFlush*
-                                                *command-t-flush*
 |:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
                 the next time the match window is shown. In addition, all
@@ -203,6 +202,11 @@ binding of Command-T to "New Tab":
     map <D-t> :CommandT<CR>
   endif
 
+When the Command-T window is active a number of other additional mappings
+become available for doing things like moving between and selecting matches.
+These are fully described above in the USAGE section, and settings for
+overriding the mappings are listed below under OPTIONS.
+
 
 OPTIONS                                         *command-t-options*
 
@@ -213,27 +217,27 @@ the plug-in. To set an option, you include a line like this in your ~/.vimrc:
 
 Following is a list of all available options:
 
-                                                *command-t-max-files*
+                                                *g:CommandTMaxFiles*
   |g:CommandTMaxFiles|                           number (default 10000)
 
       The maximum number of files that will be considered when scanning the
       current directory. Upon reaching this number scanning stops.
 
-                                                *command-t-max-depth*
+                                                *g:CommandTMaxDepth*
   |g:CommandTMaxDepth|                           number (default 15)
 
       The maximum depth (levels of recursion) to be explored when scanning the
       current directory. Any directories at levels beyond this depth will be
       skipped.
 
-                                                *command-t-max-height*
+                                                *g:CommandTMaxHeight*
   |g:CommandTMaxHeight|                          number (default: 0)
 
       The maximum height in lines the match window is allowed to expand to.
       If set to 0, the window will occupy as much of the available space as
       needed to show matching entries.
 
-                                                *command-t-always-show-dot-files*
+                                                *g:CommandTAlwaysShowDotFiles*
   |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
 
       By default Command-T will show dot-files only if the entered search
@@ -242,7 +246,7 @@ Following is a list of all available options:
       matching dot-files in the match list regardless of whether the search
       string contains a dot. See also |g:CommandTNeverShowDotFiles|.
 
-                                                *command-t-never-show-dot-files*
+                                                *g:CommandTNeverShowDotFiles*
   |g:CommandTNeverShowDotFiles|                  boolean (default: 0)
 
       By default Command-T will show dot-files if the entered search string
@@ -252,7 +256,7 @@ Following is a list of all available options:
       setting and |g:CommandTAlwaysShowDotFiles| to true, and if you do so VIM
       will suffer from headaches, nervous twitches, and sudden mood swings.
 
-                                                *command-t-scan-dot-directories*
+                                                *g:CommandTScanDotDirectories*
   |g:CommandTScanDotDirectories|                 boolean (default: 0)
 
       Normally Command-T will not recurse into "dot-directories" (directories
@@ -271,7 +275,7 @@ Following is a list of all available options:
         :cd ~/.vim
         :CommandT
 
-                                                *command-t-match-window-at-top*
+                                                *g:CommandTMatchWindowAtTop*
   |g:CommandTMatchWindowAtTop|                   boolean (default: 0)
 
       When this settings is off (the default) the match window will appear at
@@ -290,45 +294,60 @@ window, you would add the following to your ~/.vimrc:
 
 Following is a list of all map settings:
 
-   Setting                                      Default mapping(s)
+                              Setting   Default mapping(s)
 
-  |g:CommandTBackspaceMap|                      <BS>
+                                       *g:CommandTBackspaceMap*
+              |g:CommandTBackspaceMap|  <BS>
 
-  |g:CommandTDeleteMap|                         <Del>
+                                       *g:CommandTDeleteMap*
+                 |g:CommandTDeleteMap|  <Del>
 
-  |g:CommandTAcceptSelectionMap|                <CR>
+                                       *g:CommandTAcceptSelectionMap*
+        |g:CommandTAcceptSelectionMap|  <CR>
 
-  |g:CommandTAcceptSelectionSplitMap|           <C-CR>
-                                                <C-s>
+                                       *g:CommandTAcceptSelectionSplitMap*
+   |g:CommandTAcceptSelectionSplitMap|  <C-CR>
+                                        <C-s>
 
-  |g:CommandTAcceptSelectionTabMap|             <C-t>
+                                       *g:CommandTAcceptSelectionTabMap*
+     |g:CommandTAcceptSelectionTabMap|  <C-t>
 
-  |g:CommandTAcceptSelectionVSplitMap|          <C-v>
+                                       *g:CommandTAcceptSelectionVSplitMap*
+  |g:CommandTAcceptSelectionVSplitMap|  <C-v>
 
-  |g:CommandTToggleFocusMap|                    <Tab>
+                                       *g:CommandTToggleFocusMap*
+            |g:CommandTToggleFocusMap|  <Tab>
 
-  |g:CommandTCancelMap|                         <C-c>
-                                                <Esc> (not on all terminals)
+                                       *g:CommandTCancelMap*
+                 |g:CommandTCancelMap|  <C-c>
+                                        <Esc> (not on all terminals)
 
-  |g:CommandTSelectNextMap|                     <C-n>
-                                                <C-j>
-                                                <Down>
+                                       *g:CommandTSelectNextMap*
+             |g:CommandTSelectNextMap|  <C-n>
+                                        <C-j>
+                                        <Down>
 
-  |g:CommandTSelectPrevMap|                     <C-p>
-                                                <C-k>
-                                                <Up>
+                                       *g:CommandTSelectPrevMap*
+             |g:CommandTSelectPrevMap|  <C-p>
+                                        <C-k>
+                                        <Up>
 
-  |g:CommandTClearMap|                          <C-u>
+                                       *g:CommandTClearMap*
+                  |g:CommandTClearMap|  <C-u>
 
-  |g:CommandTCursorLeftMap|                     <Left>
-                                                <C-h>
+                                       *g:CommandTCursorLeftMap*
+             |g:CommandTCursorLeftMap|  <Left>
+                                        <C-h>
 
-  |g:CommandTCursorRightMap|                    <Right>
-                                                <C-l>
+                                       *g:CommandTCursorRightMap*
+            |g:CommandTCursorRightMap|  <Right>
+                                        <C-l>
 
-  |g:CommandTCursorEndMap|                      <C-e>
+                                       *g:CommandTCursorEndMap*
+              |g:CommandTCursorEndMap|  <C-e>
 
-  |g:CommandTCursorStartMap|                    <C-a>
+                                       *g:CommandTCursorStartMap*
+            |g:CommandTCursorStartMap|  <C-a>
 
 In addition to the options provided by Command-T itself, some of VIM's own
 settings can be used to control behavior:
