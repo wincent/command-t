@@ -206,34 +206,25 @@ module CommandT
         map "<Char-#{b}>", 'HandleKey', b
       end
 
-      # "special" keys
-      map '<BS>',     'Backspace'
-      map '<Del>',    'Delete'
-      map '<CR>',     'AcceptSelection'
-      map '<C-CR>',   'AcceptSelectionSplit'
-      map '<C-s>',    'AcceptSelectionSplit'
-      map '<C-t>',    'AcceptSelectionTab'
-      map '<C-v>',    'AcceptSelectionVSplit'
-      map '<Tab>',    'ToggleFocus'
-      map '<C-c>',    'Cancel'
-      map '<C-n>',    'SelectNext'
-      map '<C-p>',    'SelectPrev'
-      map '<C-j>',    'SelectNext'
-      map '<C-k>',    'SelectPrev'
-      map '<Down>',   'SelectNext'
-      map '<Up>',     'SelectPrev'
-      map '<C-u>',    'Clear'
-      map '<Left>',   'CursorLeft'
-      map '<Right>',  'CursorRight'
-      map '<C-h>',    'CursorLeft'
-      map '<C-l>',    'CursorRight'
-      map '<C-e>',    'CursorEnd'
-      map '<C-a>',    'CursorStart'
-
-      unless xterm? or vt100?
-        # can't map <Esc> for these terminals without breaking cursor keys
-        # see: :help vt100-cursor-keys
-        map '<Esc>',  'Cancel'
+      # "special" keys (overridable by settings)
+      { 'Backspace'             => '<BS>',
+        'Delete'                => '<Del>',
+        'AcceptSelection'       => '<CR>',
+        'AcceptSelectionSplit'  => ['<C-CR>', '<C-s>'],
+        'AcceptSelectionTab'    => '<C-t>',
+        'AcceptSelectionVSplit' => '<C-v>',
+        'ToggleFocus'           => '<Tab>',
+        'Cancel'                => ['<C-c>', '<Esc>'],
+        'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
+        'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
+        'Clear'                 => '<C-u>',
+        'CursorLeft'            => ['<Left>', '<C-h>'],
+        'CursorRight'           => ['<Right>', '<C-l>'],
+        'CursorEnd'             => '<C-e>',
+        'CursorStart'           => '<C-a>' }.each do |key, value|
+        value.to_a.each do |mapping|
+          map mapping, key unless mapping == '<Esc>' && (xterm? || vt100?)
+        end
       end
     end
 
