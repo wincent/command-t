@@ -35,11 +35,11 @@ A preview screencast introducing the plug-in can be viewed at:
 
 REQUIREMENTS                                    *command-t-requirements*
 
-1. VIM compiled with Ruby support
+The plug-in requires VIM compiled with Ruby support, a compatible Ruby
+installation at the operating system level, and a C compiler to build
+the Ruby extension.
 
-Command-T requires VIM to be compiled with Ruby support. (MacVim, for example,
-comes with Ruby support while the command-line version of Vim shipped with Mac
-OS X Snow Leopard does not.)
+1. VIM compiled with Ruby support
 
 You can check for Ruby support by launching VIM with the --version switch:
 
@@ -57,8 +57,29 @@ If your VIM lacks support you'll see an error message like this:
 
   E319: Sorry, the command is not available in this version
 
-The plug-in is developed and tested using the version of Ruby that ships with
-Mac OS X (currently Ruby 1.8.7) but it may work on other versions.
+The version of VIM distributed with Mac OS X does not include Ruby support,
+while MacVim does; it is available from:
+
+  http://code.google.com/p/macvim/
+
+For Windows users, the executable from www.vim.org does include Ruby support.
+
+2. Ruby
+
+In addition to having Ruby support in VIM, your system itself must have a
+compatible Ruby install. In practice this usually means a version of Ruby from
+the 1.8 series, as VIM's support for 1.9 is still not official.
+
+The current version of Mac OS X comes with Ruby 1.8.7.
+
+A suitable Ruby environment for Windows can be installed using RubyInstaller
+available at:
+
+  http://rubyinstaller.org/download.html
+
+If using RubyInstaller be sure to download the installer executable, not the
+7-zip archive. When installing mark the checkbox "Add Ruby executables to your
+PATH" so that VIM can find them.
 
 3. C compiler
 
@@ -66,6 +87,17 @@ Part of Command-T is implemented in C as a Ruby extension for speed, allowing
 it to work responsively even on directory hierarchies containing enormous
 numbers of files. As such, a C compiler is required in order to build the
 extension and complete the installation.
+
+On Mac OS X, this can be obtained by installing the Xcode Tools that come on
+the Mac OS X install disc.
+
+On Windows, the RubyInstaller Development Kit can be used to conveniently
+install the necessary tool chain:
+
+  http://wiki.github.com/oneclick/rubyinstaller/development-kit
+
+To use the Development Kit extract the archive contents to your C:\Ruby
+folder.
 
 
 INSTALLATION                                    *command-t-installation*
@@ -88,6 +120,20 @@ you can build the extension with:
   cd ~/.vim/ruby/command-t
   ruby extconf.rb
   make
+
+Most installation problems are caused by a mismatch between the version of
+Ruby on the host operating system, and the version of Ruby that VIM itself
+linked against at compile time. For example, if one is 32-bit and the other is
+64-bit, or one is from the Ruby 1.9 series and the other is from the 1.8
+series, then the plug-in is not likely to work.
+
+As such, on Mac OS X, I recommend using the standard Ruby that comes with the
+system (currently 1.8.7) along with the latest snapshot of MacVim (currently
+snapshot 52).
+
+On Windows, I recommend using the version 1.8.7 RubyInstaller and the
+corresponding RubyInstaller Development Kit linked to above, along with the
+standard (32-bit) version of VIM that can be downloaded from www.vim.org.
 
 
 USAGE                                           *command-t-usage*
