@@ -491,6 +491,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+0.5.1 (11 April 2010)
+
+- fix for Ruby 1.9 compatibility regression introduced in 0.5
+- documentation enhancements, specifically targetted at Windows users
+
 0.5 (3 April 2010)
 
 - |:CommandTFlush| now re-evaluates settings, allowing changes made via |let|
