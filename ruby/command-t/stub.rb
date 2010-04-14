@@ -23,9 +23,9 @@
 
 module CommandT
   class Stub
-    @@load_error = ['command-t.vim could not load the necessary modules',
-                    'Please double-check the installation instructions',
-                    'For more information type:  :help command-t']
+    @@load_error = ['command-t.vim could not load the C extension',
+                    'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
+                    'For more information type:    :help command-t']
 
     def show
       warn *@@load_error
