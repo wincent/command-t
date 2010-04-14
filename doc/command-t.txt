@@ -3,7 +3,7 @@
 CONTENTS                                        *command-t-contents*
 
  1. Introduction            |command-t|
- 2. Requirments             |command-t-requirements|
+ 2. Requirements            |command-t-requirements|
  3. Installation            |command-t-installation|
  4. Usage                   |command-t-usage|
  5. Commands                |command-t-commands|
