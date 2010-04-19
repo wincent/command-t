@@ -29,9 +29,9 @@ ordered by an algorithm which knows that characters that appear in certain
 locations (for example, immediately after a path separator) should be given
 more weight.
 
-A preview screencast introducing the plug-in can be viewed at:
+Screencasts demonstrating the plug-in can be viewed at:
 
-  https://wincent.com/blog/bringing-textmate-style-command-t-to-vim
+  https://wincent.com/products/command-t
 
 
 REQUIREMENTS                                    *command-t-requirements*
