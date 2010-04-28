@@ -27,8 +27,8 @@ if exists("g:command_t_loaded")
 endif
 let g:command_t_loaded = 1
 
-command CommandT :call <SID>CommandTShow()
-command CommandTFlush :call <SID>CommandTFlush()
+command -nargs=? -complete=dir CommandT call <SID>CommandTShow(<q-args>)
+command CommandTFlush call <SID>CommandTFlush()
 
 silent! nmap <unique> <silent> <Leader>t :CommandT<CR>
 
@@ -39,7 +39,7 @@ function s:CommandTRubyWarning()
   echohl none
 endfunction
 
-function s:CommandTShow()
+function s:CommandTShow(arg)
   if has('ruby')
     ruby $command_t.show
   else
