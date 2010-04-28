@@ -40,7 +40,7 @@ module CommandT
         @paths = []
         @depth = 0
         @files = 0
-        @prefix_len = @path.length
+        @prefix_len = @path.chomp('/').length
         add_paths_for_directory @path, @paths
       rescue FileLimitExceeded
       end
