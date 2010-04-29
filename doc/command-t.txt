@@ -265,6 +265,10 @@ the plug-in. To set an option, you include a line like this in your ~/.vimrc:
 
     let g:CommandTMaxFiles=20000
 
+To have Command-T pick up new settings immediately (that is, without having
+to restart VIM) you can issue the |:CommandTFlush| command after making
+changes via |:let|.
+
 Following is a list of all available options:
 
                                                 *g:CommandTMaxFiles*
