@@ -77,6 +77,7 @@ module CommandT
       if VIM::has_syntax?
         VIM::command "syntax match CommandTSelection \"^#{@@selection_marker}.\\+$\""
         VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
+        VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
         VIM::command 'highlight link CommandTSelection Visual'
         VIM::command 'highlight link CommandTNoEntries Error'
         VIM::evaluate 'clearmatches()'
@@ -183,7 +184,20 @@ module CommandT
       @matches[@selection]
     end
 
+    def print_no_such_file_or_directory
+      print_error 'NO SUCH FILE OR DIRECTORY'
+    end
+
   private
+
+    def print_error msg
+      return unless @window.select
+      unlock
+      clear
+      @window.height = 1
+      @buffer[1] = "-- #{msg} --"
+      lock
+    end
 
     def restore_window_dimensions
       # sort from tallest to shortest
@@ -219,16 +233,15 @@ module CommandT
 
     # Print all matches.
     def print_matches
-      return unless @window.select
-      unlock
-      clear
       match_count = @matches.length
-      actual_lines = 1
-      @window_width = @window.width # update cached value
       if match_count == 0
-        @window.height = actual_lines
-        @buffer[1] = '-- NO MATCHES --'
+        print_error 'NO MATCHES'
       else
+        return unless @window.select
+        unlock
+        clear
+        actual_lines = 1
+        @window_width = @window.width # update cached value
         max_lines = VIM::Screen.lines - 5
         max_lines = 1 if max_lines < 0
         actual_lines = match_count > max_lines ? max_lines : match_count
@@ -241,8 +254,8 @@ module CommandT
             @buffer.append line - 1, match_text_for_idx(idx)
           end
         end
+        lock
       end
-      lock
     end
 
     # Prepare padding for match text (trailing spaces) so that selection

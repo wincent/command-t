@@ -46,6 +46,9 @@ module CommandT
       @prompt.focus
       register_for_key_presses
       clear # clears prompt and list matches
+    rescue Errno::ENOENT
+      # probably a problem with the optional parameter
+      @match_window.print_no_such_file_or_directory
     end
 
     def hide
