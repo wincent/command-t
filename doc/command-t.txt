@@ -156,6 +156,13 @@ A prompt will appear at the bottom of the screen along with a match window
 showing all of the files in the current directory (as returned by the
 |:pwd| command).
 
+For the most efficient file navigation within a project it's recommended that
+you |:cd| into the root directory of your project when starting to work on it.
+If you wish to open a file from outside of the project folder you can pass in
+an optional path argument (relative or absolute) to |:CommandT|:
+
+  :CommandT ../path/to/other/files
+
 Type letters in the prompt to narrow down the selection, showing only the
 files whose paths contain those letters in the specified order. Letters do not
 need to appear consecutively in a path in order for it to be classified as a
