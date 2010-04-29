@@ -499,6 +499,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+0.6 (28 April 2010)
+
+- |:CommandT| now accepts an optional parameter to specify the starting
+  directory, temporarily overriding the usual default of VIM's |:pwd|
+- fix truncated paths when operating from root directory
+
 0.5.1 (11 April 2010)
 
 - fix for Ruby 1.9 compatibility regression introduced in 0.5
