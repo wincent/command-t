@@ -30,7 +30,7 @@ module VIM
   end
 
   def self.pwd
-    VIM.evaluate('getcwd()')
+    VIM.evaluate 'getcwd()'
   end
 
   # Escape a string for safe inclusion in a Vim single-quoted string
