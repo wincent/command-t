@@ -31,7 +31,6 @@ module CommandT
       @max_depth            = options[:max_depth] || 15
       @max_files            = options[:max_files] || 10_000
       @scan_dot_directories = options[:scan_dot_directories] || false
-      @excludes             = (options[:excludes] || '*.o,*.obj,.git').split(',')
     end
 
     def paths
@@ -61,16 +60,15 @@ module CommandT
   private
 
     def path_excluded? path
-      @excludes.any? do |pattern|
-        File.fnmatch pattern, path, File::FNM_DOTMATCH
-      end
+      path = Vim.escape_for_single_quotes path
+      VIM.evaluate("empty(expand('#{path}'))").to_i == 1
     end
 
     def add_paths_for_directory dir, accumulator
       Dir.foreach(dir) do |entry|
         next if ['.', '..'].include?(entry)
         path = File.join(dir, entry)
-        unless path_excluded?(entry)
+        unless path_excluded?(path)
           if File.file?(path)
             @files += 1
             raise FileLimitExceeded if @files > @max_files
