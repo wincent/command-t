@@ -31,8 +31,8 @@ describe CommandT::Scanner do
 
   describe 'paths method' do
     it 'should return a list of regular files' do
-      @scanner.paths.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
-        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta']
+      @scanner.paths.sort.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
+        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta'].sort
     end
   end
 
@@ -46,31 +46,31 @@ describe CommandT::Scanner do
 
   describe 'path= method' do
     it 'should allow repeated applications of scanner at different paths' do
-      @scanner.paths.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
-        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta']
+      @scanner.paths.sort.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
+        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta'].sort
 
       # drill down 1 level
       @scanner.path = File.join(@dir, 'foo')
-      @scanner.paths.should == ['alpha/t1', 'alpha/t2', 'beta']
+      @scanner.paths.sort.should. == ['alpha/t1', 'alpha/t2', 'beta'].sort
 
       # and another
       @scanner.path = File.join(@dir, 'foo', 'alpha')
-      @scanner.paths.should == ['t1', 't2']
+      @scanner.paths.sort.should == ['t1', 't2'].sort
     end
   end
 
   describe ':excludes option' do
     it 'should exclude based on file glob patterns' do
       @scanner = CommandT::Scanner.new @dir, :excludes => 'bar,*ng'
-      @scanner.paths.should == ['baz', 'foo/alpha/t1', 'foo/alpha/t2',
-        'foo/beta']
+      @scanner.paths.sort.should == ['baz', 'foo/alpha/t1', 'foo/alpha/t2',
+        'foo/beta'].sort
     end
   end
 
   describe ':max_depth option' do
     it 'should not descend below "max_depth" levels' do
       @scanner = CommandT::Scanner.new @dir, :max_depth => 1
-      @scanner.paths.should == ['bar/abc', 'bar/xyz', 'baz', 'bing', 'foo/beta']
+      @scanner.paths.sort.should == ['bar/abc', 'bar/xyz', 'baz', 'bing', 'foo/beta'].sort
     end
   end
 end
