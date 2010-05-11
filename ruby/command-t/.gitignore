@@ -1,4 +1,6 @@
 Makefile
-ext.bundle
 *.o
 *.log
+ext.*
+!ext.c
+!ext.h
