@@ -28,12 +28,42 @@
 #include "ruby_compat.h"
 
 // comparison function for use with qsort
-int comp(const void *a, const void *b)
+int comp_alpha(const void *a, const void *b)
+{
+    VALUE a_val = *(VALUE *)a;
+    VALUE b_val = *(VALUE *)b;
+    ID to_s = rb_intern("to_s");
+
+    VALUE a_str = rb_funcall(a_val, to_s, 0);
+    VALUE b_str = rb_funcall(b_val, to_s, 0);
+    char *a_p = RSTRING_PTR(a_str);
+    long a_len = RSTRING_LEN(a_str);
+    char *b_p = RSTRING_PTR(b_str);
+    long b_len = RSTRING_LEN(b_str);
+    int order = 0;
+    if (a_len > b_len)
+    {
+        order = strncmp(a_p, b_p, b_len);
+        if (order == 0)
+            order = 1; // shorter string (b) wins
+    }
+    else if (a_len < b_len)
+    {
+        order = strncmp(a_p, b_p, a_len);
+        if (order == 0)
+            order = -1; // shorter string (a) wins
+    }
+    else
+        order = strncmp(a_p, b_p, a_len);
+    return order;
+}
+
+// comparison function for use with qsort
+int comp_score(const void *a, const void *b)
 {
     VALUE a_val = *(VALUE *)a;
     VALUE b_val = *(VALUE *)b;
     ID score = rb_intern("score");
-    ID to_s = rb_intern("to_s");
     double a_score = RFLOAT_VALUE(rb_funcall(a_val, score, 0));
     double b_score = RFLOAT_VALUE(rb_funcall(b_val, score, 0));
     if (a_score > b_score)
@@ -41,31 +71,7 @@ int comp(const void *a, const void *b)
     else if (a_score < b_score)
         return 1;  // b scores higher, a should appear later
     else
-    {
-        // fall back to alphabetical ordering
-        VALUE a_str = rb_funcall(a_val, to_s, 0);
-        VALUE b_str = rb_funcall(b_val, to_s, 0);
-        char *a_p = RSTRING_PTR(a_str);
-        long a_len = RSTRING_LEN(a_str);
-        char *b_p = RSTRING_PTR(b_str);
-        long b_len = RSTRING_LEN(b_str);
-        int order = 0;
-        if (a_len > b_len)
-        {
-            order = strncmp(a_p, b_p, b_len);
-            if (order == 0)
-                order = 1; // shorter string (b) wins
-        }
-        else if (a_len < b_len)
-        {
-            order = strncmp(a_p, b_p, a_len);
-            if (order == 0)
-                order = -1; // shorter string (a) wins
-        }
-        else
-            order = strncmp(a_p, b_p, a_len);
-        return order;
-    }
+        return comp_alpha(a, b);
 }
 
 VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
@@ -95,15 +101,17 @@ VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE option
     // process optional options hash
     VALUE limit_option = CommandT_option_from_hash("limit", options);
 
-    // get matches in default (alphabetical) ordering
+    // get unsorted matches
     VALUE matches = CommandTMatcher_matches_for(self, abbrev);
 
     abbrev = StringValue(abbrev);
-    if (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.')
-        ; // maintain alphabetic order if search string is only "."
-    else if (RSTRING_LEN(abbrev) > 0)
-        // we have a non-empty search string, so sort by score
-        qsort(RARRAY_PTR(matches), RARRAY_LEN(matches), sizeof(VALUE), comp);
+    if (RSTRING_LEN(abbrev) == 0 ||
+        (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
+        // alphabetic order if search string is only "" or "."
+        qsort(RARRAY_PTR(matches), RARRAY_LEN(matches), sizeof(VALUE), comp_alpha);
+    else
+        // for all other non-empty search strings, sort by score
+        qsort(RARRAY_PTR(matches), RARRAY_LEN(matches), sizeof(VALUE), comp_score);
 
     // apply optional limit option
     long limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
