@@ -21,15 +21,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'pathname'
-
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
   class Scanner
     class FileLimitExceeded < ::RuntimeError; end
 
     def initialize path = Dir.pwd, options = {}
-      @path                 = path ? Pathname.new(path) : nil
+      @path                 = path
       @max_depth            = options[:max_depth] || 15
       @max_files            = options[:max_files] || 10_000
       @scan_dot_directories = options[:scan_dot_directories] || false
@@ -41,7 +39,7 @@ module CommandT
         @paths = []
         @depth = 0
         @files = 0
-        @prefix_len = @path.to_s.chomp('/').length
+        @prefix_len = @path.chomp('/').length
         add_paths_for_directory @path, @paths
       rescue FileLimitExceeded
       end
@@ -53,9 +51,8 @@ module CommandT
     end
 
     def path= str
-      pathname = str ? Pathname.new(str) : nil
-      if @path != pathname
-        @path = pathname
+      if @path != str
+        @path = str
         flush
       end
     end
@@ -63,7 +60,8 @@ module CommandT
   private
 
     def path_excluded? path
-      path = path.relative_path_from(@path).to_s
+      # first strip common prefix (@path) from path
+      path = path[(@prefix_len + 1)..-1]
       path = Vim.escape_for_single_quotes path
       VIM.evaluate("empty(expand('#{path}'))").to_i == 1
     end
@@ -71,13 +69,13 @@ module CommandT
     def add_paths_for_directory dir, accumulator
       Dir.foreach(dir) do |entry|
         next if ['.', '..'].include?(entry)
-        path = dir + entry
+        path = File.join(dir, entry)
         unless path_excluded?(path)
-          if path.file?
+          if File.file?(path)
             @files += 1
             raise FileLimitExceeded if @files > @max_files
-            accumulator << path.to_s[@prefix_len + 1..-1]
-          elsif path.directory?
+            accumulator << path[@prefix_len + 1..-1]
+          elsif File.directory?(path)
             next if @depth >= @max_depth
             next if (entry.match(/\A\./) && !@scan_dot_directories)
             @depth += 1
