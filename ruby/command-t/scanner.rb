@@ -62,13 +62,8 @@ module CommandT
     def path_excluded? path
       # first strip common prefix (@path) from path to match VIM's behavior
       path = path[(@prefix_len + 1)..-1]
-
-      # then sanitize for consumption by VIM's glob()
       path = Vim.escape_for_single_quotes path
-      path = path.gsub /[`\[\]*?\\]/, '\\\1'
-
-      # now for the actual test
-      VIM.evaluate("empty(glob('#{path}'))").to_i == 1
+      VIM.evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
     end
 
     def add_paths_for_directory dir, accumulator
