@@ -26,11 +26,11 @@ require 'vim/window'
 
 module VIM
   def self.has_syntax?
-    VIM.evaluate('has("syntax")').to_i != 0
+    VIM::evaluate('has("syntax")').to_i != 0
   end
 
   def self.pwd
-    VIM.evaluate 'getcwd()'
+    VIM::evaluate 'getcwd()'
   end
 
   # Escape a string for safe inclusion in a Vim single-quoted string
