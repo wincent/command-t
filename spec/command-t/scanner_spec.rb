@@ -28,6 +28,9 @@ describe CommandT::Scanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', 'fixtures')
     @scanner = CommandT::Scanner.new @dir
+
+    # scanner will call VIM's expand() function for exclusion filtering
+    VIM.stub!(:evaluate).with(/expand\(.+\)/).and_return('0')
   end
 
   describe 'paths method' do
@@ -60,11 +63,11 @@ describe CommandT::Scanner do
     end
   end
 
-  describe ':excludes option' do
-    it 'should exclude based on file glob patterns' do
-      @scanner = CommandT::Scanner.new @dir, :excludes => 'bar,*ng'
-      @scanner.paths.sort.should == ['baz', 'foo/alpha/t1', 'foo/alpha/t2',
-        'foo/beta'].sort
+  describe "'wildignore' exclusion" do
+    it "should call on VIM's expand() function for pattern filtering" do
+      @scanner = CommandT::Scanner.new @dir
+      VIM.should_receive(:evaluate).with(/expand\(.+\)/).exactly(10).times
+      @scanner.paths
     end
   end
 

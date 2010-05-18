@@ -39,6 +39,11 @@ describe CommandT::Finder do
     ]
   end
 
+  before :each do
+    # scanner will call VIM's expand() function for exclusion filtering
+    VIM.stub!(:evaluate).with(/expand\(.+\)/).and_return('0')
+  end
+
   describe 'sorted_matches_for method' do
     it 'should return an empty array when no matches' do
       @finder.sorted_matches_for('kung foo fighting').should == []

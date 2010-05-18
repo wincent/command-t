@@ -21,6 +21,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'vim'
+
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
   class Scanner
