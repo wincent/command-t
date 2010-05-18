@@ -10,7 +10,7 @@ CONTENTS                                        *command-t-contents*
  6. Commands                |command-t-commands|
  7. Mappings                |command-t-mappings|
  8. Options                 |command-t-options|
- 9. Author                  |command-t-author|
+ 9. Authors                 |command-t-authors|
 10. Website                 |command-t-website|
 11. Donations               |command-t-donations|
 12. License                 |command-t-license|
@@ -417,19 +417,28 @@ settings can be used to control behavior:
   |'wildignore'|                                 string (default: '')
 
       VIM's |'wildignore'| setting is used to determine which files should be
-      excluded from listings. This is a comma-separated list of file glob
-      patterns. It defaults to the empty string, but common settings include
-      "*.o,*.obj" (to exclude object files) or ".git,.svn" (to exclude SCM
-      metadata directories). For example:
+      excluded from listings. This is a comma-separated list of glob patterns.
+      It defaults to the empty string, but common settings include "*.o,*.obj"
+      (to exclude object files) or ".git,.svn" (to exclude SCM metadata
+      directories). For example:
 
         :set wildignore+=*.o,*.obj,.git
+
+      A pattern such as "vendor/rails/**" would exclude all files and
+      subdirectories inside the "vendor/rails" directory (relative to
+      directory Command-T starts in).
 
       See the |'wildignore'| documentation for more information.
 
 
-AUTHOR                                          *command-t-author*
+AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
+Other contributors that have submitted patches include:
+
+  Lucas de Vries
+  Mike Lundy
+  Zak Johnson
 
 As this was the first VIM plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -505,6 +514,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+0.7 (not yet released)
+
+- handle more |'wildignore'| patterns by delegating to VIM's own |expand()|
+  function; with this change it is now viable to exclude patterns such as
+  'vendor/rails/**' in addition to filename-only patterns like '*.o' and
+  '.git' (patch from Mike Lundy)
+- always sort results alphabetically for empty search strings; this eliminates
+  filesystem-specific variations (patch from Mike Lundy)
 
 0.6 (28 April 2010)
 
