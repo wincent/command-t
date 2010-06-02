@@ -29,6 +29,13 @@ ordered by an algorithm which knows that characters that appear in certain
 locations (for example, immediately after a path separator) should be given
 more weight.
 
+To search efficiently, especially in large projects, you should adopt a
+"path-centric" rather than a "filename-centric" mentality. That is you should
+think more about where the desired file is found rather than what it is
+called. This means narrowing your search down by including some characters
+from the upper path components rather than just entering characters from the
+filename itself.
+
 Screencasts demonstrating the plug-in can be viewed at:
 
   https://wincent.com/products/command-t
