@@ -522,7 +522,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-0.7 (not yet released)
+0.7 (10 June 2010)
 
 - handle more |'wildignore'| patterns by delegating to VIM's own |expand()|
   function; with this change it is now viable to exclude patterns such as
