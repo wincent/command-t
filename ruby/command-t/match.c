@@ -25,6 +25,96 @@
 #include "ext.h"
 #include "ruby_compat.h"
 
+// use a struct to make passing params during recursion easier
+typedef struct
+{
+    char    *str_p;                 // pointer to string to be searched
+    long    str_len;                // length of same
+    char    *abbrev_p;              // pointer to search string (abbreviation)
+    long    abbrev_len;             // length of same
+    double  max_score_per_char;
+    int     dot_file;               // boolean: true if str is a dot-file
+    int     always_show_dot_files;  // boolean
+    int     never_show_dot_files;   // boolean
+} matchinfo_t;
+
+double recursive_match(matchinfo_t *m, long str_idx, long abbrev_idx)
+{
+    double my_score = 0;        // cumulatively calculate match score
+    double seen_score = 0;      // remember best score seen via recursion
+    int dot_file_match = 0;     // true if abbrev matches a dot-file
+    int dot_search = 0;         // true if searching for a dot
+
+    for (long i = abbrev_idx; i < m->abbrev_len; i++)
+    {
+        char c = m->abbrev_p[i];
+        if (c >= 'A' && c <= 'Z')
+            c += 'a' - 'A'; // add 32 to downcase
+        else if (c == '.')
+            dot_search = 1;
+        for (long j = str_idx; j < m->str_len; j++)
+        {
+            char d = m->str_p[j];
+            if (d == '.')
+            {
+                if (j == 0 || m->str_p[j - 1] == '/')
+                {
+                    m->dot_file = 1;        // this is a dot-file
+                    if (dot_search)         // and we are searching for a dot
+                        dot_file_match = 1; // so this must be a match
+                }
+            }
+            else if (d >= 'A' && d <= 'Z')
+                d += 'a' - 'A'; // add 32 to downcase
+            if (c == d)
+            {
+                dot_search = 0;
+                my_score = 0; // calculate score
+
+                if (j + 1 < m->str_len)
+                {
+                    // bump cursor one char to the right and
+                    // use recursion to try and find a better match
+                    double score = recursive_match(m, i, j + 1);
+                    if (score > seen_score)
+                        seen_score = score;
+                }
+                break;
+            }
+        }
+    }
+
+    if (m->dot_file)
+    {
+        if (m->never_show_dot_files ||
+            (!dot_file_match && !m->always_show_dot_files))
+            return 0;
+    }
+    return (my_score > seen_score) ? my_score : seen_score;
+}
+
+double best_match(matchinfo_t *m)
+{
+    // pre-calculations
+    m->max_score_per_char = 1.0 / m->abbrev_len;
+    m->dot_file = 0;
+
+    // special case for zero-length search string: filter out dot files
+    if (m->abbrev_len == 0 && !m->always_show_dot_files)
+    {
+        for (long i = 0; i < m->str_len; i++)
+        {
+            char c = m->str_p[i];
+            if (c == '.' && (i == 0 || m->str_p[i - 1] == '/'))
+            {
+                m->dot_file = 1;
+                break;
+            }
+        }
+    }
+    return recursive_match(m, 0, 0);
+}
+
 // Match.new abbrev, string, options = {}
 VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
 {
