@@ -82,15 +82,9 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
             char d = str_p[j];
             if (d == '.')
             {
-                if (j == 0)
+                if (j == 0 || str_p[j - 1] == '/')
                 {
-                    dot_file = 1; // initial dot
-                    if (pending_dot_search)
-                        dot_search = 1; // this is a dot-search in progress
-                }
-                else if (str_p[j - 1] == '/')
-                {
-                    dot_file = 1; // dot after path separator
+                    dot_file = 1; // initial dot, or dot after separator
                     if (pending_dot_search)
                         dot_search = 1; // this is a dot-search in progress
                 }
