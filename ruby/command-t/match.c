@@ -44,9 +44,9 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
 
     long cursor             = 0;
-    int dot_file            = 0; // true if path is a dot-file
-    int dot_search          = 0; // true if abbrev definitely matches a dot-file
-    int pending_dot_search  = 0; // true if abbrev might match a dot-file
+    int dot_file            = 0; // true if str is a dot-file
+    int dot_file_match      = 0; // true if abbrev matches a dot-file
+    int dot_search          = 0; // true if searching for a dot
 
     rb_iv_set(self, "@str", str);
     VALUE offsets = rb_ary_new();
@@ -74,7 +74,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
         if (c >= 'A' && c <= 'Z')
             c += 'a' - 'A'; // add 32 to make lowercase
         else if (c == '.')
-            pending_dot_search = 1;
+            dot_search = 1;
 
         VALUE found = Qfalse;
         for (long j = cursor; j < str_len; j++, cursor++)
@@ -84,9 +84,9 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
             {
                 if (j == 0 || str_p[j - 1] == '/')
                 {
-                    dot_file = 1; // initial dot, or dot after separator
-                    if (pending_dot_search)
-                        dot_search = 1; // this is a dot-search in progress
+                    dot_file = 1;           // this is a dot-file
+                    if (dot_search)         // and we are searching for a dot
+                        dot_file_match = 1; // so this must be a match
                 }
             }
             else if (d >= 'A' && d <= 'Z')
@@ -94,7 +94,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
             if (c == d)
             {
                 if (c != '.')
-                    pending_dot_search = 0;
+                    dot_search = 0;
                 rb_ary_push(offsets, LONG2FIX(cursor));
                 cursor++;
                 found = Qtrue;
@@ -112,7 +112,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     if (dot_file)
     {
         if (never_show_dot_files == Qtrue ||
-            (!dot_search && always_show_dot_files != Qtrue))
+            (!dot_file_match && always_show_dot_files != Qtrue))
             offsets = Qnil;
     }
     rb_iv_set(self, "@offsets", offsets);
