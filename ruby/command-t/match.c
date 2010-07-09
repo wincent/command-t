@@ -72,7 +72,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     {
         char c = abbrev_p[i];
         if (c >= 'A' && c <= 'Z')
-            c += ('a' - 'A'); // add 32 to make lowercase
+            c += 'a' - 'A'; // add 32 to make lowercase
         else if (c == '.')
             pending_dot_search = 1;
 
