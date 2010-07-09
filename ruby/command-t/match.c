@@ -190,30 +190,6 @@ VALUE CommandTMatch_matches(VALUE self)
     return score > 0 ? Qtrue : Qfalse;
 }
 
-// Return a normalized score ranging from 0.0 to 1.0 indicating the
-// relevance of the match. The algorithm is specialized to provide
-// intuitive scores specifically for filesystem paths.
-//
-// 0.0 means the search string didn't match at all.
-//
-// 1.0 means the search string is a perfect (letter-for-letter) match.
-//
-// Scores will tend closer to 1.0 as:
-//
-//   - the number of matched characters increases
-//   - matched characters appear closer to previously matched characters
-//   - matched characters appear immediately after special "boundary"
-//     characters such as "/", "_", "-", "." and " "
-//   - matched characters are uppercase letters immediately after
-//     lowercase letters of numbers
-//   - matched characters are lowercase letters immediately after
-//     numbers
-VALUE CommandTMatch_score(VALUE self)
-{
-    // TODO: replace this with a attr_reader
-    return rb_iv_get(self, "@score");
-}
-
 VALUE CommandTMatch_to_s(VALUE self)
 {
     return rb_iv_get(self, "@str");
