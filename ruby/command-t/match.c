@@ -38,6 +38,13 @@ typedef struct
     int     never_show_dot_files;   // boolean
 } matchinfo_t;
 
+matchinfo_t *matchinfo_new(void)
+{
+    matchinfo_t *m= ALLOC_N(matchinfo_t, 1);
+    bzero(m, sizeof(matchinfo_t));
+    return m;
+}
+
 double recursive_match(matchinfo_t *m,  // sharable meta-data
                        long str_idx,    // where in the path string to start
                        long abbrev_idx, // where in the search string to start
@@ -147,6 +154,9 @@ double best_match(matchinfo_t *m)
     return recursive_match(m, 0, 0, 0);
 }
 
+#define GC_WRAP_STRUCT(ptr, name) \
+        volatile VALUE name __attribute__((unused)) = Data_Wrap_Struct(rb_cObject, 0, free, ptr)
+
 // Match.new abbrev, string, options = {}
 VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
 {
@@ -154,96 +164,30 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     VALUE str, abbrev, options;
     if (rb_scan_args(argc, argv, "21", &str, &abbrev, &options) == 2)
         options = Qnil;
-    str                     = StringValue(str);
-    char *str_p             = RSTRING_PTR(str);
-    long str_len            = RSTRING_LEN(str);
-    abbrev                  = StringValue(abbrev);
-    char *abbrev_p          = RSTRING_PTR(abbrev);
-    long abbrev_len         = RSTRING_LEN(abbrev);
+    str             = StringValue(str);
+    abbrev          = StringValue(abbrev);
+
+    matchinfo_t *m  = matchinfo_new();
+    GC_WRAP_STRUCT(m, matchinfo_gc);
+    m->str_p        = RSTRING_PTR(str);
+    m->str_len      = RSTRING_LEN(str);
+    m->abbrev_p     = RSTRING_PTR(abbrev);
+    m->abbrev_len   = RSTRING_LEN(abbrev);
 
     // check optional options hash for overrides
-    VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
-    VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
+    m->always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options) == Qtrue;
+    m->never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options) == Qtrue;
 
-    long cursor             = 0;
-    int dot_file            = 0; // true if str is a dot-file
-    int dot_file_match      = 0; // true if abbrev matches a dot-file
-    int dot_search          = 0; // true if searching for a dot
-
+    VALUE score = rb_float_new(best_match(m));
+    rb_iv_set(self, "@score", score);
     rb_iv_set(self, "@str", str);
-    VALUE offsets = rb_ary_new();
-
-    // special case for zero-length search string: filter out dot-files
-    if (abbrev_len == 0 && always_show_dot_files != Qtrue)
-    {
-        for (long i = 0; i < str_len; i++)
-        {
-            char c = str_p[i];
-            if (c == '.')
-            {
-                if (i == 0 || str_p[i - 1] == '/')
-                {
-                    dot_file = 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    for (long i = 0; i < abbrev_len; i++)
-    {
-        char c = abbrev_p[i];
-        if (c >= 'A' && c <= 'Z')
-            c += 'a' - 'A'; // add 32 to make lowercase
-        else if (c == '.')
-            dot_search = 1;
-
-        VALUE found = Qfalse;
-        for (long j = cursor; j < str_len; j++, cursor++)
-        {
-            char d = str_p[j];
-            if (d == '.')
-            {
-                if (j == 0 || str_p[j - 1] == '/')
-                {
-                    dot_file = 1;           // this is a dot-file
-                    if (dot_search)         // and we are searching for a dot
-                        dot_file_match = 1; // so this must be a match
-                }
-            }
-            else if (d >= 'A' && d <= 'Z')
-                d += 'a' - 'A'; // add 32 to make lowercase
-            if (c == d)
-            {
-                dot_search = 0;
-                rb_ary_push(offsets, LONG2FIX(cursor));
-                cursor++;
-                found = Qtrue;
-                break;
-            }
-        }
-
-        if (found == Qfalse)
-        {
-            offsets = Qnil;
-            break;
-        }
-    }
-
-    if (dot_file)
-    {
-        if (never_show_dot_files == Qtrue ||
-            (!dot_file_match && always_show_dot_files != Qtrue))
-            offsets = Qnil;
-    }
-    rb_iv_set(self, "@offsets", offsets);
     return Qnil;
 }
 
 VALUE CommandTMatch_matches(VALUE self)
 {
-    VALUE offsets = rb_iv_get(self, "@offsets");
-    return NIL_P(offsets) ? Qfalse : Qtrue;
+    double score = NUM2DBL(rb_iv_get(self, "@score"));
+    return score > 0 ? Qtrue : Qfalse;
 }
 
 // Return a normalized score ranging from 0.0 to 1.0 indicating the
@@ -266,76 +210,8 @@ VALUE CommandTMatch_matches(VALUE self)
 //     numbers
 VALUE CommandTMatch_score(VALUE self)
 {
-    // return previously calculated score if available
-    VALUE score = rb_iv_get(self, "@score");
-    if (!NIL_P(score))
-        return score;
-
-    // nil or empty offsets array means a score of 0.0
-    VALUE offsets = rb_iv_get(self, "@offsets");
-    if (NIL_P(offsets) || RARRAY_LEN(offsets) == 0)
-    {
-        score = rb_float_new(0.0);
-        rb_iv_set(self, "@score", score);
-        return score;
-    }
-
-    // if search string is equal to actual string score is 1.0
-    VALUE str = rb_iv_get(self, "@str");
-    if (RARRAY_LEN(offsets) == RSTRING_LEN(str))
-    {
-        score = rb_float_new(1.0);
-        rb_iv_set(self, "@score", score);
-        return score;
-    }
-
-    double score_d = 0.0;
-    double max_score_per_char = 1.0 / RARRAY_LEN(offsets);
-    for (long i = 0, max = RARRAY_LEN(offsets); i < max; i++)
-    {
-        double score_for_char = max_score_per_char;
-        long offset = FIX2LONG(RARRAY_PTR(offsets)[i]);
-        if (offset > 0)
-        {
-            double factor   = 0.0;
-            char curr       = RSTRING_PTR(str)[offset];
-            char last       = RSTRING_PTR(str)[offset - 1];
-
-            // look at previous character to see if it is "special"
-            // NOTE: possible improvements here:
-            // - number after another number should be 1.0, not 0.8
-            // - need to think about sequences like "9-"
-            if (last == '/')
-                factor = 0.9;
-            else if (last == '-' ||
-                     last == '_' ||
-                     last == ' ' ||
-                     (last >= '0' && last <= '9'))
-                factor = 0.8;
-            else if (last == '.')
-                factor = 0.7;
-            else if (last >= 'a' && last <= 'z' &&
-                     curr >= 'A' && curr <= 'Z')
-                factor = 0.8;
-            else
-            {
-                // if no "special" chars behind char, factor diminishes
-                // as distance from last matched char increases
-                if (i > 1)
-                {
-                    long distance = offset - FIX2LONG(RARRAY_PTR(offsets)[i - 1]);
-                    factor = 1.0 / distance;
-                }
-                else
-                    factor = 1.0 / (offset + 1);
-            }
-            score_for_char *= factor;
-        }
-        score_d += score_for_char;
-    }
-    score = rb_float_new(score_d);
-    rb_iv_set(self, "@score", score);
-    return score;
+    // TODO: replace this with a attr_reader
+    return rb_iv_get(self, "@score");
 }
 
 VALUE CommandTMatch_to_s(VALUE self)

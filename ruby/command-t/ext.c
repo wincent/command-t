@@ -54,7 +54,6 @@ void Init_ext()
     rb_define_method(cCommandTMatch, "to_s", CommandTMatch_to_s, 0);
 
     // attributes
-    rb_define_attr(cCommandTMatch, "offsets", Qtrue, Qfalse); // reader = true, writer = false
 
     // class CommandT::Matcher
     cCommandTMatcher = rb_define_class_under(mCommandT, "Matcher", rb_cObject);

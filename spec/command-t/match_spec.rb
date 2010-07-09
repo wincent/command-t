@@ -161,26 +161,6 @@ describe CommandT::Match do
     end
   end
 
-  describe 'offsets accessor' do
-    it 'should contain the indices of the matched characters (consecutive)' do
-      match_for('abc', 'abc').offsets.should == [0, 1, 2]
-    end
-
-    it 'should contain the indices of the matched characters (separated)' do
-      match_for('foobar', 'fb').offsets.should == [0, 3]
-    end
-
-    it 'should be empty for zero-width search strings' do
-      match_for('foo', '').offsets.should be_empty
-    end
-
-    it 'should not allow one character to match repeatedly' do
-      # was a bug in one of the refactorings
-      # the "b" in "abc" would match both the first and second "b" in "abb"
-      match_for('abc', 'abb').matches?.should == false
-    end
-  end
-
   describe 'to_s method' do
     it 'should return the entire matched string' do
       match_for('abc', 'abc').to_s.should == 'abc'
