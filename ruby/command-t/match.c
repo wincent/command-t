@@ -138,7 +138,7 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
 double best_match(matchinfo_t *m)
 {
     // pre-calculations
-    m->max_score_per_char = 1.0 / m->abbrev_len;
+    m->max_score_per_char = 1.0 / m->str_len;
     m->dot_file = 0;
 
     // special case for zero-length search string: filter out dot files
