@@ -93,8 +93,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
                 d += 'a' - 'A'; // add 32 to make lowercase
             if (c == d)
             {
-                if (c != '.')
-                    dot_search = 0;
+                dot_search = 0;
                 rb_ary_push(offsets, LONG2FIX(cursor));
                 cursor++;
                 found = Qtrue;
