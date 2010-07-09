@@ -62,7 +62,8 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
             c += 'a' - 'A'; // add 32 to downcase
         else if (c == '.')
             dot_search = 1;
-        for (long j = str_idx; j < m->str_len; j++)
+        int found = 0;
+        for (long j = str_idx; j < m->str_len; j++, str_idx++)
         {
             char d = m->str_p[j];
             if (d == '.')
@@ -78,14 +79,15 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
                 d += 'a' - 'A'; // add 32 to downcase
             if (c == d)
             {
+                found = 1;
                 dot_search = 0;
 
                 // calculate score
                 double score_for_char = m->max_score_per_char;
-                double factor;
                 long distance = j - last_idx;
-                if (distance > 0)
+                if (distance > 1)
                 {
+                    double factor = 1.0;
                     char last = m->str_p[j - 1];
                     char curr = m->str_p[j]; // case matters, so get again
                     if (last == '/')
@@ -107,22 +109,22 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
                     score_for_char *= factor;
                 }
                 my_score += score_for_char;
-
                 if (j + 1 < m->str_len)
                 {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    double score = recursive_match(m, i, j + 1, last_idx);
+                    double score = recursive_match(m, j + 1, i, last_idx);
                     if (score > seen_score)
                         seen_score = score;
                 }
 
-                last_idx = j;
+                last_idx = str_idx++;
                 break;
             }
         }
+        if (!found)
+            return 0;
     }
-
     if (m->dot_file)
     {
         if (m->never_show_dot_files ||
