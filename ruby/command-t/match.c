@@ -48,9 +48,9 @@ matchinfo_t *matchinfo_new(void)
 double recursive_match(matchinfo_t *m,  // sharable meta-data
                        long str_idx,    // where in the path string to start
                        long abbrev_idx, // where in the search string to start
-                       long last_idx)   // location of last matched character
+                       long last_idx,   // location of last matched character
+                       double score)    // cumulative score so far
 {
-    double my_score = 0;        // cumulatively calculate match score
     double seen_score = 0;      // remember best score seen via recursion
     int dot_file_match = 0;     // true if abbrev matches a dot-file
     int dot_search = 0;         // true if searching for a dot
@@ -108,16 +108,17 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
                         factor = 1.0 / distance;
                     score_for_char *= factor;
                 }
-                my_score += score_for_char;
-                if (j + 1 < m->str_len)
+
+                if (++j < m->str_len)
                 {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    double score = recursive_match(m, j + 1, i, last_idx);
-                    if (score > seen_score)
-                        seen_score = score;
+                    double sub_score = recursive_match(m, j, i, last_idx, score);
+                    if (sub_score > seen_score)
+                        seen_score = sub_score;
                 }
 
+                score += score_for_char;
                 last_idx = str_idx++;
                 break;
             }
@@ -131,7 +132,7 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
             (!dot_file_match && !m->always_show_dot_files))
             return 0;
     }
-    return (my_score > seen_score) ? my_score : seen_score;
+    return (score > seen_score) ? score : seen_score;
 }
 
 double best_match(matchinfo_t *m)
@@ -153,7 +154,7 @@ double best_match(matchinfo_t *m)
             }
         }
     }
-    return recursive_match(m, 0, 0, 0);
+    return recursive_match(m, 0, 0, 0, 0.0);
 }
 
 #define GC_WRAP_STRUCT(ptr, name) \
