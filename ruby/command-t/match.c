@@ -38,7 +38,10 @@ typedef struct
     int     never_show_dot_files;   // boolean
 } matchinfo_t;
 
-double recursive_match(matchinfo_t *m, long str_idx, long abbrev_idx)
+double recursive_match(matchinfo_t *m,  // sharable meta-data
+                       long str_idx,    // where in the path string to start
+                       long abbrev_idx, // where in the search string to start
+                       long last_idx)   // location of last matched character
 {
     double my_score = 0;        // cumulatively calculate match score
     double seen_score = 0;      // remember best score seen via recursion
@@ -69,16 +72,45 @@ double recursive_match(matchinfo_t *m, long str_idx, long abbrev_idx)
             if (c == d)
             {
                 dot_search = 0;
-                my_score = 0; // calculate score
+
+                // calculate score
+                double score_for_char = m->max_score_per_char;
+                double factor;
+                long distance = j - last_idx;
+                if (distance > 0)
+                {
+                    char last = m->str_p[j - 1];
+                    char curr = m->str_p[j]; // case matters, so get again
+                    if (last == '/')
+                        factor = 0.9;
+                    else if (last == '-' ||
+                            last == '_' ||
+                            last == ' ' ||
+                            (last >= '0' && last <= '9'))
+                        factor = 0.8;
+                    else if (last >= 'a' && last <= 'z' &&
+                            curr >= 'A' && curr <= 'Z')
+                        factor = 0.8;
+                    else if (last == '.')
+                        factor = 0.7;
+                    else
+                        // if no "special" chars behind char, factor diminishes
+                        // as distance from last matched char increases
+                        factor = 1.0 / distance;
+                    score_for_char *= factor;
+                }
+                my_score += score_for_char;
 
                 if (j + 1 < m->str_len)
                 {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    double score = recursive_match(m, i, j + 1);
+                    double score = recursive_match(m, i, j + 1, last_idx);
                     if (score > seen_score)
                         seen_score = score;
                 }
+
+                last_idx = j;
                 break;
             }
         }
@@ -112,7 +144,7 @@ double best_match(matchinfo_t *m)
             }
         }
     }
-    return recursive_match(m, 0, 0);
+    return recursive_match(m, 0, 0, 0);
 }
 
 // Match.new abbrev, string, options = {}
