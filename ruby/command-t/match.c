@@ -141,18 +141,20 @@ double best_match(matchinfo_t *m)
     m->max_score_per_char = 1.0 / m->str_len;
     m->dot_file = 0;
 
-    // special case for zero-length search string: filter out dot files
-    if (m->abbrev_len == 0 && !m->always_show_dot_files)
+    // special case for zero-length search string
+    if (m->abbrev_len == 0)
     {
-        for (long i = 0; i < m->str_len; i++)
+        // filter out dot files
+        if (!m->always_show_dot_files)
         {
-            char c = m->str_p[i];
-            if (c == '.' && (i == 0 || m->str_p[i - 1] == '/'))
+            for (long i = 0; i < m->str_len; i++)
             {
-                m->dot_file = 1;
-                break;
+                char c = m->str_p[i];
+                if (c == '.' && (i == 0 || m->str_p[i - 1] == '/'))
+                    return 0.0;
             }
         }
+        return 1.0;
     }
     return recursive_match(m, 0, 0, 0, 0.0);
 }
