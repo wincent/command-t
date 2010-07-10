@@ -38,13 +38,6 @@ typedef struct
     int     never_show_dot_files;   // boolean
 } matchinfo_t;
 
-matchinfo_t *matchinfo_new(void)
-{
-    matchinfo_t *m = ALLOC_N(matchinfo_t, 1);
-    bzero(m, sizeof(matchinfo_t));
-    return m;
-}
-
 double recursive_match(matchinfo_t *m,  // sharable meta-data
                        long str_idx,    // where in the path string to start
                        long abbrev_idx, // where in the search string to start
@@ -149,27 +142,27 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
     VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
 
-    matchinfo_t *m            = matchinfo_new();
-    m->str_p                  = RSTRING_PTR(str);
-    m->str_len                = RSTRING_LEN(str);
-    m->abbrev_p               = RSTRING_PTR(abbrev);
-    m->abbrev_len             = RSTRING_LEN(abbrev);
-    m->max_score_per_char     = 1.0 / m->str_len;
-    m->always_show_dot_files  = always_show_dot_files == Qtrue;
-    m->never_show_dot_files   = never_show_dot_files == Qtrue;
-    m->dot_file               = 0;
+    matchinfo_t m;
+    m.str_p                 = RSTRING_PTR(str);
+    m.str_len               = RSTRING_LEN(str);
+    m.abbrev_p              = RSTRING_PTR(abbrev);
+    m.abbrev_len            = RSTRING_LEN(abbrev);
+    m.max_score_per_char    = 1.0 / m.str_len;
+    m.dot_file              = 0;
+    m.always_show_dot_files = always_show_dot_files == Qtrue;
+    m.never_show_dot_files  = never_show_dot_files == Qtrue;
 
     // calculate score
     double score = 1.0;
-    if (m->abbrev_len == 0) // special case for zero-length search string
+    if (m.abbrev_len == 0) // special case for zero-length search string
     {
         // filter out dot files
-        if (!m->always_show_dot_files)
+        if (!m.always_show_dot_files)
         {
-            for (long i = 0; i < m->str_len; i++)
+            for (long i = 0; i < m.str_len; i++)
             {
-                char c = m->str_p[i];
-                if (c == '.' && (i == 0 || m->str_p[i - 1] == '/'))
+                char c = m.str_p[i];
+                if (c == '.' && (i == 0 || m.str_p[i - 1] == '/'))
                 {
                     score = 0.0;
                     break;
@@ -178,10 +171,9 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
         }
     }
     else // normal case
-        score = recursive_match(m, 0, 0, 0, 0.0);
+        score = recursive_match(&m, 0, 0, 0, 0.0);
 
     // clean-up and final book-keeping
-    free(m);
     rb_iv_set(self, "@score", rb_float_new(score));
     rb_iv_set(self, "@str", str);
     return Qnil;
