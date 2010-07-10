@@ -135,30 +135,6 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
     return (score > seen_score) ? score : seen_score;
 }
 
-double best_match(matchinfo_t *m)
-{
-    // pre-calculations
-    m->max_score_per_char = 1.0 / m->str_len;
-    m->dot_file = 0;
-
-    // special case for zero-length search string
-    if (m->abbrev_len == 0)
-    {
-        // filter out dot files
-        if (!m->always_show_dot_files)
-        {
-            for (long i = 0; i < m->str_len; i++)
-            {
-                char c = m->str_p[i];
-                if (c == '.' && (i == 0 || m->str_p[i - 1] == '/'))
-                    return 0.0;
-            }
-        }
-        return 1.0;
-    }
-    return recursive_match(m, 0, 0, 0, 0.0);
-}
-
 #define GC_WRAP_STRUCT(ptr, name) \
         volatile VALUE name __attribute__((unused)) = Data_Wrap_Struct(rb_cObject, 0, free, ptr)
 
@@ -183,8 +159,31 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     m->always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options) == Qtrue;
     m->never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options) == Qtrue;
 
-    VALUE score = rb_float_new(best_match(m));
-    rb_iv_set(self, "@score", score);
+    // pre-calculations
+    m->max_score_per_char = 1.0 / m->str_len;
+    m->dot_file = 0;
+    double score = 1.0;
+
+    // special case for zero-length search string
+    if (m->abbrev_len == 0)
+    {
+        // filter out dot files
+        if (!m->always_show_dot_files)
+        {
+            for (long i = 0; i < m->str_len; i++)
+            {
+                char c = m->str_p[i];
+                if (c == '.' && (i == 0 || m->str_p[i - 1] == '/'))
+                {
+                    score = 0.0;
+                    break;
+                }
+            }
+        }
+    }
+    else
+        score = recursive_match(m, 0, 0, 0, 0.0);
+    rb_iv_set(self, "@score", rb_float_new(score));
     rb_iv_set(self, "@str", str);
     return Qnil;
 }
