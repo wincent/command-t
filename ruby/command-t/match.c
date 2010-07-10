@@ -40,7 +40,7 @@ typedef struct
 
 matchinfo_t *matchinfo_new(void)
 {
-    matchinfo_t *m= ALLOC_N(matchinfo_t, 1);
+    matchinfo_t *m = ALLOC_N(matchinfo_t, 1);
     bzero(m, sizeof(matchinfo_t));
     return m;
 }
