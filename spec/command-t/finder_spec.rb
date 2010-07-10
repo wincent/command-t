@@ -41,7 +41,7 @@ describe CommandT::Finder do
 
   before do
     # scanner will call VIM's expand() function for exclusion filtering
-    VIM.stub!(:evaluate).with(/expand\(.+\)/).and_return('0')
+    stub(VIM).evaluate(/expand\(.+\)/) { '0' }
   end
 
   describe 'sorted_matches_for method' do

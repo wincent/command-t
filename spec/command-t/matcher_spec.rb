@@ -35,7 +35,7 @@ describe CommandT::Matcher do
 
   describe 'matches_for method' do
     before do
-      @scanner = mock(CommandT::Scanner)
+      @scanner = Object.new
     end
 
     it 'should raise an ArgumentError if passed nil' do
@@ -45,20 +45,20 @@ describe CommandT::Matcher do
     end
 
     it 'should return empty array when source array empty' do
-      @scanner.stub(:paths).and_return([])
+      stub(@scanner).paths { [] }
       @no_paths = CommandT::Matcher.new @scanner
       @no_paths.matches_for('foo').should == []
       @no_paths.matches_for('').should == []
     end
 
     it 'should return empty array when no matches' do
-      @scanner.stub(:paths).and_return(['foo/bar', 'foo/baz', 'bing'])
+      stub(@scanner).paths { ['foo/bar', 'foo/baz', 'bing'] }
       @no_matches = CommandT::Matcher.new @scanner
       @no_matches.matches_for('xyz').should == []
     end
 
     it 'should return matching paths' do
-      @scanner.stub(:paths).and_return(['foo/bar', 'foo/baz', 'bing'])
+      stub(@scanner).paths { ['foo/bar', 'foo/baz', 'bing'] }
       @foo_paths = CommandT::Matcher.new @scanner
       matches = @foo_paths.matches_for('z')
       matches.map { |m| m.to_s }.should == ['foo/baz']
@@ -67,7 +67,7 @@ describe CommandT::Matcher do
     end
 
     it 'should perform case-insensitive matching' do
-      @scanner.stub(:paths).and_return(['Foo'])
+      stub(@scanner).paths { ['Foo'] }
       @path = CommandT::Matcher.new @scanner
       matches = @path.matches_for('f')
       matches.map { |m| m.to_s }.should == ['Foo']

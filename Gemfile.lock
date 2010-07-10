@@ -1,0 +1,21 @@
+GEM
+  specs:
+    diff-lcs (1.1.2)
+    rake (0.8.7)
+    rr (0.10.11)
+    rspec (2.0.0.beta.16)
+      rspec-core (= 2.0.0.beta.16)
+      rspec-expectations (= 2.0.0.beta.16)
+      rspec-mocks (= 2.0.0.beta.16)
+    rspec-core (2.0.0.beta.16)
+    rspec-expectations (2.0.0.beta.16)
+      diff-lcs (>= 1.1.2)
+    rspec-mocks (2.0.0.beta.16)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rake
+  rr
+  rspec (>= 2.0.0.beta.16)
