@@ -31,3 +31,6 @@ extern VALUE cCommandTMatcher;  // class CommandT::Matcher
 // options hash. The hash itself may be nil, but an exception will be
 // raised if it is not nil and not a hash.
 VALUE CommandT_option_from_hash(const char *option, VALUE hash);
+
+// Debugging macro.
+#define ruby_inspect(obj) rb_funcall(rb_mKernel, rb_intern("p"), 1, obj)
