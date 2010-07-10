@@ -117,13 +117,13 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
             }
         }
         if (!found)
-            return 0;
+            return 0.0;
     }
     if (m->dot_file)
     {
         if (m->never_show_dot_files ||
             (!dot_file_match && !m->always_show_dot_files))
-            return 0;
+            return 0.0;
     }
     return (score > seen_score) ? score : seen_score;
 }
