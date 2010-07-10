@@ -30,39 +30,57 @@ describe CommandT::Match do
   end
 
   describe 'matches? method' do
-    it 'should return false for non-matches' do
+    it 'returns false for non-matches' do
       match_for('foo', 'bar').matches?.should == false
     end
 
-    it 'should return true for matches' do
+    it 'returns true for matches' do
       match_for('foo', 'foo').matches?.should == true
     end
 
-    it 'should return true for empty search strings' do
+    it 'returns true for empty search strings' do
       match_for('foo', '').matches?.should == true
+    end
+
+    it 'returns false for overlength matches' do
+      match_for('foo', 'foo...').matches?.should == false
     end
   end
 
   describe 'score method' do
-    it 'should assign a score of zero for empty search string' do
-      match_for('foo', '').score.should == 0.0
+    it 'assigns a score of 1.0 for empty search string' do
+      match_for('foo', '').score.should == 1.0
     end
 
-    it 'should assign a score of zero for a non-match' do
+    it 'assigns a score of zero for a non-match' do
       match_for('foo', 'bar').score.should == 0.0
     end
 
-    it 'should assign perfect matches a score of one' do
+    it 'assigns a score of zero for an overlength match' do
+      match_for('foo', 'foo...').score.should == 0.0
+    end
+
+    it 'assigns perfect matches a score of one' do
       match_for('foo', 'foo').score.should == 1.0
     end
 
-    it 'should prioritize matches with more matching characters' do
+    it 'assigns perfect but incomplete matches a score of less than one' do
+      match_for('foo', 'f').score.should < 1.0
+    end
+
+    it 'prioritizes matches with more matching characters' do
       few_matches = match_for('foobar', 'fb')
       many_matches = match_for('foobar', 'fbar')
       many_matches.score.should > few_matches.score
     end
 
-    it 'should prioritize matches after "/"' do
+    it 'prioritizes shorter paths over longer ones' do
+      short_path = match_for('article.rb', 'art')
+      long_path  = match_for('articles_controller_spec.rb', 'art')
+      short_path.score.should > long_path.score
+    end
+
+    it 'prioritizes matches after "/"' do
       normal_match = match_for('fooobar', 'b')
       special_match = match_for('foo/bar', 'b')
       special_match.score.should > normal_match.score
@@ -93,7 +111,7 @@ describe CommandT::Match do
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matches after "-"' do
+    it 'prioritizes matches after "-"' do
       normal_match = match_for('fooobar', 'b')
       special_match = match_for('foo-bar', 'b')
       special_match.score.should > normal_match.score
@@ -104,7 +122,7 @@ describe CommandT::Match do
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matches after "_"' do
+    it 'prioritizes matches after "_"' do
       normal_match = match_for('fooobar', 'b')
       special_match = match_for('foo_bar', 'b')
       special_match.score.should > normal_match.score
@@ -115,7 +133,7 @@ describe CommandT::Match do
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matches after " "' do
+    it 'prioritizes matches after " "' do
       normal_match = match_for('fooobar', 'b')
       special_match = match_for('foo bar', 'b')
       special_match.score.should > normal_match.score
@@ -126,7 +144,7 @@ describe CommandT::Match do
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matches after numbers' do
+    it 'prioritizes matches after numbers' do
       normal_match = match_for('fooobar', 'b')
       special_match = match_for('foo9bar', 'b')
       special_match.score.should > normal_match.score
@@ -137,33 +155,61 @@ describe CommandT::Match do
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matches after periods' do
+    it 'prioritizes matches after periods' do
       normal_match = match_for('fooobar', 'b')
       special_match = match_for('foo.bar', 'b')
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matching capitals following lowercase' do
+    it 'prioritizes matching capitals following lowercase' do
       normal_match = match_for('foobar', 'b')
       special_match = match_for('fooBar', 'b')
       special_match.score.should > normal_match.score
     end
 
-    it 'should prioritize matches earlier in the string' do
+    it 'prioritizes matches earlier in the string' do
       early_match = match_for('**b*****', 'b')
       late_match  = match_for('******b*', 'b')
       early_match.score.should > late_match.score
     end
 
-    it 'should prioritize matches closer to previous matches' do
+    it 'prioritizes matches closer to previous matches' do
       early_match = match_for('**bc****', 'bc')
       late_match  = match_for('**b***c*', 'bc')
       early_match.score.should > late_match.score
     end
+
+    it 'scores alternative matches of same path differently' do
+      # given path:                    app/controllers/articles_controller.rb
+      left_to_right_match = match_for('a**/****r******/**t*c***_*on*******.**', 'artcon')
+      best_match          = match_for('***/***********/art*****_con*******.**', 'artcon')
+      best_match.score.should > left_to_right_match.score
+    end
+
+    it 'returns the best possible score among alternatives' do
+      # given path:                    app/controllers/articles_controller.rb
+      best_match          = match_for('***/***********/art*****_con*******.**', 'artcon')
+      chosen_match        = match_for('app/controllers/articles_controller.rb', 'artcon')
+      chosen_match.score.should == best_match.score
+    end
+
+    it 'provides intuitive results for "artcon" and "articles_controller"' do
+      low  = match_for('app/controllers/heartbeat_controller.rb', 'artcon')
+      high = match_for('app/controllers/articles_controller.rb', 'artcon')
+      high.score.should > low.score
+    end
+
+    it 'provides intuitive results for "aca" and "a/c/articles_controller"' do
+      low         = match_for 'app/controllers/heartbeat_controller.rb', 'aca'
+      high        = match_for 'app/controllers/articles_controller.rb', 'aca'
+      best_match  = match_for 'a**/c**********/a******************.**', 'aca'
+      high.score.should > low.score
+      high.score.should == best_match.score
+    end
   end
 
   describe 'to_s method' do
-    it 'should return the entire matched string' do
+    it 'returns the entire matched string' do
       match_for('abc', 'abc').to_s.should == 'abc'
     end
   end
