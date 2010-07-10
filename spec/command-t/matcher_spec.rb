@@ -34,7 +34,7 @@ describe CommandT::Matcher do
   end
 
   describe 'matches_for method' do
-    before :each do
+    before do
       @scanner = mock(CommandT::Scanner)
     end
 
