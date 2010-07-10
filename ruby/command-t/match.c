@@ -135,9 +135,6 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
     return (score > seen_score) ? score : seen_score;
 }
 
-#define GC_WRAP_STRUCT(ptr, name) \
-        volatile VALUE name __attribute__((unused)) = Data_Wrap_Struct(rb_cObject, 0, free, ptr)
-
 // Match.new abbrev, string, options = {}
 VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
 {
@@ -148,24 +145,23 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     str             = StringValue(str);
     abbrev          = StringValue(abbrev);
 
-    matchinfo_t *m  = matchinfo_new();
-    GC_WRAP_STRUCT(m, matchinfo_gc);
-    m->str_p        = RSTRING_PTR(str);
-    m->str_len      = RSTRING_LEN(str);
-    m->abbrev_p     = RSTRING_PTR(abbrev);
-    m->abbrev_len   = RSTRING_LEN(abbrev);
-
     // check optional options hash for overrides
-    m->always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options) == Qtrue;
-    m->never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options) == Qtrue;
+    VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
+    VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
 
-    // pre-calculations
-    m->max_score_per_char = 1.0 / m->str_len;
-    m->dot_file = 0;
+    matchinfo_t *m            = matchinfo_new();
+    m->str_p                  = RSTRING_PTR(str);
+    m->str_len                = RSTRING_LEN(str);
+    m->abbrev_p               = RSTRING_PTR(abbrev);
+    m->abbrev_len             = RSTRING_LEN(abbrev);
+    m->max_score_per_char     = 1.0 / m->str_len;
+    m->always_show_dot_files  = always_show_dot_files == Qtrue;
+    m->never_show_dot_files   = never_show_dot_files == Qtrue;
+    m->dot_file               = 0;
+
+    // calculate score
     double score = 1.0;
-
-    // special case for zero-length search string
-    if (m->abbrev_len == 0)
+    if (m->abbrev_len == 0) // special case for zero-length search string
     {
         // filter out dot files
         if (!m->always_show_dot_files)
@@ -181,8 +177,11 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
             }
         }
     }
-    else
+    else // normal case
         score = recursive_match(m, 0, 0, 0, 0.0);
+
+    // clean-up and final book-keeping
+    free(m);
     rb_iv_set(self, "@score", rb_float_new(score));
     rb_iv_set(self, "@str", str);
     return Qnil;
