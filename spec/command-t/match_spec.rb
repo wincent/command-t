@@ -21,7 +21,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require File.expand_path('../spec_helper', File.dirname(__FILE__))
+require 'command-t/ext'
 
 describe CommandT::Match do
   def match_for path, pattern

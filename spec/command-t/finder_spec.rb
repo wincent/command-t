@@ -21,7 +21,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require File.join(File.dirname(__FILE__), '..', 'spec_helper')
+require File.expand_path('../spec_helper', File.dirname(__FILE__))
 require 'command-t/finder'
 
 describe CommandT::Finder do
@@ -39,7 +39,7 @@ describe CommandT::Finder do
     ]
   end
 
-  before :each do
+  before do
     # scanner will call VIM's expand() function for exclusion filtering
     VIM.stub!(:evaluate).with(/expand\(.+\)/).and_return('0')
   end
