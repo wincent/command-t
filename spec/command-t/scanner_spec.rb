@@ -27,6 +27,8 @@ require 'command-t/scanner'
 describe CommandT::Scanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', 'fixtures')
+    @all_fixtures = \
+      %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
     @scanner = CommandT::Scanner.new @dir
 
     # scanner will call VIM's expand() function for exclusion filtering
@@ -35,8 +37,7 @@ describe CommandT::Scanner do
 
   describe 'paths method' do
     it 'should return a list of regular files' do
-      @scanner.paths.
-        should =~ %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
+      @scanner.paths.should =~ @all_fixtures
     end
   end
 
@@ -50,8 +51,7 @@ describe CommandT::Scanner do
 
   describe 'path= method' do
     it 'should allow repeated applications of scanner at different paths' do
-      @scanner.paths.
-        should =~ %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
+      @scanner.paths.should =~ @all_fixtures
 
       # drill down 1 level
       @scanner.path = File.join(@dir, 'foo')
