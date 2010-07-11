@@ -12,7 +12,7 @@ command-t.vba: $(rubyfiles) $(cfiles) $(cheaders) $(depends) $(txtfiles) $(vimfi
 
 .PHONY: spec
 spec:
-	spec spec
+	rspec spec
 
 .PHONY: clean
 clean:
