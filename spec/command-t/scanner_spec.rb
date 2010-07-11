@@ -35,8 +35,8 @@ describe CommandT::Scanner do
 
   describe 'paths method' do
     it 'should return a list of regular files' do
-      @scanner.paths.sort.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
-        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta'].sort
+      @scanner.paths.
+        should =~ %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
     end
   end
 
@@ -50,16 +50,16 @@ describe CommandT::Scanner do
 
   describe 'path= method' do
     it 'should allow repeated applications of scanner at different paths' do
-      @scanner.paths.sort.should == ['bar/abc', 'bar/xyz', 'baz', 'bing',
-        'foo/alpha/t1', 'foo/alpha/t2', 'foo/beta'].sort
+      @scanner.paths.
+        should =~ %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
 
       # drill down 1 level
       @scanner.path = File.join(@dir, 'foo')
-      @scanner.paths.sort.should. == ['alpha/t1', 'alpha/t2', 'beta'].sort
+      @scanner.paths.should =~ %w(alpha/t1 alpha/t2 beta)
 
       # and another
       @scanner.path = File.join(@dir, 'foo', 'alpha')
-      @scanner.paths.sort.should == ['t1', 't2'].sort
+      @scanner.paths.should =~ %w(t1 t2)
     end
   end
 
@@ -74,7 +74,7 @@ describe CommandT::Scanner do
   describe ':max_depth option' do
     it 'should not descend below "max_depth" levels' do
       @scanner = CommandT::Scanner.new @dir, :max_depth => 1
-      @scanner.paths.sort.should == ['bar/abc', 'bar/xyz', 'baz', 'bing', 'foo/beta'].sort
+      @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
     end
   end
 end
