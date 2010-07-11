@@ -18,21 +18,46 @@ RSpec::Core::RakeTask.new do |t|
 end
 
 desc 'Create vimball archive'
-task :make do
+task :vimball do
   system 'make'
   bail_on_failure
 end
 
-desc 'Compile under all multiruby versions'
-task :compile do
-  system './compile-test.sh'
-  bail_on_failure
+desc 'Clean compiled products'
+task :clean do
+  Dir.chdir 'ruby/command-t' do
+    system 'make clean'
+  end
 end
 
-desc 'Run specs under all multiruby versions'
-task :multispec do
-  system './multi-spec.sh'
-  bail_on_failure
+desc 'Clobber all generated files'
+task :clobber => :clean do
+  system 'make clean'
+end
+
+desc 'Compile extension'
+task :make do
+  Dir.chdir 'ruby/command-t' do
+    ruby 'extconf.rb'
+    system 'make clean && make'
+    bail_on_failure
+  end
+end
+
+namespace :make do
+  desc 'Compile under all multiruby versions'
+  task :all do
+    system './compile-test.sh'
+    bail_on_failure
+  end
+end
+
+namespace :spec do
+  desc 'Run specs under all multiruby versions'
+  task :all do
+    system './multi-spec.sh'
+    bail_on_failure
+  end
 end
 
 desc 'Check that the current HEAD is tagged'
@@ -44,4 +69,4 @@ task :check_tag do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => [:compile, :multispec, :make, :check_tag]
+task :prerelease => ['make:all', 'spec:all', :vimball, :check_tag]
