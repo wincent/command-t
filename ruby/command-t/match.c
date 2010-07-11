@@ -147,7 +147,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     m.str_len               = RSTRING_LEN(str);
     m.abbrev_p              = RSTRING_PTR(abbrev);
     m.abbrev_len            = RSTRING_LEN(abbrev);
-    m.max_score_per_char    = 1.0 / m.str_len;
+    m.max_score_per_char    = (1.0 / m.str_len + 1.0 / m.abbrev_len) / 2;
     m.dot_file              = 0;
     m.always_show_dot_files = always_show_dot_files == Qtrue;
     m.never_show_dot_files  = never_show_dot_files == Qtrue;
