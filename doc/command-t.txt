@@ -524,7 +524,7 @@ HISTORY                                         *command-t-history*
 
 0.8b (11 July 2010)
 
-- large overhaul if the scoring algorithm to make the ordering of returned
+- large overhaul of the scoring algorithm to make the ordering of returned
   results more intuitive; given the scope of the changes and room for
   optimization of the new algorithm, this release is labelled as "beta"
 
