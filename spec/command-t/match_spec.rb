@@ -207,9 +207,15 @@ describe CommandT::Match do
       high.score.should == best_match.score
     end
 
-    it 'provides intuitive results for "do" and "doc/command-t.txt"' do
+    it 'provides intuitive results for "d" and "doc/command-t.txt"' do
       low  = match_for 'TODO', 'd'
       high = match_for 'doc/command-t.txt', 'd'
+      high.score.should > low.score
+    end
+
+    it 'provides intuitive results for "do" and "doc/command-t.txt"' do
+      low  = match_for 'TODO', 'do'
+      high = match_for 'doc/command-t.txt', 'do'
       high.score.should > low.score
     end
   end

@@ -98,7 +98,7 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
                     else
                         // if no "special" chars behind char, factor diminishes
                         // as distance from last matched char increases
-                        factor = 1.0 / distance;
+                        factor = (1.0 / distance) * 0.75;
                     score_for_char *= factor;
                 }
 
