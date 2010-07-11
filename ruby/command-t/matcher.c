@@ -151,6 +151,7 @@ VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
         options = rb_hash_new();
         rb_hash_aset(options, ID2SYM(rb_intern("never_show_dot_files")), never_show_dot_files);
     }
+    abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
     VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
     for (long i = 0, max = RARRAY_LEN(paths); i < max; i++)
     {

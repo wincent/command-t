@@ -51,9 +51,7 @@ double recursive_match(matchinfo_t *m,  // sharable meta-data
     for (long i = abbrev_idx; i < m->abbrev_len; i++)
     {
         char c = m->abbrev_p[i];
-        if (c >= 'A' && c <= 'Z')
-            c += 'a' - 'A'; // add 32 to downcase
-        else if (c == '.')
+        if (c == '.')
             dot_search = 1;
         int found = 0;
         for (long j = str_idx; j < m->str_len; j++, str_idx++)
@@ -136,7 +134,7 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     if (rb_scan_args(argc, argv, "21", &str, &abbrev, &options) == 2)
         options = Qnil;
     str             = StringValue(str);
-    abbrev          = StringValue(abbrev);
+    abbrev          = StringValue(abbrev); // already downcased by caller
 
     // check optional options hash for overrides
     VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);

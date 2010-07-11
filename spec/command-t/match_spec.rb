@@ -29,7 +29,15 @@ describe CommandT::Match do
     CommandT::Match.new path, pattern
   end
 
-  describe 'matches? method' do
+  it 'requires pattern to be lowercase' do
+    # this is an optimization: we ask our caller (the Matcher class) to
+    # downcase once before calling us, rather than downcase repeatedly
+    # during looping, recursion, and initialization of thousands of Match
+    # instances
+    match_for('foo', 'Foo').matches?.should == false
+  end
+
+  describe '#matches?' do
     it 'returns false for non-matches' do
       match_for('foo', 'bar').matches?.should == false
     end
