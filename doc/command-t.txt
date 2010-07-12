@@ -360,7 +360,11 @@ window, you would add the following to your ~/.vimrc:
 
   let g:CommandTCancelMap='<C-x>'
 
-Following is a list of all map settings:
+Multiple, alternative mappings may be specified using list syntax:
+
+  let g:CommandTCancelMap=['<C-x>', '<C-c>']
+
+Following is a list of all map settings and their defaults:
 
                               Setting   Default mapping(s)
 
@@ -521,6 +525,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+0.8 (not yet released)
+
+- overrides for the default mappings can now be lists of strings, allowing
+  multiple mappings to be defined for any given action
 
 0.8b (11 July 2010)
 
