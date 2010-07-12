@@ -207,7 +207,9 @@ module CommandT
       # preventing windows on the side of vertical splits from regaining
       # their original full size
       @windows.each do |w|
-        VIM::Window[w.index].height = w.height
+        # beware: window may be nil
+        window = VIM::Window[w.index]
+        window.height = w.height if window
       end
     end
 
