@@ -167,6 +167,17 @@ module CommandT
       exists?(name) ? VIM::evaluate("#{name}").to_s : nil
     end
 
+    # expect a string or a list of strings
+    def get_list_or_string name
+      return nil unless exists?(name)
+      list_or_string = VIM::evaluate("#{name}")
+      if list_or_string.kind_of?(Array)
+        list_or_string.map { |item| item.to_s }
+      else
+        list_or_string.to_s
+      end
+    end
+
     # Backslash-escape space, \, |, %, #, "
     def sanitize_path_string str
       # for details on escaping command-line mode arguments see: :h :
