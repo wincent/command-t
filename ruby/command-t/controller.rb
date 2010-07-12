@@ -151,19 +151,20 @@ module CommandT
         :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
     end
 
+    def exists? name
+      VIM::evaluate("exists(\"#{name}\")").to_i != 0
+    end
+
     def get_number name
-      return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
-      VIM::evaluate("#{name}").to_i
+      exists?(name) ? VIM::evaluate("#{name}").to_i : nil
     end
 
     def get_bool name
-      return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
-      VIM::evaluate("#{name}").to_i != 0
+      exists?(name) ? VIM::evaluate("#{name}").to_i != 0 : nil
     end
 
     def get_string name
-      return nil if VIM::evaluate("exists(\"#{name}\")").to_i == 0
-      VIM::evaluate("#{name}").to_s
+      exists?(name) ? VIM::evaluate("#{name}").to_s : nil
     end
 
     # Backslash-escape space, \, |, %, #, "
