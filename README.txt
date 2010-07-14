@@ -1,1 +1,0 @@
-doc/command-t.txt
