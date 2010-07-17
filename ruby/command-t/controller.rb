@@ -53,7 +53,7 @@ module CommandT
 
     def hide
       @match_window.close
-      if @initial_window.select
+      if VIM::Window.select @initial_window
         ::VIM::command "silent b #{@initial_buffer.number}"
       end
     end

@@ -191,7 +191,7 @@ module CommandT
   private
 
     def print_error msg
-      return unless @window.select
+      return unless VIM::Window.select(@window)
       unlock
       clear
       @window.height = 1
@@ -227,7 +227,7 @@ module CommandT
 
     # Print just the specified match.
     def print_match idx
-      return unless @window.select
+      return unless VIM::Window.select(@window)
       unlock
       @buffer[idx + 1] = match_text_for_idx idx
       lock
@@ -239,7 +239,7 @@ module CommandT
       if match_count == 0
         print_error 'NO MATCHES'
       else
-        return unless @window.select
+        return unless VIM::Window.select(@window)
         unlock
         clear
         actual_lines = 1
