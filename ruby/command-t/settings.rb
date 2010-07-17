@@ -53,22 +53,22 @@ module CommandT
   private
 
     def get_number setting
-      VIM::evaluate("&#{setting}").to_i
+      ::VIM::evaluate("&#{setting}").to_i
     end
 
     def get_bool setting
-      VIM::evaluate("&#{setting}").to_i == 1
+      ::VIM::evaluate("&#{setting}").to_i == 1
     end
 
     def set_number setting, value
-      VIM::set_option "#{setting}=#{value}"
+      ::VIM::set_option "#{setting}=#{value}"
     end
 
     def set_bool setting, value
       if value
-        VIM::set_option setting
+        ::VIM::set_option setting
       else
-        VIM::set_option "no#{setting}"
+        ::VIM::set_option "no#{setting}"
       end
     end
   end # class Settings

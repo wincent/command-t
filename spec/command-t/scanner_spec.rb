@@ -32,7 +32,7 @@ describe CommandT::Scanner do
     @scanner = CommandT::Scanner.new @dir
 
     # scanner will call VIM's expand() function for exclusion filtering
-    stub(VIM).evaluate(/expand\(.+\)/) { '0' }
+    stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
   end
 
   describe 'paths method' do
@@ -66,7 +66,7 @@ describe CommandT::Scanner do
   describe "'wildignore' exclusion" do
     it "should call on VIM's expand() function for pattern filtering" do
       @scanner = CommandT::Scanner.new @dir
-      mock(VIM).evaluate(/expand\(.+\)/).times(10)
+      mock(::VIM).evaluate(/expand\(.+\)/).times(10)
       @scanner.paths
     end
   end

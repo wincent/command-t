@@ -35,8 +35,8 @@ module CommandT
     # Erase whatever is displayed in the prompt line,
     # effectively disposing of the prompt
     def dispose
-      VIM::command 'echo'
-      VIM::command 'redraw'
+      ::VIM::command 'echo'
+      ::VIM::command 'redraw'
     end
 
     # Clear any entered text.
@@ -153,13 +153,13 @@ module CommandT
       # see ':help :echo' for why forcing a redraw here helps
       # prevent the status line from getting inadvertantly cleared
       # after our echo commands
-      VIM::command 'redraw'
+      ::VIM::command 'redraw'
       while (highlight = args.shift) and  (text = args.shift) do
         text = VIM::escape_for_single_quotes text
-        VIM::command "echohl #{highlight}"
-        VIM::command "echon '#{text}'"
+        ::VIM::command "echohl #{highlight}"
+        ::VIM::command "echon '#{text}'"
       end
-      VIM::command 'echohl None'
+      ::VIM::command 'echohl None'
     end
   end # class Prompt
 end # module CommandT

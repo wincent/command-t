@@ -35,21 +35,21 @@ module CommandT
 
       # save existing window dimensions so we can restore them later
       @windows = []
-      (0..(VIM::Window.count - 1)).each do |i|
-        window = OpenStruct.new :index => i, :height => VIM::Window[i].height
+      (0..(::VIM::Window.count - 1)).each do |i|
+        window = OpenStruct.new :index => i, :height => ::VIM::Window[i].height
         @windows << window
       end
 
       # global settings (must manually save and restore)
       @settings = Settings.new
-      VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
-      VIM::set_option 'nohlsearch'      # don't highlight search strings
-      VIM::set_option 'noinsertmode'    # don't make Insert mode the default
-      VIM::set_option 'noshowcmd'       # don't show command info on last line
-      VIM::set_option 'report=9999'     # don't show "X lines changed" reports
-      VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
-      VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
-      VIM::set_option 'noequalalways'   # don't auto-balance window sizes
+      ::VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
+      ::VIM::set_option 'nohlsearch'      # don't highlight search strings
+      ::VIM::set_option 'noinsertmode'    # don't make Insert mode the default
+      ::VIM::set_option 'noshowcmd'       # don't show command info on last line
+      ::VIM::set_option 'report=9999'     # don't show "X lines changed" reports
+      ::VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
+      ::VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
+      ::VIM::set_option 'noequalalways'   # don't auto-balance window sizes
 
       # create match window and set it up
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
@@ -68,19 +68,19 @@ module CommandT
         'setlocal nospell',           # spell-checking off
         'setlocal nobuflisted',       # don't show up in the buffer list
         'setlocal textwidth=0'        # don't hard-wrap (break long lines)
-      ].each { |command| VIM::command command }
+      ].each { |command| ::VIM::command command }
 
       # sanity check: make sure the buffer really was created
       raise "Can't find buffer" unless $curbuf.name.match /GoToFile/
 
       # syntax coloring
       if VIM::has_syntax?
-        VIM::command "syntax match CommandTSelection \"^#{@@selection_marker}.\\+$\""
-        VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
-        VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
-        VIM::command 'highlight link CommandTSelection Visual'
-        VIM::command 'highlight link CommandTNoEntries Error'
-        VIM::evaluate 'clearmatches()'
+        ::VIM::command "syntax match CommandTSelection \"^#{@@selection_marker}.\\+$\""
+        ::VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
+        ::VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
+        ::VIM::command 'highlight link CommandTSelection Visual'
+        ::VIM::command 'highlight link CommandTNoEntries Error'
+        ::VIM::evaluate 'clearmatches()'
 
         # hide cursor
         @cursor_highlight = get_cursor_highlight
@@ -96,7 +96,7 @@ module CommandT
     end
 
     def close
-      VIM::command "bwipeout! #{@buffer.number}"
+      ::VIM::command "bwipeout! #{@buffer.number}"
       restore_window_dimensions
       @settings.restore
       @prompt.dispose
@@ -143,7 +143,7 @@ module CommandT
       unless @has_focus
         @has_focus = true
         if VIM::has_syntax?
-          VIM::command 'highlight link CommandTSelection Search'
+          ::VIM::command 'highlight link CommandTSelection Search'
         end
       end
     end
@@ -152,7 +152,7 @@ module CommandT
       if @has_focus
         @has_focus = false
         if VIM::has_syntax?
-          VIM::command 'highlight link CommandTSelection Visual'
+          ::VIM::command 'highlight link CommandTSelection Visual'
         end
       end
     end
@@ -208,7 +208,7 @@ module CommandT
       # their original full size
       @windows.each do |w|
         # beware: window may be nil
-        window = VIM::Window[w.index]
+        window = ::VIM::Window[w.index]
         window.height = w.height if window
       end
     end
@@ -286,24 +286,24 @@ module CommandT
       # range = % (whole buffer)
       # action = d (delete)
       # register = _ (black hole register, don't record deleted text)
-      VIM::command 'silent %d _'
+      ::VIM::command 'silent %d _'
     end
 
     def get_cursor_highlight
       # as :highlight returns nothing and only prints,
       # must redirect its output to a variable
-      VIM::command 'silent redir => g:command_t_cursor_highlight'
+      ::VIM::command 'silent redir => g:command_t_cursor_highlight'
 
       # force 0 verbosity to ensure origin information isn't printed as well
-      VIM::command 'silent! 0verbose highlight Cursor'
-      VIM::command 'silent redir END'
+      ::VIM::command 'silent! 0verbose highlight Cursor'
+      ::VIM::command 'silent redir END'
 
       # there are 3 possible formats to check for, each needing to be
       # transformed in a certain way in order to reapply the highlight:
       #   Cursor xxx guifg=bg guibg=fg      -> :hi! Cursor guifg=bg guibg=fg
       #   Cursor xxx links to SomethingElse -> :hi! link Cursor SomethingElse
       #   Cursor xxx cleared                -> :hi! clear Cursor
-      highlight = VIM::evaluate 'g:command_t_cursor_highlight'
+      highlight = ::VIM::evaluate 'g:command_t_cursor_highlight'
       if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/
         "link Cursor #{$~[1]}"
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/
@@ -317,22 +317,22 @@ module CommandT
 
     def hide_cursor
       if @cursor_highlight
-        VIM::command 'highlight Cursor NONE'
+        ::VIM::command 'highlight Cursor NONE'
       end
     end
 
     def show_cursor
       if @cursor_highlight
-        VIM::command "highlight #{@cursor_highlight}"
+        ::VIM::command "highlight #{@cursor_highlight}"
       end
     end
 
     def lock
-      VIM::command 'setlocal nomodifiable'
+      ::VIM::command 'setlocal nomodifiable'
     end
 
     def unlock
-      VIM::command 'setlocal modifiable'
+      ::VIM::command 'setlocal modifiable'
     end
   end
 end
