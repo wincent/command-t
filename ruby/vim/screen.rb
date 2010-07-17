@@ -21,14 +21,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module VIM
-  module Screen
-    def self.lines
-      ::VIM::evaluate('&lines').to_i
-    end
+module CommandT
+  module VIM
+    module Screen
+      def self.lines
+        ::VIM::evaluate('&lines').to_i
+      end
 
-    def self.columns
-      ::VIM::evaluate('&columns').to_i
-    end
-  end # module Screen
-end # module VIM
+      def self.columns
+        ::VIM::evaluate('&columns').to_i
+      end
+    end # module Screen
+  end # module VIM
+end # module CommandT
