@@ -15,7 +15,7 @@ for RUBY_VERSION in $(ls ~/.multiruby/install); do
   export PATH=~/.multiruby/install/$RUBY_VERSION/bin:$OLD_PATH
   build_quietly
   echo "$RUBY_VERSION: running spec suite"
-  rspec spec
+  bin/rspec spec
   echo "$RUBY_VERSION: finished"
 done
 
