@@ -24,6 +24,8 @@
 require File.expand_path('../spec_helper', File.dirname(__FILE__))
 require 'command-t/finder'
 
+module VIM; end
+
 describe CommandT::Finder do
   before :all do
     @finder = CommandT::Finder.new File.join(File.dirname(__FILE__), '..',

@@ -24,6 +24,8 @@
 require File.expand_path('../spec_helper', File.dirname(__FILE__))
 require 'command-t/scanner'
 
+module VIM; end
+
 describe CommandT::Scanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', 'fixtures')
