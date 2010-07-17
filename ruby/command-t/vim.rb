@@ -22,7 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim/screen'
-require 'vim/window'
+require 'command-t/vim/window'
 
 module CommandT
   module VIM
