@@ -127,7 +127,7 @@ ruby << EOF
   # require Ruby files
   begin
     # prepare controller
-    require 'vim'
+    require 'command-t/vim'
     require 'command-t/controller'
     $command_t = CommandT::Controller.new
   rescue LoadError
