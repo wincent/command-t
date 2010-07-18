@@ -29,7 +29,7 @@ module CommandT
         initial = $curwin
         while true do
           ::VIM::command 'wincmd w'           # cycle through windows
-          return true if $curwin == self      # have selected desired window
+          return true if $curwin == window    # have selected desired window
           return false if $curwin == initial  # have already looped through all
         end
       end
