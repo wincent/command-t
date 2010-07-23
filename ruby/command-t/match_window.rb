@@ -64,6 +64,7 @@ module CommandT
         'setlocal nonumber',          # don't show line numbers
         'setlocal nolist',            # don't use List mode (visible tabs etc)
         'setlocal foldcolumn=0',      # don't show a fold column at side
+        'setlocal foldlevel=99',      # don't fold anything
         'setlocal nocursorline',      # don't highlight line cursor is on
         'setlocal nospell',           # spell-checking off
         'setlocal nobuflisted',       # don't show up in the buffer list
