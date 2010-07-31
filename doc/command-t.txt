@@ -1,10 +1,11 @@
-*command-t.txt* Command-T plug-in for VIM
+*command-t.txt* Command-T plug-in for Vim         *command-t*
 
 CONTENTS                                        *command-t-contents*
 
- 1. Introduction            |command-t|
+ 1. Introduction            |command-t-intro|
  2. Requirements            |command-t-requirements|
  3. Installation            |command-t-installation|
+ 3. Managing using Pathogen |command-t-pathogen|
  4. Trouble-shooting        |command-t-trouble-shooting|
  5. Usage                   |command-t-usage|
  6. Commands                |command-t-commands|
@@ -17,7 +18,7 @@ CONTENTS                                        *command-t-contents*
 13. History                 |command-t-history|
 
 
-INTRODUCTION                                    *command-t*
+INTRODUCTION                                    *command-t-intro*
 
 The Command-T plug-in provides an extremely fast, intuitive mechanism for
 opening files with a minimal number of keystrokes. It's named "Command-T"
@@ -43,29 +44,29 @@ Screencasts demonstrating the plug-in can be viewed at:
 
 REQUIREMENTS                                    *command-t-requirements*
 
-The plug-in requires VIM compiled with Ruby support, a compatible Ruby
+The plug-in requires Vim compiled with Ruby support, a compatible Ruby
 installation at the operating system level, and a C compiler to build
 the Ruby extension.
 
-1. VIM compiled with Ruby support
+1. Vim compiled with Ruby support
 
-You can check for Ruby support by launching VIM with the --version switch:
+You can check for Ruby support by launching Vim with the --version switch:
 
   vim --version
 
-If "+ruby" appears in the version information then your version of VIM has
+If "+ruby" appears in the version information then your version of Vim has
 Ruby support.
 
-Another way to check is to simply try using the :ruby command from within VIM
+Another way to check is to simply try using the :ruby command from within Vim
 itself:
 
   :ruby 1
 
-If your VIM lacks support you'll see an error message like this:
+If your Vim lacks support you'll see an error message like this:
 
   E319: Sorry, the command is not available in this version
 
-The version of VIM distributed with Mac OS X does not include Ruby support,
+The version of Vim distributed with Mac OS X does not include Ruby support,
 while MacVim does; it is available from:
 
   http://code.google.com/p/macvim/
@@ -74,9 +75,9 @@ For Windows users, the executable from www.vim.org does include Ruby support.
 
 2. Ruby
 
-In addition to having Ruby support in VIM, your system itself must have a
+In addition to having Ruby support in Vim, your system itself must have a
 compatible Ruby install. In practice this usually means a version of Ruby from
-the 1.8 series, as VIM's support for 1.9 is still not official.
+the 1.8 series, as Vim's support for 1.9 is still not official.
 
 The current version of Mac OS X comes with Ruby 1.8.7.
 
@@ -87,7 +88,7 @@ available at:
 
 If using RubyInstaller be sure to download the installer executable, not the
 7-zip archive. When installing mark the checkbox "Add Ruby executables to your
-PATH" so that VIM can find them.
+PATH" so that Vim can find them.
 
 3. C compiler
 
@@ -111,7 +112,7 @@ folder.
 INSTALLATION                                    *command-t-installation*
 
 Command-T is distributed as a "vimball" which means that it can be installed
-by opening it in VIM and then sourcing it:
+by opening it in Vim and then sourcing it:
 
   :e command-t.vba
   :so %
@@ -130,21 +131,78 @@ you can build the extension with:
   make
 
 
+MANAGING USING PATHOGEN                         *command-t-pathogen*
+
+Pathogen is a plugin that allows you to maintain plugin installations in
+separate, isolated subdirectories under the "bundle" directory in your
+|'runtimepath'|. The following examples assume that you already have
+Pathogen installed and configured, and that you are installing into
+~/.vim/bundle. For more information about Pathogen, see:
+
+  http://www.vim.org/scripts/script.php?script_id=2332
+
+If you manage your entire ~/.vim folder using Git then you can add the
+Command-T repository as a submodule:
+
+  cd ~/.vim
+  git submodule add git://git.wincent.com/command-t.git bundle/command-t
+  git submodule init
+
+Or if you just wish to do a simple clone instead of using submodules:
+
+  cd ~/.vim
+  git clone git://git.wincent.com/command-t.git bundle/command-t
+
+Once you have a local copy of the repository you can update it with:
+
+  cd ~/.vim/bundle/command-t
+  git pull
+
+To actually complete the installation you must build the extension:
+
+  cd ~/.vim/bundle/command-t/ruby/command-t
+  ruby extconf.rb
+  make
+
+While the Vimball installation automatically generates the help tags, under
+Pathogen it is necessary to do so explicitly from inside Vim:
+
+  :call pathogen#helptags()
+
+
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
 
 Most installation problems are caused by a mismatch between the version of
-Ruby on the host operating system, and the version of Ruby that VIM itself
+Ruby on the host operating system, and the version of Ruby that Vim itself
 linked against at compile time. For example, if one is 32-bit and the other is
 64-bit, or one is from the Ruby 1.9 series and the other is from the 1.8
 series, then the plug-in is not likely to work.
 
 As such, on Mac OS X, I recommend using the standard Ruby that comes with the
 system (currently 1.8.7) along with the latest snapshot of MacVim (currently
-snapshot 52).
+snapshot 52). If you wish to use custom builds of Ruby or of MacVim (not
+recommmended) then you will have to take extra care to ensure that the exact
+same Ruby environment is in effect when building Ruby, Vim and the Command-T
+extension.
 
 On Windows, I recommend using the version 1.8.7 RubyInstaller and the
 corresponding RubyInstaller Development Kit linked to above, along with the
-standard (32-bit) version of VIM that can be downloaded from www.vim.org.
+standard (32-bit) version of Vim that can be downloaded from www.vim.org.
+
+If a problem occurs the first thing you should do is inspect the output of:
+
+  ruby extconf.rb
+  make
+
+During the installation, and:
+
+  vim --version
+
+And compare the compilation and linker flags that were passed to the
+extension and to Vim itself when they were built. If the Ruby-related
+flags or architecture flags are different then it is likely that something
+has changed in your Ruby environment and the extension may not work until
+you eliminate the discrepancy.
 
 
 USAGE                                           *command-t-usage*
@@ -258,7 +316,7 @@ to define a different mapping use a line like this in your ~/.vimrc:
 Replacing "<Leader>t" with your mapping of choice.
 
 Note that in the case of MacVim you actually can map to Command-T (written
-as <D-t> in VIM) in your ~/.gvimrc file if you first unmap the existing menu
+as <D-t> in Vim) in your ~/.gvimrc file if you first unmap the existing menu
 binding of Command-T to "New Tab":
 
   if has("gui_macvim")
@@ -280,7 +338,7 @@ the plug-in. To set an option, you include a line like this in your ~/.vimrc:
     let g:CommandTMaxFiles=20000
 
 To have Command-T pick up new settings immediately (that is, without having
-to restart VIM) you can issue the |:CommandTFlush| command after making
+to restart Vim) you can issue the |:CommandTFlush| command after making
 changes via |:let|.
 
 Following is a list of all available options:
@@ -321,7 +379,7 @@ Following is a list of all available options:
       contains a dot that could cause a dot-file to match. When set to a
       non-zero value, this setting instructs Command-T to never show dot-files
       under any circumstances. Note that it is contradictory to set both this
-      setting and |g:CommandTAlwaysShowDotFiles| to true, and if you do so VIM
+      setting and |g:CommandTAlwaysShowDotFiles| to true, and if you do so Vim
       will suffer from headaches, nervous twitches, and sudden mood swings.
 
                                                 *g:CommandTScanDotDirectories*
@@ -421,13 +479,13 @@ Following is a list of all map settings and their defaults:
                                        *g:CommandTCursorStartMap*
             |g:CommandTCursorStartMap|  <C-a>
 
-In addition to the options provided by Command-T itself, some of VIM's own
+In addition to the options provided by Command-T itself, some of Vim's own
 settings can be used to control behavior:
 
                                                 *command-t-wildignore*
   |'wildignore'|                                 string (default: '')
 
-      VIM's |'wildignore'| setting is used to determine which files should be
+      Vim's |'wildignore'| setting is used to determine which files should be
       excluded from listings. This is a comma-separated list of glob patterns.
       It defaults to the empty string, but common settings include "*.o,*.obj"
       (to exclude object files) or ".git,.svn" (to exclude SCM metadata
@@ -451,13 +509,13 @@ Other contributors that have submitted patches include:
   Mike Lundy
   Zak Johnson
 
-As this was the first VIM plug-in I had ever written I was heavily influenced
+As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
-is one of the largest Ruby-based VIM plug-ins to date.
+is one of the largest Ruby-based Vim plug-ins to date.
 
 While the Command-T codebase doesn't contain any code directly copied from
 LustyExplorer, I did use it as a reference for answers to basic questions (like
-"How do you do 'X' in a Ruby-based VIM plug-in?"), and also copied some basic
+"How do you do 'X' in a Ruby-based Vim plug-in?"), and also copied some basic
 architectural decisions (like the division of the code into Prompt, Settings
 and MatchWindow classes).
 
@@ -479,7 +537,7 @@ browser at:
 
   http://git.wincent.com/command-t.git
 
-A copy of each release is also available from the official VIM scripts site
+A copy of each release is also available from the official Vim scripts site
 at:
 
   http://www.vim.org/scripts/script.php?script_id=3025
@@ -539,7 +597,7 @@ HISTORY                                         *command-t-history*
 
 0.7 (10 June 2010)
 
-- handle more |'wildignore'| patterns by delegating to VIM's own |expand()|
+- handle more |'wildignore'| patterns by delegating to Vim's own |expand()|
   function; with this change it is now viable to exclude patterns such as
   'vendor/rails/**' in addition to filename-only patterns like '*.o' and
   '.git' (patch from Mike Lundy)
@@ -549,7 +607,7 @@ HISTORY                                         *command-t-history*
 0.6 (28 April 2010)
 
 - |:CommandT| now accepts an optional parameter to specify the starting
-  directory, temporarily overriding the usual default of VIM's |:pwd|
+  directory, temporarily overriding the usual default of Vim's |:pwd|
 - fix truncated paths when operating from root directory
 
 0.5.1 (11 April 2010)
@@ -560,7 +618,7 @@ HISTORY                                         *command-t-history*
 0.5 (3 April 2010)
 
 - |:CommandTFlush| now re-evaluates settings, allowing changes made via |let|
-  to be picked up without having to restart VIM
+  to be picked up without having to restart Vim
 - fix premature abort when scanning very deep directory hierarchies
 - remove broken |<Esc>| key mapping on vt100 and xterm terminals
 - provide settings for overriding default mappings
@@ -579,7 +637,7 @@ HISTORY                                         *command-t-history*
 - fix bug where |'list'| setting might be inappropriately set after dismissing
   Command-T
 - compatibility fix for different behaviour of "autoload" under Ruby 1.9.1
-- avoid "highlight group not found" warning when run under a version of VIM
+- avoid "highlight group not found" warning when run under a version of Vim
   that does not have syntax highlighting support
 - open in split when opening normally would fail due to |'hidden'| and
   |'modified'| values
