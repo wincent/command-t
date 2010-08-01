@@ -1,8 +1,3 @@
-require 'rubygems'
-require 'bundler'
-Bundler.setup
-require 'rspec/core/rake_task'
-
 def bail_on_failure
   exitstatus = $?.exitstatus
   if exitstatus != 0
@@ -13,8 +8,9 @@ end
 task :default => :spec
 
 desc 'Run specs'
-RSpec::Core::RakeTask.new do |t|
-  t.pattern = './spec/**/*_spec.rb'
+task :spec do
+  system 'bin/rspec spec'
+  bail_on_failure
 end
 
 desc 'Create vimball archive'
