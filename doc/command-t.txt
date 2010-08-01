@@ -153,16 +153,21 @@ Or if you just wish to do a simple clone instead of using submodules:
   cd ~/.vim
   git clone git://git.wincent.com/command-t.git bundle/command-t
 
-Once you have a local copy of the repository you can update it with:
+Once you have a local copy of the repository you can update it at any time
+with:
 
   cd ~/.vim/bundle/command-t
   git pull
 
-To actually complete the installation you must build the extension:
+Or you can switch to a specific release with:
 
-  cd ~/.vim/bundle/command-t/ruby/command-t
-  ruby extconf.rb
-  make
+  cd ~/.vim/bundle/command-t
+  git checkout 0.8b
+
+After installing or updating you must build the extension:
+
+  cd ~/.vim/bundle/command-t
+  rake make
 
 While the Vimball installation automatically generates the help tags, under
 Pathogen it is necessary to do so explicitly from inside Vim:
