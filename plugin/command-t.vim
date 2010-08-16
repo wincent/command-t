@@ -30,7 +30,9 @@ let g:command_t_loaded = 1
 command -nargs=? -complete=dir CommandT call <SID>CommandTShow(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
-silent! nmap <unique> <silent> <Leader>t :CommandT<CR>
+if !hasmapto('CommandT')
+  silent! nmap <unique> <silent> <Leader>t :CommandT<CR>
+endif
 
 function s:CommandTRubyWarning()
   echohl WarningMsg

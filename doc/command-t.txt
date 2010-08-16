@@ -222,9 +222,9 @@ Bring up the Command-T match window by typing:
 
   <Leader>t
 
-If a mapping for <Leader>t already exists at the time the plug-in is loaded
-then Command-T will not overwrite it. You can instead open the match window by
-issuing the command:
+This mapping is set up automatically for you, provided you do not already have
+a mapping for <Leader>t or |:CommandT|. You can also bring up the match window
+by issuing the command:
 
   :CommandT
 
