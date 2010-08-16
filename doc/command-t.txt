@@ -518,6 +518,7 @@ Other contributors that have submitted patches include:
 
   Lucas de Vries
   Mike Lundy
+  Scott Bronson
   Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
@@ -599,6 +600,8 @@ HISTORY                                         *command-t-history*
 
 - overrides for the default mappings can now be lists of strings, allowing
   multiple mappings to be defined for any given action
+- <Leader>t mapping only set up if no other map for |:CommandT| exists
+  (patch from Scott Bronson)
 
 0.8b (11 July 2010)
 
