@@ -64,21 +64,5 @@ task :check_tag do
   end
 end
 
-namespace :readme do
-  desc 'Check that README.txt is up-to-date ("rake readme:update" needed)'
-  task :check do
-     system 'diff -q doc/command-t.txt README.txt'
-     if $?.exitstatus != 0
-       puts 'warning: README.txt is not up-to-date'
-     end
-  end
-
-  desc 'Copy README.txt from doc/command-t.txt'
-  task :update do
-    system 'cp doc/command-t.txt README.txt'
-    puts "README.txt updated"
-  end
-end
-
 desc 'Run checks prior to release'
 task :prerelease => ['make:all', 'spec:all', :vimball, 'readme:check', :check_tag]
