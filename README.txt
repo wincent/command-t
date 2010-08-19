@@ -69,7 +69,7 @@ If your Vim lacks support you'll see an error message like this:
 The version of Vim distributed with Mac OS X does not include Ruby support,
 while MacVim does; it is available from:
 
-  http://code.google.com/p/macvim/
+  http://github.com/b4winckler/macvim/downloads
 
 For Windows users, the executable from www.vim.org does include Ruby support.
 
