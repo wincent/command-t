@@ -610,12 +610,19 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-0.8 (not yet released)
+0.8 (19 August 2010)
 
 - overrides for the default mappings can now be lists of strings, allowing
   multiple mappings to be defined for any given action
 - <Leader>t mapping only set up if no other map for |:CommandT| exists
   (patch from Scott Bronson)
+- prevent folds from appearing in the match listing
+- tweaks to avoid the likelihood of "Not enough room" errors when trying to
+  open files
+- watch out for "nil" windows when restoring window dimensions
+- optimizations (avoid some repeated downcasing)
+- move all Ruby files under the "command-t" subdirectory and avoid polluting
+  the "Vim" module namespace
 
 0.8b (11 July 2010)
 
