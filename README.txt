@@ -76,10 +76,22 @@ For Windows users, the executable from www.vim.org does include Ruby support.
 2. Ruby
 
 In addition to having Ruby support in Vim, your system itself must have a
-compatible Ruby install. In practice this usually means a version of Ruby from
-the 1.8 series, as Vim's support for 1.9 is still not official.
+compatible Ruby install. "Compatible" means the same version as Vim itself
+links against. If you use a different version then Command-T is unlikely
+to work (see TROUBLE-SHOOTING below).
 
-The current version of Mac OS X comes with Ruby 1.8.7.
+On Mac OS X Snow Leopard, the system comes with Ruby 1.8.7 and all recent
+versions of MacVim (the 7.2 snapshots and 7.3) are linked against it.
+
+On Linux and similar platforms, the linked version of Ruby will depend on
+your distribution. You can usually find this out by examining the
+compilation and linking flags displayed by the |:version| command in Vim, and
+by looking at the output of:
+
+  :ruby puts RUBY_VERSION
+
+On Windows, Vim 7.3 links against Ruby 1.9.1, while previous versions linked
+against Ruby 1.8.7.
 
 A suitable Ruby environment for Windows can be installed using RubyInstaller
 available at:
@@ -190,15 +202,17 @@ linked against at compile time. For example, if one is 32-bit and the other is
 series, then the plug-in is not likely to work.
 
 As such, on Mac OS X, I recommend using the standard Ruby that comes with the
-system (currently 1.8.7) along with the latest snapshot of MacVim (currently
-snapshot 52). If you wish to use custom builds of Ruby or of MacVim (not
+system (currently 1.8.7) along with the latest version of MacVim (currently
+version 7.3). If you wish to use custom builds of Ruby or of MacVim (not
 recommmended) then you will have to take extra care to ensure that the exact
 same Ruby environment is in effect when building Ruby, Vim and the Command-T
 extension.
 
-On Windows, I recommend using the version 1.8.7 RubyInstaller and the
+On Windows, I recommend using the version 1.9.1 RubyInstaller and the
 corresponding RubyInstaller Development Kit linked to above, along with the
-standard (32-bit) version of Vim that can be downloaded from www.vim.org.
+standard (32-bit) version of Vim 7.3 that can be downloaded from www.vim.org.
+If you are still using Vim 7.2 then you should instead use version 1.8.7 of
+RubyInstaller.
 
 If a problem occurs the first thing you should do is inspect the output of:
 
