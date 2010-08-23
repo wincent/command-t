@@ -71,7 +71,14 @@ while MacVim does; it is available from:
 
   http://github.com/b4winckler/macvim/downloads
 
-For Windows users, the executable from www.vim.org does include Ruby support.
+For Windows users, it appears that the executable from www.vim.org does not
+include Ruby support, but the Cream project does maintain a "Windows Vim
+installer without Cream" which has Ruby support:
+
+  http://sourceforge.net/projects/cream/files/Vim
+
+At the time of writing the latest version is the gvim-7-3-3.exe "gVim
+one-click installer for Windows".
 
 2. Ruby
 
@@ -90,13 +97,11 @@ by looking at the output of:
 
   :ruby puts RUBY_VERSION
 
-On Windows, Vim 7.3 links against Ruby 1.9.1, while previous versions linked
-against Ruby 1.8.7.
+On Windows, the Vim 7.3 installer provided by the Cream project links against
+Ruby 1.8.7. A suitable Ruby environment for Windows can be installed using
+the Ruby 1.8.7 RubyInstaller available at:
 
-A suitable Ruby environment for Windows can be installed using RubyInstaller
-available at:
-
-  http://rubyinstaller.org/download.html
+  http://rubyinstaller.org/downloads/
 
 If using RubyInstaller be sure to download the installer executable, not the
 7-zip archive. When installing mark the checkbox "Add Ruby executables to your
@@ -115,7 +120,10 @@ the Mac OS X install disc.
 On Windows, the RubyInstaller Development Kit can be used to conveniently
 install the necessary tool chain:
 
-  http://wiki.github.com/oneclick/rubyinstaller/development-kit
+  http://rubyinstaller.org/downloads/
+
+At the time of writing, the appropriate development kit for use with Ruby
+1.8.7 is DevKit-3.4.5-20100819-1535-sfx.exe.
 
 To use the Development Kit extract the archive contents to your C:\Ruby
 folder.
