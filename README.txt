@@ -48,6 +48,7 @@ The plug-in requires Vim compiled with Ruby support, a compatible Ruby
 installation at the operating system level, and a C compiler to build
 the Ruby extension.
 
+
 1. Vim compiled with Ruby support
 
 You can check for Ruby support by launching Vim with the --version switch:
@@ -71,14 +72,10 @@ while MacVim does; it is available from:
 
   http://github.com/b4winckler/macvim/downloads
 
-For Windows users, it appears that the executable from www.vim.org does not
-include Ruby support, but the Cream project does maintain a "Windows Vim
-installer without Cream" which has Ruby support:
+For Windows users, the Vim 7.2 executable available from www.vim.org does
+include Ruby support, and is recommended over version 7.3 (which links against
+Ruby 1.9, but apparently has some bugs that need to be resolved).
 
-  http://sourceforge.net/projects/cream/files/Vim
-
-At the time of writing the latest version is the gvim-7-3-3.exe "gVim
-one-click installer for Windows".
 
 2. Ruby
 
@@ -97,15 +94,15 @@ by looking at the output of:
 
   :ruby puts RUBY_VERSION
 
-On Windows, the Vim 7.3 installer provided by the Cream project links against
-Ruby 1.8.7. A suitable Ruby environment for Windows can be installed using
-the Ruby 1.8.7 RubyInstaller available at:
+A suitable Ruby environment for Windows can be installed using the Ruby
+1.8.7-p299 RubyInstaller available at:
 
-  http://rubyinstaller.org/downloads/
+  http://rubyinstaller.org/downloads/archives
 
 If using RubyInstaller be sure to download the installer executable, not the
 7-zip archive. When installing mark the checkbox "Add Ruby executables to your
 PATH" so that Vim can find them.
+
 
 3. C compiler
 
@@ -120,10 +117,10 @@ the Mac OS X install disc.
 On Windows, the RubyInstaller Development Kit can be used to conveniently
 install the necessary tool chain:
 
-  http://rubyinstaller.org/downloads/
+  http://rubyinstaller.org/downloads/archives
 
 At the time of writing, the appropriate development kit for use with Ruby
-1.8.7 is DevKit-3.4.5-20100819-1535-sfx.exe.
+1.8.7 is DevKit-3.4.5r3-20091110.
 
 To use the Development Kit extract the archive contents to your C:\Ruby
 folder.
@@ -216,11 +213,14 @@ recommmended) then you will have to take extra care to ensure that the exact
 same Ruby environment is in effect when building Ruby, Vim and the Command-T
 extension.
 
-On Windows, I recommend using the version 1.9.1 RubyInstaller and the
-corresponding RubyInstaller Development Kit linked to above, along with the
-standard (32-bit) version of Vim 7.3 that can be downloaded from www.vim.org.
-If you are still using Vim 7.2 then you should instead use version 1.8.7 of
-RubyInstaller.
+For Windows, the following combination is known to work:
+
+  - Vim 7.2 from http://www.vim.org/download.php:
+      ftp://ftp.vim.org/pub/vim/pc/gvim72.exe
+  - Ruby 1.8.7-p299 from http://rubyinstaller.org/downloads/archives:
+      http://rubyforge.org/frs/download.php/71492/rubyinstaller-1.8.7-p299.exe
+  - DevKit 3.4.5r3-20091110 from http://rubyinstaller.org/downloads/archives:
+      http://rubyforge.org/frs/download.php/66888/devkit-3.4.5r3-20091110.7z
 
 If a problem occurs the first thing you should do is inspect the output of:
 
