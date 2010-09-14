@@ -65,4 +65,4 @@ task :check_tag do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => ['make:all', 'spec:all', :vimball, 'readme:check', :check_tag]
+task :prerelease => ['make:all', 'spec:all', :vimball, :check_tag]
