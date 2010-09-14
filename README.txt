@@ -536,11 +536,13 @@ settings can be used to control behavior:
 AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
-Other contributors that have submitted patches include:
+Other contributors that have submitted patches include (in alphabetical
+order):
 
   Lucas de Vries
   Mike Lundy
   Scott Bronson
+  Sung Pae
   Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
@@ -617,6 +619,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+0.8.1 (14 September 2010)
+
+- fix mapping issues for users who have set |'notimeout'| (patch from Sung
+  Pae)
 
 0.8 (19 August 2010)
 
