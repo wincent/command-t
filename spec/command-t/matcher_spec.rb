@@ -28,8 +28,9 @@ require 'command-t/ext'
 describe CommandT::Matcher do
   describe 'initialization' do
     it 'raises an ArgumentError if passed nil' do
-      lambda { CommandT::Matcher.new nil }.
-        should raise_error(ArgumentError)
+      expect do
+        CommandT::Matcher.new nil
+      end.to raise_error(ArgumentError)
     end
   end
 
@@ -40,8 +41,9 @@ describe CommandT::Matcher do
 
     it 'raises an ArgumentError if passed nil' do
       @matcher = CommandT::Matcher.new @scanner
-      lambda { @matcher.matches_for(nil) }.
-        should raise_error(ArgumentError)
+      expect do
+        @matcher.matches_for(nil)
+      end.to raise_error(ArgumentError)
     end
 
     it 'returns empty array when source array empty' do
