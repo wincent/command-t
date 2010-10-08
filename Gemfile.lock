@@ -4,14 +4,16 @@ GEM
     diff-lcs (1.1.2)
     rake (0.8.7)
     rr (0.10.11)
-    rspec (2.0.0.beta.16)
-      rspec-core (= 2.0.0.beta.16)
-      rspec-expectations (= 2.0.0.beta.16)
-      rspec-mocks (= 2.0.0.beta.16)
-    rspec-core (2.0.0.beta.16)
-    rspec-expectations (2.0.0.beta.16)
+    rspec (2.0.0.rc)
+      rspec-core (= 2.0.0.rc)
+      rspec-expectations (= 2.0.0.rc)
+      rspec-mocks (= 2.0.0.rc)
+    rspec-core (2.0.0.rc)
+    rspec-expectations (2.0.0.rc)
       diff-lcs (>= 1.1.2)
-    rspec-mocks (2.0.0.beta.16)
+    rspec-mocks (2.0.0.rc)
+      rspec-core (= 2.0.0.rc)
+      rspec-expectations (= 2.0.0.rc)
 
 PLATFORMS
   ruby
@@ -19,4 +21,4 @@ PLATFORMS
 DEPENDENCIES
   rake
   rr
-  rspec (>= 2.0.0.beta.16)
+  rspec (>= 2.0.0.rc)
