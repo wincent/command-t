@@ -178,6 +178,12 @@ module CommandT
       end
     end
 
+    def relative_path_under_working_directory path
+      # clean up paths for the usual case of opening files under the working
+      # directory. keeps noise out of the buffer list, status line, & tab line.
+      path.index(pwd = "#{VIM::pwd}/") == 0 ? path[pwd.length..-1] : path
+    end
+
     # Backslash-escape space, \, |, %, #, "
     def sanitize_path_string str
       # for details on escaping command-line mode arguments see: :h :
@@ -216,6 +222,7 @@ module CommandT
     def open_selection selection, options = {}
       command = options[:command] || default_open_command
       selection = File.expand_path selection, @path
+      selection = relative_path_under_working_directory selection
       selection = sanitize_path_string selection
       ensure_appropriate_window_selection
       ::VIM::command "silent #{command} #{selection}"
