@@ -95,11 +95,7 @@ module CommandT
 
     def toggle_focus
       @focus.unfocus # old focus
-      if @focus == @prompt
-        @focus = @match_window
-      else
-        @focus = @prompt
-      end
+      @focus = @focus == @prompt ? @match_window : @prompt
       @focus.focus # new focus
     end
 
