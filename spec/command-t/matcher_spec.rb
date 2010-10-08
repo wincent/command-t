@@ -27,7 +27,7 @@ require 'command-t/ext'
 
 describe CommandT::Matcher do
   describe 'initialization' do
-    it 'should raise an ArgumentError if passed nil' do
+    it 'raises an ArgumentError if passed nil' do
       lambda { CommandT::Matcher.new nil }.
         should raise_error(ArgumentError)
     end

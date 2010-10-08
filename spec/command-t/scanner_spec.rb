@@ -38,13 +38,13 @@ describe CommandT::Scanner do
   end
 
   describe 'paths method' do
-    it 'should return a list of regular files' do
+    it 'returns a list of regular files' do
       @scanner.paths.should =~ @all_fixtures
     end
   end
 
   describe 'flush method' do
-    it 'should force a rescan on next call to paths method' do
+    it 'forces a rescan on next call to paths method' do
       first = @scanner.paths
       @scanner.flush
       @scanner.paths.object_id.should_not == first.object_id
@@ -52,7 +52,7 @@ describe CommandT::Scanner do
   end
 
   describe 'path= method' do
-    it 'should allow repeated applications of scanner at different paths' do
+    it 'allows repeated applications of scanner at different paths' do
       @scanner.paths.should =~ @all_fixtures
 
       # drill down 1 level
@@ -66,7 +66,7 @@ describe CommandT::Scanner do
   end
 
   describe "'wildignore' exclusion" do
-    it "should call on VIM's expand() function for pattern filtering" do
+    it "calls on VIM's expand() function for pattern filtering" do
       @scanner = CommandT::Scanner.new @dir
       mock(::VIM).evaluate(/expand\(.+\)/).times(10)
       @scanner.paths
@@ -74,7 +74,7 @@ describe CommandT::Scanner do
   end
 
   describe ':max_depth option' do
-    it 'should not descend below "max_depth" levels' do
+    it 'does not descend below "max_depth" levels' do
       @scanner = CommandT::Scanner.new @dir, :max_depth => 1
       @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
     end
