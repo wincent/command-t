@@ -179,8 +179,8 @@ module CommandT
     end
 
     def relative_path_under_working_directory path
-      # clean up paths for the usual case of opening files under the working
-      # directory. keeps noise out of the buffer list, status line, & tab line.
+      # any path under the working directory will be specified as a relative
+      # path to improve the readability of the buffer list etc
       path.index(pwd = "#{VIM::pwd}/") == 0 ? path[pwd.length..-1] : path
     end
 
