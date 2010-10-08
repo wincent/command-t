@@ -540,6 +540,7 @@ Other contributors that have submitted patches include (in alphabetical
 order):
 
   Lucas de Vries
+  Matthew Todd
   Mike Lundy
   Scott Bronson
   Sung Pae
@@ -619,6 +620,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+0.9 (8 October 2010)
+
+- use relative paths when opening files inside the current working directory
+  in order to keep buffer listings as brief as possible (patch from Matthew
+  Todd)
 
 0.8.1 (14 September 2010)
 
