@@ -181,7 +181,7 @@ module CommandT
     def relative_path_under_working_directory path
       # clean up paths for the usual case of opening files under the working
       # directory. keeps noise out of the buffer list, status line, & tab line.
-      path.start_with?(pwd = VIM::pwd) ? path[pwd.length.next..-1] : path
+      path.start_with?(pwd = "#{VIM::pwd}/") ? path[pwd.length..-1] : path
     end
 
     # Backslash-escape space, \, |, %, #, "

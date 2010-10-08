@@ -29,6 +29,13 @@ describe CommandT::Controller do
       mock(::VIM).command('silent e /working/outside/path/to/selection')
       @controller.accept_selection
     end
+
+    it 'does not get confused by common directory prefixes' do
+      stub(::VIM).evaluate('a:arg').returns('../directory-oops')
+      @controller.show
+      mock(::VIM).command('silent e /working/directory-oops/path/to/selection')
+      @controller.accept_selection
+    end
   end
 
   private
