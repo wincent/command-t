@@ -36,8 +36,6 @@ describe CommandT::Controller do
     end
   end
 
-  private
-
   def stub_finder(sorted_matches=[])
     finder = Object.new
     stub(finder).path = anything
