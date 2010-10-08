@@ -5,6 +5,8 @@ module VIM; end
 
 describe CommandT::Controller do
   describe 'accept selection' do
+    let(:controller) { CommandT::Controller.new }
+
     before do
       stub_finder
       stub_match_window 'path/to/selection'
@@ -12,29 +14,25 @@ describe CommandT::Controller do
       stub_vim '/working/directory'
     end
 
-    before do
-      @controller = CommandT::Controller.new
-    end
-
     it 'opens relative paths inside the working directory' do
       stub(::VIM).evaluate('a:arg').returns('')
-      @controller.show
+      controller.show
       mock(::VIM).command('silent e path/to/selection')
-      @controller.accept_selection
+      controller.accept_selection
     end
 
     it 'opens absolute paths outside the working directory' do
       stub(::VIM).evaluate('a:arg').returns('../outside')
-      @controller.show
+      controller.show
       mock(::VIM).command('silent e /working/outside/path/to/selection')
-      @controller.accept_selection
+      controller.accept_selection
     end
 
     it 'does not get confused by common directory prefixes' do
       stub(::VIM).evaluate('a:arg').returns('../directory-oops')
-      @controller.show
+      controller.show
       mock(::VIM).command('silent e /working/directory-oops/path/to/selection')
-      @controller.accept_selection
+      controller.accept_selection
     end
   end
 
