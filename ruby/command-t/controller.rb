@@ -24,11 +24,13 @@
 require 'command-t/finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
+require 'yaml'
 
 module CommandT
   class Controller
     def initialize
       @prompt = Prompt.new
+			@override_definitions_file = ".command-t.yaml"
       set_up_max_height
       set_up_finder
     end
@@ -45,6 +47,7 @@ module CommandT
       @focus          = @prompt
       @prompt.focus
       register_for_key_presses
+			read_overrides
       clear # clears prompt and lists matches
     rescue Errno::ENOENT
       # probably a problem with the optional parameter
@@ -237,6 +240,16 @@ module CommandT
       !!(::VIM::evaluate('&term') =~ /\Avt100/)
     end
 
+		def read_overrides
+			if File.file?(@override_definitions_file)
+				file_contents = IO.read(@override_definitions_file)
+				ruby_obj = YAML::load(file_contents)
+				@overrides = ruby_obj["overrides"]
+			else
+				@overrides = Hash.new()
+			end	
+		end	
+
     def register_for_key_presses
       # "normal" keys (interpreted literally)
       numbers     = ('0'..'9').to_a.join
@@ -286,6 +299,11 @@ module CommandT
 
     def list_matches
       matches = @finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
+			@overrides.each_pair do |k,v|
+				if @prompt.abbrev == k
+					matches.insert(0, v)
+				end
+			end
       @match_window.matches = matches
     end
   end # class Controller
