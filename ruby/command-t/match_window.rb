@@ -29,6 +29,7 @@ module CommandT
     @@selection_marker  = '> '
     @@marker_length     = @@selection_marker.length
     @@unselected_marker = ' ' * @@marker_length
+    @@buffer            = nil
 
     def initialize options = {}
       @prompt = options[:prompt]
@@ -52,28 +53,35 @@ module CommandT
       ::VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
       ::VIM::set_option 'noequalalways'   # don't auto-balance window sizes
 
-      # create match window and set it up
+      # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
-      split_command = "silent! #{split_location} 1split GoToFile"
-      [
-        split_command,
-        'setlocal bufhidden=delete',  # delete buf when no longer displayed
-        'setlocal buftype=nofile',    # buffer is not related to any file
-        'setlocal nomodifiable',      # prevent manual edits
-        'setlocal noswapfile',        # don't create a swapfile
-        'setlocal nowrap',            # don't soft-wrap
-        'setlocal nonumber',          # don't show line numbers
-        'setlocal nolist',            # don't use List mode (visible tabs etc)
-        'setlocal foldcolumn=0',      # don't show a fold column at side
-        'setlocal foldlevel=99',      # don't fold anything
-        'setlocal nocursorline',      # don't highlight line cursor is on
-        'setlocal nospell',           # spell-checking off
-        'setlocal nobuflisted',       # don't show up in the buffer list
-        'setlocal textwidth=0'        # don't hard-wrap (break long lines)
-      ].each { |command| ::VIM::command command }
+      if @@buffer # still have buffer from last time
+        ::VIM::command "silent! #{split_location} #{@@buffer.number}sbuffer"
+        raise "Can't re-open GoToFile buffer" unless $curbuf.number == @@buffer.number
+        $curwin.height = 1
+      else        # creating match window for first time and set it up
+        split_command = "silent! #{split_location} 1split GoToFile"
+        [
+          split_command,
+          'setlocal bufhidden=unload',  # unload buf when no longer displayed
+          'setlocal buftype=nofile',    # buffer is not related to any file
+          'setlocal nomodifiable',      # prevent manual edits
+          'setlocal noswapfile',        # don't create a swapfile
+          'setlocal nowrap',            # don't soft-wrap
+          'setlocal nonumber',          # don't show line numbers
+          'setlocal nolist',            # don't use List mode (visible tabs etc)
+          'setlocal foldcolumn=0',      # don't show a fold column at side
+          'setlocal foldlevel=99',      # don't fold anything
+          'setlocal nocursorline',      # don't highlight line cursor is on
+          'setlocal nospell',           # spell-checking off
+          'setlocal nobuflisted',       # don't show up in the buffer list
+          'setlocal textwidth=0'        # don't hard-wrap (break long lines)
+        ].each { |command| ::VIM::command command }
 
-      # sanity check: make sure the buffer really was created
-      raise "Can't find buffer" unless $curbuf.name.match /GoToFile/
+        # sanity check: make sure the buffer really was created
+        raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile/
+        @@buffer = $curbuf
+      end
 
       # syntax coloring
       if VIM::has_syntax?
@@ -94,11 +102,10 @@ module CommandT
       @selection  = nil
       @abbrev     = ''
       @window     = $curwin
-      @buffer     = $curbuf
     end
 
     def close
-      ::VIM::command "bwipeout! #{@buffer.number}"
+      ::VIM::command "bunload! #{@@buffer.number}"
       restore_window_dimensions
       @settings.restore
       @prompt.dispose
@@ -197,7 +204,7 @@ module CommandT
       unlock
       clear
       @window.height = 1
-      @buffer[1] = "-- #{msg} --"
+      @@buffer[1] = "-- #{msg} --"
       lock
     end
 
@@ -231,7 +238,7 @@ module CommandT
     def print_match idx
       return unless VIM::Window.select(@window)
       unlock
-      @buffer[idx + 1] = match_text_for_idx idx
+      @@buffer[idx + 1] = match_text_for_idx idx
       lock
     end
 
@@ -252,10 +259,10 @@ module CommandT
         @window.height = actual_lines
         (1..actual_lines).each do |line|
           idx = line - 1
-          if @buffer.count >= line
-            @buffer[line] = match_text_for_idx idx
+          if @@buffer.count >= line
+            @@buffer[line] = match_text_for_idx idx
           else
-            @buffer.append line - 1, match_text_for_idx(idx)
+            @@buffer.append line - 1, match_text_for_idx(idx)
           end
         end
         lock
