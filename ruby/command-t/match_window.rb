@@ -202,7 +202,7 @@ module CommandT
     # Workaround for upstream bug in Vim 7.3 on some platforms
     #
     # On some platforms, $curbuf.number always returns 0. One workaround is
-    # to build Vim with --disable-largfile, but as this is producing lots of
+    # to build Vim with --disable-largefile, but as this is producing lots of
     # support requests, implement the following fallback to the buffer name
     # instead, at least until upstream gets fixed.
     #
