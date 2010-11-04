@@ -53,7 +53,9 @@ module CommandT
 
     def hide
       @match_window.close
-      if VIM::Window.select @initial_window
+      # the additional > 0 check needed here to work around a bug in upstream
+      # Vim on some platforms; see: https://wincent.com/issues/1617
+      if VIM::Window.select(@initial_window) && @initial_buffer.number > 0
         ::VIM::command "silent b #{@initial_buffer.number}"
       end
     end
