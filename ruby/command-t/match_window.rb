@@ -56,8 +56,8 @@ module CommandT
       # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
       if @@buffer # still have buffer from last time
-        ::VIM::command "silent! #{split_location} sbuffer #{buffer_id @@buffer}"
-        raise "Can't re-open GoToFile buffer" unless buffer_id($curbuf) == buffer_id(@@buffer)
+        ::VIM::command "silent! #{split_location} #{@@buffer.number}sbuffer"
+        raise "Can't re-open GoToFile buffer" unless $curbuf.number == @@buffer.number
         $curwin.height = 1
       else        # creating match window for first time and set it up
         split_command = "silent! #{split_location} 1split GoToFile"
@@ -105,7 +105,21 @@ module CommandT
     end
 
     def close
-      ::VIM::command "bunload! #{buffer_id @@buffer}"
+      # Workaround for upstream bug in Vim 7.3 on some platforms
+      #
+      # On some platforms, $curbuf.number always returns 0. One workaround is
+      # to build Vim with --disable-largefile, but as this is producing lots of
+      # support requests, implement the following fallback to the buffer name
+      # instead, at least until upstream gets fixed.
+      #
+      # For more details, see: https://wincent.com/issues/1617
+      if $curbuf.number == 0
+        # use bwipeout as bunload fails if passed the name of a hidden buffer
+        ::VIM::command "bwipeout! GoToFile"
+        @@buffer = nil
+      else
+        ::VIM::command "bunload! #{@@buffer.number}"
+      end
       restore_window_dimensions
       @settings.restore
       @prompt.dispose
@@ -198,22 +212,6 @@ module CommandT
     end
 
   private
-
-    # Workaround for upstream bug in Vim 7.3 on some platforms
-    #
-    # On some platforms, $curbuf.number always returns 0. One workaround is
-    # to build Vim with --disable-largefile, but as this is producing lots of
-    # support requests, implement the following fallback to the buffer name
-    # instead, at least until upstream gets fixed.
-    #
-    # For more details, see: https://wincent.com/issues/1617
-    def buffer_id buffer
-      if $curbuf.number == 0
-        buffer.name
-      else
-        buffer.number
-      end
-    end
 
     def print_error msg
       return unless VIM::Window.select(@window)
