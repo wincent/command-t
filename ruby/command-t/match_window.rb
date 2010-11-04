@@ -209,9 +209,9 @@ module CommandT
     # For more details, see: https://wincent.com/issues/1617
     def buffer_id buffer
       if $curbuf.number == 0
-        buffer.number
-      else
         buffer.name
+      else
+        buffer.number
       end
     end
 
