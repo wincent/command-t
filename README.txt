@@ -621,6 +621,14 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.0b (5 November 2010)
+
+- work around platform-specific Vim 7.3 bug seen by some users (wherein
+  Vim always falsely reports to Ruby that the buffer numbers is 0)
+- re-use the buffer that is used to show the match listing, rather than
+  throwing it away and recreating it each time Command-T is shown; this
+  stops the buffer numbers from creeping up needlessly
+
 0.9 (8 October 2010)
 
 - use relative paths when opening files inside the current working directory
