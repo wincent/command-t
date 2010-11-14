@@ -241,11 +241,19 @@ module CommandT
     end
 
 		def read_overrides
-			if File.file?(@override_definitions_file)
-				file_contents = IO.read(@override_definitions_file)
-				ruby_obj = YAML::load(file_contents)
-				@overrides = ruby_obj["overrides"]
-			else
+			begin 
+				if File.file?(@override_definitions_file)
+					file_contents = IO.read(@override_definitions_file)
+					ruby_obj = YAML::load(file_contents)
+					if ruby_obj.has_key?("overrides")
+						@overrides = ruby_obj["overrides"]
+					else 
+						raise "Key does not exist"
+					end
+				else 
+					raise "IO Error"
+				end
+			rescue
 				@overrides = Hash.new()
 			end	
 		end	
