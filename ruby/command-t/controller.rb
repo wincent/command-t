@@ -31,11 +31,15 @@ module CommandT
       @prompt = Prompt.new
       set_up_max_height
       set_up_finder
+      @path = VIM::pwd
     end
 
     def show
+      unless get_bool('g:CommandTCachePath')
+        @path = VIM::pwd
+      end
       # optional parameter will be desired starting directory, or ""
-      @path           = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
+      @path           = File.expand_path(::VIM::evaluate('a:arg'), @path)
       @finder.path    = @path
       @initial_window = $curwin
       @initial_buffer = $curbuf

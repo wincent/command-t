@@ -444,6 +444,16 @@ Following is a list of all available options:
       on the screen rather than moving as the number of matches changes during
       typing.
 
+                                                *g:CommandTCachePath*
+  |g:CommandTCachePath|                          boolean (default: 0)
+
+      When this setting is off (the default) scans will always take place from
+      the current working directory. Turning this option on causes the
+      directory vim was started in to be cached, and scans to take place from
+      this cached directory instead of the current working directory. The
+      cached directory can be changed by passing a directory argument to
+      :CommandT.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
