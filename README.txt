@@ -572,7 +572,7 @@ The latest release will always be available from there.
 Development in progress can be inspected via the project's Git repository
 browser at:
 
-  http://git.wincent.com/command-t.git
+  https://wincent.com/repos/command-t
 
 A copy of each release is also available from the official Vim scripts site
 at:
