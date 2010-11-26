@@ -621,6 +621,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.0 (26 November 2010)
+
+- make relative path simplification work on Windows
+
 1.0b (5 November 2010)
 
 - work around platform-specific Vim 7.3 bug seen by some users (wherein
