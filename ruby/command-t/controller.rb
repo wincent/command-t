@@ -138,8 +138,12 @@ module CommandT
       @prompt.cursor_start if @focus == @prompt
     end
 
-    def cleanup
-      @match_window.cleanup
+    def leave
+      @match_window.leave
+    end
+
+    def unload
+      @match_window.unload
     end
 
   private
