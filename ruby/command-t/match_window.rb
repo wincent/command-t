@@ -100,10 +100,8 @@ module CommandT
       # perform cleanup using an autocmd to ensure we don't get caught out
       # by some unexpected means of dismissing or leaving the Command-T window
       # (eg. <C-W q>, <C-W k> etc)
-      ::VIM::command 'augroup CommandT'
-      ::VIM::command 'autocmd!'
-      ::VIM::command 'autocmd BufLeave GoToFile call CommandTCleanup()'
-      ::VIM::command 'augroup end'
+      ::VIM::command 'autocmd! * <buffer>'
+      ::VIM::command 'autocmd BufLeave <buffer> call CommandTCleanup()'
 
       @has_focus  = false
       @selection  = nil
