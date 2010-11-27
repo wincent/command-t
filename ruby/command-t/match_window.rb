@@ -79,7 +79,7 @@ module CommandT
         ].each { |command| ::VIM::command command }
 
         # sanity check: make sure the buffer really was created
-        raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile/
+        raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile\z/
         @@buffer = $curbuf
       end
 
