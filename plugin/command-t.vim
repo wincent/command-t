@@ -125,6 +125,10 @@ function CommandTCursorStart()
   ruby $command_t.cursor_start
 endfunction
 
+function CommandTCleanup()
+  ruby $command_t.cleanup
+endfunction
+
 ruby << EOF
   # require Ruby files
   begin

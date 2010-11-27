@@ -97,6 +97,13 @@ module CommandT
         hide_cursor
       end
 
+      # perform cleanup using an autocmd to ensure we don't get caught out
+      # by some unexpected means of dismissing or leaving the Command-T window
+      # (eg. <C-W q>, <C-W k> etc)
+      ::VIM::command 'augroup CommandT'
+      ::VIM::command 'autocmd!'
+      ::VIM::command 'autocmd BufLeave GoToFile call CommandTCleanup()'
+      ::VIM::command 'augroup end'
 
       @has_focus  = false
       @selection  = nil
@@ -120,6 +127,9 @@ module CommandT
       else
         ::VIM::command "bunload! #{@@buffer.number}"
       end
+    end
+
+    def cleanup
       restore_window_dimensions
       @settings.restore
       @prompt.dispose

@@ -138,6 +138,10 @@ module CommandT
       @prompt.cursor_start if @focus == @prompt
     end
 
+    def cleanup
+      @match_window.cleanup
+    end
+
   private
 
     def set_up_max_height
