@@ -121,7 +121,7 @@ module CommandT
       # For more details, see: https://wincent.com/issues/1617
       if $curbuf.number == 0
         # use bwipeout as bunload fails if passed the name of a hidden buffer
-        ::VIM::command "bwipeout! GoToFile"
+        ::VIM::command 'bwipeout! GoToFile'
         @@buffer = nil
       else
         ::VIM::command "bunload! #{@@buffer.number}"
