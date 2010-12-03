@@ -96,7 +96,7 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     return Qnil;
 }
 
-VALUE CommandTMatcher_sorted_matchers_for(VALUE self, VALUE abbrev, VALUE options)
+VALUE CommandTMatcher_sorted_matches_for(VALUE self, VALUE abbrev, VALUE options)
 {
     // process optional options hash
     VALUE limit_option = CommandT_option_from_hash("limit", options);
