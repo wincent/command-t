@@ -115,7 +115,7 @@ VALUE CommandTMatcher_sorted_matches_for(VALUE self, VALUE abbrev, VALUE options
 
     // apply optional limit option
     long limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
-    if (limit == 0 || RARRAY_LEN(matches)< limit)
+    if (limit == 0 || RARRAY_LEN(matches) < limit)
         limit = RARRAY_LEN(matches);
 
     // will return an array of strings, not an array of Match objects
