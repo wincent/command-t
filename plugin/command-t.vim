@@ -30,7 +30,7 @@ let g:command_t_loaded = 1
 command -nargs=? -complete=dir CommandT call <SID>CommandTShow(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
-if !hasmapto('CommandT')
+if !hasmapto(':CommandT<CR>')
   silent! nmap <unique> <silent> <Leader>t :CommandT<CR>
 endif
 
