@@ -81,3 +81,14 @@ task :upload => :vimball do
      "s3.wincent.com/command-t/releases/command-t-#{version}.vba?acl " +
      '--public'
 end
+
+desc 'Add current vimball to releases branch'
+task :archive => :vimball do
+  v = version # store version before switching branches
+  sh 'git stash && ' +
+     'git checkout releases && ' +
+     "git add command-t-#{v}.vba && " +
+     "git commit -s -m 'Add #{v} release vimball' && " +
+     'git checkout @{-1} && ' +
+     'git stash pop'
+end
