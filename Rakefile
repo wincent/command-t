@@ -14,7 +14,7 @@ task :spec do
 end
 
 desc 'Create vimball archive'
-task :vimball do
+task :vimball => :check_tag do
   system 'make'
   bail_on_failure
 end
