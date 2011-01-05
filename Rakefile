@@ -5,6 +5,10 @@ def bail_on_failure
   end
 end
 
+def version
+  `git describe`.chomp
+end
+
 task :default => :spec
 
 desc 'Run specs'
@@ -17,6 +21,7 @@ desc 'Create vimball archive'
 task :vimball => :check_tag do
   system 'make'
   bail_on_failure
+  FileUtils.cp 'command-t.vba', "command-t-#{version}.vba"
 end
 
 desc 'Clean compiled products'
