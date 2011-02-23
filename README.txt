@@ -443,7 +443,7 @@ Following is a list of all available options:
       (after scanning has been performed), whereas
       |g:CommandTScanDotDirectories| affects the behaviour at scan-time.
 
-      Note also that even with this setting on you can still use Command-T to
+      Note also that even with this setting off you can still use Command-T to
       open files inside a "dot-directory" such as ~/.vim, but you have to use
       the |:cd| command to change into that directory first. For example:
 
