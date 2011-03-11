@@ -50,14 +50,14 @@ typedef struct {
 // everywhere.
 char* my_strrev(char* s)
 {
-	char tmp, *p1 = s, *p2 = s + strlen(s);
-	while (p1 < --p2) {
-		tmp = *p1;
-		*p1 = *p2;
-		*p2 = tmp;
+    char tmp, *p1 = s, *p2 = s + strlen(s);
+    while (p1 < --p2) {
+        tmp = *p1;
+        *p1 = *p2;
+        *p2 = tmp;
         p1++;
-	}
-	return s;
+    }
+    return s;
 }
 
 // Do a case insensitive find, looking at the appropriate ranges of
