@@ -21,6 +21,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <ctype.h>
+#include <string.h>
 #include "match.h"
 #include "ext.h"
 #include "ruby_compat.h"
@@ -38,92 +40,138 @@ typedef struct
     int     never_show_dot_files;   // boolean
 } matchinfo_t;
 
-double recursive_match(matchinfo_t *m,  // sharable meta-data
-                       long str_idx,    // where in the path string to start
-                       long abbrev_idx, // where in the search string to start
-                       long last_idx,   // location of last matched character
-                       double score)    // cumulative score so far
+// Representation of a range within a search string.
+typedef struct {
+    int start;
+    int length;
+} range_t;
+
+// Reverse a string in place. Provided because strrev isn't available
+// everywhere.
+char* my_strrev(char* s)
 {
-    double seen_score = 0;      // remember best score seen via recursion
-    int dot_file_match = 0;     // true if abbrev matches a dot-file
-    int dot_search = 0;         // true if searching for a dot
+	char tmp, *p1 = s, *p2 = s + strlen(s);
+	while (p1 < --p2) {
+		tmp = *p1;
+		*p1 = *p2;
+		*p2 = tmp;
+        p1++;
+	}
+	return s;
+}
 
-    for (long i = abbrev_idx; i < m->abbrev_len; i++)
-    {
-        char c = m->abbrev_p[i];
-        if (c == '.')
-            dot_search = 1;
-        int found = 0;
-        for (long j = str_idx; j < m->str_len; j++, str_idx++)
-        {
-            char d = m->str_p[j];
-            if (d == '.')
-            {
-                if (j == 0 || m->str_p[j - 1] == '/')
-                {
-                    m->dot_file = 1;        // this is a dot-file
-                    if (dot_search)         // and we are searching for a dot
-                        dot_file_match = 1; // so this must be a match
+// Do a case insensitive find, looking at the appropriate ranges of
+// the given source and target strings. Used as a utility function
+// by |neo_recursive_match|.
+char* strcasestr_in_range(char* source, range_t source_range,
+        char* target, range_t target_range)
+{
+    char* s = source + source_range.start;
+    char* t = target + target_range.start;
+    char tt = *t++;
+    if (!source || !target || !*s || !*t) return NULL;
+
+    do {
+        char c;
+        do {
+            c = *s++;
+            if (!c) return NULL;
+        } while (c != tt);
+    } while (s < source + source_range.start + source_range.length &&
+            strncasecmp(s, t, target_range.length-1) != 0);
+    return s-1;
+}
+
+// Matching scoring algorithm, based on techniques from Quicksilver.
+// Looks for matches with a maximal subset of the abbreviation given
+// and recursively scores the remainder of the string.
+double recursive_match(matchinfo_t* m,
+        range_t str_range, range_t abbrev_range)
+{
+    char* str = m->str_p, *abbrev = m->abbrev_p;
+    range_t adjusted_str_range = str_range;
+    if (abbrev_range.length == 0) return 0.9;
+    if (abbrev_range.length > str_range.length) return 0.0;
+
+    // Look for the start of the abbreviation.
+    char c = abbrev[abbrev_range.start];
+    char* loc = strchr(str + str_range.start, c);
+    if (!loc) loc = strchr(str + str_range.start, toupper(c));
+    if (!loc) return 0;
+    int skip = (int)(loc - (str + str_range.start));
+    adjusted_str_range.length -= skip;
+    adjusted_str_range.start += skip;
+
+    for (int i = abbrev_range.length; i>0; i--) {
+        //Search for decreasing fragments of the abbreviation.
+        range_t curr_abbrev_range = { abbrev_range.start, i };
+        range_t curr_str_range = {
+            adjusted_str_range.start,
+            adjusted_str_range.length - abbrev_range.length + i };
+        char* result = strcasestr_in_range(str, curr_str_range, abbrev, curr_abbrev_range);
+        if (!result) continue;
+
+        // Search the remainder of the string using the rest of the abbreviation.
+        range_t matched_range = { (int)(result - str), curr_abbrev_range.length };
+        range_t remaining_str_range = { matched_range.start + matched_range.length,
+            str_range.start + str_range.length - (matched_range.start + matched_range.length) };
+        range_t remaining_abbrev_range = { abbrev_range.start + i, abbrev_range.length - i };
+        double remaining_score = recursive_match(m, remaining_str_range, remaining_abbrev_range);
+
+        if (remaining_score) {
+            double score = remaining_str_range.start - str_range.start;
+            // Handling for punctuation and capitalization
+            if (matched_range.start > str_range.start) {
+                if (isspace(str[matched_range.start - 1])) {
+                    for (int j = matched_range.start - 2; j >= str_range.start; --j) {
+                        score -= isspace(str[j]) ? 1.0 : 0.15;
+                    }
+                } else if (isupper(str[matched_range.start])) {
+                    for (int j = matched_range.start - 1; j >= str_range.start; --j) {
+                        score -= isupper(str[j]) ? 1.0 : 0.15;
+                    }
+                } else if (!isalnum(str[matched_range.start])) {
+                    for (int j = matched_range.start - 1; j >= str_range.start; --j) {
+                        score -= !isalnum(str[j]) ? 1.0 : 0.15;
+                    }
+                } else {
+                    score -= matched_range.start - str_range.start;
                 }
             }
-            else if (d >= 'A' && d <= 'Z')
-                d += 'a' - 'A'; // add 32 to downcase
-            if (c == d)
-            {
-                found = 1;
-                dot_search = 0;
-
-                // calculate score
-                double score_for_char = m->max_score_per_char;
-                long distance = j - last_idx;
-                if (distance > 1)
-                {
-                    double factor = 1.0;
-                    char last = m->str_p[j - 1];
-                    char curr = m->str_p[j]; // case matters, so get again
-                    if (last == '/')
-                        factor = 0.9;
-                    else if (last == '-' ||
-                            last == '_' ||
-                            last == ' ' ||
-                            (last >= '0' && last <= '9'))
-                        factor = 0.8;
-                    else if (last >= 'a' && last <= 'z' &&
-                            curr >= 'A' && curr <= 'Z')
-                        factor = 0.8;
-                    else if (last == '.')
-                        factor = 0.7;
-                    else
-                        // if no "special" chars behind char, factor diminishes
-                        // as distance from last matched char increases
-                        factor = (1.0 / distance) * 0.75;
-                    score_for_char *= factor;
-                }
-
-                if (++j < m->str_len)
-                {
-                    // bump cursor one char to the right and
-                    // use recursion to try and find a better match
-                    double sub_score = recursive_match(m, j, i, last_idx, score);
-                    if (sub_score > seen_score)
-                        seen_score = sub_score;
-                }
-
-                score += score_for_char;
-                last_idx = str_idx++;
-                break;
-            }
+            score += remaining_score * remaining_str_range.length;
+            score /= str_range.length;
+            return score;
         }
-        if (!found)
-            return 0.0;
     }
-    if (m->dot_file)
-    {
-        if (m->never_show_dot_files ||
-            (!dot_file_match && !m->always_show_dot_files))
-            return 0.0;
+    return 0;
+}
+
+// Given a string (full path name) and abbreviation (whatever the user
+// typed in), provide a score indicating how highly this file should
+// be ranked as a possible match.
+double match_score(matchinfo_t *m)
+{
+    // Handle special dotfile stuff off the top.
+    int dotfile = m->str_p[0] == '.' || strstr(m->str_p, "/.");
+    if (dotfile) {
+        if (m->never_show_dot_files) return 0.0;
+        int dotfile_abbrev = strchr(m->abbrev_p, '.');
+        if (!dotfile_abbrev && !m->always_show_dot_files) return 0.0;
     }
-    return (score > seen_score) ? score : seen_score;
+
+    // Search the reverse of the input strings, in order to prioritize
+    // the end of the file path rather than the beginning. Just take
+    // 512 characters in order to avoid any dynamic memory allocation.
+    static char r1[512], r2[512];
+    strncpy(r1, m->str_p, 512);
+    strncpy(r2, m->abbrev_p, 512);
+    my_strrev(r1);
+    my_strrev(r2);
+    m->str_p = r1;
+    m->abbrev_p = r2;
+    range_t str_range = { 0, m->str_len };
+    range_t abbrev_range = { 0, m->abbrev_len };
+    return recursive_match(m, str_range, abbrev_range);
 }
 
 // Match.new abbrev, string, options = {}
@@ -167,9 +215,10 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
                 }
             }
         }
+    } else {
+        // normal case
+        score = match_score(&m);
     }
-    else // normal case
-        score = recursive_match(&m, 0, 0, 0, 0.0);
 
     // clean-up and final book-keeping
     rb_iv_set(self, "@score", rb_float_new(score));
