@@ -92,3 +92,14 @@ task :archive => :vimball do
      'git checkout @{-1} && ' +
      'git stash pop'
 end
+
+desc 'Create the ruby gem package'
+task :gem do
+  sh "gem build command-t.gemspec"
+end
+
+desc 'Install the command-t ruby gem'
+task :install => :gem do
+  v = `git describe --abbrev=0`.chomp
+  sh "gem install command-t-#{v}.gem"
+end
