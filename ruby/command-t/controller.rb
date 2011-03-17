@@ -21,6 +21,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/vim'
 require 'command-t/finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
