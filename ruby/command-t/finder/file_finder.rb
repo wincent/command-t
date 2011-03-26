@@ -23,12 +23,12 @@
 
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
-require 'command-t/scanner'
+require 'command-t/scanner/file_scanner'
 
 module CommandT
   class FileFinder < Finder
     def initialize path = Dir.pwd, options = {}
-      @scanner = Scanner.new path, options
+      @scanner = FileScanner.new path, options
       @matcher = Matcher.new @scanner, options
     end
   end # class FileFinder

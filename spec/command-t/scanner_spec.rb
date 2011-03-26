@@ -22,16 +22,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'spec_helper'
-require 'command-t/scanner'
+require 'command-t/scanner/file_scanner'
 
 module VIM; end
 
-describe CommandT::Scanner do
+describe CommandT::FileScanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', 'fixtures')
     @all_fixtures = \
       %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
-    @scanner = CommandT::Scanner.new @dir
+    @scanner = CommandT::FileScanner.new @dir
 
     # scanner will call VIM's expand() function for exclusion filtering
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
@@ -67,7 +67,7 @@ describe CommandT::Scanner do
 
   describe "'wildignore' exclusion" do
     it "calls on VIM's expand() function for pattern filtering" do
-      @scanner = CommandT::Scanner.new @dir
+      @scanner = CommandT::FileScanner.new @dir
       mock(::VIM).evaluate(/expand\(.+\)/).times(10)
       @scanner.paths
     end
@@ -75,7 +75,7 @@ describe CommandT::Scanner do
 
   describe ':max_depth option' do
     it 'does not descend below "max_depth" levels' do
-      @scanner = CommandT::Scanner.new @dir, :max_depth => 1
+      @scanner = CommandT::FileScanner.new @dir, :max_depth => 1
       @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
     end
   end
