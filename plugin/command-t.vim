@@ -36,7 +36,7 @@ if !hasmapto(':CommandT<CR>')
 endif
 
 if !hasmapto(':CommandTBuffer<CR>')
-  silent! nmap <unique> <silent> <Leader>t :CommandTBuffer<CR>
+  silent! nmap <unique> <silent> <Leader>b :CommandTBuffer<CR>
 endif
 
 function s:CommandTRubyWarning()
