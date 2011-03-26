@@ -27,6 +27,7 @@ if exists("g:command_t_loaded")
 endif
 let g:command_t_loaded = 1
 
+command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
@@ -39,6 +40,14 @@ function s:CommandTRubyWarning()
   echo "command-t.vim requires Vim to be compiled with Ruby support"
   echo "For more information type:  :help command-t"
   echohl none
+endfunction
+
+function s:CommandTShowBufferFinder()
+  if has('ruby')
+    ruby $command_t.show_buffer_finder
+  else
+    call s:CommandTRubyWarning()
+  endif
 endfunction
 
 function s:CommandTShowFileFinder(arg)
