@@ -2,6 +2,9 @@ GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.2)
+    mechanize (1.0.0)
+      nokogiri (>= 1.2.1)
+    nokogiri (1.4.4)
     rake (0.8.7)
     rr (1.0.2)
     rspec (2.5.0)
@@ -17,6 +20,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  mechanize
   rake
   rr
   rspec (>= 2.0.0.rc)
