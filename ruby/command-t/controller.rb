@@ -25,9 +25,12 @@ require 'command-t/finder/buffer_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
+require 'command-t/vim/path_utilities'
 
 module CommandT
   class Controller
+    include VIM::PathUtilities
+
     def initialize
       @prompt = Prompt.new
       @buffer_finder = CommandT::BufferFinder.new
@@ -198,13 +201,6 @@ module CommandT
       else
         list_or_string.to_s
       end
-    end
-
-    def relative_path_under_working_directory path
-      # any path under the working directory will be specified as a relative
-      # path to improve the readability of the buffer list etc
-      pwd = File.expand_path(VIM::pwd) + '/'
-      path.index(pwd) == 0 ? path[pwd.length..-1] : path
     end
 
     # Backslash-escape space, \, |, %, #, "
