@@ -35,19 +35,17 @@ module CommandT
       set_up_max_height
     end
 
+    def show_buffer_finder
+      @active_finder = @buffer_finder
+      show
+    end
+
     def show_file_finder
       # optional parameter will be desired starting directory, or ""
       @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
       @file_finder.path = @path
-      @initial_window   = $curwin
-      @initial_buffer   = $curbuf
-      @match_window     = MatchWindow.new \
-        :prompt               => @prompt,
-        :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop')
-      @focus            = @prompt
-      @prompt.focus
-      register_for_key_presses
-      clear # clears prompt and lists matches
+      @active_finder    = @file_finder
+      show
     rescue Errno::ENOENT
       # probably a problem with the optional parameter
       @match_window.print_no_such_file_or_directory
@@ -149,6 +147,18 @@ module CommandT
     end
 
   private
+
+    def show
+      @initial_window   = $curwin
+      @initial_buffer   = $curbuf
+      @match_window     = MatchWindow.new \
+        :prompt               => @prompt,
+        :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop')
+      @focus            = @prompt
+      @prompt.focus
+      register_for_key_presses
+      clear # clears prompt and lists matches
+    end
 
     def set_up_max_height
       @max_height = get_number('g:CommandTMaxHeight') || 0
@@ -302,7 +312,7 @@ module CommandT
     end
 
     def list_matches
-      matches = @file_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
+      matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
       @match_window.matches = matches
     end
   end # class Controller
