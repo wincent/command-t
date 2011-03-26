@@ -30,19 +30,19 @@ module CommandT
     def initialize
       @prompt = Prompt.new
       set_up_max_height
-      set_up_finder
+      set_up_file_finder
     end
 
     def show
       # optional parameter will be desired starting directory, or ""
-      @path           = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
-      @finder.path    = @path
-      @initial_window = $curwin
-      @initial_buffer = $curbuf
-      @match_window   = MatchWindow.new \
+      @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
+      @file_finder.path = @path
+      @initial_window   = $curwin
+      @initial_buffer   = $curbuf
+      @match_window     = MatchWindow.new \
         :prompt               => @prompt,
         :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop')
-      @focus          = @prompt
+      @focus            = @prompt
       @prompt.focus
       register_for_key_presses
       clear # clears prompt and lists matches
@@ -66,7 +66,7 @@ module CommandT
 
     def flush
       set_up_max_height
-      set_up_finder
+      set_up_file_finder
     end
 
     def handle_key
@@ -152,8 +152,8 @@ module CommandT
       @max_height = get_number('g:CommandTMaxHeight') || 0
     end
 
-    def set_up_finder
-      @finder = CommandT::FileFinder.new nil,
+    def set_up_file_finder
+      @file_finder = CommandT::FileFinder.new nil,
         :max_files              => get_number('g:CommandTMaxFiles'),
         :max_depth              => get_number('g:CommandTMaxDepth'),
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
@@ -300,7 +300,7 @@ module CommandT
     end
 
     def list_matches
-      matches = @finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
+      matches = @file_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
       @match_window.matches = matches
     end
   end # class Controller
