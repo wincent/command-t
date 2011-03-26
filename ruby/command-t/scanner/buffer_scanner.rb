@@ -33,7 +33,7 @@ module CommandT
     def paths
       (0..::VIM::Buffer.count).to_a.map do |n|
         buffer = ::VIM::Buffer[n]
-        if buffer # beware, buffer may be nil
+        if buffer && buffer.name # beware, both may be nil
           relative_path_under_working_directory buffer.name
         end
       end.compact
