@@ -35,6 +35,10 @@ if !hasmapto(':CommandT<CR>')
   silent! nmap <unique> <silent> <Leader>t :CommandT<CR>
 endif
 
+if !hasmapto(':CommandTBuffer<CR>')
+  silent! nmap <unique> <silent> <Leader>t :CommandTBuffer<CR>
+endif
+
 function s:CommandTRubyWarning()
   echohl WarningMsg
   echo "command-t.vim requires Vim to be compiled with Ruby support"
