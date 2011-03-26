@@ -37,11 +37,10 @@ describe CommandT::BufferScanner do
   end
 
   before do
-    @buffers = Array.new(5) { buffer 'x' }
     @scanner = CommandT::BufferScanner.new
-    stub(@scanner).relative_path_under_working_directory(anything) { |arg| arg }
+    stub(@scanner).relative_path_under_working_directory(is_a(String)) { |arg| arg }
     stub(::VIM::Buffer).count { 5 }
-    stub(::VIM::Buffer)[anything].times(5).returns(buffer 'x')
+    stub(::VIM::Buffer)[numeric].times(5).returns(buffer 'x')
   end
 
   describe 'paths method' do
