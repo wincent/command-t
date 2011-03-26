@@ -29,8 +29,9 @@ module CommandT
   class BufferScanner < Scanner
     def paths
       (0..::VIM::Buffer.count).to_a.map do |n|
-        ::VIM::Buffer[n].name
-      end
+        buffer = ::VIM::Buffer[n]
+        buffer.name if buffer # beware, buffer may be nil
+      end.compact
     end
   end # class BufferScanner
 end # module CommandT
