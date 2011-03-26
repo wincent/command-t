@@ -1,0 +1,3 @@
+[submodule "vendor/vimball"]
+	path = vendor/vimball
+	url = git://github.com/tomtom/vimball.rb.git
