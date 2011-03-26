@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,7 @@ describe CommandT::Controller do
     finder = Object.new
     stub(finder).path = anything
     stub(finder).sorted_matches_for(anything, anything).returns(sorted_matches)
-    stub(CommandT::Finder).new.returns(finder)
+    stub(CommandT::FileFinder).new.returns(finder)
   end
 
   def stub_match_window(selection)
