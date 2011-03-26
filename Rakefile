@@ -72,14 +72,16 @@ end
 desc 'Run checks prior to release'
 task :prerelease => ['make:all', 'spec:all', :vimball, :check_tag]
 
-desc 'Upload current vimball to Amazon S3'
-task :upload => :vimball do
-  sh 'aws put ' +
-     "s3.wincent.com/command-t/releases/command-t-#{version}.vba " +
-     "command-t-#{version}.vba"
-  sh 'aws put ' +
-     "s3.wincent.com/command-t/releases/command-t-#{version}.vba?acl " +
-     '--public'
+namespace :upload do
+  desc 'Upload current vimball to Amazon S3'
+  task :s3 => :vimball do
+    sh 'aws put ' +
+      "s3.wincent.com/command-t/releases/command-t-#{version}.vba " +
+      "command-t-#{version}.vba"
+    sh 'aws put ' +
+      "s3.wincent.com/command-t/releases/command-t-#{version}.vba?acl " +
+      '--public'
+  end
 end
 
 desc 'Add current vimball to releases branch'
