@@ -29,8 +29,9 @@ module CommandT
   class Controller
     def initialize
       @prompt = Prompt.new
-      set_up_max_height
+      @buffer_finder = CommandT::BufferFinder.new
       set_up_file_finder
+      set_up_max_height
     end
 
     def show
