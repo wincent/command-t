@@ -21,9 +21,9 @@ CONTENTS                                        *command-t-contents*
 INTRODUCTION                                    *command-t-intro*
 
 The Command-T plug-in provides an extremely fast, intuitive mechanism for
-opening files with a minimal number of keystrokes. It's named "Command-T"
-because it is inspired by the "Go to File" window bound to Command-T in
-TextMate.
+opening files and buffers with a minimal number of keystrokes. It's named
+"Command-T" because it is inspired by the "Go to File" window bound to
+Command-T in TextMate.
 
 Files are selected by typing characters that appear in their paths, and are
 ordered by an algorithm which knows that characters that appear in certain
@@ -240,17 +240,17 @@ you eliminate the discrepancy.
 
 USAGE                                           *command-t-usage*
 
-Bring up the Command-T match window by typing:
+Bring up the Command-T file window by typing:
 
   <Leader>t
 
 This mapping is set up automatically for you, provided you do not already have
-a mapping for <Leader>t or |:CommandT|. You can also bring up the match window
+a mapping for <Leader>t or |:CommandT|. You can also bring up the file window
 by issuing the command:
 
   :CommandT
 
-A prompt will appear at the bottom of the screen along with a match window
+A prompt will appear at the bottom of the screen along with a file window
 showing all of the files in the current directory (as returned by the
 |:pwd| command).
 
@@ -284,13 +284,13 @@ The following mappings are active when the prompt has focus:
     <C-a>       move the cursor to the start (left)
     <C-e>       move the cursor to the end (right)
     <C-u>       clear the contents of the prompt
-    <Tab>       change focus to the match listing
+    <Tab>       change focus to the file listing
 
-The following mappings are active when the match listing has focus:
+The following mappings are active when the file listing has focus:
 
     <Tab>       change focus to the prompt
 
-The following mappings are active when either the prompt or the match listing
+The following mappings are active when either the prompt or the file listing
 has focus:
 
     <CR>        open the selected file
@@ -298,22 +298,22 @@ has focus:
     <C-s>       open the selected file in a new split window
     <C-v>       open the selected file in a new vertical split window
     <C-t>       open the selected file in a new tab
-    <C-j>       select next file in the match listing
-    <C-n>       select next file in the match listing
-    <Down>      select next file in the match listing
-    <C-k>       select previous file in the match listing
-    <C-p>       select previous file in the match listing
-    <Up>        select previous file in the match listing
-    <C-c>       cancel (dismisses match listing)
+    <C-j>       select next file in the file listing
+    <C-n>       select next file in the file listing
+    <Down>      select next file in the file listing
+    <C-k>       select previous file in the file listing
+    <C-p>       select previous file in the file listing
+    <Up>        select previous file in the file listing
+    <C-c>       cancel (dismisses file listing)
 
 The following is also available on terminals which support it:
 
-    <Esc>       cancel (dismisses match listing)
+    <Esc>       cancel (dismisses file listing)
 
 Note that the default mappings can be overriden by setting options in your
 ~/.vimrc file (see the OPTIONS section for a full list of available options).
 
-In addition, when the match listing has focus, typing a character will cause
+In addition, when the file listing has focus, typing a character will cause
 the selection to jump to the first path which begins with that character.
 Typing multiple characters consecutively can be used to distinguish between
 paths which begin with the same prefix.
@@ -322,14 +322,20 @@ paths which begin with the same prefix.
 COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
-|:CommandT|     Brings up the Command-T match window, starting in the
+|:CommandT|     Brings up the Command-T file window, starting in the
                 current working directory as returned by the|:pwd|
                 command.
+
+                                                *:CommandTBuffer*
+|:CommandTBuffer|Brings up the Command-T buffer window.
+                This works exactly like the standard file window,
+                except that the selection is limited to files that
+                you already have open in buffers.
 
                                                 *:CommandTFlush*
 |:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
-                the next time the match window is shown. In addition, all
+                the next time the file window is shown. In addition, all
                 configuration settings are re-evaluated, causing any
                 changes made to settings via the |:let| command to be picked
                 up.
@@ -337,16 +343,18 @@ COMMANDS                                        *command-t-commands*
 
 MAPPINGS                                        *command-t-mappings*
 
-By default Command-T comes with only one mapping:
+By default Command-T comes with only two mappings:
 
-  <Leader>t     bring up the Command-T match window
+  <Leader>t     bring up the Command-T file window
+  <Leader>b     bring up the Command-T buffer window
 
 However, Command-T won't overwrite a pre-existing mapping so if you prefer
-to define a different mapping use a line like this in your ~/.vimrc:
+to define different mappings use lines like these in your ~/.vimrc:
 
   nmap <silent> <Leader>t :CommandT<CR>
+  nmap <silent> <Leader>b :CommandTBuffer<CR>
 
-Replacing "<Leader>t" with your mapping of choice.
+Replacing "<Leader>t" or "<Leader>b" with your mapping of choice.
 
 Note that in the case of MacVim you actually can map to Command-T (written
 as <D-t> in Vim) in your ~/.gvimrc file if you first unmap the existing menu
@@ -380,7 +388,9 @@ Following is a list of all available options:
   |g:CommandTMaxFiles|                           number (default 10000)
 
       The maximum number of files that will be considered when scanning the
-      current directory. Upon reaching this number scanning stops.
+      current directory. Upon reaching this number scanning stops. This
+      limit applies only to file listings and is ignored for buffer
+      listings.
 
                                                 *g:CommandTMaxDepth*
   |g:CommandTMaxDepth|                           number (default 15)
@@ -399,21 +409,27 @@ Following is a list of all available options:
                                                 *g:CommandTAlwaysShowDotFiles*
   |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
 
-      By default Command-T will show dot-files only if the entered search
-      string contains a dot that could cause a dot-file to match. When set to
-      a non-zero value, this setting instructs Command-T to always include
-      matching dot-files in the match list regardless of whether the search
-      string contains a dot. See also |g:CommandTNeverShowDotFiles|.
+      When showing the file listing Command-T will by default show dot-files
+      only if the entered search string contains a dot that could cause a
+      dot-file to match. When set to a non-zero value, this setting instructs
+      Command-T to always include matching dot-files in the match list
+      regardless of whether the search string contains a dot. See also
+      |g:CommandTNeverShowDotFiles|. Note that this setting only influences
+      the file listing; the buffer listing treats dot-files like any other
+      file.
 
                                                 *g:CommandTNeverShowDotFiles*
   |g:CommandTNeverShowDotFiles|                  boolean (default: 0)
 
-      By default Command-T will show dot-files if the entered search string
-      contains a dot that could cause a dot-file to match. When set to a
-      non-zero value, this setting instructs Command-T to never show dot-files
-      under any circumstances. Note that it is contradictory to set both this
-      setting and |g:CommandTAlwaysShowDotFiles| to true, and if you do so Vim
-      will suffer from headaches, nervous twitches, and sudden mood swings.
+      In the file listing, Command-T will by default show dot-files if the
+      entered search string contains a dot that could cause a dot-file to
+      match. When set to a non-zero value, this setting instructs Command-T to
+      never show dot-files under any circumstances. Note that it is
+      contradictory to set both this setting and
+      |g:CommandTAlwaysShowDotFiles| to true, and if you do so Vim will suffer
+      from headaches, nervous twitches, and sudden mood swings. This setting
+      has no effect in buffer listings, where dot files are treated like any
+      other file.
 
                                                 *g:CommandTScanDotDirectories*
   |g:CommandTScanDotDirectories|                 boolean (default: 0)
@@ -620,6 +636,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+1.1b (not yet released)
+
+- add |:CommandTBuffer| command for quickly selecting among open buffers
 
 1.0.1 (5 January 2011)
 
