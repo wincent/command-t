@@ -39,6 +39,7 @@ module CommandT
     end
 
     def show_buffer_finder
+      @path          = VIM::pwd
       @active_finder = @buffer_finder
       show
     end
