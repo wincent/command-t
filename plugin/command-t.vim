@@ -1,5 +1,5 @@
 " command-t.vim
-" Copyright 2010 Wincent Colaiuta. All rights reserved.
+" Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 "
 " Redistribution and use in source and binary forms, with or without
 " modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ endfunction
 
 function s:CommandTShow(arg)
   if has('ruby')
-    ruby $command_t.show
+    ruby $command_t.show_file_finder
   else
     call s:CommandTRubyWarning()
   endif

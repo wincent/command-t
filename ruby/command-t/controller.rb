@@ -21,6 +21,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/finder/buffer_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
@@ -34,7 +35,7 @@ module CommandT
       set_up_max_height
     end
 
-    def show
+    def show_file_finder
       # optional parameter will be desired starting directory, or ""
       @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
       @file_finder.path = @path
