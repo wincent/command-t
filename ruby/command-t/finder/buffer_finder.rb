@@ -29,7 +29,7 @@ module CommandT
   class BufferFinder < Finder
     def initialize
       @scanner = BufferScanner.new
-      @matcher = Matcher.new @scanner
+      @matcher = Matcher.new @scanner, :always_show_dot_files => true
     end
   end # class BufferFinder
 end # CommandT
