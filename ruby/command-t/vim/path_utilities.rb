@@ -21,6 +21,20 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/vim'
+
 module CommandT
-  class Scanner; end
+  module VIM
+    module PathUtilities
+
+    private
+
+      def relative_path_under_working_directory path
+        # any path under the working directory will be specified as a relative
+        # path to improve the readability of the buffer list etc
+        pwd = File.expand_path(VIM::pwd) + '/'
+        path.index(pwd) == 0 ? path[pwd.length..-1] : path
+      end
+    end # module PathUtilities
+  end # module VIM
 end # module CommandT

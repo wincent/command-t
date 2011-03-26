@@ -21,6 +21,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/vim'
+require 'command-t/vim/path_utilities'
+require 'command-t/scanner'
+
 module CommandT
-  class Scanner; end
+  # Returns a list of all open buffers.
+  class BufferScanner < Scanner
+    include VIM::PathUtilities
+
+    def paths
+      (0..(::VIM::Buffer.count - 1)).to_a.map do |n|
+        buffer = ::VIM::Buffer[n]
+        if buffer.name # beware, may be nil
+          relative_path_under_working_directory buffer.name
+        end
+      end.compact
+    end
+  end # class BufferScanner
 end # module CommandT

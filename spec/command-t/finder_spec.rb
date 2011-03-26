@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,13 +22,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'spec_helper'
-require 'command-t/finder'
+require 'command-t/finder/file_finder'
 
 module VIM; end
 
-describe CommandT::Finder do
+describe CommandT::FileFinder do
   before :all do
-    @finder = CommandT::Finder.new File.join(File.dirname(__FILE__), '..',
+    @finder = CommandT::FileFinder.new File.join(File.dirname(__FILE__), '..',
       '..', 'fixtures')
     @all_fixtures = %w(
       bar/abc

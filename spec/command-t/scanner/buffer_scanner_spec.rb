@@ -21,6 +21,32 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-module CommandT
-  class Scanner; end
-end # module CommandT
+require 'spec_helper'
+require 'ostruct'
+require 'command-t/scanner/buffer_scanner'
+
+module VIM
+  class Buffer; end
+end
+
+describe CommandT::BufferScanner do
+  def buffer name
+    b = OpenStruct.new
+    b.name = name
+    b
+  end
+
+  before do
+    @buffers = Array.new(5) { buffer 'x' }
+    @scanner = CommandT::BufferScanner.new
+    stub(@scanner).relative_path_under_working_directory(anything) { |arg| arg }
+    stub(::VIM::Buffer).count { 5 }
+    stub(::VIM::Buffer)[anything].times(5).returns(buffer 'x')
+  end
+
+  describe 'paths method' do
+    it 'returns a list of regular files' do
+      @scanner.paths.should =~ Array.new(5) { 'x' }
+    end
+  end
+end

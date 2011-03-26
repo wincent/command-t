@@ -21,6 +21,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/ext' # CommandT::Matcher
+require 'command-t/finder'
+require 'command-t/scanner/file_scanner'
+
 module CommandT
-  class Scanner; end
-end # module CommandT
+  class FileFinder < Finder
+    def initialize path = Dir.pwd, options = {}
+      @scanner = FileScanner.new path, options
+      @matcher = Matcher.new @scanner, options
+    end
+  end # class FileFinder
+end # CommandT
