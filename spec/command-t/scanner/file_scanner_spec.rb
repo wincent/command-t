@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,7 @@ module VIM; end
 
 describe CommandT::FileScanner do
   before do
-    @dir = File.join(File.dirname(__FILE__), '..', '..', 'fixtures')
+    @dir = File.join(File.dirname(__FILE__), '..', '..', '..', 'fixtures')
     @all_fixtures = \
       %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
     @scanner = CommandT::FileScanner.new @dir
