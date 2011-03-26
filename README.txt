@@ -453,7 +453,7 @@ Following is a list of all available options:
                                                 *g:CommandTMatchWindowAtTop*
   |g:CommandTMatchWindowAtTop|                   boolean (default: 0)
 
-      When this settings is off (the default) the match window will appear at
+      When this setting is off (the default) the match window will appear at
       the bottom so as to keep it near to the prompt. Turning it on causes the
       match window to appear at the top instead. This may be preferable if you
       want the best match (usually the first one) to appear in a fixed location
