@@ -29,8 +29,9 @@ module VIM; end
 describe CommandT::FileScanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', '..', 'fixtures')
-    @all_fixtures = \
-      %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
+    @all_fixtures = %w(
+      bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta
+    )
     @scanner = CommandT::FileScanner.new @dir
 
     # scanner will call VIM's expand() function for exclusion filtering
