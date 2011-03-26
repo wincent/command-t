@@ -7,8 +7,10 @@ vimfiles    := $(shell find plugin -name '*.vim')
 
 vimball:	command-t.vba
 
-command-t.vba: $(rubyfiles) $(cfiles) $(cheaders) $(depends) $(txtfiles) $(vimfiles)
-	mkvimball $(basename $@) $^
+command-t.recipe: $(rubyfiles) $(cfiles) $(cheaders) $(depends) $(txtfiles) $(vimfiles)
+	echo "$^" | perl -pe 's/ /\n/g' > $@
+command-t.vba: command-t.recipe
+	vendor/vimball/vimball.rb -d . -b . vba $^
 
 .PHONY: spec
 spec:
