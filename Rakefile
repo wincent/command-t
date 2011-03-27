@@ -71,6 +71,26 @@ end
 
 task :default => :spec
 
+desc 'Print help on preparing a release'
+task :help do
+  puts <<-END
+
+The general release sequence is:
+
+  rake prerelease
+  bin/rake upload:all
+  rake archive
+
+Most of the Rake tasks run fine without Bundler, and in fact, we
+don't want Bundler in the prerelease task because it will tamper
+with the environment in a way that breaks multiruby.
+
+We use Bundler for the upload task because the www.vim.org
+uploader uses Bundler to ensure that the Mechanize gem is available.
+
+  END
+end
+
 task :check_bundler do
   unless ENV.has_key? 'BUNDLE_GEMFILE'
     warn 'warning: Bundler is not loaded; try running with bin/rake'
