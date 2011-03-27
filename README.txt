@@ -637,6 +637,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.1b2 (26 March 2011)
+
+- fix a glitch in the release process; the plugin itself is unchanged since
+  1.1b
+
 1.1b (26 March 2011)
 
 - add |:CommandTBuffer| command for quickly selecting among open buffers
