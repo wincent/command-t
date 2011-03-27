@@ -56,6 +56,11 @@ def prepare_release_notes
     err "editor exited with non-zero exit status; aborting"
     exit 1
   end
+
+  filtered = read_release_notes
+  File.open('.release-notes.txt', 'w') do |out|
+    out.print filtered
+  end
 end
 
 def read_release_notes
