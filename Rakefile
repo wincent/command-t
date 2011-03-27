@@ -11,6 +11,26 @@ def version
   `git describe`.chomp
 end
 
+def yellow
+  "\033[33m"
+end
+
+def red
+  "\033[31m"
+end
+
+def clear
+  "\033[0m"
+end
+
+def warn str
+  puts "#{yellow}warning: #{str}#{clear}"
+end
+
+def err str
+  puts "#{red}error: #{str}#{clear}"
+end
+
 def prepare_release_notes
   # extract base release notes from README.txt HISTORY section
   File.open('.release-notes.txt', 'w') do |out|
@@ -93,9 +113,8 @@ end
 
 desc 'Check that the current HEAD is tagged'
 task :check_tag do
-  system 'git describe --exact-match HEAD 2> /dev/null'
-  if $?.exitstatus != 0
-    puts 'warning: current HEAD is not tagged'
+  unless system 'git describe --exact-match HEAD 2> /dev/null'
+    warn 'current HEAD is not tagged'
   end
 end
 
