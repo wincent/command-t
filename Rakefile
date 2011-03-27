@@ -1,3 +1,5 @@
+require 'yaml'
+
 def bail_on_failure
   exitstatus = $?.exitstatus
   if exitstatus != 0
@@ -7,6 +9,34 @@ end
 
 def version
   `git describe`.chomp
+end
+
+def prepare_release_notes
+  # extract base release notes from README.txt HISTORY section
+  File.open('.release-notes.txt', 'w') do |out|
+    lines = File.readlines('README.txt').each { |line| line.chomp! }
+    while line = lines.shift do
+      next unless line =~ /^HISTORY +\*command-t-history\*$/
+      break unless lines.shift == '' &&
+                  (line = lines.shift) && line =~ /^\d\.\d/ &&
+                  lines.shift == ''
+      while line = lines.shift and line != ''
+        out.puts line
+      end
+      break
+    end
+    out.puts ''
+    out.puts '# Please edit the release notes to taste.'
+    out.puts '# Blank lines and lines beginning with a hash will be removed.'
+  end
+
+  system "$EDITOR .release-notes.txt"
+end
+
+def read_release_notes
+  File.readlines('.release-notes.txt').reject do |line|
+    line =~ /^(#.*|\s*)$/ # filter comment lines and blank lines
+  end.join
 end
 
 task :default => :spec
@@ -82,6 +112,22 @@ namespace :upload do
       "s3.wincent.com/command-t/releases/command-t-#{version}.vba?acl " +
       '--public'
   end
+
+  desc 'Upload current vimball to www.vim.org'
+  task :vim => :vimball do
+    prepare_release_notes
+    conf = {
+      :file     => "command-t-#{version}.vba",
+      :id       => 3025,
+      :message  => read_release_notes,
+      :version  => version
+    }
+    File.open('.vim_org.yml', 'w') { |f| f.print conf.to_yaml }
+    sh "vendor/vimscriptuploader/vimscriptuploader.rb --config ~/.vim_org.yml .vim_org.yml"
+  end
+
+  desc 'Upload current vimball everywhere'
+  task :all => [ :s3, :vim ]
 end
 
 desc 'Add current vimball to releases branch'
