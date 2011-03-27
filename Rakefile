@@ -119,7 +119,7 @@ namespace :upload do
     conf = {
       :file     => "command-t-#{version}.vba",
       :id       => 3025,
-      :message  => read_release_notes,
+      :message  => read_release_notes.chomp,
       :version  => version
     }
     File.open('.vim_org.yml', 'w') { |f| f.print conf.to_yaml }
