@@ -2,23 +2,25 @@ GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.2)
+    mechanize (1.0.0)
+      nokogiri (>= 1.2.1)
+    nokogiri (1.4.4)
     rake (0.8.7)
-    rr (0.10.11)
-    rspec (2.0.0.rc)
-      rspec-core (= 2.0.0.rc)
-      rspec-expectations (= 2.0.0.rc)
-      rspec-mocks (= 2.0.0.rc)
-    rspec-core (2.0.0.rc)
-    rspec-expectations (2.0.0.rc)
-      diff-lcs (>= 1.1.2)
-    rspec-mocks (2.0.0.rc)
-      rspec-core (= 2.0.0.rc)
-      rspec-expectations (= 2.0.0.rc)
+    rr (1.0.2)
+    rspec (2.5.0)
+      rspec-core (~> 2.5.0)
+      rspec-expectations (~> 2.5.0)
+      rspec-mocks (~> 2.5.0)
+    rspec-core (2.5.1)
+    rspec-expectations (2.5.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.5.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  mechanize
   rake
   rr
   rspec (>= 2.0.0.rc)

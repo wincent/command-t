@@ -37,16 +37,18 @@ describe CommandT::BufferScanner do
   end
 
   before do
-    @buffers = Array.new(5) { buffer 'x' }
+    @paths = %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
     @scanner = CommandT::BufferScanner.new
-    stub(@scanner).relative_path_under_working_directory(anything) { |arg| arg }
-    stub(::VIM::Buffer).count { 5 }
-    stub(::VIM::Buffer)[anything].times(5).returns(buffer 'x')
+    stub(@scanner).relative_path_under_working_directory(is_a(String)) { |arg| arg }
+    stub(::VIM::Buffer).count { 7 }
+    (0..6).each do |n|
+      stub(::VIM::Buffer)[n].returns(buffer @paths[n])
+    end
   end
 
   describe 'paths method' do
     it 'returns a list of regular files' do
-      @scanner.paths.should =~ Array.new(5) { 'x' }
+      @scanner.paths.should =~ @paths
     end
   end
 end

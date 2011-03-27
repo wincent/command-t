@@ -29,7 +29,7 @@ module VIM; end
 describe CommandT::FileFinder do
   before :all do
     @finder = CommandT::FileFinder.new File.join(File.dirname(__FILE__), '..',
-      '..', 'fixtures')
+      '..', '..', 'fixtures')
     @all_fixtures = %w(
       bar/abc
       bar/xyz
