@@ -637,7 +637,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.1b (not yet released)
+1.1b (26 March 2011)
 
 - add |:CommandTBuffer| command for quickly selecting among open buffers
 
