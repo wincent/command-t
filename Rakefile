@@ -3,7 +3,8 @@ require 'yaml'
 def bail_on_failure
   exitstatus = $?.exitstatus
   if exitstatus != 0
-    raise "last command failed with exit status #{exitstatus}"
+    err "last command failed with exit status #{exitstatus}"
+    exit 1
   end
 end
 
