@@ -65,6 +65,12 @@ end
 
 task :default => :spec
 
+task :check_bundler do
+  unless ENV.has_key? 'BUNDLE_GEMFILE'
+    warn 'warning: Bundler is not loaded; try running with bin/rake'
+  end
+end
+
 desc 'Run specs'
 task :spec do
   system 'bin/rspec spec'
@@ -137,7 +143,7 @@ namespace :upload do
   end
 
   desc 'Upload current vimball to www.vim.org'
-  task :vim => :vimball do
+  task :vim => [:check_bundler, :vimball] do
     prepare_release_notes
     conf = {
       :file     => "command-t-#{version}.vba",
