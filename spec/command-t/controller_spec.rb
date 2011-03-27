@@ -31,6 +31,7 @@ describe CommandT::Controller do
     let(:controller) { CommandT::Controller.new }
 
     before do
+      check_ruby_1_9_2
       stub_finder
       stub_match_window 'path/to/selection'
       stub_prompt
@@ -56,6 +57,12 @@ describe CommandT::Controller do
       controller.show_file_finder
       mock(::VIM).command('silent e /working/directory-oops/path/to/selection')
       controller.accept_selection
+    end
+  end
+
+  def check_ruby_1_9_2
+    if RUBY_VERSION =~ /\A1\.9\.2/
+      pending 'broken in Ruby 1.9.2 (see https://gist.github.com/455547)'
     end
   end
 
