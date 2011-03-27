@@ -48,9 +48,13 @@ def prepare_release_notes
     out.puts ''
     out.puts '# Please edit the release notes to taste.'
     out.puts '# Blank lines and lines beginning with a hash will be removed.'
+    out.puts '# To abort, exit your editor with a non-zero exit status (:cquit in Vim).'
   end
 
-  system "$EDITOR .release-notes.txt"
+  unless system "$EDITOR .release-notes.txt"
+    err "editor exited with non-zero exit status; aborting"
+    exit 1
+  end
 end
 
 def read_release_notes
