@@ -172,5 +172,5 @@ task :archive => :vimball do
      "git add command-t-#{v}.vba && " +
      "git commit -s -m 'Add #{v} release vimball' && " +
      'git checkout @{-1} && ' +
-     'git stash pop'
+     'git stash pop || true'
 end
