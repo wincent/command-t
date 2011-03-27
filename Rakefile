@@ -148,12 +148,11 @@ namespace :upload do
     prepare_release_notes
     conf = {
       :file     => "command-t-#{version}.vba",
-      :id       => 3025,
       :message  => read_release_notes.chomp,
       :version  => version
     }
     File.open('.vim_org.yml', 'w') { |f| f.print conf.to_yaml }
-    sh "vendor/vimscriptuploader/vimscriptuploader.rb --config ~/.vim_org.yml .vim_org.yml"
+    sh "vendor/vimscriptuploader/vimscriptuploader.rb --id 3025 --config ~/.vim_org.yml .vim_org.yml"
   end
 
   desc 'Upload current vimball everywhere'
