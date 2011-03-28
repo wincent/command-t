@@ -21,7 +21,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/vim'
 require 'command-t/finder/buffer_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/match_window'
