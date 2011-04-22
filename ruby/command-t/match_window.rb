@@ -33,6 +33,7 @@ module CommandT
 
     def initialize options = {}
       @prompt = options[:prompt]
+      @reverse_list = options[:match_window_reverse]
 
       # save existing window dimensions so we can restore them later
       @windows = []
@@ -170,8 +171,13 @@ module CommandT
 
     def matches= matches
       if matches != @matches
-        @matches =  matches
-        @selection = 0
+        if @reverse_list
+          @matches =  matches.reverse
+          @selection = @matches.length - 1
+        else
+          @matches =  matches
+          @selection = 0
+        end
         print_matches
       end
     end

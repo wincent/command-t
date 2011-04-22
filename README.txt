@@ -460,6 +460,16 @@ Following is a list of all available options:
       on the screen rather than moving as the number of matches changes during
       typing.
 
+                                                *g:CommandTMatchWindowReverse*
+  |g:CommandTMatchWindowReverse|                  boolean (default: 0)
+
+      When this setting is off (the default) the matches will appear from
+      top to bottom with the topmost being selected. Turning it on causes the
+      matches to be reversed so the best match is at the bottom and the
+      initially selected match is the bottom most. This may be preferable if
+      you want the best match to appear in a fixed location on the screen
+      but still be near the prompt at the bottom.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
