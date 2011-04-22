@@ -33,6 +33,7 @@ module CommandT
 
     def initialize options = {}
       @prompt = options[:prompt]
+      @reverse_list = options[:match_window_reverse]
 
       # save existing window dimensions so we can restore them later
       @windows = []
@@ -153,6 +154,7 @@ module CommandT
         @selection += 1
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
+        @window.cursor = [@selection+1, 0]
       else
         # (possibly) loop or scroll
       end
@@ -163,6 +165,7 @@ module CommandT
         @selection -= 1
         print_match(@selection + 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
+        @window.cursor = [@selection+1, 0]
       else
         # (possibly) loop or scroll
       end
@@ -170,9 +173,15 @@ module CommandT
 
     def matches= matches
       if matches != @matches
-        @matches =  matches
-        @selection = 0
+        if @reverse_list
+          @matches =  matches.reverse
+          @selection = @matches.length - 1
+        else
+          @matches =  matches
+          @selection = 0
+        end
         print_matches
+        @window.cursor = [@selection+1, 0]
       end
     end
 

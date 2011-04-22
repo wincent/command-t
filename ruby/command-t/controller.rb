@@ -157,7 +157,8 @@ module CommandT
       @initial_buffer   = $curbuf
       @match_window     = MatchWindow.new \
         :prompt               => @prompt,
-        :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop')
+        :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop'),
+        :match_window_reverse => get_bool('g:CommandTMatchWindowReverse')
       @focus            = @prompt
       @prompt.focus
       register_for_key_presses
