@@ -154,6 +154,7 @@ module CommandT
         @selection += 1
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
+        @window.cursor = [@selection + 1, 0]
       else
         # (possibly) loop or scroll
       end
@@ -164,6 +165,7 @@ module CommandT
         @selection -= 1
         print_match(@selection + 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
+        @window.cursor = [@selection + 1, 0]
       else
         # (possibly) loop or scroll
       end
@@ -175,6 +177,7 @@ module CommandT
         @matches = matches
         @selection = @reverse_list ? @matches.length - 1 : 0
         print_matches
+        @window.cursor = [@selection + 1, 0]
       end
     end
 
