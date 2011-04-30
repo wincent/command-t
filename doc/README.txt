@@ -650,7 +650,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.2 (not yet released)
+1.2 (30 April 2011)
 
 - added |g:CommandTMatchWindowReverse| option, to reverse the order of items
   in the match listing (patch from Steven Moazami)
