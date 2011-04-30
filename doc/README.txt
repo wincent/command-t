@@ -565,6 +565,7 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
+  Daniel Hahler
   Lucas de Vries
   Matthew Todd
   Mike Lundy
