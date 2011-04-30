@@ -384,7 +384,7 @@ changes via |:let|.
 
 Following is a list of all available options:
 
-                                                *g:CommandTMaxFiles*
+                                               *g:CommandTMaxFiles*
   |g:CommandTMaxFiles|                           number (default 10000)
 
       The maximum number of files that will be considered when scanning the
@@ -392,21 +392,21 @@ Following is a list of all available options:
       limit applies only to file listings and is ignored for buffer
       listings.
 
-                                                *g:CommandTMaxDepth*
+                                               *g:CommandTMaxDepth*
   |g:CommandTMaxDepth|                           number (default 15)
 
       The maximum depth (levels of recursion) to be explored when scanning the
       current directory. Any directories at levels beyond this depth will be
       skipped.
 
-                                                *g:CommandTMaxHeight*
+                                               *g:CommandTMaxHeight*
   |g:CommandTMaxHeight|                          number (default: 0)
 
       The maximum height in lines the match window is allowed to expand to.
       If set to 0, the window will occupy as much of the available space as
       needed to show matching entries.
 
-                                                *g:CommandTAlwaysShowDotFiles*
+                                               *g:CommandTAlwaysShowDotFiles*
   |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
 
       When showing the file listing Command-T will by default show dot-files
@@ -418,7 +418,7 @@ Following is a list of all available options:
       the file listing; the buffer listing treats dot-files like any other
       file.
 
-                                                *g:CommandTNeverShowDotFiles*
+                                               *g:CommandTNeverShowDotFiles*
   |g:CommandTNeverShowDotFiles|                  boolean (default: 0)
 
       In the file listing, Command-T will by default show dot-files if the
@@ -431,7 +431,7 @@ Following is a list of all available options:
       has no effect in buffer listings, where dot files are treated like any
       other file.
 
-                                                *g:CommandTScanDotDirectories*
+                                               *g:CommandTScanDotDirectories*
   |g:CommandTScanDotDirectories|                 boolean (default: 0)
 
       Normally Command-T will not recurse into "dot-directories" (directories
@@ -450,7 +450,7 @@ Following is a list of all available options:
         :cd ~/.vim
         :CommandT
 
-                                                *g:CommandTMatchWindowAtTop*
+                                               *g:CommandTMatchWindowAtTop*
   |g:CommandTMatchWindowAtTop|                   boolean (default: 0)
 
       When this setting is off (the default) the match window will appear at
@@ -485,63 +485,63 @@ Following is a list of all map settings and their defaults:
 
                               Setting   Default mapping(s)
 
-                                       *g:CommandTBackspaceMap*
+                                      *g:CommandTBackspaceMap*
               |g:CommandTBackspaceMap|  <BS>
 
-                                       *g:CommandTDeleteMap*
+                                      *g:CommandTDeleteMap*
                  |g:CommandTDeleteMap|  <Del>
 
-                                       *g:CommandTAcceptSelectionMap*
+                                      *g:CommandTAcceptSelectionMap*
         |g:CommandTAcceptSelectionMap|  <CR>
 
-                                       *g:CommandTAcceptSelectionSplitMap*
+                                      *g:CommandTAcceptSelectionSplitMap*
    |g:CommandTAcceptSelectionSplitMap|  <C-CR>
-                                        <C-s>
+                                      <C-s>
 
-                                       *g:CommandTAcceptSelectionTabMap*
+                                      *g:CommandTAcceptSelectionTabMap*
      |g:CommandTAcceptSelectionTabMap|  <C-t>
 
-                                       *g:CommandTAcceptSelectionVSplitMap*
+                                      *g:CommandTAcceptSelectionVSplitMap*
   |g:CommandTAcceptSelectionVSplitMap|  <C-v>
 
-                                       *g:CommandTToggleFocusMap*
+                                      *g:CommandTToggleFocusMap*
             |g:CommandTToggleFocusMap|  <Tab>
 
-                                       *g:CommandTCancelMap*
+                                      *g:CommandTCancelMap*
                  |g:CommandTCancelMap|  <C-c>
-                                        <Esc> (not on all terminals)
+                                      <Esc> (not on all terminals)
 
-                                       *g:CommandTSelectNextMap*
+                                      *g:CommandTSelectNextMap*
              |g:CommandTSelectNextMap|  <C-n>
-                                        <C-j>
-                                        <Down>
+                                      <C-j>
+                                      <Down>
 
-                                       *g:CommandTSelectPrevMap*
+                                      *g:CommandTSelectPrevMap*
              |g:CommandTSelectPrevMap|  <C-p>
-                                        <C-k>
-                                        <Up>
+                                      <C-k>
+                                      <Up>
 
-                                       *g:CommandTClearMap*
+                                      *g:CommandTClearMap*
                   |g:CommandTClearMap|  <C-u>
 
-                                       *g:CommandTCursorLeftMap*
+                                      *g:CommandTCursorLeftMap*
              |g:CommandTCursorLeftMap|  <Left>
-                                        <C-h>
+                                      <C-h>
 
-                                       *g:CommandTCursorRightMap*
+                                      *g:CommandTCursorRightMap*
             |g:CommandTCursorRightMap|  <Right>
-                                        <C-l>
+                                      <C-l>
 
-                                       *g:CommandTCursorEndMap*
+                                      *g:CommandTCursorEndMap*
               |g:CommandTCursorEndMap|  <C-e>
 
-                                       *g:CommandTCursorStartMap*
+                                      *g:CommandTCursorStartMap*
             |g:CommandTCursorStartMap|  <C-a>
 
 In addition to the options provided by Command-T itself, some of Vim's own
 settings can be used to control behavior:
 
-                                                *command-t-wildignore*
+                                               *command-t-wildignore*
   |'wildignore'|                                 string (default: '')
 
       Vim's |'wildignore'| setting is used to determine which files should be
