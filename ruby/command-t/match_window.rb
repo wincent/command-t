@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -170,14 +170,10 @@ module CommandT
     end
 
     def matches= matches
+      matches = matches.reverse if @reverse_list
       if matches != @matches
-        if @reverse_list
-          @matches =  matches.reverse
-          @selection = @matches.length - 1
-        else
-          @matches =  matches
-          @selection = 0
-        end
+        @matches = matches
+        @selection = @reverse_list ? @matches.length - 1 : 0
         print_matches
       end
     end
