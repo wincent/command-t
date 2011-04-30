@@ -569,6 +569,7 @@ order):
   Matthew Todd
   Mike Lundy
   Scott Bronson
+  Steven Moazami
   Sung Pae
   Zak Johnson
 
@@ -646,6 +647,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+1.2 (not yet released)
+
+- added |g:CommandTMatchWindowReverse| option, to reverse the order of items
+  in the match listing (patch from Steven Moazami)
 
 1.1b2 (26 March 2011)
 
