@@ -572,6 +572,7 @@ order):
   Scott Bronson
   Steven Moazami
   Sung Pae
+  Victor Hugo Borja
   Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
