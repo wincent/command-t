@@ -12,6 +12,12 @@ def version
   `git describe`.chomp
 end
 
+def rubygems_version
+  # RubyGems will barf if we try to pass an intermediate version number
+  # like "1.1b2-10-g61a374a", so no choice but to abbreviate it
+  `git describe --abbrev=0`.chomp
+end
+
 def yellow
   "\033[33m"
 end
@@ -196,12 +202,11 @@ task :archive => :vimball do
 end
 
 desc 'Create the ruby gem package'
-task :gem do
+task :gem => :check_tag do
   sh "gem build command-t.gemspec"
 end
 
 desc 'Install the command-t ruby gem'
-task :install => :gem do
-  v = `git describe --abbrev=0`.chomp
-  sh "gem install command-t-#{v}.gem"
+task :install => :gem  do
+  sh "gem install command-t-#{rubygems_version}.gem"
 end

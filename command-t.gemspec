@@ -1,5 +1,8 @@
 Gem::Specification.new do |s|
   s.name = "command-t"
+
+  # see note in the Rakefile about how intermediate version numbers
+  # can break RubyGems
   v = `git describe --abbrev=0`.chomp
   s.version = v
 
