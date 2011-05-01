@@ -154,7 +154,7 @@ module CommandT
         @selection += 1
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
-        @window.cursor = [@selection + 1, 0]
+        move_cursor_to_selected_line
       else
         # (possibly) loop or scroll
       end
@@ -165,7 +165,7 @@ module CommandT
         @selection -= 1
         print_match(@selection + 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
-        @window.cursor = [@selection + 1, 0]
+        move_cursor_to_selected_line
       else
         # (possibly) loop or scroll
       end
@@ -177,7 +177,7 @@ module CommandT
         @matches = matches
         @selection = @reverse_list ? @matches.length - 1 : 0
         print_matches
-        @window.cursor = [@selection + 1, 0]
+        move_cursor_to_selected_line
       end
     end
 
@@ -231,6 +231,13 @@ module CommandT
     end
 
   private
+
+    def move_cursor_to_selected_line
+      # on some non-GUI terminals, the cursor doesn't hide properly
+      # so we move the cursor to prevent it from blinking away in the
+      # upper-left corner in a distracting fashion
+      @window.cursor = [@selection + 1, 0]
+    end
 
     def print_error msg
       return unless VIM::Window.select(@window)
