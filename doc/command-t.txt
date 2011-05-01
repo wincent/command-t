@@ -650,6 +650,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.2.1 (30 April 2011)
+
+- Remove duplicate copy of the documentation that was causing "Duplicate tag"
+  errors
+- Mitigate issue with distracting blinking cursor in non-GUI versions of Vim
+  (patch from Steven Moazami)
+
 1.2 (30 April 2011)
 
 - added |g:CommandTMatchWindowReverse| option, to reverse the order of items
