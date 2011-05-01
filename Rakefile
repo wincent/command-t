@@ -84,6 +84,8 @@ task :help do
 The general release sequence is:
 
   rake prerelease
+  rake gem
+  rake push
   bin/rake upload:all
   rake archive
 
