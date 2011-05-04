@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,21 @@ module CommandT
     def clear!
       @abbrev = ''
       @col    = 0
+      redraw
+    end
+
+    # Remove word before cursor
+    def clear_prev_word!
+      r = @abbrev[@col..-1]
+      l = @abbrev[0..@col]
+      l_split = l.index(/(\w*|\s*|\W)$/)
+      if l_split == 0
+        @abbrev = r
+      else
+        @abbrev = l[0..l_split-1]
+        @abbrev << r unless r.nil?
+      end
+      @col = l_split
       redraw
     end
 
