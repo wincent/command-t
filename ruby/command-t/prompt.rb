@@ -46,6 +46,21 @@ module CommandT
       redraw
     end
 
+    # Remove word before cursor
+    def clear_prev_word!
+      r = @abbrev[@col..-1]
+      l = @abbrev[0..@col]
+      l_split = l.index(/(\w*|\s*|\W)$/)
+      if l_split == 0
+        @abbrev = r
+      else
+        @abbrev = l[0..l_split-1]
+        @abbrev << r unless r.nil?
+      end
+      @col = l_split
+      redraw
+    end
+
     # Insert a character at (before) the current cursor position.
     def add! char
       left, cursor, right = abbrev_segments
