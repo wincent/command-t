@@ -212,8 +212,3 @@ desc 'Push gem to Gemcutter ("gem push")'
 task :push => :gem do
   sh "gem push command-t-#{rubygems_version}.gem"
 end
-
-desc 'Install the command-t ruby gem'
-task :install => :gem  do
-  sh "gem install command-t-#{rubygems_version}.gem"
-end
