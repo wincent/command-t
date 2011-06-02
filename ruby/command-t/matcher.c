@@ -91,8 +91,12 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
     if (never_show_dot_files != Qtrue)
         never_show_dot_files = Qfalse;
+    VALUE case_sensitive = CommandT_option_from_hash("case_sensitive", options);
+    if (case_sensitive != Qtrue)
+        case_sensitive = Qfalse;
     rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
     rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
+    rb_iv_set(self, "@case_sensitive", case_sensitive);
     return Qnil;
 }
 
@@ -140,6 +144,7 @@ VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
     VALUE scanner = rb_iv_get(self, "@scanner");
     VALUE always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
     VALUE never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
+    VALUE case_sensitive = rb_iv_get(self, "@case_sensitive");
     VALUE options = Qnil;
     if (always_show_dot_files == Qtrue)
     {
@@ -151,7 +156,16 @@ VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
         options = rb_hash_new();
         rb_hash_aset(options, ID2SYM(rb_intern("never_show_dot_files")), never_show_dot_files);
     }
-    abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
+
+    if (case_sensitive == Qtrue)
+    {
+        rb_hash_aset(options, ID2SYM(rb_intern("case_sensitive")), case_sensitive);
+    }
+
+    if(case_sensitive == Qfalse) {
+        abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
+    }
+
     VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
     for (long i = 0, max = RARRAY_LEN(paths); i < max; i++)
     {
