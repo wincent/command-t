@@ -41,6 +41,10 @@ describe CommandT::FileFinder do
     )
   end
 
+  before :each do
+    @finder.flush
+  end
+
   before do
     # scanner will call VIM's expand() function for exclusion filtering
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
@@ -65,6 +69,17 @@ describe CommandT::FileFinder do
         should == %w(baz bar/abc bar/xyz foo/beta)
       @finder.sorted_matches_for('a').
         should == %w(baz bar/abc bar/xyz foo/alpha/t1 foo/alpha/t2 foo/beta)
+    end
+    it 'should return new file that was added to a directory' do
+      file = File.join(File.dirname(__FILE__), '..', '..', '..', 'fixtures', 'bam')
+      File.delete file if File.exists? file
+      @finder.sorted_matches_for('ba').
+        should == %w(baz bar/abc bar/xyz foo/beta)
+      FileUtils.touch(file)
+      sleep 2
+      @finder.sorted_matches_for('ba').
+        should == %w(bam baz bar/abc bar/xyz foo/beta)
+      File.delete file
     end
 
     it 'obeys the :limit option for empty search strings' do

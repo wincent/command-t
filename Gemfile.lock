@@ -6,6 +6,7 @@ GEM
       nokogiri (>= 1.2.1)
     nokogiri (1.4.4)
     rake (0.8.7)
+    rb-fsevent (0.4.0)
     rr (1.0.2)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
@@ -22,5 +23,6 @@ PLATFORMS
 DEPENDENCIES
   mechanize
   rake
+  rb-fsevent
   rr
   rspec (>= 2.0.0.rc)

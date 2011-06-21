@@ -24,12 +24,18 @@
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
 require 'command-t/scanner/file_scanner'
+require 'rb-fsevent'
 
 module CommandT
   class FileFinder < Finder
     def initialize path = Dir.pwd, options = {}
       @scanner = FileScanner.new path, options
       @matcher = Matcher.new @scanner, options
+      fsevent = FSEvent.new
+      fsevent.watch Dir.pwd, { :latency => 1 } do |directories|
+        flush
+      end
+      Thread.new { fsevent.run }
     end
   end # class FileFinder
 end # CommandT
