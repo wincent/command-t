@@ -145,7 +145,7 @@ ruby << EOF
     require 'command-t/vim'
     require 'command-t/controller'
     $command_t = CommandT::Controller.new
-  rescue LoadError
+  rescue LoadError => e
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
       lib = "#{path}/ruby"
@@ -159,6 +159,6 @@ ruby << EOF
     # could get here if C extension was not compiled, or was compiled
     # for the wrong architecture or Ruby version
     require 'command-t/stub'
-    $command_t = CommandT::Stub.new
+    $command_t = CommandT::Stub.new(e)
   end
 EOF

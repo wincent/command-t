@@ -24,7 +24,7 @@
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
 require 'command-t/scanner/file_scanner'
-require 'rb-fsevent'
+require 'rb-fsevent/lib/rb-fsevent'
 
 module CommandT
   class FileFinder < Finder

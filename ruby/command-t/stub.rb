@@ -28,11 +28,17 @@ module CommandT
                     'For more information type:    :help command-t']
 
     def show_file_finder
-      warn *@@load_error
+      warn *error_message
     end
 
     def flush
-      warn *@@load_error
+      warn *error_message
+    end
+    def initialize(e)
+      @e = e
+    end
+    def error_message
+      [@e.message] + @e.backtrace
     end
 
   private
