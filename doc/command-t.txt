@@ -146,6 +146,8 @@ you can build the extension with:
   cd ~/.vim/ruby/command-t
   ruby extconf.rb
   make
+  cd ../rb-fsevent/ext 
+  ruby extconf.rb
 
 Note: If you are an RVM user, you must perform the build using the same
 version of Ruby that Vim itself is linked against. This will often be the
