@@ -48,7 +48,7 @@ endfunction
 
 function s:CommandTShowBufferFinder()
   if has('ruby')
-    call s:Initialize()
+    call s:CommandTLazyInitialize()
     ruby $command_t.show_buffer_finder
   else
     call s:CommandTRubyWarning()
@@ -57,7 +57,7 @@ endfunction
 
 function s:CommandTShowFileFinder(arg)
   if has('ruby')
-    call s:Initialize()
+    call s:CommandTLazyInitialize()
     ruby $command_t.show_file_finder
   else
     call s:CommandTRubyWarning()
@@ -66,42 +66,41 @@ endfunction
 
 function s:CommandTFlush()
   if has('ruby')
-    call s:Initialize()
+    call s:CommandTLazyInitialize()
     ruby $command_t.flush
   else
     call s:CommandTRubyWarning()
   endif
 endfunction
 
-if !has('ruby')
-  finish
-endif
+function s:CommandTLazyInitialize()
+  if !exists("g:command_t_initialized")
+    let g:command_t_initialized = 1
+    ruby << EOF
+      # require Ruby files
+      begin
+        # prepare controller
+        require 'command-t/vim'
+        require 'command-t/controller'
+        $command_t = CommandT::Controller.new
+      rescue LoadError
+        load_path_modified = false
+        ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
+          lib = "#{path}/ruby"
+          if !$LOAD_PATH.include?(lib) and File.exist?(lib)
+            $LOAD_PATH << lib
+            load_path_modified = true
+          end
+        end
+        retry if load_path_modified
 
-function s:Initialize()
-ruby << EOF
-  # require Ruby files
-  begin
-    # prepare controller
-    require 'command-t/vim'
-    require 'command-t/controller'
-    $command_t = CommandT::Controller.new
-  rescue LoadError
-    load_path_modified = false
-    ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
-      lib = "#{path}/ruby"
-      if !$LOAD_PATH.include?(lib) and File.exist?(lib)
-        $LOAD_PATH << lib
-        load_path_modified = true
+        # could get here if C extension was not compiled, or was compiled
+        # for the wrong architecture or Ruby version
+        require 'command-t/stub'
+        $command_t = CommandT::Stub.new
       end
-    end
-    retry if load_path_modified
-
-    # could get here if C extension was not compiled, or was compiled
-    # for the wrong architecture or Ruby version
-    require 'command-t/stub'
-    $command_t = CommandT::Stub.new
-  end
 EOF
+  endif
 endfunction
 
 function CommandTHandleKey(arg)
