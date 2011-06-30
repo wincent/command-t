@@ -566,7 +566,7 @@ Other contributors that have submitted patches include (in alphabetical
 order):
 
   Daniel Hahler
-  Kien Nguyen-Dinh
+  Kien Nguyen Duc
   Lucas de Vries
   Matthew Todd
   Mike Lundy
@@ -654,7 +654,7 @@ HISTORY                                         *command-t-history*
 1.2.2 (not yet released)
 
 - perform Ruby initialization lazily on first use, minimizing impact on Vim
-  startup time (patch from Kien Nguyen-Dinh)
+  startup time (patch from Kien Nguyen Duc)
 
 1.2.1 (30 April 2011)
 
