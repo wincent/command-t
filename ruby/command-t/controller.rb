@@ -38,6 +38,26 @@ module CommandT
       set_up_max_height
     end
 
+    def init_watcher_handler
+      Signal.trap('USR1') { flush }
+    end
+
+    def init_watcher
+      kill_watcher
+
+      init_watcher_handler
+
+      @watcher = fork do
+        path = File.join(File.dirname(__FILE__), 'watcher.rb')
+        exec(path, Process.ppid.to_s, VIM.pwd)
+      end
+      @watcher_dir = VIM.pwd
+    end
+
+    def kill_watcher
+      Process.kill('TERM', @watcher) if @watcher
+    end
+
     def show_buffer_finder
       @path          = VIM::pwd
       @active_finder = @buffer_finder
@@ -153,6 +173,8 @@ module CommandT
   private
 
     def show
+      init_watcher if VIM.pwd != @watcher_dir
+
       @initial_window   = $curwin
       @initial_buffer   = $curbuf
       @match_window     = MatchWindow.new \

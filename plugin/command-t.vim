@@ -138,6 +138,21 @@ function CommandTCursorStart()
   ruby $command_t.cursor_start
 endfunction
 
+function s:CommandTVimEnter()
+  if has('ruby')
+    ruby $command_t.init_watcher_handler
+  endif
+endfunction
+
+function s:CommandTVimLeave()
+  if has('ruby')
+    ruby $command_t.kill_watcher
+  endif
+endfunction
+
+au VimEnter * call s:CommandTVimEnter()
+au VimLeave * call s:CommandTVimLeave()
+
 ruby << EOF
   # require Ruby files
   begin
