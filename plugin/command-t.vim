@@ -150,8 +150,8 @@ function s:CommandTVimLeave()
   endif
 endfunction
 
-au VimEnter * call s:CommandTVimEnter()
-au VimLeave * call s:CommandTVimLeave()
+au BufEnter,WinEnter,VimEnter * call s:CommandTVimEnter()
+au BufEnter,WinEnter,VimLeave * call s:CommandTVimLeave()
 
 ruby << EOF
   # require Ruby files
