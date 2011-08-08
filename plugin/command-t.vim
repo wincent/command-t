@@ -91,7 +91,7 @@ function CommandTAcceptSelection()
 endfunction
 
 function CommandTAcceptSelectionTab()
-  ruby $command_t.accept_selection :command => 'tabe'
+  ruby $command_t.accept_selection :command => 'tab drop'
 endfunction
 
 function CommandTAcceptSelectionSplit()
