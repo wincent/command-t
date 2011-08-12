@@ -21,10 +21,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/finder/buffer_finder'
+require 'command-t/finder/basic_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
+require 'command-t/scanner/buffer_scanner'
 require 'command-t/vim/path_utilities'
 
 module CommandT
@@ -33,23 +34,26 @@ module CommandT
 
     def initialize
       @prompt = Prompt.new
-      @buffer_finder = CommandT::BufferFinder.new
+      @buffer_finder = CommandT::BasicFinder.new CommandT::BufferScanner.new
       set_up_file_finder
       set_up_max_height
     end
 
+    def show_finder finder
+      @active_finder = finder
+      show
+    end
+
     def show_buffer_finder
       @path          = VIM::pwd
-      @active_finder = @buffer_finder
-      show
+      show_finder @buffer_finder
     end
 
     def show_file_finder
       # optional parameter will be desired starting directory, or ""
       @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
       @file_finder.path = @path
-      @active_finder    = @file_finder
-      show
+      show_finder @file_finder
     rescue Errno::ENOENT
       # probably a problem with the optional parameter
       @match_window.print_no_such_file_or_directory

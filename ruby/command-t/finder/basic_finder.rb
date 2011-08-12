@@ -22,14 +22,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/ext' # CommandT::Matcher
-require 'command-t/scanner/buffer_scanner'
 require 'command-t/finder'
 
 module CommandT
-  class BufferFinder < Finder
-    def initialize
-      @scanner = BufferScanner.new
+  class BasicFinder < Finder
+    def initialize scanner
+      @scanner = scanner
       @matcher = Matcher.new @scanner, :always_show_dot_files => true
     end
-  end # class BufferFinder
+  end # class BasicFinder
 end # CommandT
