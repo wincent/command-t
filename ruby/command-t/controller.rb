@@ -241,6 +241,10 @@ module CommandT
     end
 
     def open_selection selection, options = {}
+      if @active_finder.respond_to? :open
+          @active_finder.open(selection, options)
+          return
+      end
       command = options[:command] || default_open_command
       selection = File.expand_path selection, @path
       selection = relative_path_under_working_directory selection
