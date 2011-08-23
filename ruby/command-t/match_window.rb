@@ -34,6 +34,7 @@ module CommandT
     def initialize options = {}
       @prompt = options[:prompt]
       @reverse_list = options[:match_window_reverse]
+      @min_height = options[:min_height]
 
       # save existing window dimensions so we can restore them later
       @windows = []
@@ -243,7 +244,7 @@ module CommandT
       return unless VIM::Window.select(@window)
       unlock
       clear
-      @window.height = 1
+      @window.height = @min_height > 0 ? @min_height : 1
       @@buffer[1] = "-- #{msg} --"
       lock
     end
@@ -263,7 +264,7 @@ module CommandT
     end
 
     def match_text_for_idx idx
-      match = truncated_match @matches[idx]
+      match = truncated_match @matches[idx].to_s
       if idx == @selection
         prefix = @@selection_marker
         suffix = padding_for_selected_match match
@@ -295,7 +296,8 @@ module CommandT
         @window_width = @window.width # update cached value
         max_lines = VIM::Screen.lines - 5
         max_lines = 1 if max_lines < 0
-        actual_lines = match_count > max_lines ? max_lines : match_count
+        actual_lines = match_count < @min_height ? @min_height : match_count
+        actual_lines = max_lines if actual_lines > max_lines
         @window.height = actual_lines
         (1..actual_lines).each do |line|
           idx = line - 1
