@@ -431,6 +431,13 @@ Following is a list of all available options:
       If set to 0, the window will occupy as much of the available space as
       needed to show matching entries.
 
+                                               *g:CommandTMinHeight*
+  |g:CommandTMinHeight|                          number (default: 0)
+
+      The minimum height in lines the match window is allowed to shrink to.
+      If set to 0, will default to a single line. If set above the max height,
+      will default to |g:CommandTMaxHeight|.
+
                                                *g:CommandTAlwaysShowDotFiles*
   |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
 

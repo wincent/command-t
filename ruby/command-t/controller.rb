@@ -81,6 +81,7 @@ module CommandT
 
     def flush
       @max_height   = nil
+      @min_height   = nil
       @file_finder  = nil
       @tag_finder   = nil
     end
@@ -170,7 +171,8 @@ module CommandT
       @match_window     = MatchWindow.new \
         :prompt               => @prompt,
         :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop'),
-        :match_window_reverse => get_bool('g:CommandTMatchWindowReverse')
+        :match_window_reverse => get_bool('g:CommandTMatchWindowReverse'),
+        :min_height           => min_height
       @focus            = @prompt
       @prompt.focus
       register_for_key_presses
@@ -179,6 +181,14 @@ module CommandT
 
     def max_height
       @max_height ||= get_number('g:CommandTMaxHeight') || 0
+    end
+
+    def min_height
+      @min_height ||= begin
+        min_height = get_number('g:CommandTMinHeight') || 0
+        min_height = max_height if max_height != 0 && min_height > max_height
+        min_height
+      end
     end
 
     def get_number name
