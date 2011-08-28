@@ -17,8 +17,7 @@ module CommandT
   end
 
   class WatchDelegate
-    def initialize(par, dir)
-      @parent = par
+    def initialize(dir)
       @watcher = Watcher.new(self, dir)
       @dir = dir
     end
@@ -45,16 +44,17 @@ module CommandT
 
     def dirs_changed(dirs)
       unless parent_dead?
-        Process.kill('USR1', @parent)
+        Process.kill('USR1', Process.ppid)
       end
     end
   end
 end
 
 if $0 == __FILE__
-  if (par = ARGV.first.to_i) > 0 && (dir = ARGV[1])
-    CommandT::WatchDelegate.new(par, dir).watch
+  if dir = ARGV.first
+    CommandT::WatchDelegate.new(dir).watch
   else
     puts "Bad invocation"
+    exit 2
   end
 end

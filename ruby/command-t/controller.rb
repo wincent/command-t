@@ -42,20 +42,34 @@ module CommandT
       Signal.trap('USR1') { flush }
     end
 
+    def watcher_dead?
+      if @watcher
+        Process.kill(0, @watcher)
+        false
+      else
+        true
+      end
+    rescue Errno::ESRCH
+      true
+    end
+
     def init_watcher
       kill_watcher
 
       init_watcher_handler
 
-      @watcher = fork do
-        path = File.join(File.dirname(__FILE__), 'watcher.rb')
-        exec(path, Process.ppid.to_s, VIM.pwd)
-      end
+      path = File.join(File.dirname(__FILE__), 'watcher.rb')
+
+      @watcher = fork { exec(path, VIM.pwd) }
       @watcher_dir = VIM.pwd
     end
 
     def kill_watcher
-      Process.kill('TERM', @watcher) if @watcher
+      if @watcher
+        Process.kill('TERM', @watcher)
+      end
+    rescue Errno::ESRCH
+      nil
     end
 
     def show_buffer_finder
@@ -173,7 +187,9 @@ module CommandT
   private
 
     def show
-      init_watcher if VIM.pwd != @watcher_dir
+      if (VIM.pwd != @watcher_dir) || watcher_dead?
+        init_watcher
+      end
 
       @initial_window   = $curwin
       @initial_buffer   = $curbuf
