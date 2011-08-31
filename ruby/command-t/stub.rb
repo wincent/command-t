@@ -27,12 +27,8 @@ module CommandT
                     'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
                     'For more information type:    :help command-t']
 
-    def show_file_finder
-      warn *@@load_error
-    end
-
-    def flush
-      warn *@@load_error
+    [:flush, :show_buffer_finder, :show_file_finder].each do |method|
+      define_method(method.to_sym) { warn *@@load_error }
     end
 
   private
