@@ -272,6 +272,10 @@ module CommandT
       !!(::VIM::evaluate('&term') =~ /\Avt100/)
     end
 
+    def screen?
+      !!(::VIM::evaluate('&term') =~ /\Ascreen/)
+    end
+
     def register_for_key_presses
       # "normal" keys (interpreted literally)
       numbers     = ('0'..'9').to_a.join
@@ -304,7 +308,8 @@ module CommandT
           end
         else
           [value].flatten.each do |mapping|
-            map mapping, key unless mapping == '<Esc>' && (xterm? || vt100?)
+            map mapping, key unless mapping == '<Esc>' && (xterm? || vt100? ||
+                                                           screen?)
           end
         end
       end
