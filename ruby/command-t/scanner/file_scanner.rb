@@ -28,8 +28,10 @@ module CommandT
   # Reads the current directory recursively for the paths to all regular files.
   class FileScanner < Scanner
     class FileLimitExceeded < ::RuntimeError; end
+    attr_accessor :path
 
     def initialize path = Dir.pwd, options = {}
+      @paths                = {}
       @path                 = path
       @max_depth            = options[:max_depth] || 15
       @max_files            = options[:max_files] || 10_000
@@ -37,27 +39,20 @@ module CommandT
     end
 
     def paths
-      return @paths unless @paths.nil?
+      return @paths[@path] if @paths.has_key?(@path)
       begin
-        @paths = []
-        @depth = 0
-        @files = 0
-        @prefix_len = @path.chomp('/').length
-        add_paths_for_directory @path, @paths
+        @paths[@path] = []
+        @depth        = 0
+        @files        = 0
+        @prefix_len   = @path.chomp('/').length
+        add_paths_for_directory @path, @paths[@path]
       rescue FileLimitExceeded
       end
-      @paths
+      @paths[@path]
     end
 
     def flush
-      @paths = nil
-    end
-
-    def path= str
-      if @path != str
-        @path = str
-        flush
-      end
+      @paths = {}
     end
 
   private
