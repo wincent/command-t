@@ -32,15 +32,18 @@ module CommandT
 
     def initialize path = Dir.pwd, options = {}
       @paths                = {}
+      @paths_keys           = []
       @path                 = path
       @max_depth            = options[:max_depth] || 15
       @max_files            = options[:max_files] || 10_000
+      @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
     end
 
     def paths
       return @paths[@path] if @paths.has_key?(@path)
       begin
+        ensure_cache_under_limit
         @paths[@path] = []
         @depth        = 0
         @files        = 0
@@ -56,6 +59,15 @@ module CommandT
     end
 
   private
+
+    def ensure_cache_under_limit
+      # Ruby 1.8 doesn't have an ordered hash, so use a separate stack to
+      # track and expire the oldest entry in the cache
+      if @max_caches > 0 && @paths_keys.length >= @max_caches
+        @paths.delete @paths_keys.shift
+      end
+      @paths_keys << @path
+    end
 
     def path_excluded? path
       # first strip common prefix (@path) from path to match VIM's behavior
