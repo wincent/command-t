@@ -134,7 +134,9 @@ desc 'Compile extension'
 task :make do
   Dir.chdir 'ruby/command-t' do
     ruby 'extconf.rb'
-    system 'make clean && make'
+    system 'make clean'
+    bail_on_failure
+    system 'make'
     bail_on_failure
   end
 end
