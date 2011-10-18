@@ -32,11 +32,11 @@ command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args
 command CommandTFlush call <SID>CommandTFlush()
 
 if !hasmapto(':CommandT<CR>')
-  silent! nmap <unique> <silent> <Leader>t :CommandT<CR>
+  silent! nnoremap <unique> <silent> <Leader>t :CommandT<CR>
 endif
 
 if !hasmapto(':CommandTBuffer<CR>')
-  silent! nmap <unique> <silent> <Leader>b :CommandTBuffer<CR>
+  silent! nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
 endif
 
 function s:CommandTRubyWarning()
