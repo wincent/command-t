@@ -392,6 +392,11 @@ Following is a list of all available options:
       limit applies only to file listings and is ignored for buffer
       listings.
 
+                                               *g:CommandTCaseSensitive*
+  |g:CommandTCaseSensitive|                           boolean (default 0)
+
+      Enable case sensitive files searches.
+
                                                *g:CommandTMaxDepth*
   |g:CommandTMaxDepth|                           number (default 15)
 
