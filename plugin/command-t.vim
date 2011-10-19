@@ -26,10 +26,12 @@ if exists("g:command_t_loaded")
   finish
 endif
 let g:command_t_loaded = 1
+let s:ruby_files_loaded = 0
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
+command -nargs=+ CommandTRuby call <SID>CommandTRuby(<q-args>)
 
 if !hasmapto(':CommandT<CR>')
   silent! nnoremap <unique> <silent> <Leader>t :CommandT<CR>
@@ -48,7 +50,7 @@ endfunction
 
 function s:CommandTShowBufferFinder()
   if has('ruby')
-    ruby $command_t.show_buffer_finder
+    CommandTRuby $command_t.show_buffer_finder
   else
     call s:CommandTRubyWarning()
   endif
@@ -56,7 +58,7 @@ endfunction
 
 function s:CommandTShowFileFinder(arg)
   if has('ruby')
-    ruby $command_t.show_file_finder
+    call s:CommandTRuby(a:arg, '$command_t.show_file_finder')
   else
     call s:CommandTRubyWarning()
   endif
@@ -64,7 +66,7 @@ endfunction
 
 function s:CommandTFlush()
   if has('ruby')
-    ruby $command_t.flush
+    CommandTRuby $command_t.flush
   else
     call s:CommandTRubyWarning()
   endif
@@ -75,90 +77,107 @@ if !has('ruby')
 endif
 
 function CommandTHandleKey(arg)
-  ruby $command_t.handle_key
+  call s:CommandTRuby(a:arg, '$command_t.handle_key')
 endfunction
 
 function CommandTBackspace()
-  ruby $command_t.backspace
+  CommandTRuby $command_t.backspace
 endfunction
 
 function CommandTDelete()
-  ruby $command_t.delete
+  CommandTRuby $command_t.delete
 endfunction
 
 function CommandTAcceptSelection()
-  ruby $command_t.accept_selection
+  CommandTRuby $command_t.accept_selection
 endfunction
 
 function CommandTAcceptSelectionTab()
-  ruby $command_t.accept_selection :command => 'tabe'
+  CommandTRuby $command_t.accept_selection :command => 'tabe'
 endfunction
 
 function CommandTAcceptSelectionSplit()
-  ruby $command_t.accept_selection :command => 'sp'
+  CommandTRuby $command_t.accept_selection :command => 'sp'
 endfunction
 
 function CommandTAcceptSelectionVSplit()
-  ruby $command_t.accept_selection :command => 'vs'
+  CommandTRuby $command_t.accept_selection :command => 'vs'
 endfunction
 
 function CommandTToggleFocus()
-  ruby $command_t.toggle_focus
+  CommandTRuby $command_t.toggle_focus
 endfunction
 
 function CommandTCancel()
-  ruby $command_t.cancel
+  CommandTRuby $command_t.cancel
 endfunction
 
 function CommandTSelectNext()
-  ruby $command_t.select_next
+  CommandTRuby $command_t.select_next
 endfunction
 
 function CommandTSelectPrev()
-  ruby $command_t.select_prev
+  CommandTRuby $command_t.select_prev
 endfunction
 
 function CommandTClear()
-  ruby $command_t.clear
+  CommandTRuby $command_t.clear
 endfunction
 
 function CommandTCursorLeft()
-  ruby $command_t.cursor_left
+  CommandTRuby $command_t.cursor_left
 endfunction
 
 function CommandTCursorRight()
-  ruby $command_t.cursor_right
+  CommandTRuby $command_t.cursor_right
 endfunction
 
 function CommandTCursorEnd()
-  ruby $command_t.cursor_end
+  CommandTRuby $command_t.cursor_end
 endfunction
 
 function CommandTCursorStart()
-  ruby $command_t.cursor_start
+  CommandTRuby $command_t.cursor_start
 endfunction
 
-ruby << EOF
-  # require Ruby files
-  begin
-    # prepare controller
-    require 'command-t/vim'
-    require 'command-t/controller'
-    $command_t = CommandT::Controller.new
-  rescue LoadError
-    load_path_modified = false
-    ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
-      lib = "#{path}/ruby"
-      if !$LOAD_PATH.include?(lib) and File.exist?(lib)
-        $LOAD_PATH << lib
-        load_path_modified = true
-      end
-    end
-    retry if load_path_modified
+function s:CommandTRuby(arg, ...)
+  if !s:ruby_files_loaded
+    call s:LoadRubyFiles()
+    let s:ruby_files_loaded = 1
+  endif
 
-    # could get here if C extension was not compiled, or was compiled
-    # for the wrong architecture or Ruby version
-    require 'command-t/stub'
-    $command_t = CommandT::Stub.new
-  end
+  if a:0 == 0
+    let ruby_code = a:arg
+  else
+    let ruby_code = a:1
+  endif
+
+  execute 'ruby ' . ruby_code
+endfunction
+
+function s:LoadRubyFiles()
+  ruby << EOF
+    # require Ruby files
+    begin
+      # prepare controller
+      require 'command-t/vim'
+      require 'command-t/controller'
+      $command_t = CommandT::Controller.new
+    rescue LoadError
+      load_path_modified = false
+      ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
+        lib = "#{path}/ruby"
+        if !$LOAD_PATH.include?(lib) and File.exist?(lib)
+          $LOAD_PATH << lib
+          load_path_modified = true
+        end
+      end
+      retry if load_path_modified
+
+      # could get here if C extension was not compiled, or was compiled
+      # for the wrong architecture or Ruby version
+      require 'command-t/stub'
+      $command_t = CommandT::Stub.new
+    end
 EOF
+endfunction
