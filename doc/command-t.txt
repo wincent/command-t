@@ -351,8 +351,8 @@ By default Command-T comes with only two mappings:
 However, Command-T won't overwrite a pre-existing mapping so if you prefer
 to define different mappings use lines like these in your ~/.vimrc:
 
-  nmap <silent> <Leader>t :CommandT<CR>
-  nmap <silent> <Leader>b :CommandTBuffer<CR>
+  nnoremap <silent> <Leader>t :CommandT<CR>
+  nnoremap <silent> <Leader>b :CommandTBuffer<CR>
 
 Replacing "<Leader>t" or "<Leader>b" with your mapping of choice.
 
