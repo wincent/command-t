@@ -332,6 +332,12 @@ COMMANDS                                        *command-t-commands*
                 except that the selection is limited to files that
                 you already have open in buffers.
 
+                                                *:CommandTJumps*
+|:CommandTJumps|Brings up the Command-T jumps window.
+                This works exactly like the standard file window,
+                except that the selection is limited to files that
+                you already have in jumps list.
+
                                                 *:CommandTFlush*
 |:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
