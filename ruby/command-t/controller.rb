@@ -171,8 +171,9 @@ module CommandT
 
     def set_up_file_finder
       @file_finder = CommandT::FileFinder.new nil,
-        :max_files              => get_number('g:CommandTMaxFiles'),
         :max_depth              => get_number('g:CommandTMaxDepth'),
+        :max_files              => get_number('g:CommandTMaxFiles'),
+        :max_caches             => get_number('g:CommandTMaxCachedDirectories'),
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')

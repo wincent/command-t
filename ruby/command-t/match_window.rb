@@ -38,8 +38,9 @@ module CommandT
       # save existing window dimensions so we can restore them later
       @windows = []
       (0..(::VIM::Window.count - 1)).each do |i|
-        window = OpenStruct.new :index => i, :height => ::VIM::Window[i].height
-        @windows << window
+        @windows << OpenStruct.new(:index   => i,
+                                   :height  => ::VIM::Window[i].height,
+                                   :width   => ::VIM::Window[i].width)
       end
 
       # global settings (must manually save and restore)
@@ -249,16 +250,25 @@ module CommandT
     end
 
     def restore_window_dimensions
-      # sort from tallest to shortest
-      @windows.sort! { |a, b| b.height <=> a.height }
+      # sort from tallest to shortest, tie-breaking on window width
+      @windows.sort! do |a, b|
+        order = b.height <=> a.height
+        if order.zero?
+          b.width <=> a.width
+        else
+          order
+        end
+      end
 
       # starting with the tallest ensures that there are no constraints
       # preventing windows on the side of vertical splits from regaining
       # their original full size
       @windows.each do |w|
         # beware: window may be nil
-        window = ::VIM::Window[w.index]
-        window.height = w.height if window
+        if window = ::VIM::Window[w.index]
+          window.height = w.height
+          window.width  = w.width
+        end
       end
     end
 
