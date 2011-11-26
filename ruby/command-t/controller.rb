@@ -22,7 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/finder/buffer_finder'
-require 'command-t/finder/jumps_finder'
+require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
@@ -33,9 +33,9 @@ module CommandT
     include VIM::PathUtilities
 
     def initialize
-      @prompt = Prompt.new
-      @buffer_finder = CommandT::BufferFinder.new
-      @jumps_finder = CommandT::JumpsFinder.new
+      @prompt         = Prompt.new
+      @buffer_finder  = CommandT::BufferFinder.new
+      @jump_finder    = CommandT::JumpFinder.new
       set_up_file_finder
       set_up_max_height
     end
@@ -46,9 +46,9 @@ module CommandT
       show
     end
 
-    def show_jumps_finder
+    def show_jump_finder
       @path          = VIM::pwd
-      @active_finder = @jumps_finder
+      @active_finder = @jump_finder
       show
     end
 

@@ -28,7 +28,7 @@ endif
 let g:command_t_loaded = 1
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
-command CommandTJumps call <SID>CommandTShowJumpsFinder()
+command CommandTJump call <SID>CommandTShowJumpFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
@@ -55,17 +55,17 @@ function s:CommandTShowBufferFinder()
   endif
 endfunction
 
-function s:CommandTShowJumpsFinder()
+function s:CommandTShowFileFinder(arg)
   if has('ruby')
-    ruby $command_t.show_jumps_finder
+    ruby $command_t.show_file_finder
   else
     call s:CommandTRubyWarning()
   endif
 endfunction
 
-function s:CommandTShowFileFinder(arg)
+function s:CommandTShowJumpFinder()
   if has('ruby')
-    ruby $command_t.show_file_finder
+    ruby $command_t.show_jump_finder
   else
     call s:CommandTRubyWarning()
   endif
@@ -145,14 +145,6 @@ endfunction
 
 function CommandTCursorStart()
   ruby $command_t.cursor_start
-endfunction
-
-" borrowed from FuzzyFinder
-function s:getJumpsLines()
-  redir => result
-  :silent jumps
-  redir END
-  return split(result, "\n")
 endfunction
 
 ruby << EOF
