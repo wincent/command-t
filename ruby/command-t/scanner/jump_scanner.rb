@@ -47,10 +47,7 @@ module CommandT
     end
 
     def jumps
-      ::VIM::command 'silent redir => g:command_t_jumps'
-      ::VIM::command 'silent jumps'
-      ::VIM::command 'silent redir END'
-      ::VIM::evaluate 'g:command_t_jumps'
+      VIM::capture 'silent jumps'
     end
   end # class JumpScanner
 end # module CommandT
