@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/finder/buffer_finder'
+require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
@@ -33,22 +34,25 @@ module CommandT
 
     def initialize
       @prompt = Prompt.new
-      @buffer_finder = CommandT::BufferFinder.new
-      set_up_file_finder
-      set_up_max_height
     end
 
     def show_buffer_finder
       @path          = VIM::pwd
-      @active_finder = @buffer_finder
+      @active_finder = buffer_finder
+      show
+    end
+
+    def show_jump_finder
+      @path          = VIM::pwd
+      @active_finder = jump_finder
       show
     end
 
     def show_file_finder
       # optional parameter will be desired starting directory, or ""
       @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
-      @file_finder.path = @path
-      @active_finder    = @file_finder
+      @active_finder    = file_finder
+      file_finder.path  = @path
       show
     rescue Errno::ENOENT
       # probably a problem with the optional parameter
@@ -69,8 +73,8 @@ module CommandT
     end
 
     def flush
-      set_up_max_height
-      set_up_file_finder
+      @max_height   = nil
+      @file_finder  = nil
     end
 
     def handle_key
@@ -165,18 +169,8 @@ module CommandT
       clear # clears prompt and lists matches
     end
 
-    def set_up_max_height
-      @max_height = get_number('g:CommandTMaxHeight') || 0
-    end
-
-    def set_up_file_finder
-      @file_finder = CommandT::FileFinder.new nil,
-        :max_depth              => get_number('g:CommandTMaxDepth'),
-        :max_files              => get_number('g:CommandTMaxFiles'),
-        :max_caches             => get_number('g:CommandTMaxCachedDirectories'),
-        :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
-        :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
-        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
+    def max_height
+      @max_height ||= get_number('g:CommandTMaxHeight') || 0
     end
 
     def exists? name
@@ -306,13 +300,31 @@ module CommandT
     def match_limit
       limit = VIM::Screen.lines - 5
       limit = 1 if limit < 0
-      limit = [limit, @max_height].min if @max_height > 0
+      limit = [limit, max_height].min if max_height > 0
       limit
     end
 
     def list_matches
       matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
       @match_window.matches = matches
+    end
+
+    def buffer_finder
+      @buffer_finder ||= CommandT::BufferFinder.new
+    end
+
+    def file_finder
+      @file_finder ||= CommandT::FileFinder.new nil,
+        :max_depth              => get_number('g:CommandTMaxDepth'),
+        :max_files              => get_number('g:CommandTMaxFiles'),
+        :max_caches             => get_number('g:CommandTMaxCachedDirectories'),
+        :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
+        :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
+        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
+    end
+
+    def jump_finder
+      @jump_finder ||= CommandT::JumpFinder.new
     end
   end # class Controller
 end # module commandT

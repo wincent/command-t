@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -21,31 +21,33 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/vim/screen'
-require 'command-t/vim/window'
+require 'command-t/vim'
+require 'command-t/vim/path_utilities'
+require 'command-t/scanner'
 
 module CommandT
-  module VIM
-    def self.has_syntax?
-      ::VIM::evaluate('has("syntax")').to_i != 0
+  # Returns a list of files in the jumplist.
+  class JumpScanner < Scanner
+    include VIM::PathUtilities
+
+    def paths
+      jumps_with_filename = jumps.select do |line|
+        line_contains_filename?(line)
+      end
+      filenames = jumps_with_filename[1..-2].map do |line|
+        relative_path_under_working_directory line.split[3]
+      end
+      filenames.sort.uniq
     end
 
-    def self.pwd
-      ::VIM::evaluate 'getcwd()'
+  private
+
+    def line_contains_filename? line
+      line.split.count > 3
     end
 
-    # Execute cmd, capturing the output into a variable and returning it.
-    def self.capture cmd
-      ::VIM::command 'silent redir => g:command_t_captured_output'
-      ::VIM::command cmd
-      ::VIM::command 'silent redir END'
-      ::VIM::evaluate 'g:command_t_captured_output'
+    def jumps
+      VIM::capture 'silent jumps'
     end
-
-    # Escape a string for safe inclusion in a Vim single-quoted string
-    # (single quotes escaped by doubling, everything else is literal)
-    def self.escape_for_single_quotes str
-      str.gsub "'", "''"
-    end
-  end # module VIM
+  end # class JumpScanner
 end # module CommandT
