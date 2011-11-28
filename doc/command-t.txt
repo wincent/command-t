@@ -669,7 +669,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.3 (not yet released)
+1.3 (27 November 2011)
 
 - added the option to maintain multiple caches when changing among
   directories; see the accompanying |g:CommandTMaxCachedDirectories| setting
