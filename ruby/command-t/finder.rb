@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/ext' # CommandT::Matcher
+require 'command-t/vim/path_utilities'
 
 module CommandT
   # Encapsulates a Scanner instance (which builds up a list of available files
@@ -48,11 +49,27 @@ module CommandT
     end
 
     def open_selection command, selection, options = {}
+        # Default implementation, children can re-implement this at their leisure.
+        
+        selection = File.expand_path selection, @path
+        selection = relative_path_under_working_directory selection
+        selection = sanitize_path_string selection
+        
         ::VIM::command "silent #{command} #{selection}"
     end
 
     def path= path
       @scanner.path = path
+    end
+  
+    
+  private
+  
+    # Backslash-escape space, \, |, %, #, "
+    def sanitize_path_string str
+      # for details on escaping command-line mode arguments see: :h :
+      # (that is, help on ":") in the Vim documentation.
+      str.gsub(/[ \\|%#"]/, '\\\\\0')
     end
   end # class Finder
 end # CommandT
