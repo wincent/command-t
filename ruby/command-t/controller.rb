@@ -24,6 +24,7 @@
 require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
+require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
 require 'command-t/vim/path_utilities'
@@ -45,6 +46,12 @@ module CommandT
     def show_jump_finder
       @path          = VIM::pwd
       @active_finder = jump_finder
+      show
+    end
+
+    def show_tag_finder
+      @path          = VIM::pwd
+      @active_finder = tag_finder
       show
     end
 
@@ -241,7 +248,10 @@ module CommandT
       selection = relative_path_under_working_directory selection
       selection = sanitize_path_string selection
       ensure_appropriate_window_selection
-      ::VIM::command "silent #{command} #{selection}"
+
+      @active_finder.open_selection command, selection, options
+      # was:
+      # ::VIM::command "silent #{command} #{selection}"
     end
 
     def map key, function, param = nil
@@ -325,6 +335,10 @@ module CommandT
 
     def jump_finder
       @jump_finder ||= CommandT::JumpFinder.new
+    end
+
+    def tag_finder
+      @tag_finder ||= CommandT::TagFinder.new
     end
   end # class Controller
 end # module commandT

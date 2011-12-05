@@ -37,6 +37,7 @@ module CommandT
       filenames = jumps_with_filename[1..-2].map do |line|
         relative_path_under_working_directory line.split[3]
       end
+
       filenames.sort.uniq
     end
 

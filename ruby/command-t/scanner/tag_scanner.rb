@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -21,22 +21,32 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/vim'
+require 'command-t/vim/path_utilities'
+require 'command-t/scanner'
+
 module CommandT
-  class Stub
-    @@load_error = ['command-t.vim could not load the C extension',
-                    'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
-                    'For more information type:    :help command-t']
+  class TagScanner < Scanner
 
-    [:flush, :show_buffer_finder, :show_file_finder, :show_tag_finder].each do |method|
-      define_method(method.to_sym) { warn *@@load_error }
+    def paths
+      tokens = Array.new
+      
+      # For now we look at only the tags file in the current directory; later may
+      # consider using the actual tag lookup specified in vim.
+      if FileTest.exist?("tags")
+        File.open("tags").each{ |line|
+            # Don't want comments
+            data = line.split if line.match(/^[^!]/)
+            
+            if data
+                identifier = data[0] # Only the tag name, for now
+                # the filename is in data[1]
+                tokens.push identifier
+            end
+        }
+      end
+      
+      tokens.sort.uniq
     end
-
-  private
-
-    def warn *msg
-      ::VIM::command 'echohl WarningMsg'
-      msg.each { |m| ::VIM::command "echo '#{m}'" }
-      ::VIM::command 'echohl none'
-    end
-  end # class Stub
+  end # class TagScanner
 end # module CommandT
