@@ -340,6 +340,10 @@ COMMANDS                                        *command-t-commands*
                 can persist across Vim sessions (see Vim's |jumplist|
                 documentation for more info).
 
+                                                *:CommandTTag*
+|:CommandTTag| Brings up a Command-T window for tags (see Vim's |tag|
+                documentation for more info).
+
                                                 *:CommandTFlush*
 |:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths

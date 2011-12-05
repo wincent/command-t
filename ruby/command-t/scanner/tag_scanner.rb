@@ -26,29 +26,27 @@ require 'command-t/vim/path_utilities'
 require 'command-t/scanner'
 
 module CommandT
-  # Returns a list of files in the jumplist.
-  class JumpScanner < Scanner
-    include VIM::PathUtilities
+  class TagScanner < Scanner
 
     def paths
-      jumps_with_filename = jumps.lines.select do |line|
-        line_contains_filename?(line)
+      tokens = Array.new
+      
+      # For now we look at only the tags file in the current directory; later may
+      # consider using the actual tag lookup specified in vim.
+      if FileTest.exist?("tags")
+        File.open("tags").each{ |line|
+            # Don't want comments
+            data = line.split if line.match(/^[^!]/)
+            
+            if data
+                identifier = data[0] # Only the tag name, for now
+                # the filename is in data[1]
+                tokens.push identifier
+            end
+        }
       end
-      filenames = jumps_with_filename[1..-2].map do |line|
-        relative_path_under_working_directory line.split[3]
-      end
-
-      filenames.sort.uniq
+      
+      tokens.sort.uniq
     end
-
-  private
-
-    def line_contains_filename? line
-      line.split.count > 3
-    end
-
-    def jumps
-      VIM::capture 'silent jumps'
-    end
-  end # class JumpScanner
+  end # class TagScanner
 end # module CommandT

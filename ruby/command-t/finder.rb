@@ -31,6 +31,8 @@ module CommandT
   # Specialized subclasses use different kinds of scanners adapted for
   # different kinds of search (files, buffers).
   class Finder
+    include VIM::PathUtilities
+
     def initialize path = Dir.pwd, options = {}
       raise RuntimeError, 'Subclass responsibility'
     end
@@ -43,6 +45,10 @@ module CommandT
 
     def flush
       @scanner.flush
+    end
+
+    def open_selection command, selection, options = {}
+        ::VIM::command "silent #{command} #{selection}"
     end
 
     def path= path
