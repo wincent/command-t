@@ -33,8 +33,13 @@ module CommandT
     end
 
     def open_selection command, selection, options = {}
+        tagname = selection
+        if @scanner.include_filenames
+            tagname = tagname.split(':')[0]
+        end
+        
         #  Opens the tag and centers the screen on it.
-        ::VIM::command "silent tag #{selection} | :normal zz"
+        ::VIM::command "silent tag #{tagname} | :normal zz"
     end
   end # class TagFinder
 end # module CommandT

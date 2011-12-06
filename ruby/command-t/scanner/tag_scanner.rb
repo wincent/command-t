@@ -34,19 +34,26 @@ module CommandT
       # For now we look at only the tags file in the current directory; later may
       # consider using the actual tag lookup specified in vim.
       if FileTest.exist?("tags")
-        File.open("tags").each{ |line|
+        File.open("tags").each { |line|
             # Don't want comments
             data = line.split if line.match(/^[^!]/)
             
             if data
-                identifier = data[0] # Only the tag name, for now
-                # the filename is in data[1]
-                tokens.push identifier
+              if include_filenames
+                identifier = data[0] + ":" + data[1]
+              else
+                identifier = data[0]
+              end
+              tokens.push identifier
             end
         }
       end
       
       tokens.sort.uniq
+    end
+
+    def include_filenames
+      ::VIM::evaluate("g:command_t_tag_include_filenames").to_i != 0
     end
   end # class TagScanner
 end # module CommandT

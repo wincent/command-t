@@ -26,6 +26,7 @@ if exists("g:command_t_loaded")
   finish
 endif
 let g:command_t_loaded = 1
+let g:command_t_tag_include_filenames = 0
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command CommandTJump call <SID>CommandTShowJumpFinder()
