@@ -27,17 +27,17 @@ require 'command-t/scanner'
 
 module CommandT
   class TagScanner < Scanner
+    include VIM::PathUtilities
 
     def paths
       tokens = Array.new
       
-      # For now we look at only the tags file in the current directory; later may
-      # consider using the actual tag lookup specified in vim.
-      if FileTest.exist?("tags")
-        File.open("tags").each { |line|
+      tag_filenames.each { |tagfile|
+        if FileTest.exist?(tagfile)
+          File.open(tagfile).each { |line|
             # Don't want comments
             data = line.split if line.match(/^[^!]/)
-            
+              
             if data
               if include_filenames
                 identifier = data[0] + ":" + data[1]
@@ -46,10 +46,16 @@ module CommandT
               end
               tokens.push identifier
             end
-        }
-      end
+          }
+        end
+      }
       
       tokens.sort.uniq
+    end
+
+    def tag_filenames
+      tags = VIM::capture("silent set tags?")
+      tags = tags[5,tags.length].split(',')
     end
 
     def include_filenames
