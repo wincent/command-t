@@ -31,7 +31,7 @@ module CommandT
     include VIM::PathUtilities
 
     def paths
-      jumps_with_filename = jumps.select do |line|
+      jumps_with_filename = jumps.lines.select do |line|
         line_contains_filename?(line)
       end
       filenames = jumps_with_filename[1..-2].map do |line|
