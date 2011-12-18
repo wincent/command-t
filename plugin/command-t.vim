@@ -26,9 +26,11 @@ if exists("g:command_t_loaded")
   finish
 endif
 let g:command_t_loaded = 1
+let g:command_t_tag_include_filenames = 0
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command CommandTJump call <SID>CommandTShowJumpFinder()
+command CommandTTag call <SID>CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
@@ -38,6 +40,10 @@ endif
 
 if !hasmapto(':CommandTBuffer<CR>')
   silent! nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
+endif
+
+if !hasmapto(':CommandTTag<CR>')
+  silent! nnoremap <unique> <silent> <Leader>f :CommandTTag<CR>
 endif
 
 function s:CommandTRubyWarning()
@@ -66,6 +72,14 @@ endfunction
 function s:CommandTShowJumpFinder()
   if has('ruby')
     ruby $command_t.show_jump_finder
+  else
+    call s:CommandTRubyWarning()
+  endif
+endfunction
+
+function s:CommandTShowTagFinder()
+  if has('ruby')
+    ruby $command_t.show_tag_finder
   else
     call s:CommandTRubyWarning()
   endif

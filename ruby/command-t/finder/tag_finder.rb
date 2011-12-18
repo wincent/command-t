@@ -21,34 +21,25 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/vim'
-require 'command-t/vim/path_utilities'
-require 'command-t/scanner'
+require 'command-t/ext' # CommandT::Matcher
+require 'command-t/scanner/tag_scanner'
+require 'command-t/finder'
 
 module CommandT
-  # Returns a list of files in the jumplist.
-  class JumpScanner < Scanner
-    include VIM::PathUtilities
-
-    def paths
-      jumps_with_filename = jumps.lines.select do |line|
-        line_contains_filename?(line)
-      end
-      filenames = jumps_with_filename[1..-2].map do |line|
-        relative_path_under_working_directory line.split[3]
-      end
-
-      filenames.sort.uniq
+  class TagFinder < Finder
+    def initialize
+      @scanner = TagScanner.new
+      @matcher = Matcher.new @scanner, :always_show_dot_files => true
     end
 
-  private
-
-    def line_contains_filename? line
-      line.split.count > 3
+    def open_selection command, selection, options = {}
+        tagname = selection
+        if @scanner.include_filenames
+            tagname = tagname.split(':')[0]
+        end
+        
+        #  Opens the tag and centers the screen on it.
+        ::VIM::command "silent tag #{tagname} | :normal zz"
     end
-
-    def jumps
-      VIM::capture 'silent jumps'
-    end
-  end # class JumpScanner
+  end # class TagFinder
 end # module CommandT
