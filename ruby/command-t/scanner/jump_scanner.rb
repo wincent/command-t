@@ -47,7 +47,7 @@ module CommandT
     end
 
     def jumps
-      VIM::capture 'silent jumps'
+      VIM::capture('silent jumps').split("\n")
     end
   end # class JumpScanner
 end # module CommandT
