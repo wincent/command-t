@@ -48,9 +48,27 @@ module CommandT
       show
     end
 
+    def traverse_to_git_top
+      path = Dir.pwd
+      while !File.directory?(path + "/.git")
+        return Dir.pwd if path == "/"
+        path = File.expand_path(path + "/..")
+      end
+      path
+    end
+
     def show_file_finder
       # optional parameter will be desired starting directory, or ""
-      @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
+
+      arg = ::VIM::evaluate('a:arg')
+      if arg && arg.size > 0
+        @path = File.expand_path(arg, VIM::pwd)
+      elsif get_bool("g:CommandTTraverseToGitTop")
+        @path = traverse_to_git_top
+      else
+        @path = VIM::pwd
+      end
+
       @active_finder    = file_finder
       file_finder.path  = @path
       show
