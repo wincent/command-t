@@ -80,6 +80,12 @@ module CommandT
           'setlocal textwidth=0'        # don't hard-wrap (break long lines)
         ].each { |command| ::VIM::command command }
 
+        # don't show the color column
+        ::VIM::command 'setlocal colorcolumn=0' if exists('+colorcolumn')
+
+        # don't show relative line numbers
+        ::VIM::command 'setlocal norelativenumber' if exists('relativenumber')
+
         # sanity check: make sure the buffer really was created
         raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile\z/
         @@buffer = $curbuf
