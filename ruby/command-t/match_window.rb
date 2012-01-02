@@ -349,20 +349,13 @@ module CommandT
     end
 
     def get_cursor_highlight
-      # as :highlight returns nothing and only prints,
-      # must redirect its output to a variable
-      ::VIM::command 'silent redir => g:command_t_cursor_highlight'
-
-      # force 0 verbosity to ensure origin information isn't printed as well
-      ::VIM::command 'silent! 0verbose highlight Cursor'
-      ::VIM::command 'silent redir END'
-
       # there are 3 possible formats to check for, each needing to be
       # transformed in a certain way in order to reapply the highlight:
       #   Cursor xxx guifg=bg guibg=fg      -> :hi! Cursor guifg=bg guibg=fg
       #   Cursor xxx links to SomethingElse -> :hi! link Cursor SomethingElse
       #   Cursor xxx cleared                -> :hi! clear Cursor
-      highlight = ::VIM::evaluate 'g:command_t_cursor_highlight'
+      highlight = VIM::capture 'silent! 0verbose highlight Cursor'
+
       if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/
         "link Cursor #{$~[1]}"
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/

@@ -332,6 +332,14 @@ COMMANDS                                        *command-t-commands*
                 except that the selection is limited to files that
                 you already have open in buffers.
 
+                                                *:CommandTJumps*
+|:CommandTJump| Brings up the Command-T jumplist window.
+                This works exactly like the standard file window,
+                except that the selection is limited to files that
+                you already have in the jumplist. Note that jumps
+                can persist across Vim sessions (see Vim's |jumplist|
+                documentation for more info).
+
                                                 *:CommandTFlush*
 |:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
@@ -578,12 +586,14 @@ order):
   Anthony Panozzo
   Daniel Hahler
   Lucas de Vries
+  Marian Schubert
   Matthew Todd
   Mike Lundy
   Scott Bronson
   Steven Moazami
   Sung Pae
   Victor Hugo Borja
+  Woody Peterson
   Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
@@ -658,13 +668,18 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
-
 HISTORY                                         *command-t-history*
 
-1.3 (not yet released)
+1.3.1 (18 December 2011)
+
+- fix jumplist navigation under Ruby 1.9.x (patch from Woody Peterson)
+
+1.3 (27 November 2011)
 
 - added the option to maintain multiple caches when changing among
   directories; see the accompanying |g:CommandTMaxCachedDirectories| setting
+- added the ability to navigate using the Vim jumplist (patch from Marian
+  Schubert)
 
 1.2.1 (30 April 2011)
 
