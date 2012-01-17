@@ -190,6 +190,7 @@ Or you can switch to a specific release with:
 After installing or updating you must build the extension:
 
   cd ~/.vim/bundle/command-t
+  bundle install
   rake make
 
 While the Vimball installation automatically generates the help tags, under
