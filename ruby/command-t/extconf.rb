@@ -28,5 +28,7 @@ def missing item
   exit 1
 end
 
+RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+
 have_header('ruby.h') or missing('ruby.h')
 create_makefile('ext')
