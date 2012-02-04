@@ -280,7 +280,7 @@ module CommandT
         'AcceptSelectionSplit'  => ['<C-CR>', '<C-s>'],
         'AcceptSelectionTab'    => '<C-t>',
         'AcceptSelectionVSplit' => '<C-v>',
-        'AcceptAllTab'          => '<C-A>',
+        'AcceptAllTab'          => '<C-y>',
         'ToggleFocus'           => '<Tab>',
         'Cancel'                => ['<C-c>', '<Esc>'],
         'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
