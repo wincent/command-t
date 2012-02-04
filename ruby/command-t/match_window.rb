@@ -172,6 +172,11 @@ module CommandT
       end
     end
 
+    # Return all current matches.
+    def matches
+      @matches
+    end
+
     def matches= matches
       matches = matches.reverse if @reverse_list
       if matches != @matches
