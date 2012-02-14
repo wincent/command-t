@@ -74,7 +74,10 @@ module CommandT
             :paths => @paths
 
         }
-        File.open('.command-t-cache', 'wb') do |f| Marshal.dump(hash, f) end
+        begin
+            File.open('.command-t-cache', 'wb') do |f| Marshal.dump(hash, f) end
+        rescue Errno::EACCES
+        end
     end
 
     def config_hash
@@ -86,8 +89,13 @@ module CommandT
       if not @cache_index_to_disk
         return
       end
-      if File.file?('.command-t-cache')
-        cache_data = File.open('.command-t-cache', 'rb') do |f| Marshal.restore(f) end
+      if File.readable?('.command-t-cache')
+        cache_data = File.open('.command-t-cache', 'rb') do |f|
+          begin
+            Marshal.restore(f)
+          rescue
+          end
+        end
         if cache_data[:paths] and cache_data[:config_hash] and cache_data[:config_hash] == config_hash
           @paths = cache_data[:paths]
         end
