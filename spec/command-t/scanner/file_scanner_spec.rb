@@ -32,10 +32,16 @@ describe CommandT::FileScanner do
     @all_fixtures = %w(
       bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta
     )
-    @scanner = CommandT::FileScanner.new @dir
+    @scanner = CommandT::FileScanner.new @dir ,{ :cache_index_to_disk => true }
 
     # scanner will call VIM's expand() function for exclusion filtering
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
+    # it also checks the value of wildignore
+    stub(::VIM).evaluate("&wildignore") { '' }
+  end
+
+  after do
+    @scanner.flush
   end
 
   describe 'paths method' do
@@ -71,6 +77,20 @@ describe CommandT::FileScanner do
       @scanner = CommandT::FileScanner.new @dir
       mock(::VIM).evaluate(/expand\(.+\)/).times(10)
       @scanner.paths
+    end
+  end
+
+  describe "'paths cached to disk'" do
+    it "only calls add_paths_from_disk_once" do
+      #first flush the scanner, then check that we find the paths
+      @scanner.flush
+      @scanner.paths.should =~ @all_fixtures
+
+      # now create a second scanner, and assert that it doesn't look at any directories
+      # and the paths are still correct
+      mock.proxy(Dir).foreach(anything).times(0)
+      scanner2 = CommandT::FileScanner.new @dir, { :cache_index_to_disk => true }
+      scanner2.paths.should =~ @all_fixtures
     end
   end
 

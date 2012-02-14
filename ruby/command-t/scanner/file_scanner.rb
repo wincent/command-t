@@ -23,6 +23,7 @@
 
 require 'command-t/vim'
 require 'command-t/scanner'
+require 'SHA1'
 
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
@@ -38,9 +39,11 @@ module CommandT
       @max_files            = options[:max_files] || 10_000
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
+      @cache_index_to_disk  = options[:cache_index_to_disk] || false
     end
 
     def paths
+      load_paths_from_disk
       return @paths[@path] if @paths.has_key?(@path)
       begin
         ensure_cache_under_limit
@@ -51,14 +54,49 @@ module CommandT
         add_paths_for_directory @path, @paths[@path]
       rescue FileLimitExceeded
       end
+      cache_paths_to_disk
       @paths[@path]
     end
 
     def flush
       @paths = {}
+      remove_path_cache_from_disk
     end
 
   private
+
+    def cache_paths_to_disk
+      if not @cache_index_to_disk
+        return
+      end
+        hash = {
+            :config_hash => config_hash,
+            :paths => @paths
+
+        }
+        File.open('.command-t-cache', 'wb') do |f| Marshal.dump(hash, f) end
+    end
+
+    def config_hash
+      wild_ignore = ::VIM::evaluate('&wildignore')
+      SHA1::sha1(@max_depth.to_s + @max_files.to_s + @max_caches.to_s + @scan_dot_directories.to_s + @cache_index_to_disk.to_s + wild_ignore).to_s
+    end
+
+    def load_paths_from_disk
+      if not @cache_index_to_disk
+        return
+      end
+      if File.file?('.command-t-cache')
+        cache_data = File.open('.command-t-cache', 'rb') do |f| Marshal.restore(f) end
+        if cache_data[:paths] and cache_data[:config_hash] and cache_data[:config_hash] == config_hash
+          @paths = cache_data[:paths]
+        end
+      end
+    end
+
+    def remove_path_cache_from_disk
+      File.delete('.command-t-cache') if File.file?('.command-t-cache')
+    end
 
     def ensure_cache_under_limit
       # Ruby 1.8 doesn't have an ordered hash, so use a separate stack to

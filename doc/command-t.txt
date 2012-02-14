@@ -488,6 +488,14 @@ Following is a list of all available options:
       you want the best match to appear in a fixed location on the screen
       but still be near the prompt at the bottom.
 
+                                                *g:CommandTCacheIndexToDisk*
+  |g:CommandTCacheIndexToDisk|                  boolean (default: 0)
+
+      When this is true, the file listing is written to disk after scanning
+      the directory. Enabling this option will reduce the startup time for
+      directories containing many files, at the cost of requiring you to 
+      manually flush the directory when there are changes.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
