@@ -77,7 +77,8 @@ module CommandT
           'setlocal nocursorline',      # don't highlight line cursor is on
           'setlocal nospell',           # spell-checking off
           'setlocal nobuflisted',       # don't show up in the buffer list
-          'setlocal textwidth=0'        # don't hard-wrap (break long lines)
+          'setlocal textwidth=0',       # don't hard-wrap (break long lines)
+          'setlocal nonumber'           # no line numbers
         ].each { |command| ::VIM::command command }
 
         # sanity check: make sure the buffer really was created
