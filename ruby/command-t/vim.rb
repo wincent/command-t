@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,10 @@ module CommandT
   module VIM
     def self.has_syntax?
       ::VIM::evaluate('has("syntax")').to_i != 0
+    end
+
+    def self.exists? str
+      ::VIM::evaluate(%{exists("#{str}")}).to_i != 0
     end
 
     def self.pwd
