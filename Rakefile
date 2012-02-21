@@ -121,7 +121,8 @@ end
 desc 'Clean compiled products'
 task :clean do
   Dir.chdir 'ruby/command-t' do
-    system 'make clean'
+    system 'make clean' if File.exists?('Makefile')
+    system 'rm -f Makefile'
   end
 end
 
