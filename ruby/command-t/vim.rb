@@ -30,6 +30,10 @@ module CommandT
       ::VIM::evaluate('has("syntax")').to_i != 0
     end
 
+    def self.has_conceal?
+      ::VIM::evaluate('has("conceal")').to_i != 0
+    end
+
     def self.pwd
       ::VIM::evaluate 'getcwd()'
     end

@@ -26,10 +26,13 @@ require 'command-t/settings'
 
 module CommandT
   class MatchWindow
-    @@selection_marker  = '> '
-    @@marker_length     = @@selection_marker.length
-    @@unselected_marker = ' ' * @@marker_length
-    @@buffer            = nil
+    SELECTION_MARKER  = '> '
+    MARKER_LENGTH     = SELECTION_MARKER.length
+    UNSELECTED_MARKER = ' ' * MARKER_LENGTH
+    MH_START          = '<commandt>'
+    MH_END            = '</commandt>'
+    @@buffer          = nil
+
 
     def initialize options = {}
       @prompt = options[:prompt]
@@ -87,9 +90,17 @@ module CommandT
 
       # syntax coloring
       if VIM::has_syntax?
-        ::VIM::command "syntax match CommandTSelection \"^#{@@selection_marker}.\\+$\""
+        ::VIM::command "syntax match CommandTSelection \"^#{SELECTION_MARKER}.\\+$\""
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
+
+        if VIM::has_conceal?
+            ::VIM::command 'setlocal conceallevel=2'
+            ::VIM::command 'setlocal concealcursor=nvic'
+            ::VIM::command "syntax region CommandTCharMatched matchgroup=CommandTCharMatched start=+#{MH_START}+ matchgroup=CommandTCharMatchedEnd end=+#{MH_END}+ concealends"
+            ::VIM::command 'highlight def CommandTCharMatched term=bold,underline cterm=bold,underline gui=bold,underline'
+        end
+
         ::VIM::command 'highlight link CommandTSelection Visual'
         ::VIM::command 'highlight link CommandTNoEntries Error'
         ::VIM::evaluate 'clearmatches()'
@@ -273,15 +284,31 @@ module CommandT
     end
 
     def match_text_for_idx idx
-      match = truncated_match @matches[idx]
-      if idx == @selection
-        prefix = @@selection_marker
-        suffix = padding_for_selected_match match
-      else
-        prefix = @@unselected_marker
-        suffix = ''
-      end
-      prefix + match + suffix
+        match = truncated_match @matches[idx]
+        if idx == @selection
+            prefix = SELECTION_MARKER
+            suffix = padding_for_selected_match match
+        else
+            if VIM::has_syntax? && VIM::has_conceal?
+                match = add_syntax_highlight match
+            end
+            prefix = UNSELECTED_MARKER
+            suffix = ''
+        end
+        prefix + match + suffix
+    end
+
+    def add_syntax_highlight match
+        list = match.split(//)
+        @prompt.abbrev.split(//).each do |ch|
+            list.each_index do |i|
+                if list[i] == ch
+                    list[i] = [MH_START, ch, MH_END]
+                    break
+                end
+            end
+        end
+        list.flatten.join
     end
 
     # Print just the specified match.
@@ -323,10 +350,10 @@ module CommandT
     # highlighting extends all the way to the right edge of the window.
     def padding_for_selected_match str
       len = str.length
-      if len >= @window_width - @@marker_length
+      if len >= @window_width - MARKER_LENGTH
         ''
       else
-        ' ' * (@window_width - @@marker_length - len)
+        ' ' * (@window_width - MARKER_LENGTH - len)
       end
     end
 
@@ -334,7 +361,7 @@ module CommandT
     # window width.
     def truncated_match str
       len = str.length
-      available_width = @window_width - @@marker_length
+      available_width = @window_width - MARKER_LENGTH
       return str if len <= available_width
       left = (available_width / 2) - 1
       right = (available_width / 2) - 2 + (available_width % 2)
