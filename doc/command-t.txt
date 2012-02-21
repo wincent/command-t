@@ -603,14 +603,14 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Anthony Panozzo        Noon Silk
-  Daniel Hahler          Scott Bronson
-  Jeff Kreeftmeijer      Steven Moazami
-  Lucas de Vries         Sung Pae
-  Marian Schubert        Victor Hugo Borja
-  Matthew Todd           Woody Peterson
-  Mike Lundy             Zak Johnson
-  Nicholas Alpi
+  Anthony Panozzo        Nicholas Alpi
+  Daniel Hahler          Noon Silk
+  Jeff Kreeftmeijer      Scott Bronson
+  Lucas de Vries         Steven Moazami
+  Marian Schubert        Sung Pae
+  Matthew Todd           Victor Hugo Borja
+  Mike Lundy             Woody Peterson
+  Nate Kane              Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -692,6 +692,7 @@ HISTORY                                         *command-t-history*
 - turn off |'colorcolumn'| and |'relativenumber'| in the match window (patch
   from Jeff Kreeftmeijer)
 - documentation update (patch from Nicholas Alpi)
+- added |:CommandTMinHeight| option (patch from Nate Kane)
 
 1.3.1 (18 December 2011)
 
