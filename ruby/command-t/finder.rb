@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -49,22 +49,19 @@ module CommandT
     end
 
     def open_selection command, selection, options = {}
-        # Default implementation, children can re-implement this at their leisure.
-        
-        selection = File.expand_path selection, @path
-        selection = relative_path_under_working_directory selection
-        selection = sanitize_path_string selection
-        
-        ::VIM::command "silent #{command} #{selection}"
+      selection = File.expand_path selection, @path
+      selection = relative_path_under_working_directory selection
+      selection = sanitize_path_string selection
+
+      ::VIM::command "silent #{command} #{selection}"
     end
 
     def path= path
       @scanner.path = path
     end
-  
-    
+
   private
-  
+
     # Backslash-escape space, \, |, %, #, "
     def sanitize_path_string str
       # for details on escaping command-line mode arguments see: :h :

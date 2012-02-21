@@ -1,4 +1,4 @@
-# Copyright 2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2011-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,44 +22,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim'
-require 'command-t/vim/path_utilities'
 require 'command-t/scanner'
 
 module CommandT
   class TagScanner < Scanner
-    include VIM::PathUtilities
+    attr_reader :include_filenames
+
+    def initialize options = {}
+      @include_filenames = options[:include_filenames] || false
+    end
 
     def paths
-      tokens = Array.new
-      
-      tag_filenames.each { |tagfile|
-        if FileTest.exist?(tagfile)
-          File.open(tagfile).each { |line|
-            # Don't want comments
-            data = line.split if line.match(/^[^!]/)
-              
-            if data
-              if include_filenames
-                identifier = data[0] + ":" + data[1]
-              else
-                identifier = data[0]
-              end
-              tokens.push identifier
-            end
-          }
-        end
-      }
-      
-      tokens.sort.uniq
+      taglist.map do |tag|
+        path = tag['name']
+        path << ":#{tag['filename']}" if @include_filenames
+        path
+      end.uniq.sort
     end
 
-    def tag_filenames
-      tags = VIM::capture("silent set tags?")
-      tags = tags[5,tags.length].split(',')
-    end
+  private
 
-    def include_filenames
-      ::VIM::evaluate("g:command_t_tag_include_filenames").to_i != 0
+    def taglist
+      ::VIM::evaluate 'taglist(".")'
     end
   end # class TagScanner
 end # module CommandT

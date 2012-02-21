@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -82,6 +82,7 @@ module CommandT
     def flush
       @max_height   = nil
       @file_finder  = nil
+      @tag_finder   = nil
     end
 
     def handle_key
@@ -238,11 +239,6 @@ module CommandT
     def open_selection selection, options = {}
       command = options[:command] || default_open_command
 
-      # The following has been moved to 'finder.rb'
-      # selection = File.expand_path selection, @path
-      # selection = relative_path_under_working_directory selection
-      # selection = sanitize_path_string selection
-      
       ensure_appropriate_window_selection
       @active_finder.open_selection command, selection, options
     end
@@ -331,7 +327,8 @@ module CommandT
     end
 
     def tag_finder
-      @tag_finder ||= CommandT::TagFinder.new
+      @tag_finder ||= CommandT::TagFinder.new \
+        :include_filenames => get_bool('g:CommandTTagIncludeFilenames')
     end
   end # class Controller
 end # module commandT
