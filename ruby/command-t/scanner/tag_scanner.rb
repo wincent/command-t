@@ -1,4 +1,4 @@
-# Copyright 2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2011-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,33 +22,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim'
-require 'command-t/vim/path_utilities'
 require 'command-t/scanner'
 
 module CommandT
-  # Returns a list of files in the jumplist.
-  class JumpScanner < Scanner
-    include VIM::PathUtilities
+  class TagScanner < Scanner
+    attr_reader :include_filenames
+
+    def initialize options = {}
+      @include_filenames = options[:include_filenames] || false
+    end
 
     def paths
-      jumps_with_filename = jumps.lines.select do |line|
-        line_contains_filename?(line)
-      end
-      filenames = jumps_with_filename[1..-2].map do |line|
-        relative_path_under_working_directory line.split[3]
-      end
-
-      filenames.sort.uniq
+      taglist.map do |tag|
+        path = tag['name']
+        path << ":#{tag['filename']}" if @include_filenames
+        path
+      end.uniq.sort
     end
 
   private
 
-    def line_contains_filename? line
-      line.split.count > 3
+    def taglist
+      ::VIM::evaluate 'taglist(".")'
     end
-
-    def jumps
-      VIM::capture 'silent jumps'
-    end
-  end # class JumpScanner
+  end # class TagScanner
 end # module CommandT

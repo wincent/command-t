@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,7 @@
 require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
+require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
 require 'command-t/vim/path_utilities'
@@ -45,6 +46,12 @@ module CommandT
     def show_jump_finder
       @path          = VIM::pwd
       @active_finder = jump_finder
+      show
+    end
+
+    def show_tag_finder
+      @path          = VIM::pwd
+      @active_finder = tag_finder
       show
     end
 
@@ -75,6 +82,7 @@ module CommandT
     def flush
       @max_height   = nil
       @file_finder  = nil
+      @tag_finder   = nil
     end
 
     def handle_key
@@ -200,13 +208,6 @@ module CommandT
       end
     end
 
-    # Backslash-escape space, \, |, %, #, "
-    def sanitize_path_string str
-      # for details on escaping command-line mode arguments see: :h :
-      # (that is, help on ":") in the Vim documentation.
-      str.gsub(/[ \\|%#"]/, '\\\\\0')
-    end
-
     def default_open_command
       if !get_bool('&hidden') && get_bool('&modified')
         'sp'
@@ -237,11 +238,9 @@ module CommandT
 
     def open_selection selection, options = {}
       command = options[:command] || default_open_command
-      selection = File.expand_path selection, @path
-      selection = relative_path_under_working_directory selection
-      selection = sanitize_path_string selection
+
       ensure_appropriate_window_selection
-      ::VIM::command "silent #{command} #{selection}"
+      @active_finder.open_selection command, selection, options
     end
 
     def map key, function, param = nil
@@ -325,6 +324,11 @@ module CommandT
 
     def jump_finder
       @jump_finder ||= CommandT::JumpFinder.new
+    end
+
+    def tag_finder
+      @tag_finder ||= CommandT::TagFinder.new \
+        :include_filenames => get_bool('g:CommandTTagIncludeFilenames')
     end
   end # class Controller
 end # module commandT

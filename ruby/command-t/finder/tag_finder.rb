@@ -1,4 +1,4 @@
-# Copyright 2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2011-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -21,34 +21,24 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/vim'
-require 'command-t/vim/path_utilities'
-require 'command-t/scanner'
+require 'command-t/ext' # CommandT::Matcher
+require 'command-t/scanner/tag_scanner'
+require 'command-t/finder'
 
 module CommandT
-  # Returns a list of files in the jumplist.
-  class JumpScanner < Scanner
-    include VIM::PathUtilities
+  class TagFinder < Finder
+    def initialize options = {}
+      @scanner = TagScanner.new options
+      @matcher = Matcher.new @scanner, :always_show_dot_files => true
+    end
 
-    def paths
-      jumps_with_filename = jumps.lines.select do |line|
-        line_contains_filename?(line)
+    def open_selection command, selection, options = {}
+      if @scanner.include_filenames
+        selection = selection[0, selection.index(':')]
       end
-      filenames = jumps_with_filename[1..-2].map do |line|
-        relative_path_under_working_directory line.split[3]
-      end
 
-      filenames.sort.uniq
+      #  open the tag and center the screen on it
+      ::VIM::command "silent! tag #{selection} | :normal zz"
     end
-
-  private
-
-    def line_contains_filename? line
-      line.split.count > 3
-    end
-
-    def jumps
-      VIM::capture 'silent jumps'
-    end
-  end # class JumpScanner
+  end # class TagFinder
 end # module CommandT

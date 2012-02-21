@@ -1,5 +1,5 @@
 " command-t.vim
-" Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+" Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
 "
 " Redistribution and use in source and binary forms, with or without
 " modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@ let g:command_t_loaded = 1
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command CommandTJump call <SID>CommandTShowJumpFinder()
+command CommandTTag call <SID>CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
@@ -66,6 +67,14 @@ endfunction
 function s:CommandTShowJumpFinder()
   if has('ruby')
     ruby $command_t.show_jump_finder
+  else
+    call s:CommandTRubyWarning()
+  endif
+endfunction
+
+function s:CommandTShowTagFinder()
+  if has('ruby')
+    ruby $command_t.show_tag_finder
   else
     call s:CommandTRubyWarning()
   endif
