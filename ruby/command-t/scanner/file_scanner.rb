@@ -65,17 +65,32 @@ module CommandT
 
   private
 
+    def cache_filename
+      File.expand_path('~/.command-t-cache')
+    end
     def cache_paths_to_disk
       if not @cache_index_to_disk
         return
       end
-        hash = {
-            :config_hash => config_hash,
-            :paths => @paths
-
-        }
         begin
-            File.open('.command-t-cache', 'wb') do |f| Marshal.dump(hash, f) end
+          cache_previous = nil
+          if File.readable?(cache_filename)
+            cache_previous = File.open(cache_filename, 'rb') do |f|
+              begin
+                Marshal.restore(f)
+              rescue
+              end
+            end
+          end
+          File.open(cache_filename, 'wb') do |f| 
+            cache = { :config_hash => config_hash }
+            if cache_previous and cache_previous[:config_hash] == config_hash
+              cache = cache_previous
+            end
+            cache[:paths] = { } if not cache[:paths]
+            cache[:paths][@path] = @paths[@path] 
+            Marshal.dump(cache, f) 
+          end
         rescue Errno::EACCES
         end
     end
@@ -89,21 +104,21 @@ module CommandT
       if not @cache_index_to_disk
         return
       end
-      if File.readable?('.command-t-cache')
-        cache_data = File.open('.command-t-cache', 'rb') do |f|
+      if File.readable?(cache_filename)
+        cache_data = File.open(cache_filename, 'rb') do |f|
           begin
             Marshal.restore(f)
           rescue
           end
         end
-        if cache_data[:paths] and cache_data[:config_hash] and cache_data[:config_hash] == config_hash
-          @paths = cache_data[:paths]
+        if cache_data and cache_data[:paths] and cache_data[:config_hash] and cache_data[:config_hash] == config_hash and cache_data[:paths][@path]
+          @paths[@path] = cache_data[:paths][@path]
         end
       end
     end
 
     def remove_path_cache_from_disk
-      File.delete('.command-t-cache') if File.file?('.command-t-cache')
+      File.delete(cache_filename) if File.file?(cache_filename)
     end
 
     def ensure_cache_under_limit
