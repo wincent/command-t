@@ -32,7 +32,7 @@ describe CommandT::FileScanner do
     @all_fixtures = %w(
       bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta
     )
-    @scanner = CommandT::FileScanner.new @dir ,{ :cache_index_to_disk => true }
+    @scanner = CommandT::FileScanner.new @dir ,{ :cache_index_to_disk => true , :cache_filename => './.command-t-cache' }
 
     # scanner will call VIM's expand() function for exclusion filtering
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
@@ -89,7 +89,7 @@ describe CommandT::FileScanner do
       # now create a second scanner, and assert that it doesn't look at any directories
       # and the paths are still correct
       mock.proxy(Dir).foreach(anything).times(0)
-      scanner2 = CommandT::FileScanner.new @dir, { :cache_index_to_disk => true }
+      scanner2 = CommandT::FileScanner.new @dir, { :cache_index_to_disk => true , :cache_filename => './.command-t-cache' }
       scanner2.paths.should =~ @all_fixtures
     end
   end

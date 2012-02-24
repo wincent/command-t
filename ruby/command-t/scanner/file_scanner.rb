@@ -40,6 +40,7 @@ module CommandT
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
       @cache_index_to_disk  = options[:cache_index_to_disk] || false
+      @cache_filename       = options[:cache_filename] || '~/.command-t-cache'
     end
 
     def paths
@@ -66,7 +67,7 @@ module CommandT
   private
 
     def cache_filename
-      File.expand_path('~/.command-t-cache')
+      File.expand_path(@cache_filename)
     end
     def cache_paths_to_disk
       if not @cache_index_to_disk

@@ -321,7 +321,8 @@ module CommandT
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
-        :cache_index_to_disk    => get_bool('g:CommandTCacheIndexToDisk')
+        :cache_index_to_disk    => get_bool('g:CommandTCacheIndexToDisk'),
+        :cache_filename         => get_string('g:CommandTCacheFileName')
     end
 
     def jump_finder
