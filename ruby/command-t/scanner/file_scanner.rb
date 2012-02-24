@@ -44,6 +44,7 @@ module CommandT
     end
 
     def paths
+      return @paths[@path] if @paths.has_key?(@path)
       load_paths_from_disk
       return @paths[@path] if @paths.has_key?(@path)
       begin
