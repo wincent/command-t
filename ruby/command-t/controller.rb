@@ -214,6 +214,13 @@ module CommandT
       end
     end
 
+    # Backslash-escape space, \, |, %, #, "
+    def sanitize_path_string str
+      # for details on escaping command-line mode arguments see: :h :
+      # (that is, help on ":") in the Vim documentation.
+      str.gsub(/[ \\|%#"]/, '\\\\\0')
+    end
+
     def default_open_command
       if !get_bool('&hidden') && get_bool('&modified')
         'sp'
@@ -244,8 +251,11 @@ module CommandT
 
     def open_selection selection, options = {}
       command = options[:command] || default_open_command
-
+      selection = File.expand_path selection, @path
+      selection = relative_path_under_working_directory selection
+      selection = sanitize_path_string selection
       ensure_appropriate_window_selection
+
       @active_finder.open_selection command, selection, options
     end
 
