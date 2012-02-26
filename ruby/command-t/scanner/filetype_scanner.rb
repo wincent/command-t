@@ -38,13 +38,6 @@ module CommandT
 
     def paths
       @filetypes
-
-      #(0..(::VIM::Buffer.count - 1)).map do |n|
-        #buffer = ::VIM::Buffer[n]
-        #if buffer.name # beware, may be nil
-          #relative_path_under_working_directory buffer.name
-        #end
-      #end.compact
     end
   end # class FiletypeScanner
 end # module CommandT
