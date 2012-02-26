@@ -23,6 +23,7 @@
 
 require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
+require 'command-t/finder/filetype_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
@@ -40,6 +41,12 @@ module CommandT
     def show_buffer_finder
       @path          = VIM::pwd
       @active_finder = buffer_finder
+      show
+    end
+
+    def show_filetype_finder
+      @path          = VIM::pwd
+      @active_finder = filetype_finder
       show
     end
 
@@ -326,6 +333,10 @@ module CommandT
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
+    end
+
+    def filetype_finder
+      @filetype_finder ||= CommandT::FiletypeFinder.new
     end
 
     def jump_finder

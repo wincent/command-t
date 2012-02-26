@@ -1,0 +1,51 @@
+# Copyright 2012 Endel Dreyer. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+require 'command-t/vim'
+require 'command-t/vim/path_utilities'
+require 'command-t/scanner'
+
+module CommandT
+  # Returns a list of all open buffers.
+  class FiletypeScanner < Scanner
+    include VIM::PathUtilities
+
+    def initialize options = {}
+      @filetypes = ::VIM::evaluate("glob($VIMRUNTIME . '/syntax/*.vim')").split("\n").collect do |file|
+        File.basename(file, ".vim")
+      end
+    end
+
+    def paths
+      @filetypes
+
+      #(0..(::VIM::Buffer.count - 1)).map do |n|
+        #buffer = ::VIM::Buffer[n]
+        #if buffer.name # beware, may be nil
+          #relative_path_under_working_directory buffer.name
+        #end
+      #end.compact
+    end
+  end # class FiletypeScanner
+end # module CommandT
+

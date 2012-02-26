@@ -28,6 +28,7 @@ endif
 let g:command_t_loaded = 1
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
+command CommandTFiletype call <SID>CommandTShowFiletypeFinder()
 command CommandTJump call <SID>CommandTShowJumpFinder()
 command CommandTTag call <SID>CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
@@ -51,6 +52,14 @@ endfunction
 function s:CommandTShowBufferFinder()
   if has('ruby')
     ruby $command_t.show_buffer_finder
+  else
+    call s:CommandTRubyWarning()
+  endif
+endfunction
+
+function s:CommandTShowFiletypeFinder()
+  if has('ruby')
+    ruby $command_t.show_filetype_finder
   else
     call s:CommandTRubyWarning()
   endif
