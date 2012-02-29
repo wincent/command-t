@@ -603,15 +603,15 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Anthony Panozzo        Noon Silk
-  Daniel Hahler          Scott Bronson
+  Anthony Panozzo        Nicholas Alpi
+  Daniel Hahler          Noon Silk
+  Gary Bernhardt         Scott Bronson
   Jeff Kreeftmeijer      Seth Fowler
   Lucas de Vries         Steven Moazami
   Marian Schubert        Sung Pae
   Matthew Todd           Victor Hugo Borja
   Mike Lundy             Woody Peterson
   Nate Kane              Zak Johnson
-  Nicholas Alpi
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
