@@ -163,6 +163,18 @@ module CommandT
       @match_window.unload
     end
 
+    def tab_command
+      get_string('g:CommandTAcceptSelectionTabCommand') || 'tabe'
+    end
+
+    def split_command
+      get_string('g:CommandTAcceptSelectionSplitCommand') || 'sp'
+    end
+
+    def vsplit_command
+      get_string('g:CommandTAcceptSelectionVSplitCommand') || 'vs'
+    end
+
   private
 
     def show
@@ -225,7 +237,7 @@ module CommandT
       if !get_bool('&hidden') && get_bool('&modified')
         'sp'
       else
-        'e'
+        get_string('g:CommandTAcceptSelectionCommand') || 'e'
       end
     end
 
