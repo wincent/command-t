@@ -106,15 +106,15 @@ function CommandTAcceptSelection()
 endfunction
 
 function CommandTAcceptSelectionTab()
-  ruby $command_t.accept_selection :command => 'tabe'
+  ruby $command_t.accept_selection :command => $command_t.tab_command
 endfunction
 
 function CommandTAcceptSelectionSplit()
-  ruby $command_t.accept_selection :command => 'sp'
+  ruby $command_t.accept_selection :command => $command_t.split_command
 endfunction
 
 function CommandTAcceptSelectionVSplit()
-  ruby $command_t.accept_selection :command => 'vs'
+  ruby $command_t.accept_selection :command => $command_t.vsplit_command
 endfunction
 
 function CommandTQuickfix()
