@@ -22,7 +22,7 @@
 " ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 " POSSIBILITY OF SUCH DAMAGE.
 
-if exists("g:command_t_loaded")
+if exists("g:command_t_loaded") || &cp
   finish
 endif
 let g:command_t_loaded = 1
