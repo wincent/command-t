@@ -12,10 +12,11 @@ CONTENTS                                        *command-t-contents*
  7. Mappings                |command-t-mappings|
  8. Options                 |command-t-options|
  9. Authors                 |command-t-authors|
-10. Website                 |command-t-website|
-11. Donations               |command-t-donations|
-12. License                 |command-t-license|
-13. History                 |command-t-history|
+10. Development             |command-t-development|
+11. Website                 |command-t-website|
+12. Donations               |command-t-donations|
+13. License                 |command-t-license|
+14. History                 |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -628,6 +629,38 @@ LustyExplorer is available from:
   http://www.vim.org/scripts/script.php?script_id=1890
 
 
+DEVELOPMENT                                     *command-t-development*
+
+Development in progress can be inspected via the project's Git web-based
+repository browser at:
+
+  https://wincent.com/repos/command-t
+
+the clone URL for which is:
+
+  git://git.wincent.com/command-t.git
+
+Mirrors exist on GitHub and Gitorious; these are automatically updated once
+per hour from the authoritative repository:
+
+  https://github.com/wincent/command-t
+  https://gitorious.org/command-t/command-t
+
+Patches are welcome via the usual mechanisms (pull requests, email, posting to
+the project issue tracker etc).
+
+As many users choose to track Command-T using Pathogen, which often means
+running a version later than the last official release, the intention is that
+the "master" branch should be kept in a stable and reliable state as much as
+possible.
+
+Riskier changes are first cooked on the "next" branch for a period before
+being merged into master. You can track this branch if you're feeling wild and
+experimental, but note that the "next" branch may periodically be rewound
+(force-updated) to keep it in sync with the "master" branch after each
+official release.
+
+
 WEBSITE                                         *command-t-website*
 
 The official website for Command-T is:
@@ -635,11 +668,6 @@ The official website for Command-T is:
   https://wincent.com/products/command-t
 
 The latest release will always be available from there.
-
-Development in progress can be inspected via the project's Git repository
-browser at:
-
-  https://wincent.com/repos/command-t
 
 A copy of each release is also available from the official Vim scripts site
 at:
