@@ -613,6 +613,7 @@ order):
   Matthew Todd           Victor Hugo Borja
   Mike Lundy             Woody Peterson
   Nate Kane              Zak Johnson
+  Nadav Samet
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
