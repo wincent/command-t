@@ -264,16 +264,8 @@ module CommandT
         ":call CommandT#{function}(#{param})<CR>"
     end
 
-    def xterm?
-      !!(::VIM::evaluate('&term') =~ /\Axterm/)
-    end
-
-    def vt100?
-      !!(::VIM::evaluate('&term') =~ /\Avt100/)
-    end
-
-    def screen?
-      !!(::VIM::evaluate('&term') =~ /\Ascreen/)
+    def term
+      @term ||= ::VIM::evaluate('&term')
     end
 
     def register_for_key_presses
@@ -308,8 +300,9 @@ module CommandT
           end
         else
           [value].flatten.each do |mapping|
-            map mapping, key unless mapping == '<Esc>' && (xterm? || vt100? ||
-                                                           screen?)
+            unless mapping == '<Esc>' && term =~ /\A(screen|xterm|vt100)/
+              map mapping, key
+            end
           end
         end
       end
