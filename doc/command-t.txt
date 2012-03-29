@@ -148,11 +148,15 @@ you can build the extension with:
   ruby extconf.rb
   make
 
-Note: If you are an RVM user, you must perform the build using the same
+Note: If you are an RVM or an rbenv user, you must perform the build using the same
 version of Ruby that Vim itself is linked against. This will often be the
-system Ruby, which can be selected before issuing the "make" command with:
+system Ruby, which can be selected before issuing the "make" command with (for RVM):
 
   rvm use system
+
+Or for rbenv:
+
+  rbenv local system
 
 
 MANAGING USING PATHOGEN                         *command-t-pathogen*
