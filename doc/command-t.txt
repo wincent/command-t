@@ -726,6 +726,9 @@ HISTORY                                         *command-t-history*
   from Jeff Kreeftmeijer)
 - documentation update (patch from Nicholas Alpi)
 - added |:CommandTMinHeight| option (patch from Nate Kane)
+- highlight (by underlining) matched characters in the match listing (requires
+  Vim to have been compiled with the +conceal feature, which is available in
+  Vim 7.3 or later; patch from Steven Moazami)
 
 1.3.1 (18 December 2011)
 
