@@ -608,14 +608,15 @@ order):
 
   Anthony Panozzo        Nadav Samet
   Daniel Hahler          Noon Silk
-  Gary Bernhardt         Rainux Luo
-  Jeff Kreeftmeijer      Scott Bronson
-  Lucas de Vries         Seth Fowler
-  Marian Schubert        Steven Moazami
-  Matthew Todd           Sung Pae
-  Mike Lundy             Victor Hugo Borja
-  Nate Kane              Woody Peterson
-  Nicholas Alpi          Zak Johnson
+  Felix Tjandrawibawa    Rainux Luo
+  Gary Bernhardt         Scott Bronson
+  Jeff Kreeftmeijer      Seth Fowler
+  Lucas de Vries         Steven Moazami
+  Marian Schubert        Sung Pae
+  Matthew Todd           Victor Hugo Borja
+  Mike Lundy             Woody Peterson
+  Nate Kane              Zak Johnson
+  Nicholas Alpi
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
