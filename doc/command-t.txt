@@ -509,6 +509,15 @@ Following is a list of all available options:
       When this setting is off (the default) the matches in the |:CommandTTag|
       listing do not include filenames.
 
+                                                 *g:CommandTUseMruBufferOrder*
+  |g:CommandTUseMruBufferOrder|                   boolean (default: 0)
+
+      When this setting is off (the default) the matches for the buffer list
+      will appear from top to bottom with the topmost being selected. Turning
+      it on causes the most recently used buffers to be displayed at the top,
+      and the initially selected match is the second most recently used
+      buffer, i.e. the second buffer in the list in case it exists.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
