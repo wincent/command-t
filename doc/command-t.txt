@@ -12,10 +12,11 @@ CONTENTS                                        *command-t-contents*
  7. Mappings                |command-t-mappings|
  8. Options                 |command-t-options|
  9. Authors                 |command-t-authors|
-10. Website                 |command-t-website|
-11. Donations               |command-t-donations|
-12. License                 |command-t-license|
-13. History                 |command-t-history|
+10. Development             |command-t-development|
+11. Website                 |command-t-website|
+12. Donations               |command-t-donations|
+13. License                 |command-t-license|
+14. History                 |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -147,11 +148,13 @@ you can build the extension with:
   ruby extconf.rb
   make
 
-Note: If you are an RVM user, you must perform the build using the same
-version of Ruby that Vim itself is linked against. This will often be the
-system Ruby, which can be selected before issuing the "make" command with:
+Note: If you are an RVM or rbenv user, you must perform the build using the
+same version of Ruby that Vim itself is linked against. This will often be the
+system Ruby, which can be selected before issuing the "make" command with one
+of the following commands:
 
   rvm use system
+  rbenv local system
 
 
 MANAGING USING PATHOGEN                         *command-t-pathogen*
@@ -603,8 +606,10 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Anthony Panozzo        Noon Silk
-  Daniel Hahler          Scott Bronson
+  Anthony Panozzo        Nadav Samet
+  Daniel Hahler          Noon Silk
+  Felix Tjandrawibawa    Rainux Luo
+  Gary Bernhardt         Scott Bronson
   Jeff Kreeftmeijer      Seth Fowler
   Lucas de Vries         Steven Moazami
   Marian Schubert        Sung Pae
@@ -628,6 +633,38 @@ LustyExplorer is available from:
   http://www.vim.org/scripts/script.php?script_id=1890
 
 
+DEVELOPMENT                                     *command-t-development*
+
+Development in progress can be inspected via the project's Git web-based
+repository browser at:
+
+  https://wincent.com/repos/command-t
+
+the clone URL for which is:
+
+  git://git.wincent.com/command-t.git
+
+Mirrors exist on GitHub and Gitorious; these are automatically updated once
+per hour from the authoritative repository:
+
+  https://github.com/wincent/command-t
+  https://gitorious.org/command-t/command-t
+
+Patches are welcome via the usual mechanisms (pull requests, email, posting to
+the project issue tracker etc).
+
+As many users choose to track Command-T using Pathogen, which often means
+running a version later than the last official release, the intention is that
+the "master" branch should be kept in a stable and reliable state as much as
+possible.
+
+Riskier changes are first cooked on the "next" branch for a period before
+being merged into master. You can track this branch if you're feeling wild and
+experimental, but note that the "next" branch may periodically be rewound
+(force-updated) to keep it in sync with the "master" branch after each
+official release.
+
+
 WEBSITE                                         *command-t-website*
 
 The official website for Command-T is:
@@ -635,11 +672,6 @@ The official website for Command-T is:
   https://wincent.com/products/command-t
 
 The latest release will always be available from there.
-
-Development in progress can be inspected via the project's Git repository
-browser at:
-
-  https://wincent.com/repos/command-t
 
 A copy of each release is also available from the official Vim scripts site
 at:
@@ -694,6 +726,9 @@ HISTORY                                         *command-t-history*
   from Jeff Kreeftmeijer)
 - documentation update (patch from Nicholas Alpi)
 - added |:CommandTMinHeight| option (patch from Nate Kane)
+- highlight (by underlining) matched characters in the match listing (requires
+  Vim to have been compiled with the +conceal feature, which is available in
+  Vim 7.3 or later; patch from Steven Moazami)
 
 1.3.1 (18 December 2011)
 

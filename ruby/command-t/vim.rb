@@ -34,6 +34,10 @@ module CommandT
       ::VIM::evaluate(%{exists("#{str}")}).to_i != 0
     end
 
+    def self.has_conceal?
+      ::VIM::evaluate('has("conceal")').to_i != 0
+    end
+
     def self.pwd
       ::VIM::evaluate 'getcwd()'
     end
