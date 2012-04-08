@@ -134,6 +134,16 @@ module CommandT
     end
 
     def close
+      # Unlisted buffers like those provided by Netrw, NERDTree and Vim's help
+      # don't actually appear in the buffer list; if they are the only such
+      # buffers present when Command-T is invoked (for example, when invoked
+      # immediately after starting Vim with a directory argument, like `vim .`)
+      # then performing the normal clean-up will yield an "E90: Cannot unload
+      # last buffer" error. We can work around that by doing a :quit first.
+      if ::VIM::Buffer.count == 0
+        ::VIM::command 'silent quit'
+      end
+
       # Workaround for upstream bug in Vim 7.3 on some platforms
       #
       # On some platforms, $curbuf.number always returns 0. One workaround is
@@ -144,10 +154,10 @@ module CommandT
       # For more details, see: https://wincent.com/issues/1617
       if $curbuf.number == 0
         # use bwipeout as bunload fails if passed the name of a hidden buffer
-        ::VIM::command 'bwipeout! GoToFile'
+        ::VIM::command 'silent! bwipeout! GoToFile'
         @@buffer = nil
       else
-        ::VIM::command "bunload! #{@@buffer.number}"
+        ::VIM::command "silent! bunload! #{@@buffer.number}"
       end
     end
 
