@@ -99,6 +99,7 @@ module CommandT
         ::VIM::command "syntax match CommandTSelection \"^#{SELECTION_MARKER}.\\+$\""
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
+        ::VIM::command 'setlocal synmaxcol=9999'
 
         if VIM::has_conceal?
           ::VIM::command 'setlocal conceallevel=2'
