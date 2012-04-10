@@ -116,6 +116,12 @@ module CommandT
       open_selection(selection, options) unless selection.nil?
     end
 
+    def accept_all options = {}
+      matches = @match_window.matches
+      hide
+      matches.each {|m| open_selection(m, options) unless m.nil?}
+    end
+
     def toggle_focus
       @focus.unfocus # old focus
       @focus = @focus == @prompt ? @match_window : @prompt
@@ -285,6 +291,7 @@ module CommandT
         'AcceptSelectionSplit'  => ['<C-CR>', '<C-s>'],
         'AcceptSelectionTab'    => '<C-t>',
         'AcceptSelectionVSplit' => '<C-v>',
+        'AcceptAllTab'          => '<C-y>',
         'ToggleFocus'           => '<Tab>',
         'Cancel'                => ['<C-c>', '<Esc>'],
         'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
