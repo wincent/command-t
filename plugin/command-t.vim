@@ -140,6 +140,10 @@ function CommandTClear()
   ruby $command_t.clear
 endfunction
 
+function CommandTClearPrevWord()
+  ruby $command_t.clear_prev_word
+endfunction
+
 function CommandTCursorLeft()
   ruby $command_t.cursor_left
 endfunction
