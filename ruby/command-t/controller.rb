@@ -79,6 +79,12 @@ module CommandT
       end
     end
 
+    def refresh
+      return unless @active_finder && @active_finder.respond_to?(:flush)
+      @active_finder.flush
+      list_matches
+    end
+
     def flush
       @max_height   = nil
       @min_height   = nil
@@ -279,21 +285,24 @@ module CommandT
       end
 
       # "special" keys (overridable by settings)
-      { 'Backspace'             => '<BS>',
-        'Delete'                => '<Del>',
+      {
         'AcceptSelection'       => '<CR>',
         'AcceptSelectionSplit'  => ['<C-CR>', '<C-s>'],
         'AcceptSelectionTab'    => '<C-t>',
         'AcceptSelectionVSplit' => '<C-v>',
-        'ToggleFocus'           => '<Tab>',
+        'Backspace'             => '<BS>',
         'Cancel'                => ['<C-c>', '<Esc>'],
-        'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
-        'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
         'Clear'                 => '<C-u>',
+        'CursorEnd'             => '<C-e>',
         'CursorLeft'            => ['<Left>', '<C-h>'],
         'CursorRight'           => ['<Right>', '<C-l>'],
-        'CursorEnd'             => '<C-e>',
-        'CursorStart'           => '<C-a>' }.each do |key, value|
+        'CursorStart'           => '<C-a>',
+        'Delete'                => '<Del>',
+        'Refresh'               => '<C-f>',
+        'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
+        'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
+        'ToggleFocus'           => '<Tab>',
+      }.each do |key, value|
         if override = get_list_or_string("g:CommandT#{key}Map")
           Array(override).each do |mapping|
             map mapping, key

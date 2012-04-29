@@ -308,6 +308,7 @@ has focus:
     <C-k>       select previous file in the file listing
     <C-p>       select previous file in the file listing
     <Up>        select previous file in the file listing
+    <C-f>       flush the cache (see |:CommandTFlush| for details)
     <C-c>       cancel (dismisses file listing)
 
 The following is also available on terminals which support it:
@@ -353,10 +354,12 @@ COMMANDS                                        *command-t-commands*
                                                 *:CommandTFlush*
 |:CommandTFlush|Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
-                the next time the file window is shown. In addition, all
-                configuration settings are re-evaluated, causing any
-                changes made to settings via the |:let| command to be picked
-                up.
+                the next time the file window is shown (pressing <C-f> when
+                a match listing is visible flushes the cache immediately; this
+                mapping is configurable via the |g:CommandTRefreshMap|
+                setting). In addition, all configuration settings are
+                re-evaluated, causing any changes made to settings via the
+                |:let| command to be picked up.
 
 
 MAPPINGS                                        *command-t-mappings*
@@ -565,6 +568,9 @@ Following is a list of all map settings and their defaults:
                                       *g:CommandTClearMap*
                   |g:CommandTClearMap|  <C-u>
 
+                                      *g:CommandTRefreshMap*
+                |g:CommandTRefreshMap|  <C-f>
+
                                       *g:CommandTCursorLeftMap*
              |g:CommandTCursorLeftMap|  <Left>
                                       <C-h>
@@ -729,6 +735,8 @@ HISTORY                                         *command-t-history*
 - highlight (by underlining) matched characters in the match listing (requires
   Vim to have been compiled with the +conceal feature, which is available in
   Vim 7.3 or later; patch from Steven Moazami)
+- added the ability to flush the cache while the match window is open using
+  <C-f>
 
 1.3.1 (18 December 2011)
 
