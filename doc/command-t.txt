@@ -156,6 +156,20 @@ of the following commands:
   rvm use system
   rbenv local system
 
+Note: Make sure you compile targeting the same architecture Vim was built for.
+For instance, MacVim binaries are built for i386, but sometimes GCC compiles
+for x86_64. First you have to check the platfom Vim was built for:
+
+  vim --version
+  ...
+  Compilation: gcc ... -arch i386 ...
+  ...
+
+and make sure you use the correct ARCHFLAGS during compilation:
+
+  export ARCHFLAGS="-arch i386"
+  make
+
 
 MANAGING USING PATHOGEN                         *command-t-pathogen*
 
