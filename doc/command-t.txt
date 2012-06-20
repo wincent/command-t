@@ -736,7 +736,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.4 (not yet released)
+1.4 (20 June 2012)
 
 - added |:CommandTTag| command (patches from Noon Silk)
 - turn off |'colorcolumn'| and |'relativenumber'| in the match window (patch
