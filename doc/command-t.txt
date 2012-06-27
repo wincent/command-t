@@ -210,6 +210,10 @@ After installing or updating you must build the extension:
   bundle install
   rake make
 
+If `bundle` command isn't found you should install the bundler gem before:
+
+  sudo gem install bundler
+
 While the Vimball installation automatically generates the help tags, under
 Pathogen it is necessary to do so explicitly from inside Vim:
 
