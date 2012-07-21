@@ -260,6 +260,7 @@ module CommandT
       selection = File.expand_path selection, @path
       selection = relative_path_under_working_directory selection
       selection = sanitize_path_string selection
+      selection = File.join('.', selection) if selection =~ /^\+/
       ensure_appropriate_window_selection
 
       @active_finder.open_selection command, selection, options
