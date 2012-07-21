@@ -630,10 +630,11 @@ order):
   Daniel Hahler             Nate Kane                 Sung Pae
   Felix Tjandrawibawa       Nicholas Alpi             Thomas Pelletier
   Gary Bernhardt            Nadav Samet               Victor Hugo Borja
-  Jeff Kreeftmeijer         Noon Silk                 Woody Peterson
-  Lucas de Vries            Rainux Luo                Yan Pritzker
-  Marian Schubert           Scott Bronson             Zak Johnson
-  Matthew Todd              Seth Fowler
+  Ivan Ukhov                Noon Silk                 Woody Peterson
+  Jeff Kreeftmeijer         Rainux Luo                Yan Pritzker
+  Lucas de Vries            Scott Bronson             Zak Johnson
+  Marian Schubert           Seth Fowler
+  Matthew Todd
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -735,6 +736,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.5 (not yet released)
+- gracefully handle files starting with "+" (patch from Ivan Ukhov)
 
 1.4 (20 June 2012)
 
