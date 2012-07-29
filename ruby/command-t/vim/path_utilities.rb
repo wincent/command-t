@@ -42,19 +42,22 @@ module CommandT
 
       def nearest_scm_directory
         # find nearest parent determined to be an scm root
+        # based on marker directories in default_markers or
+        # g:command_t_root_markers
+
         markers = get_string('g:command_t_root_markers')
         default_markers = ['.git', '.hg', '.svn', '.bzr', '_darcs']
         if not (markers and markers.length)
             markers = default_markers
         end
 
-        path = File.expand_path(VIM::current_file_dir) + '/'
+        path = File.expand_path(VIM::current_file_dir)
         while !markers.
             map{|dir| File.join(path, dir)}.
             map{|dir| File.directory?(dir)}.
             any?
           return Dir.pwd if path == "/"
-          path = File.expand_path(path + "/..")
+          path = File.expand_path(File.join(path, '..'))
         end
         path
       end
