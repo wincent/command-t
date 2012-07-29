@@ -45,7 +45,17 @@ module CommandT
 
     def show_file_finder
       # optional parameter will be desired starting directory, or ""
-      @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
+      # if g:CommandTTraverseToScmTop is set, use nearest scm parent
+
+      arg = ::VIM::evaluate('a:arg')
+      if arg && arg.size > 0
+        @path = File.expand_path(arg, VIM::pwd)
+      elsif get_bool("g:command_t_traverse_to_scm_root")
+        @path = nearest_scm_directory
+      else
+        @path = VIM::pwd
+      end
+
       @active_finder    = file_finder
       file_finder.path  = @path
       show

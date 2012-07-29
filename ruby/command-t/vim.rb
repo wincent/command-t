@@ -26,6 +26,10 @@ module CommandT
       exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
     end
 
+    def self.current_file_dir
+      ::VIM::evaluate 'expand("%:p:h")'
+    end
+
     # Execute cmd, capturing the output into a variable and returning it.
     def self.capture cmd
       ::VIM::command 'silent redir => g:command_t_captured_output'
