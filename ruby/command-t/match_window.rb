@@ -319,8 +319,8 @@ module CommandT
     # for the match.
     #
     def match_with_syntax_highlight match
-      highlight_chars = @prompt.abbrev.downcase.chars.to_a
-      match.chars.inject([]) do |output, char|
+      highlight_chars = @prompt.abbrev.downcase.scan(/./mu).to_a
+      match.scan(/./mu).inject([]) do |output, char|
         if char.downcase == highlight_chars.first
           highlight_chars.shift
           output.concat [MH_START, char, MH_END]
