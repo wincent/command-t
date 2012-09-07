@@ -626,15 +626,16 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Anthony Panozzo           Mike Lundy                Sung Pae
-  Daniel Hahler             Nate Kane                 Thomas Pelletier
-  Felix Tjandrawibawa       Nicholas Alpi             Victor Hugo Borja
-  Gary Bernhardt            Nadav Samet               Woody Peterson
-  Jeff Kreeftmeijer         Noon Silk                 Yan Pritzker
-  Lucas de Vries            Rainux Luo                Zak Johnson
-  Marcus Brito              Scott Bronson
-  Marian Schubert           Seth Fowler
-  Matthew Todd              Steven Moazami
+  Anthony Panozzo           Mike Lundy                Thomas Pelletier
+  Daniel Hahler             Nate Kane                 Victor Hugo Borja
+  Felix Tjandrawibawa       Nicholas Alpi             Woody Peterson
+  Gary Bernhardt            Nadav Samet               Yan Pritzker
+  Ivan Ukhov                Noon Silk                 Zak Johnson
+  Jeff Kreeftmeijer         Rainux Luo
+  Lucas de Vries            Scott Bronson
+  Marcus Brito              Seth Fowler
+  Marian Schubert           Steven Moazami
+  Matthew Todd              Sung Pae
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -738,9 +739,9 @@ POSSIBILITY OF SUCH DAMAGE.
 HISTORY                                         *command-t-history*
 
 1.5 (not yet released)
-
 - don't scan "pathological" filesystem structures (ie. circular or
   self-referential symlinks; patch from Marcus Brito)
+- gracefully handle files starting with "+" (patch from Ivan Ukhov)
 
 1.4 (20 June 2012)
 
