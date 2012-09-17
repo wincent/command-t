@@ -23,6 +23,7 @@
 
 require 'ostruct'
 require 'command-t/settings'
+require 'command-t/chars_patch'
 
 module CommandT
   class MatchWindow
