@@ -1,10 +1,10 @@
 
 class String
-  def chars_hacked(&block)
-    self.split(//).to_a
+  def chars_alias(&block)
+    self.each(&block)
   end
 
-  if String.method_defined? :chars
-    alias_method :chars, :chars_hacked
+  unless String.method_defined? :chars
+    alias_method :chars, :chars_alias
   end
 end
