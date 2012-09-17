@@ -158,7 +158,7 @@ of the following commands:
 
 Note: Make sure you compile targeting the same architecture Vim was built for.
 For instance, MacVim binaries are built for i386, but sometimes GCC compiles
-for x86_64. First you have to check the platfom Vim was built for:
+for x86_64. First you have to check the platform Vim was built for:
 
   vim --version
   ...
