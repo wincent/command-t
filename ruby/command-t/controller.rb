@@ -67,7 +67,7 @@ module CommandT
     end
 
     def hide
-      @match_window.close
+      @match_window.leave
       if VIM::Window.select @initial_window
         if @initial_buffer.number == 0
           # upstream bug: buffer number misreported as 0
