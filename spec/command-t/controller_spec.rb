@@ -67,7 +67,7 @@ describe CommandT::Controller do
   end
 
   def stub_finder(sorted_matches=[])
-    finder = Object.new
+    finder = CommandT::FileFinder.new
     stub(finder).path = anything
     stub(finder).sorted_matches_for(anything, anything).returns(sorted_matches)
     stub(CommandT::FileFinder).new.returns(finder)

@@ -76,6 +76,13 @@ module CommandT
       ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
     end
 
+    def looped_symlink? path
+      if File.symlink?(path)
+        target = File.expand_path(File.readlink(path), File.dirname(path))
+        target.include?(@path) || @path.include?(target)
+      end
+    end
+
     def add_paths_for_directory dir, accumulator
       Dir.foreach(dir) do |entry|
         next if ['.', '..'].include?(entry)
@@ -88,6 +95,7 @@ module CommandT
           elsif File.directory?(path)
             next if @depth >= @max_depth
             next if (entry.match(/\A\./) && !@scan_dot_directories)
+            next if looped_symlink?(path)
             @depth += 1
             add_paths_for_directory path, accumulator
             @depth -= 1

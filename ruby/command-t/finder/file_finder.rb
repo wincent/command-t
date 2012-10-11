@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,10 @@ module CommandT
     def initialize path = Dir.pwd, options = {}
       @scanner = FileScanner.new path, options
       @matcher = Matcher.new @scanner, options
+    end
+
+    def flush
+      @scanner.flush
     end
   end # class FileFinder
 end # CommandT

@@ -86,7 +86,7 @@ The general release sequence is:
   rake prerelease
   rake gem
   rake push
-  bin/rake upload:all
+  bundle exec rake upload:all
   rake archive
 
 Most of the Rake tasks run fine without Bundler, and in fact, we
@@ -101,13 +101,13 @@ end
 
 task :check_bundler do
   unless ENV.has_key? 'BUNDLE_GEMFILE'
-    warn 'warning: Bundler is not loaded; try running with bin/rake'
+    warn 'warning: Bundler is not loaded; try running with `bundle exec rake`'
   end
 end
 
 desc 'Run specs'
 task :spec do
-  system 'bin/rspec spec'
+  system 'bundle exec rspec spec'
   bail_on_failure
 end
 

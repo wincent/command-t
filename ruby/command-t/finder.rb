@@ -43,10 +43,6 @@ module CommandT
       @matcher.sorted_matches_for str, options
     end
 
-    def flush
-      @scanner.flush
-    end
-
     def open_selection command, selection, options = {}
       ::VIM::command "silent #{command} #{selection}"
     end
