@@ -24,6 +24,7 @@
 require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
+require 'command-t/finder/mru_buffer_finder'
 require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
@@ -191,6 +192,16 @@ module CommandT
         :threads => CommandT::Util.processor_count
       )
       @match_window.matches = @matches
+
+      # Select next entry in list in case MRU buffer ordering is enabled and
+      # buffers are currently being displayed.
+      if @active_finder == buffer_finder && get_bool('g:CommandTUseMruBufferOrder')
+        if get_bool('g:CommandTMatchWindowReverse')
+          @match_window.select_prev
+        else
+          @match_window.select_next
+        end
+      end
 
       @needs_update = false
     end
@@ -369,7 +380,13 @@ module CommandT
     end
 
     def buffer_finder
-      @buffer_finder ||= CommandT::BufferFinder.new
+      @buffer_finder ||= begin
+        if get_bool('g:CommandTUseMruBufferOrder')
+          CommandT::MruBufferFinder.new
+        else
+          CommandT::BufferFinder.new
+        end
+      end
     end
 
     def file_finder
