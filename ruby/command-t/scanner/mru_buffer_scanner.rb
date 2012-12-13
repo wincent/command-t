@@ -18,9 +18,9 @@ module CommandT
     end
 
     def delete_buffer
-      if $curbuf.name
-        @mru_buffer_stack.delete $curbuf
-      end
+      # Note that $curbuf does not point to the buffer that is being deleted,
+      # we need to use Vim's abuf for the correct buffer number.
+      @mru_buffer_stack.delete_if { |b| b.number == ::VIM::evaluate('expand("<abuf>")').to_i }
     end
 
     def mark_buffer_used
