@@ -25,6 +25,7 @@ require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/finder/tag_finder'
+require 'command-t/finder/gtag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
 require 'command-t/vim/path_utilities'
@@ -53,6 +54,18 @@ module CommandT
       @path          = VIM::pwd
       @active_finder = tag_finder
       show
+    end
+
+    def show_gtag_finder
+      @path          = VIM::pwd
+      @active_finder = gtag_finder
+      @active_finder.path = @path
+      show
+    end
+
+    def gtag_update
+      return unless @gtag_finder
+      @gtag_finder.flush
     end
 
     def show_file_finder
@@ -90,6 +103,7 @@ module CommandT
       @min_height   = nil
       @file_finder  = nil
       @tag_finder   = nil
+      @gtag_finder  = nil
     end
 
     def handle_key
@@ -353,6 +367,11 @@ module CommandT
     def tag_finder
       @tag_finder ||= CommandT::TagFinder.new \
         :include_filenames => get_bool('g:CommandTTagIncludeFilenames')
+    end
+
+    def gtag_finder
+      @gtag_finder ||= CommandT::GtagFinder.new\
+        :include_filenames => get_bool('g:CommandTGtagIncludeFilenames')
     end
   end # class Controller
 end # module commandT
