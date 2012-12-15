@@ -371,7 +371,7 @@ module CommandT
 
     def gtag_finder
       @gtag_finder ||= CommandT::GtagFinder.new\
-        :include_filenames => get_bool('g:CommandTGtagIncludeFilenames')
+        :max_caches             => get_number('g:CommandTMaxCachedDirectories')
     end
   end # class Controller
 end # module commandT
