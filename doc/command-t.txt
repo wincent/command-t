@@ -366,10 +366,16 @@ COMMANDS                                        *command-t-commands*
                 for general info on tags.
 
                                                 *:CommandTGtag*
-|:CommandTGtag|Brings up the Command-T window gtags window, which can
+|:CommandTGtag| Brings up the Command-T window gtags window, which can
                 be used to select from the tags, if any, returned by
-                `global -dt` command. See
-http://www.gnu.org/software/global for details.
+                `global -dt` command. 
+                See http://www.gnu.org/software/global for details.
+
+                                                *:CommandTGtagBuffer*
+|:CommandTGtagBuffer| Bring up the Command-T window gtags window, which
+                be used to select from the tags in the current buffer, 
+                if any, returned by `global -f` command. 
+                See http://www.gnu.org/software/global for details.
 
                                                 *:CommandTGtagUpdate*
 |:CommandTGtagUpdate|Update the gtags database(global -u) and rebuild the cache.

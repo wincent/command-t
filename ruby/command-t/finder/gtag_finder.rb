@@ -33,15 +33,30 @@ module CommandT
     end
 
     def open_selection command, selection, options = {}
-      parts = selection.split ':'
-      file = parts[1]
-      line = parts[2]
+      parts = selection.split ' '
 
-      ::VIM::command "edit #{file} | #{line}"
+      if @scanner.buffer
+        line = parts[1].to_i
+        ::VIM::command "#{line}"
+      else
+        file = parts[2]
+        line = parts[1].to_i
+
+        ::VIM::command "edit #{file} | #{line}"
+      end
     end
 
     def flush
-        @scanner.flush
+      @scanner.flush
+    end
+
+    def buffer= b
+        `echo #{b} >> ~/test.out`
+      @scanner.buffer = b
+    end
+
+    def buffer_name= name
+      @scanner.buffer_name = name
     end
   end # class TagFinder
 end # module CommandT

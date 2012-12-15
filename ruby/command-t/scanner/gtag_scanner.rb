@@ -29,30 +29,38 @@ module CommandT
   class GtagScanner < Scanner
 
     attr_accessor :path
+    attr_accessor :buffer
+    attr_accessor :buffer_name
 
     def initialize path = Dir.pwd, options = {}
       @paths                = {}
       @paths_keys           = []
       @path                 = path
       @max_caches           = options[:max_caches] || 1
+
+      @buffer               = false
+      @buffer_name          = nil
+      @cached_buffer_name   = nil
+      @buffer_cache         = nil
     end
 
     def paths
-      return @paths[@path] if @paths.has_key?(@path)
-      begin
+      if @buffer
+        return @buffer_cache if @cached_buffer_name == @buffer_name
+        @cached_buffer_name = @buffer_name
+        @buffer_cache = get_result "global -f #{@buffer_name} | awk '{print $1, $2, \"|\" ,$4,$5,$6,$7,$8,$9,$10}'"
+      else
+        return @paths[@path] if @paths.has_key?(@path)
         ensure_cache_under_limit
-
-        flush
-      rescue Exception
+        @paths[@path] = get_result "global -dt . | awk '{print $1,$3,$2}'"
       end
-      @paths[@path]
     end
 
     def flush
       `global -u`
-      @paths[@path] = `global -dt .`.lines.map do |line|
-         line.gsub "\t", ":"
-      end
+      @paths = {}
+      @paths_keys = []
+      @cached_buffer_name = nil
     end
 
   private
@@ -64,6 +72,16 @@ module CommandT
         @paths.delete @paths_keys.shift
       end
       @paths_keys << @path
+    end
+
+    def get_result cmd
+      begin
+        `#{cmd}`.lines.map do |line|
+          line.strip
+        end
+      rescue
+        []
+      end
     end
   end # class FileScanner
 end # module CommandT

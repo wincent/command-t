@@ -60,6 +60,16 @@ module CommandT
       @path          = VIM::pwd
       @active_finder = gtag_finder
       @active_finder.path = @path
+      @active_finder.buffer = false
+      show
+    end
+
+    def show_gtag_buffer_finder
+      @path          = VIM::pwd
+      @active_finder = gtag_finder
+      @active_finder.path = @path
+      @active_finder.buffer = true
+      @active_finder.buffer_name = ::VIM::Buffer.current.name
       show
     end
 
