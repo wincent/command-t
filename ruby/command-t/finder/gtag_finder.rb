@@ -51,7 +51,6 @@ module CommandT
     end
 
     def buffer= b
-        `echo #{b} >> ~/test.out`
       @scanner.buffer = b
     end
 
