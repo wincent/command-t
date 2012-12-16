@@ -46,6 +46,7 @@ module CommandT
 
     def paths
       if @buffer
+        return [] if @buffer_name == nil
         return @buffer_cache if @cached_buffer_name == @buffer_name
         @cached_buffer_name = @buffer_name
         @buffer_cache = get_result "global -f #{@buffer_name} | awk '{print $1, $2, \"|\" ,$4,$5,$6,$7,$8,$9,$10}'"
