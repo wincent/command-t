@@ -58,7 +58,8 @@ module CommandT
     end
 
     def flush
-      `global -u`
+      `global -u` if File.exist? 'GTAGS'
+
       @paths = {}
       @paths_keys = []
       @cached_buffer_name = nil
@@ -76,6 +77,8 @@ module CommandT
     end
 
     def get_result cmd
+      return [] unless File.exist? 'GTAGS'
+
       begin
         `#{cmd}`.lines.map do |line|
           line.strip
