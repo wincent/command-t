@@ -35,10 +35,15 @@ module CommandT
     def open_selection command, selection, options = {}
       parts = selection.split ' '
 
-      file = parts[2]
-      line = parts[1].to_i
+      if @scanner.buffer
+        line = parts[1].to_i
+        ::VIM::command "#{line}"
+      else
+        file = parts[2]
+        line = parts[1].to_i
 
-      ::VIM::command "edit #{file} | #{line}"
+        ::VIM::command "edit #{file} | #{line}"
+      end
     end
 
     def flush
