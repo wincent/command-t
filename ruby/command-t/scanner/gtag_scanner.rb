@@ -51,11 +51,11 @@ module CommandT
         return [] if @buffer_name == nil
         return @buffer_cache if @cached_buffer_name == @buffer_name
         @cached_buffer_name = @buffer_name
-        @buffer_cache = get_result "global -f #{@buffer_name} | awk '{print $1, $2, \"|\" ,$4,$5,$6,$7,$8,$9,$10}'"
+        @buffer_cache = get_result "global -f #{@buffer_name}"
       else
         return @paths[@path] if @paths.has_key?(@path)
         ensure_cache_under_limit
-        @paths[@path] = get_result "global -dt . | awk '{print $1,$3,$2}'"
+        @paths[@path] = get_result "global -dx ."
       end
     end
 
