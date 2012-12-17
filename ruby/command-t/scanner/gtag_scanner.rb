@@ -45,6 +45,8 @@ module CommandT
     end
 
     def paths
+      return [] unless File.exist? 'GTAGS'
+
       if @buffer
         return [] if @buffer_name == nil
         return @buffer_cache if @cached_buffer_name == @buffer_name
@@ -77,8 +79,6 @@ module CommandT
     end
 
     def get_result cmd
-      return [] unless File.exist? 'GTAGS'
-
       begin
         `#{cmd}`.lines.map do |line|
           line.strip
