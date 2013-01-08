@@ -35,6 +35,7 @@ module CommandT
     end
 
     def paths
+      Dir.chdir(@path)
       return @paths[@path] if @paths.has_key?(@path)
       @paths[@path] = (`git ls-files`.each_line("\n").map { |x| x.chomp }.to_a)
       @paths[@path]
