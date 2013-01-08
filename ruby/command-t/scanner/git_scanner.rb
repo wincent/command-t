@@ -1,4 +1,4 @@
-# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -21,22 +21,28 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/ext' # CommandT::Matcher
-require 'command-t/finder'
-require 'command-t/scanner/file_scanner'
-require 'command-t/scanner/git_scanner'
+require 'command-t/vim'
+require 'command-t/scanner'
 
 module CommandT
-  class FileFinder < Finder
+  # Uses git ls-files to scan for files
+  class GitScanner < Scanner
+    attr_accessor :path
+
     def initialize path = Dir.pwd, options = {}
-      @scanner = (options[:use_git_lsfiles] ?
-        GitScanner.new(path, options) :
-        FileScanner.new(path, options))
-      @matcher = Matcher.new @scanner, options
+      @paths                = {}
+      @path                 = path
+    end
+
+    def paths
+      return @paths[@path] if @paths.has_key?(@path)
+      @paths[@path] = (`git ls-files`.each_line("\n").map { |x| x.chomp }.to_a)
+      @paths[@path]
     end
 
     def flush
-      @scanner.flush
+      @paths = {}
     end
-  end # class FileFinder
-end # CommandT
+
+  end # class GitScanner
+end # module CommandT

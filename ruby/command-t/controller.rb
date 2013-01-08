@@ -343,7 +343,8 @@ module CommandT
         :max_caches             => get_number('g:CommandTMaxCachedDirectories'),
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
-        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories')
+        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
+        :use_git_lsfiles        => get_bool('g:CommandTUseGitLsFiles')
     end
 
     def jump_finder
