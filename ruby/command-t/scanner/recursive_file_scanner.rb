@@ -78,7 +78,7 @@ module CommandT
       Dir.foreach(dir) do |entry|
         next if ['.', '..'].include?(entry)
         path = File.join(dir, entry)
-        unless path_excluded?(path)
+        unless path_excluded?(path, @prefix_len)
           if File.file?(path)
             @files += 1
             raise FileLimitExceeded if @files > @max_files
