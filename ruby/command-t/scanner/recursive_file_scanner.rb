@@ -31,7 +31,7 @@ module CommandT
     attr_accessor :path
 
     def initialize path = Dir.pwd, options = {}
-      super.initialize path, options
+      super path, options
       @paths_keys           = []
       @max_depth            = options[:max_depth] || 15
       @max_caches           = options[:max_caches] || 1
