@@ -47,6 +47,13 @@ shared_examples "file_scanners" do
     end
   end
 
+  describe 'maxfiles option' do
+    it 'returns fewer than maxfiles' do
+      scanner.send(:initialize, dir, :max_files => 2)
+      scanner.paths.should =~ %w(bar/abc bar/xyz)
+    end
+  end
+
   describe 'path= method' do
     it 'allows repeated applications of scanner at different paths' do
       scanner.paths.should =~ all_fixtures
@@ -60,11 +67,19 @@ shared_examples "file_scanners" do
       scanner.paths.should =~ %w(t1 t2)
     end
   end
+
+  describe "'wildignore' exclusion" do
+    it "calls on VIM's expand() function for pattern filtering" do
+      scanner.send(:initialize, dir)
+      mock(::VIM).evaluate(/expand\(.+\)/).times(7)
+      scanner.paths
+    end
+  end
 end
 
-describe CommandT::FileScanner do
+describe CommandT::RecursiveFileScanner do
   before do
-    @scanner = CommandT::FileScanner.new dir
+    @scanner = CommandT::RecursiveFileScanner.new dir
 
     # scanner will call VIM's expand() function for exclusion filtering
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
@@ -76,17 +91,9 @@ describe CommandT::FileScanner do
     end
   end
 
-  describe "'wildignore' exclusion" do
-    it "calls on VIM's expand() function for pattern filtering" do
-      @scanner = CommandT::FileScanner.new dir
-      mock(::VIM).evaluate(/expand\(.+\)/).times(10)
-      @scanner.paths
-    end
-  end
-
   describe ':max_depth option' do
     it 'does not descend below "max_depth" levels' do
-      @scanner = CommandT::FileScanner.new dir, :max_depth => 1
+      @scanner = CommandT::RecursiveFileScanner.new dir, :max_depth => 1
       @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
     end
   end
@@ -95,6 +102,9 @@ end
 describe CommandT::GitScanner do
   before do
     @scanner = CommandT::GitScanner.new dir
+
+    # scanner will call VIM's expand() function for exclusion filtering
+    stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
   end
 
   include_examples "file_scanners" do

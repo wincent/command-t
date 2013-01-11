@@ -22,28 +22,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim'
-require 'command-t/scanner'
+require 'command-t/scanner/file_scanner'
 
 module CommandT
   # Uses git ls-files to scan for files
-  class GitScanner < Scanner
+  class GitScanner < FileScanner
     attr_accessor :path
 
-    def initialize path = Dir.pwd, options = {}
-      @paths                = {}
-      @path                 = path
-    end
-
     def paths
-      Dir.chdir(@path)
       return @paths[@path] if @paths.has_key?(@path)
-      @paths[@path] = (`git ls-files`.each_line("\n").map { |x| x.chomp }.to_a)
+      Dir.chdir(@path)
+      command = "git ls-files | head -n #{@max_files}"
+      all_files = IO.popen(command).readlines.
+        select { |x| not x.nil? }.
+        map { |x| x.chomp }.
+        select { |x| not path_excluded? x, prefix_len = 0 }.
+        to_a
+      @paths[@path] = all_files
       @paths[@path]
     end
 
     def flush
       @paths = {}
     end
-
   end # class GitScanner
 end # module CommandT
