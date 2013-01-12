@@ -23,6 +23,7 @@
 
 require 'command-t/vim'
 require 'command-t/scanner/file_scanner'
+require 'open3'
 
 module CommandT
   # Uses git ls-files to scan for files
@@ -32,12 +33,18 @@ module CommandT
     def paths
       return @paths[@path] if @paths.has_key?(@path)
       Dir.chdir(@path)
-      command = "git ls-files | head -n #{@max_files}"
-      all_files = IO.popen(command).readlines.
+      command = "git ls-files | head -n %d" % @max_files
+      stdin, stdout, stderr = Open3.popen3(command)
+      if err = stderr.gets
+        raise ScannerError.new("Git error: %s" % err.chomp)
+      end
+
+      all_files = stdout.readlines.
         select { |x| not x.nil? }.
         map { |x| x.chomp }.
         select { |x| not path_excluded? x, prefix_len = 0 }.
         to_a
+
       @paths[@path] = all_files
       @paths[@path]
     end

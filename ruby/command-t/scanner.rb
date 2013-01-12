@@ -25,4 +25,5 @@ require 'command-t/vim'
 
 module CommandT
   class Scanner; end
+  class ScannerError < ::RuntimeError; end
 end # module CommandT
