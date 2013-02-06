@@ -1,4 +1,4 @@
-# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -112,7 +112,7 @@ module CommandT
                          'gui=bold,underline'
         end
 
-        ::VIM::command 'highlight link CommandTSelection Visual'
+        ::VIM::command 'highlight link CommandTSelection PmenuSel'
         ::VIM::command 'highlight link CommandTNoEntries Error'
         ::VIM::evaluate 'clearmatches()'
 
@@ -227,7 +227,7 @@ module CommandT
       if @has_focus
         @has_focus = false
         if VIM::has_syntax?
-          ::VIM::command 'highlight link CommandTSelection Visual'
+          ::VIM::command 'highlight link CommandTSelection PmenuSel'
         end
       end
     end
