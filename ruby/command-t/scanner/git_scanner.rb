@@ -33,7 +33,7 @@ module CommandT
     def paths
       return @paths[@path] if @paths.has_key?(@path)
       Dir.chdir(@path)
-      command = "git ls-files | head -n %d" % @max_files
+      command = "git ls-files --exclude-standard | head -n %d" % @max_files
       stdin, stdout, stderr = Open3.popen3(command)
 
       all_files = stdout.readlines.
