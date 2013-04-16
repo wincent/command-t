@@ -420,7 +420,7 @@ changes via |:let|.
 Following is a list of all available options:
 
                                                *g:CommandTMaxFiles*
-  |g:CommandTMaxFiles|                           number (default 10000)
+  |g:CommandTMaxFiles|                           number (default 30000)
 
       The maximum number of files that will be considered when scanning the
       current directory. Upon reaching this number scanning stops. This
