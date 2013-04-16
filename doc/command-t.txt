@@ -528,6 +528,12 @@ Following is a list of all available options:
       When this setting is off (the default) the matches in the |:CommandTTag|
       listing do not include filenames.
 
+                                                *g:CommandTHighlightColor*
+  |g:CommandTHighlightColor|                      string (default: 'PmenuSel')
+
+      Specifies the highlight color that will be used to show the currently
+      selected item in the match listing window.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
@@ -742,8 +748,9 @@ HISTORY                                         *command-t-history*
 - don't scan "pathological" filesystem structures (ie. circular or
   self-referential symlinks; patch from Marcus Brito)
 - gracefully handle files starting with "+" (patch from Ivan Ukhov)
-- switch selection highlight color for better readability (suggestion from
-  André Arko)
+- switch default selection highlight color for better readability (suggestion
+  from André Arko), but make it possible to configure via the
+  |g:CommandTHighlightColor| setting
 
 1.4 (20 June 2012)
 

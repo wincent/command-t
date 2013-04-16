@@ -175,10 +175,11 @@ module CommandT
       @initial_window   = $curwin
       @initial_buffer   = $curbuf
       @match_window     = MatchWindow.new \
-        :prompt               => @prompt,
+        :highlight_color      => get_string('g:CommandTHighlightColor'),
         :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop'),
         :match_window_reverse => get_bool('g:CommandTMatchWindowReverse'),
-        :min_height           => min_height
+        :min_height           => min_height,
+        :prompt               => @prompt
       @focus            = @prompt
       @prompt.focus
       register_for_key_presses
