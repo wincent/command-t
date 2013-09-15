@@ -48,6 +48,10 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     int dot_file_match = 0;     // true if needle matches a dot-file
     int dot_search = 0;         // true if searching for a dot
 
+    // bail early if not enough room (left) in haystack for (rest of) needle
+    if (m->haystack_len - haystack_idx < m->needle_len - needle_idx)
+        return 0.0;
+
     for (long i = needle_idx; i < m->needle_len; i++)
     {
         char c = m->needle_p[i];
