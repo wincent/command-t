@@ -21,6 +21,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "float.h"
 #include "match.h"
 #include "ext.h"
 #include "ruby_compat.h"
@@ -36,6 +37,7 @@ typedef struct
     int     dot_file;               // boolean: true if str is a dot-file
     int     always_show_dot_files;  // boolean
     int     never_show_dot_files;   // boolean
+    double  *memo;                  // memoization
 } matchinfo_t;
 
 double recursive_match(matchinfo_t *m,    // sharable meta-data
@@ -47,6 +49,11 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     double seen_score = 0;      // remember best score seen via recursion
     int dot_file_match = 0;     // true if needle matches a dot-file
     int dot_search = 0;         // true if searching for a dot
+
+    // do we have a memoized result we can return?
+    double memoized = m->memo[needle_idx * m->needle_len + haystack_idx];
+    if (memoized != DBL_MAX)
+        return memoized;
 
     // bail early if not enough room (left) in haystack for (rest of) needle
     if (m->haystack_len - haystack_idx < m->needle_len - needle_idx) {
@@ -74,6 +81,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
             }
             else if (d >= 'A' && d <= 'Z')
                 d += 'a' - 'A'; // add 32 to downcase
+
             if (c == d)
             {
                 found = 1;
@@ -139,6 +147,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     score = score > seen_score ? score : seen_score;
 
 memoize:
+    m->memo[needle_idx * m->needle_len + haystack_idx] = score;
     return score;
 }
 
@@ -184,8 +193,16 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
             }
         }
     }
-    else // normal case
+    else if (m.haystack_len > 0) // normal case
+    {
+        // prepare for memoization
+        double memo[m.haystack_len * m.needle_len];
+        for (long i = 0, max = m.haystack_len * m.needle_len; i < max; i++)
+            memo[i] = DBL_MAX;
+        m.memo = memo;
+
         score = recursive_match(&m, 0, 0, 0, 0.0);
+    }
 
     // clean-up and final book-keeping
     rb_iv_set(self, "@score", rb_float_new(score));

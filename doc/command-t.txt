@@ -757,6 +757,8 @@ HISTORY                                         *command-t-history*
   |g:CommandTHighlightColor| setting
 - added a mapping to take the current matches and put then in the quickfix
   window
+- performance improvements, particularly noticeable with large file
+  hierarchies
 
 1.4 (20 June 2012)
 
