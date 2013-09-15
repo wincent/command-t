@@ -49,8 +49,10 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     int dot_search = 0;         // true if searching for a dot
 
     // bail early if not enough room (left) in haystack for (rest of) needle
-    if (m->haystack_len - haystack_idx < m->needle_len - needle_idx)
-        return 0.0;
+    if (m->haystack_len - haystack_idx < m->needle_len - needle_idx) {
+        score = 0.0;
+        goto memoize;
+    }
 
     for (long i = needle_idx; i < m->needle_len; i++)
     {
@@ -118,16 +120,26 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                 break;
             }
         }
+
         if (!found)
-            return 0.0;
+        {
+            score = 0.0;
+            goto memoize;
+        }
     }
+
     if (m->dot_file)
     {
         if (m->never_show_dot_files ||
-            (!dot_file_match && !m->always_show_dot_files))
-            return 0.0;
+            (!dot_file_match && !m->always_show_dot_files)) {
+            score = 0.0;
+            goto memoize;
+        }
     }
-    return (score > seen_score) ? score : seen_score;
+    score = score > seen_score ? score : seen_score;
+
+memoize:
+    return score;
 }
 
 // Match.new needle, string, options = {}
