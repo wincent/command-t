@@ -323,6 +323,7 @@ has focus:
     <C-p>       select previous file in the file listing
     <Up>        select previous file in the file listing
     <C-f>       flush the cache (see |:CommandTFlush| for details)
+    <C-q>       place the current matches in the quickfix window
     <C-c>       cancel (dismisses file listing)
 
 The following is also available on terminals which support it:
@@ -591,6 +592,9 @@ Following is a list of all map settings and their defaults:
                                       *g:CommandTRefreshMap*
                 |g:CommandTRefreshMap|  <C-f>
 
+                                      *g:CommandTQuickfixMap*
+               |g:CommandTQuickfixMap|  <C-q>
+
                                       *g:CommandTCursorLeftMap*
              |g:CommandTCursorLeftMap|  <Left>
                                       <C-h>
@@ -751,6 +755,8 @@ HISTORY                                         *command-t-history*
 - switch default selection highlight color for better readability (suggestion
   from André Arko), but make it possible to configure via the
   |g:CommandTHighlightColor| setting
+- added a mapping to take the current matches and put then in the quickfix
+  window
 
 1.4 (20 June 2012)
 

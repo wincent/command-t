@@ -1,4 +1,4 @@
-# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -77,6 +77,18 @@ module CommandT
           ::VIM::command "silent b #{@initial_buffer.number}"
         end
       end
+    end
+
+    # Take current matches and stick them in the quickfix window.
+    def quickfix
+      hide
+
+      matches = @matches.map do |match|
+        "{ 'filename': '#{VIM::escape_for_single_quotes match}' }"
+      end.join(', ')
+
+      ::VIM::command 'call setqflist([' + matches + '])'
+      ::VIM::command 'cope'
     end
 
     def refresh
@@ -300,6 +312,7 @@ module CommandT
         'CursorRight'           => ['<Right>', '<C-l>'],
         'CursorStart'           => '<C-a>',
         'Delete'                => '<Del>',
+        'Quickfix'              => '<C-q>',
         'Refresh'               => '<C-f>',
         'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
         'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
@@ -329,8 +342,8 @@ module CommandT
     end
 
     def list_matches
-      matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
-      @match_window.matches = matches
+      @matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
+      @match_window.matches = @matches
     end
 
     def buffer_finder

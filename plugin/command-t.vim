@@ -1,5 +1,5 @@
 " command-t.vim
-" Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+" Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 "
 " Redistribution and use in source and binary forms, with or without
 " modification, are permitted provided that the following conditions are met:
@@ -118,6 +118,10 @@ endfunction
 
 function CommandTAcceptSelectionVSplit()
   ruby $command_t.accept_selection :command => 'vs'
+endfunction
+
+function CommandTQuickfix()
+  ruby $command_t.quickfix
 endfunction
 
 function CommandTRefresh()
