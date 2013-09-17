@@ -67,7 +67,12 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
         if (c == '.')
             dot_search = 1;
         int found = 0;
-        for (long j = haystack_idx; j < m->haystack_len; j++, haystack_idx++)
+
+        // similar to above, we'll stop iterating when we know we're too close
+        // to the end of the string to possibly match
+        for (long j = haystack_idx;
+             j <= m->haystack_len - (m->needle_len - i);
+             j++, haystack_idx++)
         {
             char d = m->haystack_p[j];
             if (d == '.')
