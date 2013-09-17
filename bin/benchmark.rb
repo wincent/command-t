@@ -34,6 +34,8 @@ require 'yaml'
 yaml = File.expand_path('../data/benchmark.yml', File.dirname(__FILE__))
 data = YAML.load_file(yaml)
 
+puts "Starting benchmark run (PID: #{Process.pid})"
+
 Benchmark.bmbm do |b|
   data['tests']['match'].each do |test|
     b.report(test['name']) do
