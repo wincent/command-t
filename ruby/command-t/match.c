@@ -129,7 +129,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                 }
 
                 score += score_for_char;
-                last_idx = haystack_idx++;
+                last_idx = haystack_idx + 1;
                 break;
             }
         }
