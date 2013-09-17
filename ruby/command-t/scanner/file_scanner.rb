@@ -38,6 +38,7 @@ module CommandT
       @max_files            = options[:max_files] || 30_000
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
+      @special_wild_ignore  = options[:special_wild_ignore]
     end
 
     def paths
@@ -84,6 +85,10 @@ module CommandT
     end
 
     def add_paths_for_directory dir, accumulator
+      if !!@special_wild_ignore
+        bak = VIM::exists?('&wildignore') ? ::VIM::evaluate('&wildignore').to_s : nil
+        ::VIM::command("set wildignore=#{@special_wild_ignore}")
+      end
       Dir.foreach(dir) do |entry|
         next if ['.', '..'].include?(entry)
         path = File.join(dir, entry)
@@ -104,6 +109,10 @@ module CommandT
       end
     rescue Errno::EACCES
       # skip over directories for which we don't have access
+    ensure
+      if !!@special_wild_ignore && !!bak
+        ::VIM::command("let &wildignore=\"#{bak}\"")
+      end
     end
   end # class FileScanner
 end # module CommandT
