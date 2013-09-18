@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,8 @@ module CommandT
       @max_files            = options[:max_files] || 30_000
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
+      @wild_ignore          = options[:wild_ignore]
+      @base_wild_ignore     = VIM::wild_ignore
     end
 
     def paths
@@ -48,8 +50,11 @@ module CommandT
         @depth        = 0
         @files        = 0
         @prefix_len   = @path.chomp('/').length
+        set_wild_ignore(@wild_ignore)
         add_paths_for_directory @path, @paths[@path]
       rescue FileLimitExceeded
+      ensure
+        set_wild_ignore(@base_wild_ignore)
       end
       @paths[@path]
     end
@@ -81,6 +86,10 @@ module CommandT
         target = File.expand_path(File.readlink(path), File.dirname(path))
         target.include?(@path) || @path.include?(target)
       end
+    end
+
+    def set_wild_ignore(ignore)
+      ::VIM::command("set wildignore=#{ignore}") if @wild_ignore
     end
 
     def add_paths_for_directory dir, accumulator
