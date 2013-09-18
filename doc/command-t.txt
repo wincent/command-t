@@ -764,7 +764,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.5 (not yet released)
+1.5 (18 September 2013)
 - don't scan "pathological" filesystem structures (ie. circular or
   self-referential symlinks; patch from Marcus Brito)
 - gracefully handle files starting with "+" (patch from Ivan Ukhov)
