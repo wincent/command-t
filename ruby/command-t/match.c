@@ -27,8 +27,7 @@
 #include "ruby_compat.h"
 
 // use a struct to make passing params during recursion easier
-typedef struct
-{
+typedef struct {
     char    *haystack_p;            // pointer to the path string to be searched
     long    haystack_len;           // length of same
     char    *needle_p;              // pointer to search string (needle)
@@ -46,9 +45,9 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                        long last_idx,     // location of last matched character
                        double score)      // cumulative score so far
 {
-    double seen_score = 0;      // remember best score seen via recursion
-    int dot_file_match = 0;     // true if needle matches a dot-file
-    int dot_search = 0;         // true if searching for a dot
+    double seen_score = 0;  // remember best score seen via recursion
+    int dot_file_match = 0; // true if needle matches a dot-file
+    int dot_search = 0;     // true if searching for a dot
 
     // do we have a memoized result we can return?
     double memoized = m->memo[needle_idx * m->needle_len + haystack_idx];
@@ -61,8 +60,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
         goto memoize;
     }
 
-    for (long i = needle_idx; i < m->needle_len; i++)
-    {
+    for (long i = needle_idx; i < m->needle_len; i++) {
         char c = m->needle_p[i];
         if (c == '.')
             dot_search = 1;
@@ -72,31 +70,27 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
         // to the end of the string to possibly match
         for (long j = haystack_idx;
              j <= m->haystack_len - (m->needle_len - i);
-             j++, haystack_idx++)
-        {
+             j++, haystack_idx++) {
             char d = m->haystack_p[j];
-            if (d == '.')
-            {
-                if (j == 0 || m->haystack_p[j - 1] == '/')
-                {
+            if (d == '.') {
+                if (j == 0 || m->haystack_p[j - 1] == '/') {
                     m->dot_file = 1;        // this is a dot-file
                     if (dot_search)         // and we are searching for a dot
                         dot_file_match = 1; // so this must be a match
                 }
-            }
-            else if (d >= 'A' && d <= 'Z')
+            } else if (d >= 'A' && d <= 'Z') {
                 d += 'a' - 'A'; // add 32 to downcase
+            }
 
-            if (c == d)
-            {
+            if (c == d) {
                 found = 1;
                 dot_search = 0;
 
                 // calculate score
                 double score_for_char = m->max_score_per_char;
                 long distance = j - last_idx;
-                if (distance > 1)
-                {
+
+                if (distance > 1) {
                     double factor = 1.0;
                     char last = m->haystack_p[j - 1];
                     char curr = m->haystack_p[j]; // case matters, so get again
@@ -119,8 +113,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                     score_for_char *= factor;
                 }
 
-                if (++j < m->haystack_len)
-                {
+                if (++j < m->haystack_len) {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
                     double sub_score = recursive_match(m, j, i, last_idx, score);
@@ -134,20 +127,17 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
             }
         }
 
-        if (!found)
-        {
+        if (!found) {
             score = 0.0;
             goto memoize;
         }
     }
 
-    if (m->dot_file)
-    {
-        if (m->never_show_dot_files ||
-            (!dot_file_match && !m->always_show_dot_files)) {
-            score = 0.0;
-            goto memoize;
-        }
+    if (m->dot_file &&
+        (m->never_show_dot_files ||
+         (!dot_file_match && !m->always_show_dot_files))) {
+        score = 0.0;
+        goto memoize;
     }
     score = score > seen_score ? score : seen_score;
 
@@ -163,8 +153,8 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
     VALUE str, needle, options;
     if (rb_scan_args(argc, argv, "21", &str, &needle, &options) == 2)
         options = Qnil;
-    str             = StringValue(str);
-    needle          = StringValue(needle); // already downcased by caller
+    str    = StringValue(str);
+    needle = StringValue(needle); // already downcased by caller
 
     // check optional options hash for overrides
     VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
@@ -182,24 +172,23 @@ VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
 
     // calculate score
     double score = 1.0;
-    if (m.needle_len == 0) // special case for zero-length search string
-    {
+
+    // special case for zero-length search string
+    if (m.needle_len == 0) {
+
         // filter out dot files
-        if (!m.always_show_dot_files)
-        {
-            for (long i = 0; i < m.haystack_len; i++)
-            {
+        if (!m.always_show_dot_files) {
+            for (long i = 0; i < m.haystack_len; i++) {
                 char c = m.haystack_p[i];
-                if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/'))
-                {
+
+                if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
                     score = 0.0;
                     break;
                 }
             }
         }
-    }
-    else if (m.haystack_len > 0) // normal case
-    {
+    } else if (m.haystack_len > 0) { // normal case
+
         // prepare for memoization
         double memo[m.haystack_len * m.needle_len];
         for (long i = 0, max = m.haystack_len * m.needle_len; i < max; i++)
