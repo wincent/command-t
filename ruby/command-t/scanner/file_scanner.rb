@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@ module CommandT
       @max_files            = options[:max_files] || 30_000
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
-      @special_wild_ignore  = options[:special_wild_ignore]
+      @wild_ignore          = options[:wild_ignore]
     end
 
     def paths
@@ -85,9 +85,9 @@ module CommandT
     end
 
     def add_paths_for_directory dir, accumulator
-      if !!@special_wild_ignore
+      if !!@wild_ignore
         bak = VIM::exists?('&wildignore') ? ::VIM::evaluate('&wildignore').to_s : nil
-        ::VIM::command("set wildignore=#{@special_wild_ignore}")
+        ::VIM::command("set wildignore=#{@wild_ignore}")
       end
       Dir.foreach(dir) do |entry|
         next if ['.', '..'].include?(entry)
@@ -110,7 +110,7 @@ module CommandT
     rescue Errno::EACCES
       # skip over directories for which we don't have access
     ensure
-      if !!@special_wild_ignore && !!bak
+      if !!@wild_ignore && !!bak
         ::VIM::command("let &wildignore=\"#{bak}\"")
       end
     end
