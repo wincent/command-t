@@ -655,10 +655,10 @@ order):
   Anthony Panozzo           Mike Lundy                Sung Pae
   Daniel Hahler             Nate Kane                 Thomas Pelletier
   Felix Tjandrawibawa       Nicholas Alpi             Victor Hugo Borja
-  Gary Bernhardt            Nadav Samet               Woody Peterson
-  Ivan Ukhov                Noon Silk                 Yan Pritzker
-  Jeff Kreeftmeijer         Paul Jolly                Zak Johnson
-  Lucas de Vries            Rainux Luo
+  Gary Bernhardt            Nadav Samet               Vít Ondruch
+  Ivan Ukhov                Noon Silk                 Woody Peterson
+  Jeff Kreeftmeijer         Paul Jolly                Yan Pritzker
+  Lucas de Vries            Rainux Luo                Zak Johnson
   Marcus Brito              Scott Bronson
   Marian Schubert           Seth Fowler
   Matthew Todd              Steven Moazami
