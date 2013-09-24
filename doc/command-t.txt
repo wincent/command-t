@@ -764,6 +764,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.5.1 (23 September 2013)
+- exclude large benchmark fixture file from source exports (patch from Vít
+  Ondruch)
+
 1.5 (18 September 2013)
 - don't scan "pathological" filesystem structures (ie. circular or
   self-referential symlinks; patch from Marcus Brito)
