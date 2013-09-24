@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,8 +24,6 @@
 require 'spec_helper'
 require 'command-t/scanner/file_scanner'
 
-module VIM; end
-
 describe CommandT::FileScanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', '..', 'fixtures')
@@ -34,8 +32,9 @@ describe CommandT::FileScanner do
     )
     @scanner = CommandT::FileScanner.new @dir
 
-    # scanner will call VIM's expand() function for exclusion filtering
+    stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
+    stub(::VIM).evaluate(/wildignore/) { '' }
   end
 
   describe 'paths method' do
