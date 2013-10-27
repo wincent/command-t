@@ -34,11 +34,8 @@ module CommandT
       return @paths[@path] if @paths.has_key?(@path)
       begin
         Dir.chdir(@path)
-        command = "git ls-files | head -n %d" % @max_files
+        command = "git ls-files --exclude-standard | head -n %d" % @max_files
         stdin, stdout, stderr = Open3.popen3(command)
-        if err = stderr.gets
-          raise ScannerError.new("Git error: %s" % err.chomp)
-        end
 
         set_wild_ignore(@wild_ignore)
         all_files = stdout.readlines.
@@ -46,6 +43,10 @@ module CommandT
           map { |x| x.chomp }.
           select { |x| not path_excluded? x, prefix_len = 0 }.
           to_a
+        if err = stderr.gets
+          raise ScannerError.new("Git error: %s" % err.chomp)
+        end
+
       ensure
         set_wild_ignore(@base_wild_ignore)
       end
