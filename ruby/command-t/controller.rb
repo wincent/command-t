@@ -25,6 +25,7 @@ require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
 require 'command-t/finder/tag_finder'
+require 'command-t/scanner'
 require 'command-t/match_window'
 require 'command-t/prompt'
 require 'command-t/vim/path_utilities'
@@ -342,8 +343,13 @@ module CommandT
     end
 
     def list_matches
-      @matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
-      @match_window.matches = @matches
+      begin
+        @matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
+        @match_window.matches = @matches
+      rescue ScannerError => e
+        @match_window.matches = []
+        @match_window.error = e.message
+      end
     end
 
     def buffer_finder
@@ -358,6 +364,7 @@ module CommandT
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
+        :use_git_lsfiles        => get_bool('g:CommandTUseGitLsFiles'),
         :wild_ignore            => get_string('g:CommandTWildIgnore')
     end
 

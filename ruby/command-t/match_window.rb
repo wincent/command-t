@@ -264,6 +264,10 @@ module CommandT
       print_error 'NO SUCH FILE OR DIRECTORY'
     end
 
+    def error= msg
+      print_error msg
+    end
+
   private
 
     def move_cursor_to_selected_line

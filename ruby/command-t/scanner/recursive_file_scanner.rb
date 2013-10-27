@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,20 +22,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim'
-require 'command-t/scanner'
+require 'command-t/scanner/file_scanner'
 
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
-  class FileScanner < Scanner
+  class RecursiveFileScanner < FileScanner
+    class FileLimitExceeded < ::RuntimeError; end
     attr_accessor :path
 
     def initialize path = Dir.pwd, options = {}
-      @paths                = {}
+      super path, options
       @paths_keys           = []
-      @path                 = path
-      @max_files            = options[:max_files] || 30_000
-      @wild_ignore          = options[:wild_ignore]
-      @base_wild_ignore     = VIM::wild_ignore
+      @max_depth            = options[:max_depth] || 15
+      @max_caches           = options[:max_caches] || 1
+      @scan_dot_directories = options[:scan_dot_directories] || false
     end
 
     def paths
@@ -59,16 +59,45 @@ module CommandT
       @paths = {}
     end
 
-  protected
+  private
 
-    def path_excluded? path, prefix_len
-      path = path[(prefix_len + 1)..-1]
-      path = VIM::escape_for_single_quotes path
-      ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+    def ensure_cache_under_limit
+      # Ruby 1.8 doesn't have an ordered hash, so use a separate stack to
+      # track and expire the oldest entry in the cache
+      if @max_caches > 0 && @paths_keys.length >= @max_caches
+        @paths.delete @paths_keys.shift
+      end
+      @paths_keys << @path
     end
 
-    def set_wild_ignore(ignore)
-      ::VIM::command("set wildignore=#{ignore}") if @wild_ignore
+    def looped_symlink? path
+      if File.symlink?(path)
+        target = File.expand_path(File.readlink(path), File.dirname(path))
+        target.include?(@path) || @path.include?(target)
+      end
     end
-  end # class FileScanner
+
+    def add_paths_for_directory dir, accumulator
+      Dir.foreach(dir) do |entry|
+        next if ['.', '..'].include?(entry)
+        path = File.join(dir, entry)
+        unless path_excluded?(path, @prefix_len)
+          if File.file?(path)
+            @files += 1
+            raise FileLimitExceeded if @files > @max_files
+            accumulator << path[@prefix_len + 1..-1]
+          elsif File.directory?(path)
+            next if @depth >= @max_depth
+            next if (entry.match(/\A\./) && !@scan_dot_directories)
+            next if looped_symlink?(path)
+            @depth += 1
+            add_paths_for_directory path, accumulator
+            @depth -= 1
+          end
+        end
+      end
+    rescue Errno::EACCES
+      # skip over directories for which we don't have access
+    end
+  end # class RecursiveFileScanner
 end # module CommandT

@@ -22,8 +22,41 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim'
+require 'command-t/scanner/file_scanner'
+require 'open3'
 
 module CommandT
-  class Scanner; end
-  class ScannerError < ::RuntimeError; end
+  # Uses git ls-files to scan for files
+  class GitScanner < FileScanner
+    attr_accessor :path
+
+    def paths
+      return @paths[@path] if @paths.has_key?(@path)
+      begin
+        Dir.chdir(@path)
+        command = "git ls-files --exclude-standard | head -n %d" % @max_files
+        stdin, stdout, stderr = Open3.popen3(command)
+
+        set_wild_ignore(@wild_ignore)
+        all_files = stdout.readlines.
+          select { |x| not x.nil? }.
+          map { |x| x.chomp }.
+          select { |x| not path_excluded? x, prefix_len = 0 }.
+          to_a
+        if err = stderr.gets
+          raise ScannerError.new("Git error: %s" % err.chomp)
+        end
+
+      ensure
+        set_wild_ignore(@base_wild_ignore)
+      end
+
+      @paths[@path] = all_files
+      @paths[@path]
+    end
+
+    def flush
+      @paths = {}
+    end
+  end # class GitScanner
 end # module CommandT

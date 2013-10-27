@@ -23,12 +23,15 @@
 
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
-require 'command-t/scanner/file_scanner'
+require 'command-t/scanner/recursive_file_scanner'
+require 'command-t/scanner/git_scanner'
 
 module CommandT
   class FileFinder < Finder
     def initialize path = Dir.pwd, options = {}
-      @scanner = FileScanner.new path, options
+      @scanner = (options[:use_git_lsfiles] ?
+        GitScanner.new(path, options) :
+        RecursiveFileScanner.new(path, options))
       @matcher = Matcher.new @scanner, options
     end
 
