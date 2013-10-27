@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -82,7 +82,9 @@ describe CommandT::RecursiveFileScanner do
     @scanner = CommandT::RecursiveFileScanner.new dir
 
     # scanner will call VIM's expand() function for exclusion filtering
+    stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
+    stub(::VIM).evaluate(/wildignore/) { '' }
   end
 
   include_examples "file_scanners" do
@@ -104,7 +106,9 @@ describe CommandT::GitScanner do
     @scanner = CommandT::GitScanner.new dir
 
     # scanner will call VIM's expand() function for exclusion filtering
+    stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
+    stub(::VIM).evaluate(/wildignore/) { '' }
   end
 
   include_examples "file_scanners" do

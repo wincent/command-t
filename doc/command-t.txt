@@ -323,6 +323,7 @@ has focus:
     <C-p>       select previous file in the file listing
     <Up>        select previous file in the file listing
     <C-f>       flush the cache (see |:CommandTFlush| for details)
+    <C-q>       place the current matches in the quickfix window
     <C-c>       cancel (dismisses file listing)
 
 The following is also available on terminals which support it:
@@ -420,7 +421,7 @@ changes via |:let|.
 Following is a list of all available options:
 
                                                *g:CommandTMaxFiles*
-  |g:CommandTMaxFiles|                           number (default 10000)
+  |g:CommandTMaxFiles|                           number (default 30000)
 
       The maximum number of files that will be considered when scanning the
       current directory. Upon reaching this number scanning stops. This
@@ -435,7 +436,7 @@ Following is a list of all available options:
       skipped.
 
                                                *g:CommandTMaxCachedDirectories*
-  |g:CommandTMaxCachedDirectories|                           number (default 1)
+  |g:CommandTMaxCachedDirectories|               number (default 1)
 
       The maximum number of directories whose contents should be cached when
       recursively scanning. With the default value of 1, each time you change
@@ -528,6 +529,23 @@ Following is a list of all available options:
       When this setting is off (the default) the matches in the |:CommandTTag|
       listing do not include filenames.
 
+                                                *g:CommandTHighlightColor*
+  |g:CommandTHighlightColor|                      string (default: 'PmenuSel')
+
+      Specifies the highlight color that will be used to show the currently
+      selected item in the match listing window.
+
+                                                *g:CommandTWildIgnore*
+  |g:CommandTWildIgnore|                          string (default: none)
+
+      Optionally override Vim's global |'wildignore'| setting during Command-T
+      seaches. If you wish to supplement rather than replace the global
+      setting, you can use a syntax like:
+
+        let g:CommandTWildIgnore=&wildignore . ",**/bower_components/*"
+
+      See also |command-t-wildignore|.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
@@ -585,6 +603,9 @@ Following is a list of all map settings and their defaults:
                                       *g:CommandTRefreshMap*
                 |g:CommandTRefreshMap|  <C-f>
 
+                                      *g:CommandTQuickfixMap*
+               |g:CommandTQuickfixMap|  <C-q>
+
                                       *g:CommandTCursorLeftMap*
              |g:CommandTCursorLeftMap|  <Left>
                                       <C-h>
@@ -619,6 +640,11 @@ settings can be used to control behavior:
 
       See the |'wildignore'| documentation for more information.
 
+      If you want to influence Command-T's file exclusion behavior without
+      changing your global |'wildignore'| setting, you can use the
+      |g:CommandTWildIgnore| setting to apply an override that takes effect
+      only during Command-T searches.
+
 
 AUTHORS                                         *command-t-authors*
 
@@ -626,16 +652,16 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Anthony Panozzo           Mike Lundy                Thomas Pelletier
-  Daniel Hahler             Nate Kane                 Victor Hugo Borja
-  Felix Tjandrawibawa       Nicholas Alpi             Woody Peterson
-  Gary Bernhardt            Nadav Samet               Yan Pritzker
-  Ivan Ukhov                Noon Silk                 Zak Johnson
-  Jeff Kreeftmeijer         Rainux Luo
-  Lucas de Vries            Scott Bronson
-  Marcus Brito              Seth Fowler
-  Marian Schubert           Steven Moazami
-  Matthew Todd              Sung Pae
+  Anthony Panozzo           Mike Lundy                Sung Pae
+  Daniel Hahler             Nate Kane                 Thomas Pelletier
+  Felix Tjandrawibawa       Nicholas Alpi             Victor Hugo Borja
+  Gary Bernhardt            Nadav Samet               Vít Ondruch
+  Ivan Ukhov                Noon Silk                 Woody Peterson
+  Jeff Kreeftmeijer         Paul Jolly                Yan Pritzker
+  Lucas de Vries            Rainux Luo                Zak Johnson
+  Marcus Brito              Scott Bronson
+  Marian Schubert           Seth Fowler
+  Matthew Todd              Steven Moazami
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -713,7 +739,7 @@ PayPal to win@wincent.com:
 
 LICENSE                                         *command-t-license*
 
-Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -738,10 +764,22 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.5 (not yet released)
+1.5.1 (23 September 2013)
+- exclude large benchmark fixture file from source exports (patch from Vít
+  Ondruch)
+
+1.5 (18 September 2013)
 - don't scan "pathological" filesystem structures (ie. circular or
   self-referential symlinks; patch from Marcus Brito)
 - gracefully handle files starting with "+" (patch from Ivan Ukhov)
+- switch default selection highlight color for better readability (suggestion
+  from André Arko), but make it possible to configure via the
+  |g:CommandTHighlightColor| setting
+- added a mapping to take the current matches and put then in the quickfix
+  window
+- performance improvements, particularly noticeable with large file
+  hierarchies
+- added |g:CommandTWildIgnore| setting (patch from Paul Jolly)
 
 1.4 (20 June 2012)
 

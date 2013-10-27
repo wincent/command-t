@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,8 +24,6 @@
 require 'spec_helper'
 require 'command-t/finder/file_finder'
 
-module VIM; end
-
 describe CommandT::FileFinder do
   before :all do
     @finder = CommandT::FileFinder.new File.join(File.dirname(__FILE__), '..',
@@ -42,8 +40,7 @@ describe CommandT::FileFinder do
   end
 
   before do
-    # scanner will call VIM's expand() function for exclusion filtering
-    stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
+    stub(::VIM).evaluate(/expand/) { 0 }
   end
 
   describe 'sorted_matches_for method' do

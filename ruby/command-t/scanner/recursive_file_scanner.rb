@@ -46,8 +46,11 @@ module CommandT
         @depth        = 0
         @files        = 0
         @prefix_len   = @path.chomp('/').length
+        set_wild_ignore(@wild_ignore)
         add_paths_for_directory @path, @paths[@path]
       rescue FileLimitExceeded
+      ensure
+        set_wild_ignore(@base_wild_ignore)
       end
       @paths[@path]
     end

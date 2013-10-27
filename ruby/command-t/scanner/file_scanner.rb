@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,26 @@ module CommandT
       @paths                = {}
       @paths_keys           = []
       @path                 = path
-      @max_files            = options[:max_files] || 10_000
+      @max_files            = options[:max_files] || 30_000
+      @wild_ignore          = options[:wild_ignore]
+      @base_wild_ignore     = VIM::wild_ignore
+    end
+
+    def paths
+      return @paths[@path] if @paths.has_key?(@path)
+      begin
+        ensure_cache_under_limit
+        @paths[@path] = []
+        @depth        = 0
+        @files        = 0
+        @prefix_len   = @path.chomp('/').length
+        set_wild_ignore(@wild_ignore)
+        add_paths_for_directory @path, @paths[@path]
+      rescue FileLimitExceeded
+      ensure
+        set_wild_ignore(@base_wild_ignore)
+      end
+      @paths[@path]
     end
 
     def flush
@@ -46,6 +65,10 @@ module CommandT
       path = path[(prefix_len + 1)..-1]
       path = VIM::escape_for_single_quotes path
       ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+    end
+
+    def set_wild_ignore(ignore)
+      ::VIM::command("set wildignore=#{ignore}") if @wild_ignore
     end
   end # class FileScanner
 end # module CommandT

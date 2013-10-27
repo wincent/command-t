@@ -32,18 +32,23 @@ module CommandT
 
     def paths
       return @paths[@path] if @paths.has_key?(@path)
-      Dir.chdir(@path)
-      command = "git ls-files | head -n %d" % @max_files
-      stdin, stdout, stderr = Open3.popen3(command)
-      if err = stderr.gets
-        raise ScannerError.new("Git error: %s" % err.chomp)
-      end
+      begin
+        Dir.chdir(@path)
+        command = "git ls-files | head -n %d" % @max_files
+        stdin, stdout, stderr = Open3.popen3(command)
+        if err = stderr.gets
+          raise ScannerError.new("Git error: %s" % err.chomp)
+        end
 
-      all_files = stdout.readlines.
-        select { |x| not x.nil? }.
-        map { |x| x.chomp }.
-        select { |x| not path_excluded? x, prefix_len = 0 }.
-        to_a
+        set_wild_ignore(@wild_ignore)
+        all_files = stdout.readlines.
+          select { |x| not x.nil? }.
+          map { |x| x.chomp }.
+          select { |x| not path_excluded? x, prefix_len = 0 }.
+          to_a
+      ensure
+        set_wild_ignore(@base_wild_ignore)
+      end
 
       @paths[@path] = all_files
       @paths[@path]

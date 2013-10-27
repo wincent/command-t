@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,8 +23,6 @@
 
 require 'spec_helper'
 require 'command-t/controller'
-
-module VIM; end
 
 describe CommandT::Controller do
   describe 'accept selection' do

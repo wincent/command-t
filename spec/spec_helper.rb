@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -35,4 +35,13 @@ end
 
 RSpec.configure do |config|
   config.mock_framework = :rr
+end
+
+# Fake top-level VIM implementation, for stubbing.
+module VIM
+  class << self
+    def evaluate(*args); end
+  end
+
+  class Buffer; end
 end
