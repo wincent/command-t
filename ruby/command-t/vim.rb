@@ -43,7 +43,11 @@ module CommandT
     end
 
     def self.wild_ignore
-      exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
+      if exists?('&wildignore')
+        ::VIM::evaluate('&wildignore').to_s
+      else
+        ''
+      end
     end
 
     # Execute cmd, capturing the output into a variable and returning it.

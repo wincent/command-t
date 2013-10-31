@@ -41,6 +41,8 @@ describe CommandT::FileFinder do
 
   before do
     stub(::VIM).evaluate(/expand/) { 0 }
+    stub(::VIM).evaluate(/^&wildignore$/) { '' }
+    stub(::VIM).command(/set wildignore=/) { '' }
   end
 
   describe 'sorted_matches_for method' do
