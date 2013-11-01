@@ -98,4 +98,11 @@ describe CommandT::FileScanner do
       @scanner.paths
     end
   end
+
+  describe ':max_depth option' do
+    it 'does not descend below "max_depth" levels' do
+      @scanner = CommandT::FileScanner.new @dir, :max_depth => 1
+      @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
+    end
+  end
 end

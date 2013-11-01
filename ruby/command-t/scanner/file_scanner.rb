@@ -93,7 +93,7 @@ module CommandT
     end
 
     def set_wild_ignore(ignore)
-      ::VIM::command("set wildignore=#{ignore}")
+      ::VIM::command("set wildignore=#{ignore}") if @wild_ignore
     end
 
     def add_paths_for_directory dir, accumulator
