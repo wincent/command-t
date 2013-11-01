@@ -89,5 +89,13 @@ describe CommandT::FileScanner do
       mock(::VIM).evaluate(/expand\(.+\)/).times(0)
       @scanner.paths
     end
+
+    it "does not call on VIM's expand() function when wildignore is overridden" do
+      stub(::VIM).evaluate("exists(\"&wildignore\")") { 1 }
+      stub(::VIM).evaluate(/^&wildignore$/) { 'x' }
+      @scanner = CommandT::FileScanner.new @dir, { :wild_ignore => '' }
+      mock(::VIM).evaluate(/expand\(.+\)/).times(0)
+      @scanner.paths
+    end
   end
 end

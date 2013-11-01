@@ -80,7 +80,7 @@ module CommandT
         path = path[(@prefix_len + 1)..-1]
         path = VIM::escape_for_single_quotes path
         ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
-      else 
+      else
         false
       end
     end
