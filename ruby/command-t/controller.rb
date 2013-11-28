@@ -290,8 +290,8 @@ module CommandT
 
     def register_for_key_presses
       # "normal" keys (interpreted literally)
-      numbers     = ('0'..'9').to_a.join
-      lowercase   = ('a'..'z').to_a.join
+      numbers     = '0123456789'
+      lowercase   = 'abcdefghijklmnopqrstuvwxyz'
       uppercase   = lowercase.upcase
       punctuation = '<>`@#~!"$%&/()=+*-_.,;:?\\\'{}[] ' # and space
       (numbers + lowercase + uppercase + punctuation).each_byte do |b|
