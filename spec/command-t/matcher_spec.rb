@@ -39,32 +39,32 @@ describe CommandT::Matcher do
     end
 
     it 'raises an ArgumentError if passed nil' do
-      @matcher = CommandT::Matcher.new scanner
-      expect { @matcher.matches_for(nil) }.to raise_error(ArgumentError)
+      matcher = CommandT::Matcher.new scanner
+      expect { matcher.matches_for(nil) }.to raise_error(ArgumentError)
     end
 
     it 'returns empty array when source array empty' do
-      @no_paths = CommandT::Matcher.new scanner
-      @no_paths.matches_for('foo').should == []
-      @no_paths.matches_for('').should == []
+      no_paths = CommandT::Matcher.new scanner
+      no_paths.matches_for('foo').should == []
+      no_paths.matches_for('').should == []
     end
 
     it 'returns empty array when no matches' do
-      @no_matches = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
-      @no_matches.matches_for('xyz').should == []
+      no_matches = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
+      no_matches.matches_for('xyz').should == []
     end
 
     it 'returns matching paths' do
-      @foo_paths = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
-      matches = @foo_paths.matches_for('z')
+      foo_paths = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
+      matches = foo_paths.matches_for('z')
       matches.map { |m| m.to_s }.should == ['foo/baz']
-      matches = @foo_paths.matches_for('bg')
+      matches = foo_paths.matches_for('bg')
       matches.map { |m| m.to_s }.should == ['bing']
     end
 
     it 'performs case-insensitive matching' do
-      @path = CommandT::Matcher.new scanner(['Foo'])
-      matches = @path.matches_for('f')
+      path = CommandT::Matcher.new scanner(['Foo'])
+      matches = path.matches_for('f')
       matches.map { |m| m.to_s }.should == ['Foo']
     end
   end
