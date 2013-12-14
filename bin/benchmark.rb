@@ -37,17 +37,7 @@ data = YAML.load_file(yaml)
 puts "Starting benchmark run (PID: #{Process.pid})"
 
 Benchmark.bmbm do |b|
-  data['tests']['match'].each do |test|
-    b.report(test['name']) do
-      test['paths'].each do |path|
-        test['times'].times do
-          test['queries'].each { |query| CommandT::Match.new(path, query) }
-        end
-      end
-    end
-  end
-
-  data['tests']['matcher'].each do |test|
+  data['tests'].each do |test|
     scanner = OpenStruct.new(:paths => test['paths'])
     matcher = CommandT::Matcher.new(scanner)
     b.report(test['name']) do
