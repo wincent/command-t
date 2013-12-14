@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'spec_helper'
+require 'ostruct'
 require 'command-t/scanner'
 require 'command-t/ext'
 
@@ -35,33 +36,30 @@ describe CommandT::Matcher do
   end
 
   describe '#matches_for' do
-    before do
-      @scanner = Object.new
+    def scanner(paths = [])
+      OpenStruct.new(:paths => paths)
     end
 
     it 'raises an ArgumentError if passed nil' do
-      @matcher = CommandT::Matcher.new @scanner
+      @matcher = CommandT::Matcher.new scanner
       expect do
         @matcher.matches_for(nil)
       end.to raise_error(ArgumentError)
     end
 
     it 'returns empty array when source array empty' do
-      stub(@scanner).paths { [] }
-      @no_paths = CommandT::Matcher.new @scanner
+      @no_paths = CommandT::Matcher.new scanner
       @no_paths.matches_for('foo').should == []
       @no_paths.matches_for('').should == []
     end
 
     it 'returns empty array when no matches' do
-      stub(@scanner).paths { ['foo/bar', 'foo/baz', 'bing'] }
-      @no_matches = CommandT::Matcher.new @scanner
+      @no_matches = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
       @no_matches.matches_for('xyz').should == []
     end
 
     it 'returns matching paths' do
-      stub(@scanner).paths { ['foo/bar', 'foo/baz', 'bing'] }
-      @foo_paths = CommandT::Matcher.new @scanner
+      @foo_paths = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
       matches = @foo_paths.matches_for('z')
       matches.map { |m| m.to_s }.should == ['foo/baz']
       matches = @foo_paths.matches_for('bg')
@@ -69,8 +67,7 @@ describe CommandT::Matcher do
     end
 
     it 'performs case-insensitive matching' do
-      stub(@scanner).paths { ['Foo'] }
-      @path = CommandT::Matcher.new @scanner
+      @path = CommandT::Matcher.new scanner(['Foo'])
       matches = @path.matches_for('f')
       matches.map { |m| m.to_s }.should == ['Foo']
     end
