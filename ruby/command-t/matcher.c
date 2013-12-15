@@ -22,7 +22,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdlib.h>  /* for qsort() */
-#include <string.h>  /* for strcmp() */
+#include <string.h>  /* for strncmp() */
 #include "matcher.h"
 #include "match.h"
 #include "ext.h"
