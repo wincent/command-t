@@ -34,7 +34,7 @@
 #endif
 
 // comparison function for use with qsort
-int comp_alpha(const void *a, const void *b)
+int cmp_alpha(const void *a, const void *b)
 {
     match_t a_match = *(match_t *)a;
     match_t b_match = *(match_t *)b;
@@ -62,7 +62,7 @@ int comp_alpha(const void *a, const void *b)
 }
 
 // comparison function for use with qsort
-int comp_score(const void *a, const void *b)
+int cmp_score(const void *a, const void *b)
 {
     match_t a_match = *(match_t *)a;
     match_t b_match = *(match_t *)b;
@@ -72,7 +72,7 @@ int comp_score(const void *a, const void *b)
     else if (a_match.score < b_match.score)
         return 1;  // b scores higher, a should appear later
     else
-        return comp_alpha(a, b);
+        return cmp_alpha(a, b);
 }
 
 VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
@@ -204,10 +204,10 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (RSTRING_LEN(abbrev) == 0 ||
         (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
         // alphabetic order if search string is only "" or "."
-        qsort(matches, path_count, sizeof(match_t), comp_alpha);
+        qsort(matches, path_count, sizeof(match_t), cmp_alpha);
     else
         // for all other non-empty search strings, sort by score
-        qsort(matches, path_count, sizeof(match_t), comp_score);
+        qsort(matches, path_count, sizeof(match_t), cmp_score);
 
     VALUE results = rb_ary_new();
 
