@@ -87,12 +87,7 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 
     // check optional options hash for overrides
     VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
-    if (always_show_dot_files != Qtrue)
-        always_show_dot_files = Qfalse;
-
     VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
-    if (never_show_dot_files != Qtrue)
-        never_show_dot_files = Qfalse;
 
     rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
     rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
@@ -153,22 +148,15 @@ VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
     VALUE scanner = rb_iv_get(self, "@scanner");
     VALUE always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
     VALUE never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
-    VALUE options = Qnil;
-
-    if (always_show_dot_files == Qtrue) {
-        options = rb_hash_new();
-        rb_hash_aset(options, ID2SYM(rb_intern("always_show_dot_files")), always_show_dot_files);
-    } else if (never_show_dot_files == Qtrue) {
-        options = rb_hash_new();
-        rb_hash_aset(options, ID2SYM(rb_intern("never_show_dot_files")), never_show_dot_files);
-    }
 
     abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
     VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
 
     for (long i = 0, max = RARRAY_LEN(paths); i < max; i++) {
         VALUE path = RARRAY_PTR(paths)[i];
-        VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 3, path, abbrev, options);
+        VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 4,
+                                 path, abbrev,
+                                 always_show_dot_files, never_show_dot_files);
         if (rb_funcall(match, rb_intern("matches?"), 0) == Qtrue)
             rb_funcall(matches, rb_intern("push"), 1, match);
     }

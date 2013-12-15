@@ -146,19 +146,15 @@ memoize:
     return score;
 }
 
-// Match.new needle, string, options = {}
-VALUE CommandTMatch_initialize(int argc, VALUE *argv, VALUE self)
+// Match.new needle, string, always_show_dot_files, never_show_dot_files
+VALUE CommandTMatch_initialize(VALUE self,
+                               VALUE str,
+                               VALUE needle,
+                               VALUE always_show_dot_files,
+                               VALUE never_show_dot_files)
 {
-    // process arguments: 2 mandatory, 1 optional
-    VALUE str, needle, options;
-    if (rb_scan_args(argc, argv, "21", &str, &needle, &options) == 2)
-        options = Qnil;
     str    = StringValue(str);
     needle = StringValue(needle); // already downcased by caller
-
-    // check optional options hash for overrides
-    VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
-    VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
 
     matchinfo_t m;
     m.haystack_p            = RSTRING_PTR(str);

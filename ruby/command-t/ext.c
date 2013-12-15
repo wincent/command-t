@@ -48,7 +48,7 @@ void Init_ext()
     cCommandTMatch = rb_define_class_under(mCommandT, "Match", rb_cObject);
 
     // methods
-    rb_define_method(cCommandTMatch, "initialize", CommandTMatch_initialize, -1);
+    rb_define_method(cCommandTMatch, "initialize", CommandTMatch_initialize, 4);
     rb_define_method(cCommandTMatch, "matches?", CommandTMatch_matches, 0);
     rb_define_method(cCommandTMatch, "to_s", CommandTMatch_to_s, 0);
 
