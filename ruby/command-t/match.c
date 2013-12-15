@@ -21,7 +21,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <float.h>
+#include <float.h> /* for DBL_MAX */
 #include "match.h"
 #include "ext.h"
 #include "ruby_compat.h"
