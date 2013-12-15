@@ -151,8 +151,11 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 
 #ifdef USE_THREADS
+#define THREAD_THREADHOLD 1000 /* avoid the overhead of threading when search space is small */
     int err;
     int thread_count = 4; // later this will be dynamic or configurable
+    if (path_count < THREAD_THREADHOLD)
+        thread_count = 1;
     pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
@@ -169,12 +172,17 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
 
-        err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
-        if (err != 0)
-            rb_raise(rb_eSystemCallError, "pthread_create() failure (%d)", err);
+        if (i == thread_count - 1) {
+            // for the last "worker", we'll just use the main thread
+            (void)match_thread(&thread_args[i]);
+        } else {
+            err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
+            if (err != 0)
+                rb_raise(rb_eSystemCallError, "pthread_create() failure (%d)", err);
+        }
     }
 
-    for (int i = 0; i < thread_count; i++) {
+    for (int i = 0; i < thread_count - 1; i++) {
         err = pthread_join(threads[i], NULL);
         if (err != 0)
             rb_raise(rb_eSystemCallError, "pthread_join() failure (%d)", err);
