@@ -29,8 +29,8 @@ typedef struct {
     double  score;
 } match_t;
 
-extern void CommandTMatch_initialize(VALUE str,
-                                     VALUE needle,
-                                     VALUE always_show_dot_files,
-                                     VALUE never_show_dot_files,
-                                     match_t *out);
+extern void calculate_match(VALUE str,
+                            VALUE needle,
+                            VALUE always_show_dot_files,
+                            VALUE never_show_dot_files,
+                            match_t *out);

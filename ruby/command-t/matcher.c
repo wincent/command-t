@@ -113,11 +113,11 @@ void *match_thread(void *thread_args)
     thread_args_t *args = (thread_args_t *)thread_args;
     for (long i = args->thread_index; i < args->path_count; i += args->thread_count) {
         VALUE path = RARRAY_PTR(args->paths)[i];
-        CommandTMatch_initialize(path,
-                                 args->abbrev,
-                                 args->always_show_dot_files,
-                                 args->never_show_dot_files,
-                                 &args->matches[i]);
+        calculate_match(path,
+                        args->abbrev,
+                        args->always_show_dot_files,
+                        args->never_show_dot_files,
+                        &args->matches[i]);
     }
 
     return NULL;

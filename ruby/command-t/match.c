@@ -146,11 +146,11 @@ memoize:
     return score;
 }
 
-void CommandTMatch_initialize(VALUE str,
-                              VALUE needle,
-                              VALUE always_show_dot_files,
-                              VALUE never_show_dot_files,
-                              match_t *out)
+void calculate_match(VALUE str,
+                     VALUE needle,
+                     VALUE always_show_dot_files,
+                     VALUE never_show_dot_files,
+                     match_t *out)
 {
     str    = StringValue(str);
     needle = StringValue(needle); // already downcased by caller
