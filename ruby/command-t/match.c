@@ -146,12 +146,11 @@ memoize:
     return score;
 }
 
-// Match.new needle, string, always_show_dot_files, never_show_dot_files
-VALUE CommandTMatch_initialize(VALUE self,
-                               VALUE str,
-                               VALUE needle,
-                               VALUE always_show_dot_files,
-                               VALUE never_show_dot_files)
+void CommandTMatch_initialize(VALUE str,
+                              VALUE needle,
+                              VALUE always_show_dot_files,
+                              VALUE never_show_dot_files,
+                              match_t *out)
 {
     str    = StringValue(str);
     needle = StringValue(needle); // already downcased by caller
@@ -194,19 +193,7 @@ VALUE CommandTMatch_initialize(VALUE self,
         score = recursive_match(&m, 0, 0, 0, 0.0);
     }
 
-    // clean-up and final book-keeping
-    rb_iv_set(self, "@score", rb_float_new(score));
-    rb_iv_set(self, "@str", str);
-    return Qnil;
-}
-
-VALUE CommandTMatch_matches(VALUE self)
-{
-    double score = NUM2DBL(rb_iv_get(self, "@score"));
-    return score > 0 ? Qtrue : Qfalse;
-}
-
-VALUE CommandTMatch_to_s(VALUE self)
-{
-    return rb_iv_get(self, "@str");
+    // final book-keeping
+    out->path  = str;
+    out->score = score;
 }

@@ -23,11 +23,14 @@
 
 #include <ruby.h>
 
-extern VALUE CommandTMatch_initialize(VALUE self,
-                                      VALUE str,
-                                      VALUE needle,
-                                      VALUE always_show_dot_files,
-                                      VALUE never_show_dot_files);
-extern VALUE CommandTMatch_matches(VALUE self);
-extern VALUE CommandTMatch_score(VALUE self);
-extern VALUE CommandTMatch_to_s(VALUE self);
+// struct for representing an individual match
+typedef struct {
+    VALUE   path;
+    double  score;
+} match_t;
+
+extern void CommandTMatch_initialize(VALUE str,
+                                     VALUE needle,
+                                     VALUE always_show_dot_files,
+                                     VALUE never_show_dot_files,
+                                     match_t *out);
