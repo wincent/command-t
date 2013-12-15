@@ -27,45 +27,183 @@ require 'command-t/scanner'
 require 'command-t/ext'
 
 describe CommandT::Matcher do
+  def matcher(*paths)
+    scanner = OpenStruct.new(:paths => paths)
+    CommandT::Matcher.new(scanner)
+  end
+
   describe 'initialization' do
     it 'raises an ArgumentError if passed nil' do
-      expect { CommandT::Matcher.new nil }.to raise_error(ArgumentError)
+      expect { CommandT::Matcher.new(nil) }.to raise_error(ArgumentError)
     end
   end
 
   describe '#matches_for' do
-    def scanner(paths = [])
-      OpenStruct.new(:paths => paths)
-    end
-
     it 'raises an ArgumentError if passed nil' do
-      matcher = CommandT::Matcher.new scanner
       expect { matcher.matches_for(nil) }.to raise_error(ArgumentError)
     end
 
     it 'returns empty array when source array empty' do
-      no_paths = CommandT::Matcher.new scanner
-      no_paths.matches_for('foo').should == []
-      no_paths.matches_for('').should == []
+      matcher.matches_for('foo').should == []
+      matcher.matches_for('').should == []
     end
 
     it 'returns empty array when no matches' do
-      no_matches = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
-      no_matches.matches_for('xyz').should == []
+      matcher = matcher(*%w[foo/bar foo/baz bing])
+      matcher.matches_for('xyz').should == []
     end
 
     it 'returns matching paths' do
-      foo_paths = CommandT::Matcher.new scanner(['foo/bar', 'foo/baz', 'bing'])
-      matches = foo_paths.matches_for('z')
+      matcher = matcher(*%w[foo/bar foo/baz bing])
+      matches = matcher.matches_for('z')
       matches.map { |m| m.to_s }.should == ['foo/baz']
-      matches = foo_paths.matches_for('bg')
+      matches = matcher.matches_for('bg')
       matches.map { |m| m.to_s }.should == ['bing']
     end
 
     it 'performs case-insensitive matching' do
-      path = CommandT::Matcher.new scanner(['Foo'])
-      matches = path.matches_for('f')
+      matches = matcher('Foo').matches_for('f')
       matches.map { |m| m.to_s }.should == ['Foo']
+    end
+
+    it 'considers the empty string to match everything' do
+      matches = matcher('foo').matches_for('')
+      matches.map { |m| m.to_s }.should == ['foo']
+    end
+
+    it 'does not consider mere substrings of the query string to be a match' do
+      matcher('foo').matches_for('foo...').should == []
+    end
+  end
+
+  describe '#sorted_matches_for' do
+    def ordered_matches(paths, query)
+      matcher(*paths).sorted_matches_for(query)
+    end
+
+    it 'prioritizes shorter paths over longer ones' do
+      ordered_matches(%w[
+        articles_controller_spec.rb
+        article.rb
+      ], 'art').should == %w[
+        article.rb
+        articles_controller_spec.rb
+      ]
+    end
+
+    it 'prioritizes matches after "/"' do
+      ordered_matches(%w[fooobar foo/bar], 'b').should == %w[foo/bar fooobar]
+
+      # note that / beats _
+      ordered_matches(%w[foo_bar foo/bar], 'b').should == %w[foo/bar foo_bar]
+
+      # / also beats -
+      ordered_matches(%w[foo-bar foo/bar], 'b').should == %w[foo/bar foo-bar]
+
+      # and numbers
+      ordered_matches(%w[foo9bar foo/bar], 'b').should == %w[foo/bar foo9bar]
+
+      # and periods
+      ordered_matches(%w[foo.bar foo/bar], 'b').should == %w[foo/bar foo.bar]
+
+      # and spaces
+      ordered_matches(['foo bar', 'foo/bar'], 'b').should == ['foo/bar', 'foo bar']
+    end
+
+    it 'prioritizes matches after "-"' do
+      ordered_matches(%w[fooobar foo-bar], 'b').should == %w[foo-bar fooobar]
+
+      # - also beats .
+      ordered_matches(%w[foo.bar foo-bar], 'b').should == %w[foo-bar foo.bar]
+    end
+
+    it 'prioritizes matches after "_"' do
+      ordered_matches(%w[fooobar foo_bar], 'b').should == %w[foo_bar fooobar]
+
+      # _ also beats .
+      ordered_matches(%w[foo.bar foo_bar], 'b').should == %w[foo_bar foo.bar]
+    end
+
+    it 'prioritizes matches after " "' do
+      ordered_matches(['fooobar', 'foo bar'], 'b').should == ['foo bar', 'fooobar']
+
+      # " " also beats .
+      ordered_matches(['foo.bar', 'foo bar'], 'b').should == ['foo bar', 'foo.bar']
+    end
+
+    it 'prioritizes matches after numbers' do
+      ordered_matches(%w[fooobar foo9bar], 'b').should == %w[foo9bar fooobar]
+
+      # numbers also beat .
+      ordered_matches(%w[foo.bar foo9bar], 'b').should == %w[foo9bar foo.bar]
+    end
+
+    it 'prioritizes matches after periods' do
+      ordered_matches(%w[fooobar foo.bar], 'b').should == %w[foo.bar fooobar]
+    end
+
+    it 'prioritizes matching capitals following lowercase' do
+      ordered_matches(%w[foobar fooBar], 'b').should == %w[fooBar foobar]
+    end
+
+    it 'prioritizes matches earlier in the string' do
+      ordered_matches(%w[******b* **b*****], 'b').should == %w[**b***** ******b*]
+    end
+
+    it 'prioritizes matches closer to previous matches' do
+      ordered_matches(%w[**b***c* **bc****], 'bc').should == %w[**bc**** **b***c*]
+    end
+
+    it 'scores alternative matches of same path differently' do
+      # ie:
+      # app/controllers/articles_controller.rb
+      ordered_matches(%w[
+        a**/****r******/**t*c***_*on*******.**
+        ***/***********/art*****_con*******.**
+      ], 'artcon').should == %w[
+        ***/***********/art*****_con*******.**
+        a**/****r******/**t*c***_*on*******.**
+      ]
+    end
+
+    it 'provides intuitive results for "artcon" and "articles_controller"' do
+      ordered_matches(%w[
+        app/controllers/heartbeat_controller.rb
+        app/controllers/articles_controller.rb
+      ], 'artcon').should == %w[
+        app/controllers/articles_controller.rb
+        app/controllers/heartbeat_controller.rb
+      ]
+    end
+
+    it 'provides intuitive results for "aca" and "a/c/articles_controller"' do
+      ordered_matches(%w[
+        app/controllers/heartbeat_controller.rb
+        app/controllers/articles_controller.rb
+      ], 'aca').should == %w[
+        app/controllers/articles_controller.rb
+        app/controllers/heartbeat_controller.rb
+      ]
+    end
+
+    it 'provides intuitive results for "d" and "doc/command-t.txt"' do
+      ordered_matches(%w[
+        TODO
+        doc/command-t.txt
+      ], 'd').should == %w[
+        doc/command-t.txt
+        TODO
+      ]
+    end
+
+    it 'provides intuitive results for "do" and "doc/command-t.txt"' do
+      ordered_matches(%w[
+        TODO
+        doc/command-t.txt
+      ], 'do').should == %w[
+        doc/command-t.txt
+        TODO
+      ]
     end
   end
 end
