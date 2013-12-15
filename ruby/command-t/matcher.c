@@ -95,6 +95,31 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     return Qnil;
 }
 
+VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
+{
+    if (NIL_P(abbrev))
+        rb_raise(rb_eArgError, "nil abbrev");
+
+    VALUE matches = rb_ary_new();
+    VALUE scanner = rb_iv_get(self, "@scanner");
+    VALUE always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
+    VALUE never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
+
+    abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
+    VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
+
+    for (long i = 0, max = RARRAY_LEN(paths); i < max; i++) {
+        VALUE path = RARRAY_PTR(paths)[i];
+        VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 4,
+                                 path, abbrev,
+                                 always_show_dot_files, never_show_dot_files);
+        if (rb_funcall(match, rb_intern("matches?"), 0) == Qtrue)
+            rb_funcall(matches, rb_intern("push"), 1, match);
+    }
+
+    return matches;
+}
+
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
     // process arguments: 1 mandatory, 1 optional
@@ -135,31 +160,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (limit < RARRAY_LEN(matches))
         (void)rb_funcall(matches, rb_intern("slice!"), 2, LONG2NUM(limit),
             LONG2NUM(RARRAY_LEN(matches) - limit));
-
-    return matches;
-}
-
-VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev)
-{
-    if (NIL_P(abbrev))
-        rb_raise(rb_eArgError, "nil abbrev");
-
-    VALUE matches = rb_ary_new();
-    VALUE scanner = rb_iv_get(self, "@scanner");
-    VALUE always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
-    VALUE never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
-
-    abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
-    VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
-
-    for (long i = 0, max = RARRAY_LEN(paths); i < max; i++) {
-        VALUE path = RARRAY_PTR(paths)[i];
-        VALUE match = rb_funcall(cCommandTMatch, rb_intern("new"), 4,
-                                 path, abbrev,
-                                 always_show_dot_files, never_show_dot_files);
-        if (rb_funcall(match, rb_intern("matches?"), 0) == Qtrue)
-            rb_funcall(matches, rb_intern("push"), 1, match);
-    }
 
     return matches;
 }

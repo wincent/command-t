@@ -38,47 +38,45 @@ describe CommandT::Matcher do
     end
   end
 
-  describe '#matches_for' do
+  describe '#sorted_matches_for' do
+    def ordered_matches(paths, query)
+      matcher(*paths).sorted_matches_for(query)
+    end
+
     it 'raises an ArgumentError if passed nil' do
-      expect { matcher.matches_for(nil) }.to raise_error(ArgumentError)
+      expect { matcher.sorted_matches_for(nil) }.to raise_error(ArgumentError)
     end
 
     it 'returns empty array when source array empty' do
-      matcher.matches_for('foo').should == []
-      matcher.matches_for('').should == []
+      matcher.sorted_matches_for('foo').should == []
+      matcher.sorted_matches_for('').should == []
     end
 
     it 'returns empty array when no matches' do
       matcher = matcher(*%w[foo/bar foo/baz bing])
-      matcher.matches_for('xyz').should == []
+      matcher.sorted_matches_for('xyz').should == []
     end
 
     it 'returns matching paths' do
       matcher = matcher(*%w[foo/bar foo/baz bing])
-      matches = matcher.matches_for('z')
+      matches = matcher.sorted_matches_for('z')
       matches.map { |m| m.to_s }.should == ['foo/baz']
-      matches = matcher.matches_for('bg')
+      matches = matcher.sorted_matches_for('bg')
       matches.map { |m| m.to_s }.should == ['bing']
     end
 
     it 'performs case-insensitive matching' do
-      matches = matcher('Foo').matches_for('f')
+      matches = matcher('Foo').sorted_matches_for('f')
       matches.map { |m| m.to_s }.should == ['Foo']
     end
 
     it 'considers the empty string to match everything' do
-      matches = matcher('foo').matches_for('')
+      matches = matcher('foo').sorted_matches_for('')
       matches.map { |m| m.to_s }.should == ['foo']
     end
 
     it 'does not consider mere substrings of the query string to be a match' do
-      matcher('foo').matches_for('foo...').should == []
-    end
-  end
-
-  describe '#sorted_matches_for' do
-    def ordered_matches(paths, query)
-      matcher(*paths).sorted_matches_for(query)
+      matcher('foo').sorted_matches_for('foo...').should == []
     end
 
     it 'prioritizes shorter paths over longer ones' do

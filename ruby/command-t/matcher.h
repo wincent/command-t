@@ -25,6 +25,3 @@
 
 extern VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self);
 extern VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self);
-
-// most likely the function will be subsumed by the sorted_matches_for function
-extern VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev);

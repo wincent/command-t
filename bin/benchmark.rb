@@ -42,7 +42,7 @@ Benchmark.bmbm do |b|
     matcher = CommandT::Matcher.new(scanner)
     b.report(test['name']) do
       test['times'].times do
-        test['queries'].each { |query| matcher.matches_for(query) }
+        test['queries'].each { |query| matcher.sorted_matches_for(query) }
       end
     end
   end
