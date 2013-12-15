@@ -159,7 +159,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (path_count < THREAD_THRESHOLD)
         thread_count = 1;
     else
-        thread_count = 4; // later this will be dynamic or configurable
+        thread_count = PROCESSOR_COUNT; // passed in as preprocessor macro
     pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
