@@ -21,16 +21,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef USE_THREADS
-#include <pthread.h> /* for pthread_create, pthread_join etc */
-#endif
-
 #include <stdlib.h>  /* for qsort() */
 #include <string.h>  /* for strcmp() */
 #include "matcher.h"
 #include "match.h"
 #include "ext.h"
 #include "ruby_compat.h"
+
+// order matters; we want this to be evaluated only after ruby.h
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h> /* for pthread_create, pthread_join etc */
+#endif
 
 // comparison function for use with qsort
 int comp_alpha(const void *a, const void *b)
@@ -150,15 +151,20 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (!matches)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 
-#ifdef USE_THREADS
-#define THREAD_THREADHOLD 1000 /* avoid the overhead of threading when search space is small */
     int err;
-    int thread_count = 4; // later this will be dynamic or configurable
-    if (path_count < THREAD_THREADHOLD)
+    int thread_count = 1;
+
+#ifdef HAVE_PTHREAD_H
+#define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
+    if (path_count < THREAD_THRESHOLD)
         thread_count = 1;
+    else
+        thread_count = 4; // later this will be dynamic or configurable
     pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
+#endif
+
     thread_args_t *thread_args = malloc(sizeof(thread_args_t) * thread_count);
     if (!thread_args)
         rb_raise(rb_eNoMemError, "memory allocation failed");
@@ -172,34 +178,27 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
 
+#ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {
+#endif
             // for the last "worker", we'll just use the main thread
             (void)match_thread(&thread_args[i]);
+#ifdef HAVE_PTHREAD_H
         } else {
             err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
             if (err != 0)
                 rb_raise(rb_eSystemCallError, "pthread_create() failure (%d)", err);
         }
+#endif
     }
 
+#ifdef HAVE_PTHREAD_H
     for (int i = 0; i < thread_count - 1; i++) {
         err = pthread_join(threads[i], NULL);
         if (err != 0)
             rb_raise(rb_eSystemCallError, "pthread_join() failure (%d)", err);
     }
     free(threads);
-#else
-    thread_args_t thread_args = {
-        1,
-        0,
-        matches,
-        path_count,
-        paths,
-        abbrev,
-        always_show_dot_files,
-        never_show_dot_files,
-    };
-    (void)match_thread(&thread_args);
 #endif
 
     if (RSTRING_LEN(abbrev) == 0 ||

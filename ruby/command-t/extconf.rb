@@ -24,7 +24,7 @@
 require 'mkmf'
 
 def header(item)
-  unless have_header(item)
+  unless find_header(item)
     puts "couldn't find #{item} (required)"
     exit 1
   end
@@ -32,9 +32,13 @@ end
 
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
+# mandatory headers
 header('float.h')
-header('pthread.h') if ENV['USE_THREADS']
 header('ruby.h')
 header('stdlib.h')
 header('string.h')
+
+# optional headers
+have_header('pthread.h') # sets HAVE_PTHREAD_H if found
+
 create_makefile('ext')
