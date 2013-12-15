@@ -21,8 +21,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <stdlib.h> /* for qsort() */
-#include <string.h> /* for strcmp() */
+#ifdef USE_THREADS
+#include <pthread.h> /* for pthread_create, pthread_join etc */
+#endif
+
+#include <stdlib.h>  /* for qsort() */
+#include <string.h>  /* for strcmp() */
 #include "matcher.h"
 #include "match.h"
 #include "ext.h"
@@ -92,6 +96,33 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     return Qnil;
 }
 
+typedef struct {
+    int thread_count;
+    int thread_index;
+    match_t *matches;
+    long path_count;
+    VALUE paths;
+    VALUE abbrev;
+    VALUE always_show_dot_files;
+    VALUE never_show_dot_files;
+} thread_args_t;
+
+void *match_thread(void *thread_args)
+{
+    thread_args_t *args = (thread_args_t *)thread_args;
+    for (long i = args->thread_index; i < args->path_count; i += args->thread_count) {
+        VALUE path = RARRAY_PTR(args->paths)[i];
+        CommandTMatch_initialize(path,
+                                 args->abbrev,
+                                 args->always_show_dot_files,
+                                 args->never_show_dot_files,
+                                 &args->matches[i]);
+    }
+
+    return NULL;
+}
+
+
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
     // process arguments: 1 mandatory, 1 optional
@@ -116,13 +147,52 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
     long path_count = RARRAY_LEN(paths);
     match_t *matches = malloc(path_count * sizeof(match_t));
-    for (long i = 0; i < path_count; i++) {
-        VALUE path = RARRAY_PTR(paths)[i];
-        CommandTMatch_initialize(path, abbrev,
-                                 always_show_dot_files,
-                                 never_show_dot_files,
-                                 &matches[i]);
+    if (!matches)
+        rb_raise(rb_eNoMemError, "memory allocation failed");
+
+#ifdef USE_THREADS
+    int err;
+    int thread_count = 4; // later this will be dynamic or configurable
+    pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
+    if (!threads)
+        rb_raise(rb_eNoMemError, "memory allocation failed");
+    thread_args_t *thread_args = malloc(sizeof(thread_args_t) * thread_count);
+    if (!thread_args)
+        rb_raise(rb_eNoMemError, "memory allocation failed");
+    for (int i = 0; i < thread_count; i++) {
+        thread_args[i].thread_count = thread_count;
+        thread_args[i].thread_index = i;
+        thread_args[i].matches = matches;
+        thread_args[i].path_count = path_count;
+        thread_args[i].paths = paths;
+        thread_args[i].abbrev = abbrev;
+        thread_args[i].always_show_dot_files = always_show_dot_files;
+        thread_args[i].never_show_dot_files = never_show_dot_files;
+
+        err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
+        if (err != 0)
+            rb_raise(rb_eSystemCallError, "pthread_create() failure (%d)", err);
     }
+
+    for (int i = 0; i < thread_count; i++) {
+        err = pthread_join(threads[i], NULL);
+        if (err != 0)
+            rb_raise(rb_eSystemCallError, "pthread_join() failure (%d)", err);
+    }
+    free(threads);
+#else
+    thread_args_t thread_args = {
+        1,
+        0,
+        matches,
+        path_count,
+        paths,
+        abbrev,
+        always_show_dot_files,
+        never_show_dot_files,
+    };
+    (void)match_thread(&thread_args);
+#endif
 
     if (RSTRING_LEN(abbrev) == 0 ||
         (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))

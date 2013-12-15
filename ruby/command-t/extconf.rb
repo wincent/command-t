@@ -33,6 +33,7 @@ end
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 header('float.h')
+header('pthread.h') if ENV['USE_THREADS']
 header('ruby.h')
 header('stdlib.h')
 header('string.h')
