@@ -1,4 +1,4 @@
-// Copyright 2010 Wincent Colaiuta. All rights reserved.
+// Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -60,6 +60,6 @@ void Init_ext()
 
     // methods
     rb_define_method(cCommandTMatcher, "initialize", CommandTMatcher_initialize, -1);
-    rb_define_method(cCommandTMatcher, "sorted_matches_for", CommandTMatcher_sorted_matches_for, 2);
+    rb_define_method(cCommandTMatcher, "sorted_matches_for", CommandTMatcher_sorted_matches_for, -1);
     rb_define_method(cCommandTMatcher, "matches_for", CommandTMatcher_matches_for, 1);
 }

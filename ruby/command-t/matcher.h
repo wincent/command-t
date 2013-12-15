@@ -1,4 +1,4 @@
-// Copyright 2010 Wincent Colaiuta. All rights reserved.
+// Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,7 @@
 #include <ruby.h>
 
 extern VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self);
-extern VALUE CommandTMatcher_sorted_matches_for(VALUE self, VALUE abbrev, VALUE options);
+extern VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self);
 
-// most likely the function will be subsumed by the sorted_matcher_for function
+// most likely the function will be subsumed by the sorted_matches_for function
 extern VALUE CommandTMatcher_matches_for(VALUE self, VALUE abbrev);

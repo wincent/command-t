@@ -100,9 +100,17 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     return Qnil;
 }
 
-VALUE CommandTMatcher_sorted_matches_for(VALUE self, VALUE abbrev, VALUE options)
+VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
-    // process optional options hash
+    // process arguments: 1 mandatory, 1 optional
+    VALUE abbrev, options;
+
+    if (rb_scan_args(argc, argv, "11", &abbrev, &options) == 1)
+        options = Qnil;
+    if (NIL_P(abbrev))
+        rb_raise(rb_eArgError, "nil abbrev");
+
+    // check optional options has for overrides
     VALUE limit_option = CommandT_option_from_hash("limit", options);
 
     // get unsorted matches
