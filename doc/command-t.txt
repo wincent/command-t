@@ -764,6 +764,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.6 (16 December 2013)
+- on systems with POSIX threads (such as OS X and Linux), Command-T will use
+  threads to compute match results in parallel, resulting in a large speed
+  boost that is especially noticeable when navigating large projects
+
 1.5.1 (23 September 2013)
 - exclude large benchmark fixture file from source exports (patch from Vít
   Ondruch)
