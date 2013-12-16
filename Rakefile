@@ -171,10 +171,10 @@ task :prerelease => ['make:all', 'spec:all', :vimball, :check_tag]
 namespace :upload do
   desc 'Upload current vimball to Amazon S3'
   task :s3 => :vimball do
-    sh 'aws put ' +
+    sh 'aws --curl-options=--insecure put ' +
       "s3.wincent.com/command-t/releases/command-t-#{version}.vba " +
       "command-t-#{version}.vba"
-    sh 'aws put ' +
+    sh 'aws --curl-options=--insecure put ' +
       "s3.wincent.com/command-t/releases/command-t-#{version}.vba?acl " +
       '--public'
   end
