@@ -85,8 +85,14 @@ compatible Ruby install. "Compatible" means the same version as Vim itself
 links against. If you use a different version then Command-T is unlikely
 to work (see TROUBLE-SHOOTING below).
 
-On Mac OS X Snow Leopard, the system comes with Ruby 1.8.7 and all recent
-versions of MacVim (the 7.2 snapshots and 7.3) are linked against it.
+On OS X Snow Leopard, Lion and Mountain Lion, the system comes with Ruby 1.8.7
+and all recent versions of MacVim (the 7.2 snapshots and 7.3) are linked
+against it.
+
+On OS X Mavericks, the default system ruby is 2.0, but MacVim continues to
+link against 1.8.7, which is also present on the system at:
+
+  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
 
 On Linux and similar platforms, the linked version of Ruby will depend on
 your distribution. You can usually find this out by examining the
@@ -155,6 +161,14 @@ of the following commands:
 
   rvm use system
   rbenv local system
+
+Note: If you are on OS X Mavericks and compiling against MacVim, the default
+system Ruby is 2.0 but MacVim still links against the older 1.8.7 Ruby that is
+also bundled with the system; in this case the build command becomes:
+
+  cd ~/.vim/ruby/command-t
+  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby extconf.rb
+  make
 
 Note: Make sure you compile targeting the same architecture Vim was built for.
 For instance, MacVim binaries are built for i386, but sometimes GCC compiles
@@ -652,6 +666,7 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
+  Andy Waite                Matthew Todd              Steven Moazami
   Anthony Panozzo           Mike Lundy                Sung Pae
   Daniel Hahler             Nate Kane                 Thomas Pelletier
   Felix Tjandrawibawa       Nicholas Alpi             Victor Hugo Borja
@@ -661,7 +676,6 @@ order):
   Lucas de Vries            Rainux Luo                Zak Johnson
   Marcus Brito              Scott Bronson
   Marian Schubert           Seth Fowler
-  Matthew Todd              Steven Moazami
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
