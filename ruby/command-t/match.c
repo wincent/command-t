@@ -152,9 +152,6 @@ void calculate_match(VALUE str,
                      VALUE never_show_dot_files,
                      match_t *out)
 {
-    str    = StringValue(str);
-    needle = StringValue(needle); // already downcased by caller
-
     matchinfo_t m;
     m.haystack_p            = RSTRING_PTR(str);
     m.haystack_len          = RSTRING_LEN(str);
