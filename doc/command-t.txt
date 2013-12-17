@@ -138,8 +138,12 @@ folder.
 
 INSTALLATION                                    *command-t-installation*
 
-Command-T is distributed as a "vimball" which means that it can be installed
-by opening it in Vim and then sourcing it:
+You can install Command-T by obtaining the source files and building the C
+extension. The recommended way to get the source is by using a plug-in
+management system such as Pathogen (see |command-t-pathogen|).
+
+Command-T is also distributed as a "vimball" which means that it can be
+installed by opening it in Vim and then sourcing it:
 
   :e command-t.vba
   :so %
