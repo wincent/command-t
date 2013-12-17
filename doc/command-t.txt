@@ -68,8 +68,11 @@ If your Vim lacks support you'll see an error message like this:
 
   E319: Sorry, the command is not available in this version
 
-The version of Vim distributed with Mac OS X does not include Ruby support,
-while MacVim does; it is available from:
+The version of Vim distributed with OS X may not include Ruby support (for
+exmaple, Snow Leopard, which was the current version of OS X when Command-T
+was first released, did not support Ruby in the system Vim, but the current
+version of OS X at the time of writing, Mavericks, does). All recent versions
+of MacVim come with Ruby support; it is available from:
 
   http://github.com/b4winckler/macvim/downloads
 
@@ -118,8 +121,8 @@ it to work responsively even on directory hierarchies containing enormous
 numbers of files. As such, a C compiler is required in order to build the
 extension and complete the installation.
 
-On Mac OS X, this can be obtained by installing the Xcode Tools that come on
-the Mac OS X install disc.
+On OS X, this can be obtained by installing the Xcode Tools from the App
+Store.
 
 On Windows, the RubyInstaller Development Kit can be used to conveniently
 install the necessary tool chain:
@@ -238,7 +241,7 @@ linked against at compile time. For example, if one is 32-bit and the other is
 64-bit, or one is from the Ruby 1.9 series and the other is from the 1.8
 series, then the plug-in is not likely to work.
 
-As such, on Mac OS X, I recommend using the standard Ruby that comes with the
+As such, on OS X, I recommend using the standard Ruby that comes with the
 system (currently 1.8.7) along with the latest version of MacVim (currently
 version 7.3). If you wish to use custom builds of Ruby or of MacVim (not
 recommmended) then you will have to take extra care to ensure that the exact
