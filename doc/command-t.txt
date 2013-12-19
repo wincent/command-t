@@ -191,6 +191,10 @@ and make sure you use the correct ARCHFLAGS during compilation:
   export ARCHFLAGS="-arch i386"
   make
 
+Note: If you are on Fedora 17+, you can install command-t from the system
+repository as simple as:
+
+  su -c 'yum install vim-command-t'
 
 MANAGING USING PATHOGEN                         *command-t-pathogen*
 
