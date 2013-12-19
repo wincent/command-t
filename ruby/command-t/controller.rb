@@ -28,6 +28,7 @@ require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
 require 'command-t/vim/path_utilities'
+require 'command-t/util'
 
 module CommandT
   class Controller
@@ -342,7 +343,11 @@ module CommandT
     end
 
     def list_matches
-      @matches = @active_finder.sorted_matches_for @prompt.abbrev, :limit => match_limit
+      @matches = @active_finder.sorted_matches_for(
+        @prompt.abbrev,
+        :limit   => match_limit,
+        :threads => CommandT::Util.processor_count
+      )
       @match_window.matches = @matches
     end
 

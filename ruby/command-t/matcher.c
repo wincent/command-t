@@ -139,6 +139,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
     // check optional options has for overrides
     VALUE limit_option = CommandT_option_from_hash("limit", options);
+    VALUE threads_option = CommandT_option_from_hash("threads", options);
 
     // get unsorted matches
     VALUE scanner = rb_iv_get(self, "@scanner");
@@ -152,14 +153,12 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 
     int err;
-    int thread_count = 1;
+    long thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
 
 #ifdef HAVE_PTHREAD_H
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
     if (path_count < THREAD_THRESHOLD)
         thread_count = 1;
-    else
-        thread_count = PROCESSOR_COUNT; // passed in as preprocessor macro
     pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
