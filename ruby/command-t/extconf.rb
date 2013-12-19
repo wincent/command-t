@@ -97,7 +97,7 @@ have_header('pthread.h') # sets HAVE_PTHREAD_H if found
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 count = processor_count
-count = 1 if count < 0   # sanity check
+count = 1 if count < 1   # sanity check
 count = 32 if count > 32 # sanity check
 RbConfig::MAKEFILE_CONFIG['DEFS'] += " -DPROCESSOR_COUNT=#{count}"
 
