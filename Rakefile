@@ -87,7 +87,6 @@ The general release sequence is:
   rake gem
   rake push
   bundle exec rake upload:all
-  rake archive
 
 Most of the Rake tasks run fine without Bundler, and in fact, we
 don't want Bundler in the prerelease task because it will tamper
@@ -193,17 +192,6 @@ namespace :upload do
 
   desc 'Upload current vimball everywhere'
   task :all => [ :s3, :vim ]
-end
-
-desc 'Add current vimball to releases branch'
-task :archive => :vimball do
-  v = version # store version before switching branches
-  sh 'git stash && ' +
-     'git checkout releases && ' +
-     "git add command-t-#{v}.vba && " +
-     "git commit -s -m 'Add #{v} release vimball' && " +
-     'git checkout @{-1} && ' +
-     'git stash pop || true'
 end
 
 desc 'Create the ruby gem package'
