@@ -789,6 +789,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.6.1 (22 December 2013)
+
+- defer processor count detection until runtime (makes it possible to sensibly
+  build Command-T on one machine and use it on another)
+
 1.6 (16 December 2013)
 
 - on systems with POSIX threads (such as OS X and Linux), Command-T will use
