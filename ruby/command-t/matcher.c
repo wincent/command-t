@@ -139,10 +139,13 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE never_show_dot_files;
     long path_count;
     match_t *matches;
-    long i, err;
+    long i;
     long limit, thread_count;
     thread_args_t *thread_args;
     VALUE results;
+#ifdef HAVE_PTHREAD_H
+    long err;
+#endif
 
     if (rb_scan_args(argc, argv, "11", &abbrev, &options) == 1)
         options = Qnil;
