@@ -1,4 +1,4 @@
-# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,12 +23,12 @@
 
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
-require 'command-t/scanner/file_scanner'
+require 'command-t/scanner/file_scanner/ruby_file_scanner'
 
 module CommandT
   class FileFinder < Finder
     def initialize path = Dir.pwd, options = {}
-      @scanner = FileScanner.new path, options
+      @scanner = FileScanner::RubyFileScanner.new path, options
       @matcher = Matcher.new @scanner, options
     end
 
