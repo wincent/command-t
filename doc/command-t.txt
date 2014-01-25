@@ -477,6 +477,14 @@ Following is a list of all available options:
       If set to 0, the window will occupy as much of the available space as
       needed to show matching entries.
 
+                                               *g:CommandTInputDebounce*
+  |g:CommandTInputDebounce|                      number (default: 50)
+
+      The number of milliseconds to wait before updating the match listing
+      following a key-press. This can be used to avoid wasteful recomputation
+      when making a rapid series of key-presses in a directory with many tens
+      (or hundreds) of thousands of files.
+
                                                *g:CommandTMinHeight*
   |g:CommandTMinHeight|                          number (default: 0)
 
@@ -677,16 +685,16 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite                Matthew Todd              Steven Moazami
-  Anthony Panozzo           Mike Lundy                Sung Pae
-  Daniel Hahler             Nate Kane                 Thomas Pelletier
-  Felix Tjandrawibawa       Nicholas Alpi             Victor Hugo Borja
-  Gary Bernhardt            Nadav Samet               Vít Ondruch
-  Ivan Ukhov                Noon Silk                 Woody Peterson
-  Jeff Kreeftmeijer         Paul Jolly                Yan Pritzker
-  Lucas de Vries            Rainux Luo                Zak Johnson
-  Marcus Brito              Scott Bronson
-  Marian Schubert           Seth Fowler
+  Andy Waite              Matthew Todd            Steven Moazami
+  Anthony Panozzo         Mike Lundy              Sung Pae
+  Daniel Hahler           Nadav Samet             Thomas Pelletier
+  Felix Tjandrawibawa     Nate Kane               Victor Hugo Borja
+  Gary Bernhardt          Nicholas Alpi           Vít Ondruch
+  Ivan Ukhov              Noon Silk               Woody Peterson
+  Jeff Kreeftmeijer       Paul Jolly              Yan Pritzker
+  Lucas de Vries          Rainux Luo              Yiding Jia
+  Marcus Brito            Scott Bronson           Zak Johnson
+  Marian Schubert         Seth Fowler
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -764,7 +772,7 @@ PayPal to win@wincent.com:
 
 LICENSE                                         *command-t-license*
 
-Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -788,6 +796,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.7 (unreleased)
+
+- added |g:CommandTInputDebounce|, which can be used to improve responsiveness
+  in large file hierarchies (based on patch from Yiding Jia)
 
 1.6.1 (22 December 2013)
 

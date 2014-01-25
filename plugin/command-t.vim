@@ -1,5 +1,5 @@
 " command-t.vim
-" Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+" Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 "
 " Redistribution and use in source and binary forms, with or without
 " modification, are permitted provided that the following conditions are met:
@@ -91,6 +91,10 @@ endfunction
 if !has('ruby')
   finish
 endif
+
+function CommandTListMatches()
+  ruby $command_t.list_matches
+endfunction
 
 function CommandTHandleKey(arg)
   ruby $command_t.handle_key

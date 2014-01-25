@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -95,7 +95,7 @@ module CommandT
     def refresh
       return unless @active_finder && @active_finder.respond_to?(:flush)
       @active_finder.flush
-      list_matches
+      list_matches!
     end
 
     def flush
@@ -109,7 +109,7 @@ module CommandT
       key = ::VIM::evaluate('a:arg').to_i.chr
       if @focus == @prompt
         @prompt.add! key
-        list_matches
+        @needs_update = true
       else
         @match_window.find key
       end
@@ -118,14 +118,14 @@ module CommandT
     def backspace
       if @focus == @prompt
         @prompt.backspace!
-        list_matches
+        @needs_update = true
       end
     end
 
     def delete
       if @focus == @prompt
         @prompt.delete!
-        list_matches
+        @needs_update.true
       end
     end
 
@@ -155,7 +155,7 @@ module CommandT
 
     def clear
       @prompt.clear!
-      list_matches
+      list_matches!
     end
 
     def cursor_left
@@ -182,7 +182,24 @@ module CommandT
       @match_window.unload
     end
 
+    def list_matches(options = {})
+      return unless @needs_update || options[:force]
+
+      @matches = @active_finder.sorted_matches_for(
+        @prompt.abbrev,
+        :limit   => match_limit,
+        :threads => CommandT::Util.processor_count
+      )
+      @match_window.matches = @matches
+
+      @needs_update = false
+    end
+
   private
+
+    def list_matches!
+      list_matches(:force => true)
+    end
 
     def show
       @initial_window   = $curwin
@@ -196,6 +213,7 @@ module CommandT
       @focus            = @prompt
       @prompt.focus
       register_for_key_presses
+      set_up_autocmds
       clear # clears prompt and lists matches
     end
 
@@ -333,6 +351,16 @@ module CommandT
       end
     end
 
+    def set_up_autocmds
+      debounce_interval = get_number('g:CommandTInputDebounce') || 50
+
+      ::VIM::command 'augroup Command-T'
+      ::VIM::command 'au!'
+      ::VIM::command 'autocmd CursorHold <buffer> :call CommandTListMatches()'
+      ::VIM::command "setlocal updatetime=#{debounce_interval}"
+      ::VIM::command 'augroup END'
+    end
+
     # Returns the desired maximum number of matches, based on available
     # vertical space and the g:CommandTMaxHeight option.
     def match_limit
@@ -340,15 +368,6 @@ module CommandT
       limit = 1 if limit < 0
       limit = [limit, max_height].min if max_height > 0
       limit
-    end
-
-    def list_matches
-      @matches = @active_finder.sorted_matches_for(
-        @prompt.abbrev,
-        :limit   => match_limit,
-        :threads => CommandT::Util.processor_count
-      )
-      @match_window.matches = @matches
     end
 
     def buffer_finder
