@@ -38,8 +38,8 @@ module CommandT
       @max_files            = options[:max_files] || 30_000
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
-      @wild_ignore          = options[:wild_ignore]
       @base_wild_ignore     = VIM::wild_ignore
+      @wild_ignore          = options[:wild_ignore] || @base_wild_ignore
     end
 
     def paths
@@ -75,10 +75,14 @@ module CommandT
     end
 
     def path_excluded? path
-      # first strip common prefix (@path) from path to match VIM's behavior
-      path = path[(@prefix_len + 1)..-1]
-      path = VIM::escape_for_single_quotes path
-      ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+      if @wild_ignore != ''
+        # first strip common prefix (@path) from path to match VIM's behavior
+        path = path[(@prefix_len + 1)..-1]
+        path = VIM::escape_for_single_quotes path
+        ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+      else
+        false
+      end
     end
 
     def looped_symlink? path

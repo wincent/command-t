@@ -32,9 +32,9 @@ describe CommandT::FileScanner do
     )
     @scanner = CommandT::FileScanner.new @dir
 
-    stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
-    stub(::VIM).evaluate(/wildignore/) { '' }
+    stub(::VIM).evaluate(/^&wildignore$/) { '' }
+    stub(::VIM).command(/set wildignore=/) { '' }
   end
 
   describe 'paths method' do
@@ -66,9 +66,35 @@ describe CommandT::FileScanner do
   end
 
   describe "'wildignore' exclusion" do
-    it "calls on VIM's expand() function for pattern filtering" do
+    it "calls on VIM's expand() function for pattern filtering when provided" do
+      stub(::VIM).evaluate("exists(\"&wildignore\")") { 0 }
+      stub(::VIM).evaluate(/^&wildignore$/) { '' }
+      @scanner = CommandT::FileScanner.new @dir, { :wild_ignore => 'x' }
+      mock(::VIM).evaluate(/expand\(.+\)/).times(10)
+      @scanner.paths
+    end
+
+    it "calls on VIM's expand() function for pattern filtering when VIM has a wildignore" do
+      stub(::VIM).evaluate("exists(\"&wildignore\")") { 1 }
+      stub(::VIM).evaluate(/^&wildignore$/) { 'z' }
       @scanner = CommandT::FileScanner.new @dir
       mock(::VIM).evaluate(/expand\(.+\)/).times(10)
+      @scanner.paths
+    end
+
+    it "does not call on VIM's expand() function when there is no wildignore" do
+      stub(::VIM).evaluate("exists(\"&wildignore\")") { 0 }
+      stub(::VIM).evaluate(/^&wildignore$/) { '' }
+      @scanner = CommandT::FileScanner.new @dir, { :wild_ignore => nil }
+      mock(::VIM).evaluate(/expand\(.+\)/).times(0)
+      @scanner.paths
+    end
+
+    it "does not call on VIM's expand() function when wildignore is overridden" do
+      stub(::VIM).evaluate("exists(\"&wildignore\")") { 1 }
+      stub(::VIM).evaluate(/^&wildignore$/) { 'x' }
+      @scanner = CommandT::FileScanner.new @dir, { :wild_ignore => '' }
+      mock(::VIM).evaluate(/expand\(.+\)/).times(0)
       @scanner.paths
     end
   end
