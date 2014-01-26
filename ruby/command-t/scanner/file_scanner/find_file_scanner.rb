@@ -51,8 +51,8 @@ module CommandT
           IO.popen([
             'find', '-L',                 # follow symlinks
             @path,                        # anchor search here
-            '-type', 'f',                 # only show regular files (not dirs etc)
             '-maxdepth', @max_depth.to_s, # limit depth of DFS
+            '-type', 'f',                 # only show regular files (not dirs etc)
             dot_directory_filter,         # possibly skip out dot directories
             '-print0'                     # NUL-terminate results
           ].flatten.compact) do |f|
