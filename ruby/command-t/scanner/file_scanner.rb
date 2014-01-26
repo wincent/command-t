@@ -47,7 +47,11 @@ module CommandT
     end
 
     def paths
-      raise RuntimeError, 'Subclass responsibility'
+      @paths[@path] || begin
+        ensure_cache_under_limit
+        @prefix_len = @path.chomp('/').length
+        nil
+      end
     end
 
     def flush
@@ -65,7 +69,7 @@ module CommandT
       @paths_keys << @path
     end
 
-    def path_excluded? path
+    def path_excluded?(path)
       # first strip common prefix (@path) from path to match VIM's behavior
       path = path[(@prefix_len + 1)..-1]
       path = VIM::escape_for_single_quotes path

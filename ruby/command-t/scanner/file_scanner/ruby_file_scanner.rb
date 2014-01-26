@@ -29,13 +29,10 @@ module CommandT
     # Pure Ruby implementation of a file scanner.
     class RubyFileScanner < FileScanner
       def paths
-        return @paths[@path] if @paths.has_key?(@path)
-        begin
-          ensure_cache_under_limit
+        super || begin
           @paths[@path] = []
           @depth        = 0
           @files        = 0
-          @prefix_len   = @path.chomp('/').length
           set_wild_ignore(@wild_ignore)
           add_paths_for_directory @path, @paths[@path]
         rescue FileLimitExceeded

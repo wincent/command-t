@@ -801,6 +801,9 @@ HISTORY                                         *command-t-history*
 
 - added |g:CommandTInputDebounce|, which can be used to improve responsiveness
   in large file hierarchies (based on patch from Yiding Jia)
+- added |g:CommandTFileScanner|, which can be used to switch from the standard
+  Ruby-based file scanner to a potentially faster one which uses the find
+  executable (based on patch from Yiding Jia)
 
 1.6.1 (22 December 2013)
 
