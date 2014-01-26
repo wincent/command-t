@@ -21,6 +21,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'open3'
 require 'command-t/vim'
 require 'command-t/vim/path_utilities'
 require 'command-t/scanner/file_scanner'
@@ -48,17 +49,17 @@ module CommandT
             ]
           end
 
-          IO.popen([
+          Open3.popen3(*([
             'find', '-L',                 # follow symlinks
             @path,                        # anchor search here
             '-maxdepth', @max_depth.to_s, # limit depth of DFS
             '-type', 'f',                 # only show regular files (not dirs etc)
             dot_directory_filter,         # possibly skip out dot directories
             '-print0'                     # NUL-terminate results
-          ].flatten.compact) do |f|
+          ].flatten.compact)) do |stdin, stdout, stderr|
             counter = 1
             paths = []
-            f.readlines.each do |line|
+            stdout.readlines.each do |line|
               next if path_excluded?(line.chomp!)
               paths << relative_path_under_working_directory(line)
               break if (counter += 1) > @max_files
