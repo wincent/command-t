@@ -125,7 +125,7 @@ module CommandT
     def delete
       if @focus == @prompt
         @prompt.delete!
-        @needs_update.true
+        @needs_update = true
       end
     end
 
