@@ -29,7 +29,7 @@ var DB = (function() {
   //
   //   callback(err)
   //
-  // In this latter case we can re-use the same code because the "results" param
+  // In this latter case we can re-use the same code because the 'results' param
   // is simply `undefined`.
   //
   // Some DB methods don't pass a result in the callback and instead use an
@@ -44,7 +44,7 @@ var DB = (function() {
 
         function handler(err, result) {
           if (err === null) {
-            resolve(typeof result === "undefined" ? value : result);
+            resolve(typeof result === 'undefined' ? value : result);
           } else {
             reject(err);
           }
@@ -59,6 +59,32 @@ var DB = (function() {
   DB.prototype.run     = promisify('run');
   DB.prototype.all     = promisify('all');
   DB.prototype.prepare = promisify('prepare');
+
+  // Bind an array of queries to a prepared statement, executing them serially.
+  DB.prototype.bind = function(queries, statement) {
+    return new Promise(function(resolve, reject) {
+      this._db.serialize(function() {
+        function handler(err) {
+          if (err !== null) {
+            reject(err);
+          }
+        }
+
+        function lastHandler(err, result) {
+          if (err === null) {
+            resolve(result);
+          } else {
+            reject(err);
+          }
+        }
+
+        for (var i = 0, max = queries.length, last = max - 1; i < max; i++) {
+          queries[i].push(i === last ? lastHandler : handler);
+          statement.run.apply(statement, queries[i]);
+        }
+      });
+    }.bind(this));
+  };
 
   return DB;
 })();
@@ -110,28 +136,13 @@ db.connect()
     return db.prepare('INSERT INTO benchmarks VALUES (?, ?)');
   })
   .then(function(statement) {
-    return new Promise(function(resolve, reject) {
-      db._db.serialize(function() {
-        for (var i = 1; i < magnitude; i++) {
-          if (i === magnitude - 1) {
-            // last iteration, set up callback for promise
-            statement.run(
-              '/home/glh/www', 'some/sub/path/here/' + i,
-              function(err) {
-                if (err === null) {
-                  resolve();
-                } else {
-                  reject(err);
-                }
-              }
-            );
-          } else {
-            // business as usual
-            statement.run('/home/glh/www', 'some/sub/path/here/' + i);
-          }
-        }
-      });
-    });
+    queries = []
+
+    for (var i = 0; i < magnitude; i++) {
+      queries.push(['/home/glh/www', 'some/sub/path/here/' + i]);
+    }
+
+    return db.bind(queries, statement);
   })
   .then(function() {
     tick('SELECT');
