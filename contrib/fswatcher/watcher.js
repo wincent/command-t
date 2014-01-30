@@ -136,10 +136,23 @@ db.connect()
     return db.prepare('INSERT INTO benchmarks VALUES (?, ?)');
   })
   .then(function(statement) {
-    queries = []
+    var queries = []
 
     for (var i = 0; i < magnitude; i++) {
       queries.push(['/home/glh/www', 'some/sub/path/here/' + i]);
+    }
+
+    return db.bind(queries, statement);
+  })
+  .then(function() {
+    tick('UPDATE');
+    return db.prepare('UPDATE benchmarks SET path = ? WHERE path = ?');
+  })
+  .then(function(statement) {
+    var queries = []
+
+    for (var i = 1, max = magnitude / 4; i < max; i++) {
+      queries.push(['new/path/' + i, 'some/sub/path/here/' + i]);
     }
 
     return db.bind(queries, statement);
@@ -150,10 +163,22 @@ db.connect()
       'SELECT path FROM benchmarks WHERE root = ?', '/home/glh/www'
     );
   })
+  .then(function() {
+    tick('DELETE');
+    return db.prepare('DELETE FROM benchmarks WHERE path = ?');
+  })
+  .then(function(statement) {
+    var queries = [];
+
+    for (var i = 1, max = magnitude / 4; i < max; i++) {
+      queries.push(['new/path/' + i]);
+    }
+
+    return db.bind(queries, statement);
+  })
   .done(function(result) {
     tick('Success');
     printTimings();
-    //console.log(result);
   }, function(err) {
     tick('Failure');
     console.log('ERR: ' + err);
