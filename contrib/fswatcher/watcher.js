@@ -174,7 +174,7 @@ db.connect()
   .then(function(statement) {
     var queries = []
 
-    for (var i = 1, max = magnitude / 4; i < max; i++) {
+    for (var i = 1, max = magnitude / 4; i < max; i += 4) {
       queries.push(['new/path/' + i, 'some/sub/path/here/' + i]);
     }
 
@@ -193,7 +193,7 @@ db.connect()
   .then(function(statement) {
     var queries = [];
 
-    for (var i = 1, max = magnitude / 4; i < max; i++) {
+    for (var i = 1, max = magnitude / 4; i < max; i += 4) {
       queries.push(['new/path/' + i]);
     }
 
