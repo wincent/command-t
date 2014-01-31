@@ -2,6 +2,29 @@ var timethat = require('timethat');
 var Promise  = require('promise');
 var sqlite3  = require('sqlite3').verbose();
 
+var optimist = require('optimist').wrap(72);
+var argv = optimist
+  .usage('Usage: $0 --db <:memory:|filename|"">')
+  .options('database', {
+    alias:    'd',
+    default:  ':memory:',
+    describe: 'database location\n(:memory:, filename, or "" for anonymous)\n'
+  })
+  .options('help', {
+    alias:    'h',
+    describe: 'show usage'
+  })
+  .options('port', {
+    alias:    'p',
+    default:  '53493',
+    describe: 'listen on port number'
+  })
+  .argv;
+
+if (argv.h) {
+  optimist.showHelp();
+}
+
 // promise-aware wrapper for sqlite3
 var DB = (function() {
   function DB(name) {
@@ -89,7 +112,7 @@ var DB = (function() {
   return DB;
 })();
 
-var db = new DB(':memory:');
+var db = new DB(argv.database);
 var magnitude = 400000;
 var timings = [];
 
