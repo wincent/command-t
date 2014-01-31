@@ -23,6 +23,7 @@ module.exports.argv = (function() {
 
   if (argv.h) {
     optimist.showHelp();
+    process.exit(0);
   }
 
   return argv;
