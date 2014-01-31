@@ -1,3 +1,5 @@
+"use strict";
+
 var Promise = require('promise');
 var sqlite3 = require('sqlite3');
 
