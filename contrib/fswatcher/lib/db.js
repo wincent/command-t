@@ -4,7 +4,7 @@ var Promise = require('promise');
 var sqlite3 = require('sqlite3');
 
 // promise-aware wrapper for sqlite3
-module.exports.DB = (function() {
+module.exports = (function() {
   function DB(name) {
     this.name = name;
   }

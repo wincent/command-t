@@ -4,8 +4,8 @@
 var timethat = require('timethat');
 
 // lib
-var argv = require('./lib/argv').argv;
-var DB   = require('./lib/db').DB;
+var argv = require('./lib/argv');
+var DB   = require('./lib/db');
 
 var db = new DB(argv.database);
 var magnitude = 400000;

@@ -2,7 +2,7 @@
 
 var optimist = require('optimist').wrap(72);
 
-module.exports.argv = (function() {
+module.exports = (function() {
   var argv = optimist
     .usage('Usage: $0 --db <:memory:|filename|"">')
     .options('database', {
@@ -28,4 +28,3 @@ module.exports.argv = (function() {
 
   return argv;
 })();
-
