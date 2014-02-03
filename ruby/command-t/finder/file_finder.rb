@@ -1,4 +1,4 @@
-# Copyright 2010-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,12 +23,24 @@
 
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
-require 'command-t/scanner/file_scanner'
+require 'command-t/scanner/file_scanner/ruby_file_scanner'
+require 'command-t/scanner/file_scanner/find_file_scanner'
+require 'command-t/scanner/file_scanner/watchman_file_scanner'
 
 module CommandT
   class FileFinder < Finder
-    def initialize path = Dir.pwd, options = {}
-      @scanner = FileScanner.new path, options
+    def initialize(path = Dir.pwd, options = {})
+      case options.delete(:scanner)
+      when 'ruby', nil # ruby is the default
+        @scanner = FileScanner::RubyFileScanner.new(path, options)
+      when 'find'
+        @scanner = FileScanner::FindFileScanner.new(path, options)
+      when 'watchman'
+        @scanner = FileScanner::WatchmanFileScanner.new(path, options)
+      else
+        raise ArgumentError, "unknown scanner type '#{options[:scanner]}'"
+      end
+
       @matcher = Matcher.new @scanner, options
     end
 
@@ -36,4 +48,4 @@ module CommandT
       @scanner.flush
     end
   end # class FileFinder
-end # CommandT
+end # module CommandT

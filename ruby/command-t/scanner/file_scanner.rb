@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -26,11 +26,15 @@ require 'command-t/scanner'
 
 module CommandT
   # Reads the current directory recursively for the paths to all regular files.
+  #
+  # This is an abstract superclass; the real work is done by subclasses which
+  # obtain file listings via different strategies (for examples, see the
+  # RubyFileScanner and FindFileScanner subclasses).
   class FileScanner < Scanner
     class FileLimitExceeded < ::RuntimeError; end
     attr_accessor :path
 
-    def initialize path = Dir.pwd, options = {}
+    def initialize(path = Dir.pwd, options = {})
       @paths                = {}
       @paths_keys           = []
       @path                 = path
@@ -43,20 +47,11 @@ module CommandT
     end
 
     def paths
-      return @paths[@path] if @paths.has_key?(@path)
-      begin
+      @paths[@path] || begin
         ensure_cache_under_limit
-        @paths[@path] = []
-        @depth        = 0
-        @files        = 0
-        @prefix_len   = @path.chomp('/').length
-        set_wild_ignore(@wild_ignore)
-        add_paths_for_directory @path, @paths[@path]
-      rescue FileLimitExceeded
-      ensure
-        set_wild_ignore(@base_wild_ignore)
+        @prefix_len = @path.chomp('/').length
+        nil
       end
-      @paths[@path]
     end
 
     def flush
@@ -74,45 +69,15 @@ module CommandT
       @paths_keys << @path
     end
 
-    def path_excluded? path
+    def path_excluded?(path)
       # first strip common prefix (@path) from path to match VIM's behavior
       path = path[(@prefix_len + 1)..-1]
       path = VIM::escape_for_single_quotes path
       ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
     end
 
-    def looped_symlink? path
-      if File.symlink?(path)
-        target = File.expand_path(File.readlink(path), File.dirname(path))
-        target.include?(@path) || @path.include?(target)
-      end
-    end
-
     def set_wild_ignore(ignore)
       ::VIM::command("set wildignore=#{ignore}") if @wild_ignore
-    end
-
-    def add_paths_for_directory dir, accumulator
-      Dir.foreach(dir) do |entry|
-        next if ['.', '..'].include?(entry)
-        path = File.join(dir, entry)
-        unless path_excluded?(path)
-          if File.file?(path)
-            @files += 1
-            raise FileLimitExceeded if @files > @max_files
-            accumulator << path[@prefix_len + 1..-1]
-          elsif File.directory?(path)
-            next if @depth >= @max_depth
-            next if (entry.match(/\A\./) && !@scan_dot_directories)
-            next if looped_symlink?(path)
-            @depth += 1
-            add_paths_for_directory path, accumulator
-            @depth -= 1
-          end
-        end
-      end
-    rescue Errno::EACCES
-      # skip over directories for which we don't have access
     end
   end # class FileScanner
 end # module CommandT

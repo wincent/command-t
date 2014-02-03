@@ -382,7 +382,8 @@ module CommandT
         :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
-        :wild_ignore            => get_string('g:CommandTWildIgnore')
+        :wild_ignore            => get_string('g:CommandTWildIgnore'),
+        :scanner                => get_string('g:CommandTFileScanner')
     end
 
     def jump_finder
