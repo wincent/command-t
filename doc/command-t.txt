@@ -11,12 +11,13 @@ CONTENTS                                        *command-t-contents*
  6. Commands                |command-t-commands|
  7. Mappings                |command-t-mappings|
  8. Options                 |command-t-options|
- 9. Authors                 |command-t-authors|
-10. Development             |command-t-development|
-11. Website                 |command-t-website|
-12. Donations               |command-t-donations|
-13. License                 |command-t-license|
-14. History                 |command-t-history|
+ 9. Tips                    |command-t-tips|
+10. Authors                 |command-t-authors|
+11. Development             |command-t-development|
+12. Website                 |command-t-website|
+13. Donations               |command-t-donations|
+14. License                 |command-t-license|
+15. History                 |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -50,7 +51,7 @@ installation at the operating system level, and a C compiler to build
 the Ruby extension.
 
 
-1. Vim compiled with Ruby support
+1. Vim compiled with Ruby support ~
 
 You can check for Ruby support by launching Vim with the --version switch:
 
@@ -81,7 +82,7 @@ include Ruby support, and is recommended over version 7.3 (which links against
 Ruby 1.9, but apparently has some bugs that need to be resolved).
 
 
-2. Ruby
+2. Ruby ~
 
 In addition to having Ruby support in Vim, your system itself must have a
 compatible Ruby install. "Compatible" means the same version as Vim itself
@@ -114,7 +115,7 @@ If using RubyInstaller be sure to download the installer executable, not the
 PATH" so that Vim can find them.
 
 
-3. C compiler
+3. C compiler ~
 
 Part of Command-T is implemented in C as a Ruby extension for speed, allowing
 it to work responsively even on directory hierarchies containing enormous
@@ -485,6 +486,28 @@ Following is a list of all available options:
       when making a rapid series of key-presses in a directory with many tens
       (or hundreds) of thousands of files.
 
+                                               *g:CommandTFileScanner*
+  |g:CommandTFileScanner|                        string (default: 'ruby')
+
+      The underlying scanner implementation that should be used to explore the
+      filesystem. Possible values are:
+
+      - "ruby": uses built-in Ruby and should work everywhere, albeit slowly
+        on large (many tens of thousands of files) hierarchies.
+
+      - "find": uses the command-line tool of the same name, which can be much
+        faster on large projects because it is written in pure C, but may not
+        work on systems without the tool or with an incompatible version of
+        the tool.
+
+      - "watchman": uses Watchman (https://github.com/facebook/watchman) if
+        available; otherwise falls back to "find". Note that this scanner is
+        intended for use with very large hierarchies (hundreds of thousands of
+        files) and so the task of deciding which files should be included is
+        entirely delegated to Watchman; this means that settings which
+        Command-T would usually consult, such as 'wildignore' and
+        |g:CommandTScanDotDirectories| are ignored.
+
                                                *g:CommandTMinHeight*
   |g:CommandTMinHeight|                          number (default: 0)
 
@@ -679,6 +702,111 @@ settings can be used to control behavior:
       only during Command-T searches.
 
 
+TIPS                                            *command-t-tips*
+
+Working with very large repositories ~
+
+One of the primary motivations for writing Command-T was to get fast, robust
+high-quality matches even on large hierarchies. The larger the hierarchy, the
+more important having good file navigation becomes. This is why Command-T's
+performance-critical sections are written in C. This requires a compilation
+step and makes Command-T harder to install than similar plug-ins which are
+written in pure Vimscript, and can be a disincentive against use. This is a
+conscious trade-off; the goal isn't to have as many users as possible, but
+rather to provide the best performance at the highest quality.
+
+The speed of the core is high enough that Command-T can afford to burn a bunch
+of extra cycles -- using its recursive matching algorithm -- looking for a
+higher-quality, more intuitive ranking of search results. Again, the larger
+the hierarchy, the more important the quality of result ranking becomes.
+
+Nevertheless, for extremely large hierarchies (of the order of 500,000 files)
+some tuning is required in order to get useful and usable performance levels.
+Here are some useful example settings:
+
+    let g:CommandTMaxHeight = 30
+
+You want the match listing window to be large enough that you can get useful
+feedback about how your search query is going; in large hierarchies there may
+be many, many matches for a given query. At the same time, you don't want Vim
+wasting valuable cycles repainting a large portion of the screen area,
+especially on a large display. Setting the limit to 30 or similar is a
+reasonable compromise.
+
+    let g:CommandTMaxFiles = 500000
+
+The default limit of 30,000 files prevents Command-T from "seeing" many of the
+files in a large directory hierarchy so you need to increase this limit.
+
+    let g:CommandTInputDebounce = 200
+
+Wait for 200ms of keyboard inactivity before computing search results. For
+example, if you are enter "foobar" quickly (ie. within 1 second), there is
+little sense in fetching the results for "f", "fo", "foo", "foob", "fooba" and
+finally "foobar". Instead, we can just fetch the results for "foobar". This
+setting trades off some immediate responsiveness at the micro level for a
+better search experience overall.
+
+    let g:CommandTFileScanner = 'watchman'
+
+On a large hierarchy with of the order of 500,000 files, scanning a directory
+tree with a tool like the `find` executable may take literally minutes with a
+cold cache. Once the cache is warm, the same `find` run may take only a second
+or two. Command-T provides a "find" scanner to leverage this performance, but
+there is still massive overhead in passing the results through Vim internal
+functions that apply 'wildignore' settings and such, so for truly immense
+repos the "watchman" scanner is the tool of choice.
+
+This scanner delegates the task of finding files to Facebook's `watchman` tool
+(https://github.com/facebook/watchman), which can return results for a 500,000
+file hierarchy within about 10 seconds.
+
+Note that Watchman has a range of configuration options that can be applied by
+files such as `/etc/watchman.json` or per-direcory `.watchmanconfig` files and
+which may affect how Command-T works. For example, if your configuration has a
+`root_restrict_files` setting that makes Watchman only work with roots that
+look like Git or Mercurial repos, then Command-T will fall back to using the
+"find" scanner any time you invoke it on a non-repo directory. For
+simplicity's sake, it is probably a good idea to use Vim and Command-T
+anchored at the root level of your repository in any case.
+
+    let g:CommandTMaxCachedDirectories = 10
+
+Command-T will internally cache up to 10 different directories, so even if you
+|cd| repeatedly, it should only need to scan each directory once.
+
+It's advisable to keep a long-running Vim instance in place and let it cache
+the directory listings rather than repeatedly closing and re-opening Vim in
+order to edit every file. On those occasions when you do need to flush the
+cache (ie. with |CommandTFlush| or <C-f> in the match listing window), use of
+the Watchman scanner should make the delay tolerable.
+
+As noted in the introduction, Command-T works best when you adopt a
+"path-centric" mentality. This is especially true on very large hierarchies.
+For example, if you're looking for a file at:
+
+  lib/third-party/adapters/restful-services/foobar/foobar-manager.js
+
+you'll be able to narrow your search results down more narrowly if you search
+with a query like "librestfoofooman" than "foobar-manager.js". This evidently
+requires that you know where the file you're wanting to open exists, but
+again, this is a concious design decision: Command-T is made to enable people
+who know what they want to open and where it is to open it as quickly as
+possible; other tools such as NERDTree exist for visually exploring an unknown
+hierarchy.
+
+Finally, it is important to be on a relatively recent version of Command-T to
+fully benefit from the available performance enhancements:
+
+- version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
+  |g:CommandTFileScanner| settings, along with support for the Watchman file
+  scanner
+- version 1.6 (December 2013) added parallelized search
+- version 1.5 (September 2013) added memoization to the matching algorithm,
+  improving general performance on large hierarchies, but delivering
+  spectacular gains on hierarchies with "pathological" characteristics that
+  lead the algorithm to exhibit degenerate behavior
+
 AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
@@ -801,9 +929,11 @@ HISTORY                                         *command-t-history*
 
 - added |g:CommandTInputDebounce|, which can be used to improve responsiveness
   in large file hierarchies (based on patch from Yiding Jia)
-- added |g:CommandTFileScanner|, which can be used to switch from the standard
-  Ruby-based file scanner to a potentially faster one which uses the find
-  executable (based on patch from Yiding Jia)
+- added a potentially faster file scanner which uses the `find` executable
+  (based on patch from Yiding Jia)
+- added a file scanner that knows how to talk to Watchman
+  (https://github.com/facebook/watchman)
+- added |g:CommandTFileScanner|, which can be used to switch file scanners
 
 1.6.1 (22 December 2013)
 

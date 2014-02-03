@@ -25,6 +25,7 @@ require 'command-t/ext' # CommandT::Matcher
 require 'command-t/finder'
 require 'command-t/scanner/file_scanner/ruby_file_scanner'
 require 'command-t/scanner/file_scanner/find_file_scanner'
+require 'command-t/scanner/file_scanner/watchman_file_scanner'
 
 module CommandT
   class FileFinder < Finder
@@ -34,6 +35,8 @@ module CommandT
         @scanner = FileScanner::RubyFileScanner.new(path, options)
       when 'find'
         @scanner = FileScanner::FindFileScanner.new(path, options)
+      when 'watchman'
+        @scanner = FileScanner::WatchmanFileScanner.new(path, options)
       else
         raise ArgumentError, "unknown scanner type '#{options[:scanner]}'"
       end
