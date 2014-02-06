@@ -56,13 +56,16 @@ module CommandT
               raise WatchmanUnavailable if JSON[s.gets].has_key?('error')
             end
 
-            s.puts JSON.generate(['find', root, '*'])
+            s.puts JSON.generate(['query', root, {
+              'expression' => ['type', 'f'],
+              'fields'     => ['name'],
+            }])
             paths = JSON[s.gets]
 
             # could return error if watch is removed
             raise WatchmanUnavailable if paths.has_key?('error')
 
-            @paths[@path] = paths['files'].map { |f| f['name'] }
+            @paths[@path] = paths['files']
           end
         end
 
