@@ -61,7 +61,7 @@ module CommandT
             paths = []
             stdout.readlines.each do |line|
               next if path_excluded?(line.chomp!)
-              paths << relative_path_under_working_directory(line)
+              paths << line[@prefix_len + 1..-1]
               break if (counter += 1) > @max_files
             end
             @paths[@path] = paths
