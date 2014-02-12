@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'nokogiri', '~> 1.5.10'
+gem 'nokogiri'
 gem 'mechanize'
 gem 'rake'
 gem 'rr'
