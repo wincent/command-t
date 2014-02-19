@@ -595,7 +595,7 @@ Following is a list of all available options:
   |g:CommandTWildIgnore|                          string (default: none)
 
       Optionally override Vim's global |'wildignore'| setting during Command-T
-      seaches. If you wish to supplement rather than replace the global
+      searches. If you wish to supplement rather than replace the global
       setting, you can use a syntax like:
 
         let g:CommandTWildIgnore=&wildignore . ",**/bower_components/*"
