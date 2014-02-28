@@ -115,7 +115,6 @@ module CommandT
 
         ::VIM::command "highlight link CommandTSelection #{@highlight_color}"
         ::VIM::command 'highlight link CommandTNoEntries Error'
-        ::VIM::evaluate 'clearmatches()'
 
         # hide cursor
         @cursor_highlight = get_cursor_highlight
