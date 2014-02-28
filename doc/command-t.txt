@@ -813,16 +813,16 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Matthew Todd            Steven Moazami
-  Anthony Panozzo         Mike Lundy              Sung Pae
-  Daniel Hahler           Nadav Samet             Thomas Pelletier
-  Felix Tjandrawibawa     Nate Kane               Victor Hugo Borja
-  Gary Bernhardt          Nicholas Alpi           Vít Ondruch
-  Ivan Ukhov              Noon Silk               Woody Peterson
-  Jeff Kreeftmeijer       Paul Jolly              Yan Pritzker
-  Lucas de Vries          Rainux Luo              Yiding Jia
-  Marcus Brito            Scott Bronson           Zak Johnson
-  Marian Schubert         Seth Fowler
+  Andy Waite              Matthew Todd            Seth Fowler
+  Anthony Panozzo         Mike Lundy              Steven Moazami
+  Daniel Hahler           Nadav Samet             Sung Pae
+  Felix Tjandrawibawa     Nate Kane               Thomas Pelletier
+  Gary Bernhardt          Nicholas Alpi           Victor Hugo Borja
+  Ivan Ukhov              Noon Silk               Vít Ondruch
+  Jeff Kreeftmeijer       Paul Jolly              Woody Peterson
+  Lucas de Vries          Pavel Sergeev           Yan Pritzker
+  Marcus Brito            Rainux Luo              Yiding Jia
+  Marian Schubert         Scott Bronson           Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -934,6 +934,7 @@ HISTORY                                         *command-t-history*
 - added a file scanner that knows how to talk to Watchman
   (https://github.com/facebook/watchman)
 - added |g:CommandTFileScanner|, which can be used to switch file scanners
+- fix processor count detection on some platforms (patch from Pavel Sergeev)
 
 1.6.1 (22 December 2013)
 
