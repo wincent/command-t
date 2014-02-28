@@ -595,7 +595,7 @@ Following is a list of all available options:
   |g:CommandTWildIgnore|                          string (default: none)
 
       Optionally override Vim's global |'wildignore'| setting during Command-T
-      seaches. If you wish to supplement rather than replace the global
+      searches. If you wish to supplement rather than replace the global
       setting, you can use a syntax like:
 
         let g:CommandTWildIgnore=&wildignore . ",**/bower_components/*"
@@ -813,16 +813,17 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Matthew Todd            Seth Fowler
-  Anthony Panozzo         Mike Lundy              Steven Moazami
-  Daniel Hahler           Nadav Samet             Sung Pae
-  Felix Tjandrawibawa     Nate Kane               Thomas Pelletier
-  Gary Bernhardt          Nicholas Alpi           Victor Hugo Borja
-  Ivan Ukhov              Noon Silk               Vít Ondruch
-  Jeff Kreeftmeijer       Paul Jolly              Woody Peterson
-  Lucas de Vries          Pavel Sergeev           Yan Pritzker
-  Marcus Brito            Rainux Luo              Yiding Jia
-  Marian Schubert         Scott Bronson           Zak Johnson
+  Andy Waite              Mike Lundy              Shlomi Fish
+  Anthony Panozzo         Nadav Samet             Steven Moazami
+  Daniel Hahler           Nate Kane               Sung Pae
+  Felix Tjandrawibawa     Nicholas Alpi           Thomas Pelletier
+  Gary Bernhardt          Noon Silk               Victor Hugo Borja
+  Ivan Ukhov              Paul Jolly              Vít Ondruch
+  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
+  Lucas de Vries          Rainux Luo              Yan Pritzker
+  Marcus Brito            Scott Bronson           Yiding Jia
+  Marian Schubert         Seth Fowler             Zak Johnson
+  Matthew Todd
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
