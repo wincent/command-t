@@ -49,16 +49,16 @@ module CommandT
 
       # global settings (must manually save and restore)
       @settings = Settings.new
-      ::VIM::set_option 'timeout'         # ensure mappings timeout
-      ::VIM::set_option 'timeoutlen=0'    # respond immediately to mappings
-      ::VIM::set_option 'nohlsearch'      # don't highlight search strings
-      ::VIM::set_option 'noinsertmode'    # don't make Insert mode the default
-      ::VIM::set_option 'noshowcmd'       # don't show command info on last line
-      ::VIM::set_option 'report=9999'     # don't show "X lines changed" reports
-      ::VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
-      ::VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
-      ::VIM::set_option 'noequalalways'   # don't auto-balance window sizes
-      ::VIM::set_option "updatetime=#{options[:debounce_interval]}"
+      @settings.set 'timeout', true        # ensure mappings timeout
+      @settings.set 'hlsearch', false      # don't highlight search strings
+      @settings.set 'insertmode', false    # don't make Insert mode the default
+      @settings.set 'showcmd', false       # don't show command info on last line
+      @settings.set 'equalalways', false   # don't auto-balance window sizes
+      @settings.set 'timeoutlen', 0        # respond immediately to mappings
+      @settings.set 'report', 9999         # don't show "X lines changed" reports
+      @settings.set 'sidescroll', 0        # don't sidescroll in jumps
+      @settings.set 'sidescrolloff', 0     # don't sidescroll automatically
+      @settings.set 'updatetime', options[:debounce_interval]
 
       # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
