@@ -58,6 +58,7 @@ module CommandT
       ::VIM::set_option 'sidescroll=0'    # don't sidescroll in jumps
       ::VIM::set_option 'sidescrolloff=0' # don't sidescroll automatically
       ::VIM::set_option 'noequalalways'   # don't auto-balance window sizes
+      ::VIM::set_option "updatetime=#{options[:debounce_interval]}"
 
       # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'

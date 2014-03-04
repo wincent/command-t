@@ -209,6 +209,7 @@ module CommandT
         :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop'),
         :match_window_reverse => get_bool('g:CommandTMatchWindowReverse'),
         :min_height           => min_height,
+        :debounce_interval    => get_number('g:CommandTInputDebounce', 50),
         :prompt               => @prompt
       @focus            = @prompt
       @prompt.focus
@@ -218,26 +219,26 @@ module CommandT
     end
 
     def max_height
-      @max_height ||= get_number('g:CommandTMaxHeight') || 0
+      @max_height ||= get_number('g:CommandTMaxHeight', 0)
     end
 
     def min_height
       @min_height ||= begin
-        min_height = get_number('g:CommandTMinHeight') || 0
+        min_height = get_number('g:CommandTMinHeight', 0)
         min_height = max_height if max_height != 0 && min_height > max_height
         min_height
       end
     end
 
-    def get_number name
-      VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_i : nil
+    def get_number(name, default = nil)
+      VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_i : default
     end
 
-    def get_bool name
+    def get_bool(name)
       VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_i != 0 : nil
     end
 
-    def get_string name
+    def get_string(name)
       VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_s : nil
     end
 
@@ -352,12 +353,9 @@ module CommandT
     end
 
     def set_up_autocmds
-      debounce_interval = get_number('g:CommandTInputDebounce') || 50
-
       ::VIM::command 'augroup Command-T'
       ::VIM::command 'au!'
       ::VIM::command 'autocmd CursorHold <buffer> :call CommandTListMatches()'
-      ::VIM::command "setlocal updatetime=#{debounce_interval}"
       ::VIM::command 'augroup END'
     end
 
