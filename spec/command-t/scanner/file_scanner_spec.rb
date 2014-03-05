@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -45,9 +45,8 @@ describe CommandT::FileScanner do
 
   describe 'flush method' do
     it 'forces a rescan on next call to paths method' do
-      first = @scanner.paths
-      @scanner.flush
-      @scanner.paths.object_id.should_not == first.object_id
+      expect { @scanner.flush }.
+        to change { @scanner.instance_variable_get('@paths').object_id }
     end
   end
 
