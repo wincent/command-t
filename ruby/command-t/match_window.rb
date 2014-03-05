@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,6 @@ module CommandT
                                    :width   => ::VIM::Window[i].width)
       end
 
-      # global settings (must manually save and restore)
       @settings = Settings.new
       @settings.set 'timeout', true        # ensure mappings timeout
       @settings.set 'hlsearch', false      # don't highlight search strings
@@ -67,29 +66,26 @@ module CommandT
         raise "Can't re-open GoToFile buffer" unless $curbuf.number == @@buffer.number
         $curwin.height = 1
       else        # creating match window for first time and set it up
-        split_command = "silent! #{split_location} 1split GoToFile"
-        [
-          split_command,
-          'setlocal bufhidden=unload',  # unload buf when no longer displayed
-          'setlocal buftype=nofile',    # buffer is not related to any file
-          'setlocal nomodifiable',      # prevent manual edits
-          'setlocal noswapfile',        # don't create a swapfile
-          'setlocal nowrap',            # don't soft-wrap
-          'setlocal nonumber',          # don't show line numbers
-          'setlocal nolist',            # don't use List mode (visible tabs etc)
-          'setlocal foldcolumn=0',      # don't show a fold column at side
-          'setlocal foldlevel=99',      # don't fold anything
-          'setlocal nocursorline',      # don't highlight line cursor is on
-          'setlocal nospell',           # spell-checking off
-          'setlocal nobuflisted',       # don't show up in the buffer list
-          'setlocal textwidth=0'        # don't hard-wrap (break long lines)
-        ].each { |command| ::VIM::command command }
+        ::VIM::command "silent! #{split_location} 1split GoToFile"
+        @settings.set 'bufhidden', 'unload' # unload buf when no longer displayed
+        @settings.set 'buftype', 'nofile'   # buffer is not related to any file
+        @settings.set 'modifiable', false   # prevent manual edits
+        @settings.set 'swapfile', false     # don't create a swapfile
+        @settings.set 'wrap', false         # don't soft-wrap
+        @settings.set 'number', false       # don't show line numbers
+        @settings.set 'list', false         # don't use List mode (visible tabs etc)
+        @settings.set 'foldcolumn', 0       # don't show a fold column at side
+        @settings.set 'foldlevel', 99       # don't fold anything
+        @settings.set 'cursorline', false   # don't highlight line cursor is on
+        @settings.set 'spell', false        # spell-checking off
+        @settings.set 'buflisted', false    # don't show up in the buffer list
+        @settings.set 'textwidth', 0        # don't hard-wrap (break long lines)
 
         # don't show the color column
-        ::VIM::command 'setlocal colorcolumn=0' if VIM::exists?('+colorcolumn')
+        @settings.set 'colorcolumn', 0 if VIM::exists?('+colorcolumn')
 
         # don't show relative line numbers
-        ::VIM::command 'setlocal norelativenumber' if VIM::exists?('+relativenumber')
+        @settings.set 'relativenumber', false if VIM::exists?('+relativenumber')
 
         # sanity check: make sure the buffer really was created
         raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile\z/
@@ -101,11 +97,11 @@ module CommandT
         ::VIM::command "syntax match CommandTSelection \"^#{SELECTION_MARKER}.\\+$\""
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
-        ::VIM::command 'setlocal synmaxcol=9999'
+        @settings.set 'synmaxcol', 9999
 
         if VIM::has_conceal?
-          ::VIM::command 'setlocal conceallevel=2'
-          ::VIM::command 'setlocal concealcursor=nvic'
+          @settings.set 'conceallevel', 2
+          @settings.set 'concealcursor', 'nvic'
           ::VIM::command 'syntax region CommandTCharMatched ' \
                          "matchgroup=CommandTCharMatched start=+#{MH_START}+ " \
                          "matchgroup=CommandTCharMatchedEnd end=+#{MH_END}+ concealends"
