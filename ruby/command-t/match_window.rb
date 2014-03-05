@@ -436,11 +436,11 @@ module CommandT
     end
 
     def lock
-      ::VIM::command 'setlocal nomodifiable'
+      set 'modifiable', false
     end
 
     def unlock
-      ::VIM::command 'setlocal modifiable'
+      set 'modifiable', true
     end
   end
 end
