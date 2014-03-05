@@ -47,17 +47,16 @@ module CommandT
                                    :width   => ::VIM::Window[i].width)
       end
 
-      @settings = Settings.new
-      @settings.set 'timeout', true        # ensure mappings timeout
-      @settings.set 'hlsearch', false      # don't highlight search strings
-      @settings.set 'insertmode', false    # don't make Insert mode the default
-      @settings.set 'showcmd', false       # don't show command info on last line
-      @settings.set 'equalalways', false   # don't auto-balance window sizes
-      @settings.set 'timeoutlen', 0        # respond immediately to mappings
-      @settings.set 'report', 9999         # don't show "X lines changed" reports
-      @settings.set 'sidescroll', 0        # don't sidescroll in jumps
-      @settings.set 'sidescrolloff', 0     # don't sidescroll automatically
-      @settings.set 'updatetime', options[:debounce_interval]
+      set 'timeout', true        # ensure mappings timeout
+      set 'hlsearch', false      # don't highlight search strings
+      set 'insertmode', false    # don't make Insert mode the default
+      set 'showcmd', false       # don't show command info on last line
+      set 'equalalways', false   # don't auto-balance window sizes
+      set 'timeoutlen', 0        # respond immediately to mappings
+      set 'report', 9999         # don't show "X lines changed" reports
+      set 'sidescroll', 0        # don't sidescroll in jumps
+      set 'sidescrolloff', 0     # don't sidescroll automatically
+      set 'updatetime', options[:debounce_interval]
 
       # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
@@ -67,25 +66,25 @@ module CommandT
         $curwin.height = 1
       else        # creating match window for first time and set it up
         ::VIM::command "silent! #{split_location} 1split GoToFile"
-        @settings.set 'bufhidden', 'unload' # unload buf when no longer displayed
-        @settings.set 'buftype', 'nofile'   # buffer is not related to any file
-        @settings.set 'modifiable', false   # prevent manual edits
-        @settings.set 'swapfile', false     # don't create a swapfile
-        @settings.set 'wrap', false         # don't soft-wrap
-        @settings.set 'number', false       # don't show line numbers
-        @settings.set 'list', false         # don't use List mode (visible tabs etc)
-        @settings.set 'foldcolumn', 0       # don't show a fold column at side
-        @settings.set 'foldlevel', 99       # don't fold anything
-        @settings.set 'cursorline', false   # don't highlight line cursor is on
-        @settings.set 'spell', false        # spell-checking off
-        @settings.set 'buflisted', false    # don't show up in the buffer list
-        @settings.set 'textwidth', 0        # don't hard-wrap (break long lines)
+        set 'bufhidden', 'unload' # unload buf when no longer displayed
+        set 'buftype', 'nofile'   # buffer is not related to any file
+        set 'modifiable', false   # prevent manual edits
+        set 'swapfile', false     # don't create a swapfile
+        set 'wrap', false         # don't soft-wrap
+        set 'number', false       # don't show line numbers
+        set 'list', false         # don't use List mode (visible tabs etc)
+        set 'foldcolumn', 0       # don't show a fold column at side
+        set 'foldlevel', 99       # don't fold anything
+        set 'cursorline', false   # don't highlight line cursor is on
+        set 'spell', false        # spell-checking off
+        set 'buflisted', false    # don't show up in the buffer list
+        set 'textwidth', 0        # don't hard-wrap (break long lines)
 
         # don't show the color column
-        @settings.set 'colorcolumn', 0 if VIM::exists?('+colorcolumn')
+        set 'colorcolumn', 0 if VIM::exists?('+colorcolumn')
 
         # don't show relative line numbers
-        @settings.set 'relativenumber', false if VIM::exists?('+relativenumber')
+        set 'relativenumber', false if VIM::exists?('+relativenumber')
 
         # sanity check: make sure the buffer really was created
         raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile\z/
@@ -97,11 +96,11 @@ module CommandT
         ::VIM::command "syntax match CommandTSelection \"^#{SELECTION_MARKER}.\\+$\""
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
-        @settings.set 'synmaxcol', 9999
+        set 'synmaxcol', 9999
 
         if VIM::has_conceal?
-          @settings.set 'conceallevel', 2
-          @settings.set 'concealcursor', 'nvic'
+          set 'conceallevel', 2
+          set 'concealcursor', 'nvic'
           ::VIM::command 'syntax region CommandTCharMatched ' \
                          "matchgroup=CommandTCharMatched start=+#{MH_START}+ " \
                          "matchgroup=CommandTCharMatchedEnd end=+#{MH_END}+ concealends"
@@ -261,6 +260,11 @@ module CommandT
     end
 
   private
+
+    def set(setting, value)
+      @settings ||= Settings.new
+      @settings.set(setting, value)
+    end
 
     def move_cursor_to_selected_line
       # on some non-GUI terminals, the cursor doesn't hide properly
