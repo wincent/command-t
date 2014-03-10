@@ -759,7 +759,7 @@ repos the "watchman" scanner is the tool of choice.
 
 This scanner delegates the task of finding files to Facebook's `watchman` tool
 (https://github.com/facebook/watchman), which can return results for a 500,000
-file hierarchy within about 10 seconds.
+file hierarchy within about a second.
 
 Note that Watchman has a range of configuration options that can be applied by
 files such as `/etc/watchman.json` or per-direcory `.watchmanconfig` files and
