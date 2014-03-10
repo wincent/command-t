@@ -926,7 +926,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.7 (unreleased)
+1.7 (9 March 2014)
 
 - added |g:CommandTInputDebounce|, which can be used to improve responsiveness
   in large file hierarchies (based on patch from Yiding Jia)
