@@ -22,6 +22,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'json'
+require 'pathname'
 require 'socket'
 require 'command-t/vim'
 require 'command-t/vim/path_utilities'
@@ -46,7 +47,7 @@ module CommandT
           sockname = JSON[%x{watchman get-sockname}]['sockname']
           raise WatchmanUnavailable unless $?.exitstatus.zero?
           socket = UNIXSocket.open(sockname) do |s|
-            root = File.realpath(File.expand_path(@path))
+            root = Pathname.new(@path).realpath
             s.puts JSON.generate(['watch-list'])
             if !JSON[s.gets]['roots'].include?(root)
               # this path isn't being watched yet; try to set up watch
