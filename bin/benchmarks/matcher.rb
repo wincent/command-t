@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# Copyright 2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2013-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-lib  = File.expand_path('../ruby', File.dirname(__FILE__))
+lib  = File.expand_path('../../ruby', File.dirname(__FILE__))
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'command-t/ext'
@@ -32,7 +32,7 @@ require 'benchmark'
 require 'ostruct'
 require 'yaml'
 
-yaml    = File.expand_path('../data/benchmark.yml', File.dirname(__FILE__))
+yaml    = File.expand_path('../../data/benchmark.yml', File.dirname(__FILE__))
 data    = YAML.load_file(yaml)
 threads = CommandT::Util.processor_count
 
