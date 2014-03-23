@@ -1,4 +1,4 @@
-// Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
+// Copyright 2014 Wincent Colaiuta. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -23,15 +23,30 @@
 
 #include <ruby.h>
 
-extern VALUE mCommandT;              // module CommandT
-extern VALUE cCommandTMatcher;       // class CommandT::Matcher
-extern VALUE mCommandTWatchman;      // module CommandT::Watchman
-extern VALUE mCommandTWatchmanUtils; // module CommandT::Watchman::Utils
+/**
+ * @module CommandT::Watchman::Utils
+ *
+ * Methods for working with the Watchman binary protocol
+ *
+ * @see https://github.com/facebook/watchman/blob/master/BSER.markdown
+ */
 
-// Encapsulates common pattern of checking for an option in an optional
-// options hash. The hash itself may be nil, but an exception will be
-// raised if it is not nil and not a hash.
-VALUE CommandT_option_from_hash(const char *option, VALUE hash);
+/**
+ * Convert an object serialized using the Watchman binary protocol[0] into an
+ * unpacked Ruby object
+ */
+extern VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized);
 
-// Debugging macro.
-#define ruby_inspect(obj) rb_funcall(rb_mKernel, rb_intern("p"), 1, obj)
+/**
+ * Serialize a Ruby object into the Watchman binary protocol format
+ */
+extern VALUE CommandTWatchmanUtils_dump(VALUE self, VALUE serializable);
+
+/**
+ * Issue `query` to the Watchman instance listening on `socket` (a `UNIXSocket`
+ * instance) and return the result
+ *
+ * The query is serialized following the Watchman binary protocol and the
+ * result is converted to native Ruby objects before returning to the caller.
+ */
+extern VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket);

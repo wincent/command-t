@@ -21,7 +21,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'json'
 require 'pathname'
 require 'socket'
 require 'command-t/vim'
@@ -44,24 +43,27 @@ module CommandT
       def paths
         @paths[@path] ||= begin
           ensure_cache_under_limit
-          sockname = JSON[%x{watchman get-sockname}]['sockname']
+          sockname = Watchman::Utils.load(
+            %x{watchman --output-encoding=bser get-sockname}
+          )['sockname']
           raise WatchmanUnavailable unless $?.exitstatus.zero?
-          socket = UNIXSocket.open(sockname) do |s|
-            root = Pathname.new(@path).realpath
-            s.puts JSON.generate(['watch-list'])
-            if !JSON[s.gets]['roots'].include?(root)
+
+          UNIXSocket.open(sockname) do |socket|
+            root = Pathname.new(@path).realpath.to_s
+            roots = Watchman::Utils.query(['watch-list'], socket)['roots']
+            if !roots.include?(root)
               # this path isn't being watched yet; try to set up watch
-              s.puts JSON.generate(['watch', root])
+              result = Watchman::Utils.query(['watch', root], socket)
 
               # root_restrict_files setting may prevent Watchman from working
-              raise WatchmanUnavailable if JSON[s.gets].has_key?('error')
+              raise WatchmanUnavailable if result.has_key?('error')
             end
 
-            s.puts JSON.generate(['query', root, {
+            query = ['query', root, {
               'expression' => ['type', 'f'],
               'fields'     => ['name'],
-            }])
-            paths = JSON[s.gets]
+            }]
+            paths = Watchman::Utils.query(query, socket)
 
             # could return error if watch is removed
             raise WatchmanUnavailable if paths.has_key?('error')

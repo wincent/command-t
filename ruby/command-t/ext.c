@@ -1,4 +1,4 @@
-// Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+// Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -22,9 +22,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "matcher.h"
+#include "watchman.h"
 
-VALUE mCommandT         = 0; // module CommandT
-VALUE cCommandTMatcher  = 0; // class CommandT::Matcher
+VALUE mCommandT              = 0; // module CommandT
+VALUE cCommandTMatcher       = 0; // class CommandT::Matcher
+VALUE mCommandTWatchman      = 0; // module CommandT::Watchman
+VALUE mCommandTWatchmanUtils = 0; // module CommandT::Watchman::Utils
 
 VALUE CommandT_option_from_hash(const char *option, VALUE hash)
 {
@@ -44,8 +47,13 @@ void Init_ext()
 
     // class CommandT::Matcher
     cCommandTMatcher = rb_define_class_under(mCommandT, "Matcher", rb_cObject);
-
-    // methods
     rb_define_method(cCommandTMatcher, "initialize", CommandTMatcher_initialize, -1);
     rb_define_method(cCommandTMatcher, "sorted_matches_for", CommandTMatcher_sorted_matches_for, -1);
+
+    // module CommandT::Watchman::Utils
+    mCommandTWatchman = rb_define_module_under(mCommandT, "Watchman");
+    mCommandTWatchmanUtils = rb_define_module_under(mCommandTWatchman, "Utils");
+    rb_define_singleton_method(mCommandTWatchmanUtils, "load", CommandTWatchmanUtils_load, 1);
+    rb_define_singleton_method(mCommandTWatchmanUtils, "dump", CommandTWatchmanUtils_dump, 1);
+    rb_define_singleton_method(mCommandTWatchmanUtils, "query", CommandTWatchmanUtils_query, 2);
 }
