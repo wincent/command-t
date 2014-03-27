@@ -79,6 +79,8 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 {
     // process arguments: 1 mandatory, 1 optional
     VALUE scanner, options;
+    VALUE always_show_dot_files;
+    VALUE never_show_dot_files;
 
     if (rb_scan_args(argc, argv, "11", &scanner, &options) == 1)
         options = Qnil;
@@ -88,8 +90,8 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     rb_iv_set(self, "@scanner", scanner);
 
     // check optional options hash for overrides
-    VALUE always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
-    VALUE never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
+    always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
+    never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
 
     rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
     rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
@@ -110,8 +112,9 @@ typedef struct {
 
 void *match_thread(void *thread_args)
 {
+    long i;
     thread_args_t *args = (thread_args_t *)thread_args;
-    for (long i = args->thread_index; i < args->path_count; i += args->thread_count) {
+    for (i = args->thread_index; i < args->path_count; i += args->thread_count) {
         VALUE path = RARRAY_PTR(args->paths)[i];
         calculate_match(path,
                         args->abbrev,
@@ -128,6 +131,21 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
     // process arguments: 1 mandatory, 1 optional
     VALUE abbrev, options;
+    VALUE limit_option;
+    VALUE threads_option;
+    VALUE scanner;
+    VALUE paths;
+    VALUE always_show_dot_files;
+    VALUE never_show_dot_files;
+    long path_count;
+    match_t *matches;
+    long i;
+    long limit, thread_count;
+    thread_args_t *thread_args;
+    VALUE results;
+#ifdef HAVE_PTHREAD_H
+    long err;
+#endif
 
     if (rb_scan_args(argc, argv, "11", &abbrev, &options) == 1)
         options = Qnil;
@@ -138,22 +156,21 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
 
     // check optional options has for overrides
-    VALUE limit_option = CommandT_option_from_hash("limit", options);
-    VALUE threads_option = CommandT_option_from_hash("threads", options);
+    limit_option = CommandT_option_from_hash("limit", options);
+    threads_option = CommandT_option_from_hash("threads", options);
 
     // get unsorted matches
-    VALUE scanner = rb_iv_get(self, "@scanner");
-    VALUE paths = rb_funcall(scanner, rb_intern("paths"), 0);
-    VALUE always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
-    VALUE never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
+    scanner = rb_iv_get(self, "@scanner");
+    paths = rb_funcall(scanner, rb_intern("paths"), 0);
+    always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
+    never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
 
-    long path_count = RARRAY_LEN(paths);
-    match_t *matches = malloc(path_count * sizeof(match_t));
+    path_count = RARRAY_LEN(paths);
+    matches = malloc(path_count * sizeof(match_t));
     if (!matches)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 
-    int err;
-    long thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
+    thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
 
 #ifdef HAVE_PTHREAD_H
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
@@ -164,10 +181,10 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 #endif
 
-    thread_args_t *thread_args = malloc(sizeof(thread_args_t) * thread_count);
+    thread_args = malloc(sizeof(thread_args_t) * thread_count);
     if (!thread_args)
         rb_raise(rb_eNoMemError, "memory allocation failed");
-    for (int i = 0; i < thread_count; i++) {
+    for (i = 0; i < thread_count; i++) {
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
         thread_args[i].matches = matches;
@@ -208,12 +225,12 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         // for all other non-empty search strings, sort by score
         qsort(matches, path_count, sizeof(match_t), cmp_score);
 
-    VALUE results = rb_ary_new();
+    results = rb_ary_new();
 
-    long limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
+    limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
     if (limit == 0)
         limit = path_count;
-    for (long i = 0; i < path_count && limit > 0; i++) {
+    for (i = 0; i < path_count && limit > 0; i++) {
         if (matches[i].score > 0.0) {
             rb_funcall(results, rb_intern("push"), 1, matches[i].path);
             limit--;
