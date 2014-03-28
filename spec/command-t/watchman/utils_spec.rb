@@ -34,7 +34,14 @@ describe CommandT::Watchman::Utils do
   end
 
   def little_endian?
-    [0xff00].pack('s')[0] == "\x00"
+    byte = [0xff00].pack('s')[0]
+    if byte.is_a?(Fixnum) # ie. Ruby 1.8
+      byte.zero?
+    elsif byte.is_a?(String) # ie. Ruby >= 1.9
+      byte == "\x00"
+    else
+      raise 'unable to determine endianness'
+    end
   end
 
   def roundtrip(value)
@@ -214,9 +221,11 @@ describe CommandT::Watchman::Utils do
       expect(described_class.load(input)).to eq('')
     end
 
-    it 'loads string values as ASCII-8BIT encoded strings' do
-      input = binary("\x00\x01\x03\x06\x02\x03\x03foo")
-      expect(described_class.load(input).encoding.to_s).to eq('ASCII-8BIT')
+    if String.new.respond_to?(:encoding) # ie. Ruby >= 1.9
+      it 'loads string values as ASCII-8BIT encoded strings' do
+        input = binary("\x00\x01\x03\x06\x02\x03\x03foo")
+        expect(described_class.load(input).encoding.to_s).to eq('ASCII-8BIT')
+      end
     end
 
     it 'rejects string values with incomplete headers' do
@@ -382,18 +391,29 @@ describe CommandT::Watchman::Utils do
       expect { described_class.dump(query) }.to_not raise_error
     end
 
-    it 'serializes to an ASCII-8BIT string' do
-      expect(described_class.dump(query).encoding.to_s).to eq('ASCII-8BIT')
+    if String.new.respond_to?(:encoding) # ie. Ruby >= 1.9
+      it 'serializes to an ASCII-8BIT string' do
+        expect(described_class.dump(query).encoding.to_s).to eq('ASCII-8BIT')
+      end
     end
 
     it 'generates a correct serialization' do
-      expected = binary(
-        "\x00\x01\x06\x49\x00\x00\x00\x00\x00\x00\x00\x00\x03\x03\x02\x03" \
-        "\x05query\x02\x03\x0a/some/path\x01\x03\x02\x02\x03\x0aexpression" \
-        "\x00\x03\x02\x02\x03\x04type\x02\x03\x01f\x02\x03\x06fields\x00\x03" \
-        "\x01\x02\x03\x04name"
-      )
-      expect(described_class.dump(query)).to eq(expected)
+      # in Ruby 1.8, hashes aren't ordered, so two serializations are possible
+      expected = [
+        binary(
+          "\x00\x01\x06\x49\x00\x00\x00\x00\x00\x00\x00\x00\x03\x03\x02\x03" \
+          "\x05query\x02\x03\x0a/some/path\x01\x03\x02\x02\x03\x0aexpression" \
+          "\x00\x03\x02\x02\x03\x04type\x02\x03\x01f\x02\x03\x06fields\x00" \
+          "\x03\x01\x02\x03\x04name"
+        ),
+        binary(
+          "\x00\x01\x06\x49\x00\x00\x00\x00\x00\x00\x00\x00\x03\x03\x02\x03" \
+          "\x05query\x02\x03\x0a/some/path\x01\x03\x02\x02\x03\x06fields\x00" \
+          "\x03\x01\x02\x03\x04name\x02\x03\x0aexpression\x00\x03\x02\x02" \
+          "\x03\x04type\x02\x03\x01f"
+        )
+      ]
+      expect(expected).to include(described_class.dump(query))
     end
   end
 end
