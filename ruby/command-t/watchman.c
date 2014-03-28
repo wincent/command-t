@@ -467,6 +467,8 @@ VALUE watchman_load(char **ptr, char *end) {
         default:
             rb_raise(rb_eTypeError, "unsupported type");
     }
+
+    return Qnil; // keep the compiler happy
 }
 
 /**
