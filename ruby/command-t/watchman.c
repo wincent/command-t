@@ -25,6 +25,14 @@
 
 #ifdef WATCHMAN_BUILD
 
+#if defined(HAVE_RUBY_ST_H)
+#include <ruby/st.h>
+#elif defined(HAVE_ST_H)
+#include <st.h>
+#else
+#error no st.h header found
+#endif
+
 #include <fcntl.h>      /* for fcntl() */
 #include <sys/errno.h>  /* for errno */
 #include <sys/socket.h> /* for recv(), MSG_PEEK */
