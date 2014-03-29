@@ -11,13 +11,14 @@ CONTENTS                                        *command-t-contents*
  6. Commands                |command-t-commands|
  7. Mappings                |command-t-mappings|
  8. Options                 |command-t-options|
- 9. Tips                    |command-t-tips|
-10. Authors                 |command-t-authors|
-11. Development             |command-t-development|
-12. Website                 |command-t-website|
-13. Donations               |command-t-donations|
-14. License                 |command-t-license|
-15. History                 |command-t-history|
+ 9. FAQ                     |command-t-faq|
+10. Tips                    |command-t-tips|
+11. Authors                 |command-t-authors|
+12. Development             |command-t-development|
+13. Website                 |command-t-website|
+14. Donations               |command-t-donations|
+15. License                 |command-t-license|
+16. History                 |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -70,7 +71,7 @@ If your Vim lacks support you'll see an error message like this:
   E319: Sorry, the command is not available in this version
 
 The version of Vim distributed with OS X may not include Ruby support (for
-exmaple, Snow Leopard, which was the current version of OS X when Command-T
+example, Snow Leopard, which was the current version of OS X when Command-T
 was first released, did not support Ruby in the system Vim, but the current
 version of OS X at the time of writing, Mavericks, does). All recent versions
 of MacVim come with Ruby support; it is available from:
@@ -87,7 +88,7 @@ Ruby 1.9, but apparently has some bugs that need to be resolved).
 In addition to having Ruby support in Vim, your system itself must have a
 compatible Ruby install. "Compatible" means the same version as Vim itself
 links against. If you use a different version then Command-T is unlikely
-to work (see TROUBLE-SHOOTING below).
+to work (see |command-t-trouble-shooting| below).
 
 On OS X Snow Leopard, Lion and Mountain Lion, the system comes with Ruby 1.8.7
 and all recent versions of MacVim (the 7.2 snapshots and 7.3) are linked
@@ -103,7 +104,7 @@ your distribution. You can usually find this out by examining the
 compilation and linking flags displayed by the |:version| command in Vim, and
 by looking at the output of:
 
-  :ruby puts RUBY_VERSION
+  :ruby puts "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}"
 
 A suitable Ruby environment for Windows can be installed using the Ruby
 1.8.7-p299 RubyInstaller available at:
@@ -702,6 +703,46 @@ settings can be used to control behavior:
       only during Command-T searches.
 
 
+FAQ                                             *command-t-faq*
+
+Why does my build fail with "unknown argument -multiply_definedsuppress"? ~
+
+You may see this on OS X Mavericks when building with the Clang compiler
+against the system Ruby. This is an unfortunate Apple bug that breaks
+compilation of many Ruby gems with native extensions on Mavericks. It has been
+worked around in the upstream Ruby version, but won't be fixed in OS X until
+Apple updates their supplied version of Ruby (most likely this won't be until
+the next major release):
+
+  https://bugs.ruby-lang.org/issues/9624
+
+Workarounds include building your own Ruby (and then your own Vim and
+Command-T), or more simply, building with the following `ARCHFLAGS` set:
+
+  ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future ruby extconf.rb
+  make
+
+Why can't I open in a split with <C-CR> and <C-s> in the terminal? ~
+
+It's likely that <C-CR> won't work in most terminals, because the keycode that
+is sent to processes running inside them is identical to <CR>; when you type
+<C-CR>, terminal Vim literally "sees" <CR>. Unfortunately, there is no
+workaround for this.
+
+If you find that <C-s> also doesn't work the most likely explanation is that
+XON/XOFF flow control is enabled; this is the default in many environments.
+This means that when you press <C-s> all input to the terminal is suspended
+until you release it by hitting <C-q>. While input is suspended you may think
+your terminal has frozen, but it hasn't.
+
+To disable flow control, add the following to your `.zshrc` or
+`.bash_profile`:
+
+  stty -ixon
+
+See the `stty` man page for more details.
+
+
 TIPS                                            *command-t-tips*
 
 Working with very large repositories ~
@@ -744,8 +785,9 @@ Wait for 200ms of keyboard inactivity before computing search results. For
 example, if you are enter "foobar" quickly (ie. within 1 second), there is
 little sense in fetching the results for "f", "fo", "foo", "foob", "fooba" and
 finally "foobar". Instead, we can just fetch the results for "foobar". This
-setting trades off some immediate responsiveness at the micro level for a
-better search experience overall.
+setting trades off some immediate responsiveness at the micro level for
+better performance (real and perceived) and a better search experience
+overall.
 
     let g:CommandTFileScanner = 'watchman'
 
@@ -779,7 +821,7 @@ It's advisable to keep a long-running Vim instance in place and let it cache
 the directory listings rather than repeatedly closing and re-opening Vim in
 order to edit every file. On those occasions when you do need to flush the
 cache (ie. with |CommandTFlush| or <C-f> in the match listing window), use of
-the Watchman scanner should make the delay tolerable.
+the Watchman scanner should make the delay barely noticeable.
 
 As noted in the introduction, Command-T works best when you adopt a
 "path-centric" mentality. This is especially true on very large hierarchies.
@@ -795,9 +837,17 @@ who know what they want to open and where it is to open it as quickly as
 possible; other tools such as NERDTree exist for visually exploring an unknown
 hierarchy.
 
+Over time, you will get a feel for how economical you can afford to be with
+your search queries in a given repo. In the example above, if "foo" is not a
+very common pattern in your hierarchy, then you may find that you can find
+what you need with a very concise query such as "foomanjs". With time, this
+kind of ongoing calibration will come quite naturally.
+
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
+- version 1.8 (March 2013) sped up the Watchman file scanner by switching its
+  communication from the JSON to the binary Watchman protocol
 - version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
   |g:CommandTFileScanner| settings, along with support for the Watchman file
   scanner
@@ -827,7 +877,7 @@ order):
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
-is one of the largest Ruby-based Vim plug-ins to date.
+was one of the largest Ruby-based Vim plug-ins at the time.
 
 While the Command-T codebase doesn't contain any code directly copied from
 LustyExplorer, I did use it as a reference for answers to basic questions (like
@@ -925,6 +975,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.8 (not yet released)
+
+- taught Watchman file scanner to use the binary protocol instead of JSON,
+  roughly doubling its speed
 
 1.7 (9 March 2014)
 
