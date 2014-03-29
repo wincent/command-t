@@ -871,9 +871,9 @@ order):
   Ivan Ukhov              Paul Jolly              Vít Ondruch
   Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
   Lucas de Vries          Rainux Luo              Yan Pritzker
-  Marcus Brito            Scott Bronson           Yiding Jia
-  Marian Schubert         Seth Fowler             Zak Johnson
-  Matthew Todd
+  Marcus Brito            Roland Puntaier         Yiding Jia
+  Marian Schubert         Scott Bronson           Zak Johnson
+  Matthew Todd            Seth Fowler
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -980,6 +980,7 @@ HISTORY                                         *command-t-history*
 
 - taught Watchman file scanner to use the binary protocol instead of JSON,
   roughly doubling its speed
+- build changes to accommodate MinGW (patch from Roland Puntaier)
 
 1.7 (9 March 2014)
 

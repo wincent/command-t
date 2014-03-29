@@ -31,9 +31,10 @@ VALUE mCommandTWatchmanUtils = 0; // module CommandT::Watchman::Utils
 
 VALUE CommandT_option_from_hash(const char *option, VALUE hash)
 {
+    VALUE key;
     if (NIL_P(hash))
         return Qnil;
-    VALUE key = ID2SYM(rb_intern(option));
+    key = ID2SYM(rb_intern(option));
     if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue)
         return rb_hash_aref(hash, key);
     else
