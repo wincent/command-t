@@ -22,11 +22,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require 'command-t/vim/path_utilities'
-require 'command-t/scanner'
+require 'command-t/scanner/buffer_scanner'
 
 module CommandT
   # Returns a list of all open buffers, sorted in MRU order.
-  class MruBufferScanner < Scanner
+  class MruBufferScanner < BufferScanner
     include VIM::PathUtilities
 
     def paths
