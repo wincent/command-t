@@ -23,10 +23,10 @@
 
 require 'command-t/ext' # CommandT::Matcher
 require 'command-t/scanner/mru_buffer_scanner'
-require 'command-t/finder'
+require 'command-t/finder/buffer_finder'
 
 module CommandT
-  class MruBufferFinder < Finder
+  class MruBufferFinder < BufferFinder
     # Override sorted_matches_for to prevent MRU ordered matches from being
     # ordered alphabetically.
     def sorted_matches_for str, options = {}
