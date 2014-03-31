@@ -144,6 +144,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE paths;
     VALUE results;
     VALUE scanner;
+    VALUE sort_option;
     VALUE threads_option;
 
     // process arguments: 1 mandatory, 1 optional
@@ -158,6 +159,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     // check optional options has for overrides
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
+    sort_option = CommandT_option_from_hash("sort", options);
 
     // get unsorted matches
     scanner = rb_iv_get(self, "@scanner");
@@ -217,13 +219,15 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     free(threads);
 #endif
 
-    if (RSTRING_LEN(abbrev) == 0 ||
-        (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
-        // alphabetic order if search string is only "" or "."
-        qsort(matches, path_count, sizeof(match_t), cmp_alpha);
-    else
-        // for all other non-empty search strings, sort by score
-        qsort(matches, path_count, sizeof(match_t), cmp_score);
+    if (NIL_P(sort_option) || sort_option == Qtrue) {
+        if (RSTRING_LEN(abbrev) == 0 ||
+            (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
+            // alphabetic order if search string is only "" or "."
+            qsort(matches, path_count, sizeof(match_t), cmp_alpha);
+        else
+            // for all other non-empty search strings, sort by score
+            qsort(matches, path_count, sizeof(match_t), cmp_score);
+    }
 
     results = rb_ary_new();
 

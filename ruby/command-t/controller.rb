@@ -24,6 +24,7 @@
 require 'command-t/finder/buffer_finder'
 require 'command-t/finder/jump_finder'
 require 'command-t/finder/file_finder'
+require 'command-t/finder/mru_buffer_finder'
 require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
@@ -47,6 +48,12 @@ module CommandT
     def show_jump_finder
       @path          = VIM::pwd
       @active_finder = jump_finder
+      show
+    end
+
+    def show_mru_finder
+      @path          = VIM::pwd
+      @active_finder = mru_finder
       show
     end
 
@@ -372,6 +379,10 @@ module CommandT
       @buffer_finder ||= CommandT::BufferFinder.new
     end
 
+    def mru_finder
+      @mru_finder ||= CommandT::MRUBufferFinder.new
+    end
+
     def file_finder
       @file_finder ||= CommandT::FileFinder.new nil,
         :max_depth              => get_number('g:CommandTMaxDepth'),
@@ -393,4 +404,4 @@ module CommandT
         :include_filenames => get_bool('g:CommandTTagIncludeFilenames')
     end
   end # class Controller
-end # module commandT
+end # module CommandT

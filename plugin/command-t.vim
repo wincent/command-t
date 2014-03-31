@@ -29,6 +29,7 @@ let g:command_t_loaded = 1
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command CommandTJump call <SID>CommandTShowJumpFinder()
+command CommandTMRU call <SID>CommandTShowMRUFinder()
 command CommandTTag call <SID>CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
@@ -67,6 +68,14 @@ endfunction
 function s:CommandTShowJumpFinder()
   if has('ruby')
     ruby $command_t.show_jump_finder
+  else
+    call s:CommandTRubyWarning()
+  endif
+endfunction
+
+function s:CommandTShowMRUFinder()
+  if has('ruby')
+    ruby $command_t.show_mru_finder
   else
     call s:CommandTRubyWarning()
   endif
@@ -168,12 +177,17 @@ function CommandTCursorStart()
   ruby $command_t.cursor_start
 endfunction
 
+augroup CommandTMRUBuffer
+  autocmd BufEnter * ruby CommandT::MRU.touch
+  autocmd BufDelete * ruby CommandT::MRU.delete
+augroup END
+
 ruby << EOF
   # require Ruby files
   begin
-    # prepare controller
     require 'command-t/vim'
     require 'command-t/controller'
+    require 'command-t/mru'
     $command_t = CommandT::Controller.new
   rescue LoadError
     load_path_modified = false

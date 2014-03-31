@@ -1,4 +1,4 @@
-# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
+# Copyright 2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -21,30 +21,28 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/vim/path_utilities'
+require 'command-t/scanner/buffer_scanner'
+
 module CommandT
-  class Stub
-    @@load_error = ['command-t.vim could not load the C extension',
-                    'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
-                    "Vim Ruby version: #{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}",
-                    'For more information type:    :help command-t']
+  # Returns a list of all open buffers, sorted in MRU order.
+  class MRUBufferScanner < BufferScanner
+    include VIM::PathUtilities
 
-    [
-      :flush,
-      :show_buffer_finder,
-      :show_file_finder,
-      :show_jump_finder,
-      :show_mru_finder,
-      :show_tag_finder
-    ].each do |method|
-      define_method(method) { warn *@@load_error }
+    def paths
+      # Collect all buffers that have not been used yet.
+      unused_buffers = (0..(::VIM::Buffer.count - 1)).map do |n|
+        buffer = ::VIM::Buffer[n]
+        buffer if buffer.name && !MRU.used?(buffer)
+      end
+
+      # Combine all most recently used buffers and all unused buffers, and
+      # return all listed buffer paths.
+      (unused_buffers + MRU.stack).map do |buffer|
+        if buffer && buffer.name
+          relative_path_under_working_directory buffer.name
+        end
+      end.compact.reverse
     end
-
-  private
-
-    def warn *msg
-      ::VIM::command 'echohl WarningMsg'
-      msg.each { |m| ::VIM::command "echo '#{m}'" }
-      ::VIM::command 'echohl none'
-    end
-  end # class Stub
+  end # class MRUBufferScanner
 end # module CommandT

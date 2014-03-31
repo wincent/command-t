@@ -1,4 +1,4 @@
-# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
+# Copyright 2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -21,30 +21,25 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require 'command-t/ext' # CommandT::Matcher
+require 'command-t/scanner/mru_buffer_scanner'
+require 'command-t/finder/buffer_finder'
+
 module CommandT
-  class Stub
-    @@load_error = ['command-t.vim could not load the C extension',
-                    'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
-                    "Vim Ruby version: #{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}",
-                    'For more information type:    :help command-t']
+  class MRUBufferFinder < BufferFinder
+    # Override sorted_matches_for to prevent MRU ordered matches from being
+    # ordered alphabetically.
+    def sorted_matches_for str, options = {}
+      matches = super(str, options.merge(:sort => false))
 
-    [
-      :flush,
-      :show_buffer_finder,
-      :show_file_finder,
-      :show_jump_finder,
-      :show_mru_finder,
-      :show_tag_finder
-    ].each do |method|
-      define_method(method) { warn *@@load_error }
+      # take current buffer (by definition, the most recently used) and move it
+      # to the end of the results
+      (matches[1..-1] || []) + [matches.first].compact
     end
 
-  private
-
-    def warn *msg
-      ::VIM::command 'echohl WarningMsg'
-      msg.each { |m| ::VIM::command "echo '#{m}'" }
-      ::VIM::command 'echohl none'
+    def initialize
+      @scanner = MRUBufferScanner.new
+      @matcher = Matcher.new @scanner, :always_show_dot_files => true
     end
-  end # class Stub
-end # module CommandT
+  end # class MRUBufferFinder
+end # CommandT
