@@ -369,18 +369,26 @@ paths which begin with the same prefix.
 COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
-|:CommandT|     Brings up the Command-T file window, starting in the
+|:CommandT|       Brings up the Command-T file window, starting in the
                 current working directory as returned by the|:pwd|
                 command.
 
                                                 *:CommandTBuffer*
-|:CommandTBuffer|Brings up the Command-T buffer window.
+|:CommandTBuffer| Brings up the Command-T buffer window.
                 This works exactly like the standard file window,
                 except that the selection is limited to files that
                 you already have open in buffers.
 
+                                                *:CommandTMRU*
+|:CommandTMRU|    Brings up the Command-T buffer window, except that matches
+                are shown in MRU (most recently used) order. If you prefer to
+                use this over the normal buffer finder, I suggest overwriting
+                the standard mapping with a command like:
+
+                    :nnoremap <silent> <leader>b :CommandTMRU<CR>
+
                                                 *:CommandTJumps*
-|:CommandTJump| Brings up the Command-T jumplist window.
+|:CommandTJump|   Brings up the Command-T jumplist window.
                 This works exactly like the standard file window,
                 except that the selection is limited to files that
                 you already have in the jumplist. Note that jumps
@@ -388,13 +396,13 @@ COMMANDS                                        *command-t-commands*
                 documentation for more info).
 
                                                 *:CommandTTag*
-|:CommandTTag| Brings up the Command-T window tags window, which can
+|:CommandTTag|    Brings up the Command-T window tags window, which can
                 be used to select from the tags, if any, returned by
                 Vim's |taglist()| function. See Vim's |tag| documentation
                 for general info on tags.
 
                                                 *:CommandTFlush*
-|:CommandTFlush|Instructs the plug-in to flush its path cache, causing
+|:CommandTFlush|  Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
                 the next time the file window is shown (pressing <C-f> when
                 a match listing is visible flushes the cache immediately; this
