@@ -33,6 +33,7 @@ module CommandT
       :show_buffer_finder,
       :show_file_finder,
       :show_jump_finder,
+      :show_mru_finder,
       :show_tag_finder
     ].each do |method|
       define_method(method) { warn *@@load_error }

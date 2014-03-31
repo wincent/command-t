@@ -29,6 +29,7 @@ let g:command_t_loaded = 1
 
 command CommandTBuffer call <SID>CommandTShowBufferFinder()
 command CommandTJump call <SID>CommandTShowJumpFinder()
+command CommandTMRU call <SID>CommandTShowMRUFinder()
 command CommandTTag call <SID>CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
@@ -67,6 +68,14 @@ endfunction
 function s:CommandTShowJumpFinder()
   if has('ruby')
     ruby $command_t.show_jump_finder
+  else
+    call s:CommandTRubyWarning()
+  endif
+endfunction
+
+function s:CommandTShowMRUFinder()
+  if has('ruby')
+    ruby $command_t.show_mru_finder
   else
     call s:CommandTRubyWarning()
   endif

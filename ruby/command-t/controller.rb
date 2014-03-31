@@ -51,6 +51,12 @@ module CommandT
       show
     end
 
+    def show_mru_finder
+      @path          = VIM::pwd
+      @active_finder = mru_finder
+      show
+    end
+
     def show_tag_finder
       @path          = VIM::pwd
       @active_finder = tag_finder
@@ -192,16 +198,6 @@ module CommandT
         :threads => CommandT::Util.processor_count
       )
       @match_window.matches = @matches
-
-      # Select next entry in list in case MRU buffer ordering is enabled and
-      # buffers are currently being displayed.
-      if @active_finder == buffer_finder && get_bool('g:CommandTUseMRUBufferOrder')
-        if get_bool('g:CommandTMatchWindowReverse')
-          @match_window.select_prev
-        else
-          @match_window.select_next
-        end
-      end
 
       @needs_update = false
     end
@@ -380,13 +376,11 @@ module CommandT
     end
 
     def buffer_finder
-      @buffer_finder ||= begin
-        if get_bool('g:CommandTUseMRUBufferOrder')
-          CommandT::MRUBufferFinder.new
-        else
-          CommandT::BufferFinder.new
-        end
-      end
+      @buffer_finder ||= CommandT::BufferFinder.new
+    end
+
+    def mru_finder
+      @mru_finder ||= CommandT::MRUBufferFinder.new
     end
 
     def file_finder

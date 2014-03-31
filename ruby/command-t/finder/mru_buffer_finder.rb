@@ -30,9 +30,13 @@ module CommandT
     # Override sorted_matches_for to prevent MRU ordered matches from being
     # ordered alphabetically.
     def sorted_matches_for str, options = {}
-      (@matcher.matches_for str).last(options[:limit]).map do |match|
+      matches = (@matcher.matches_for str).last(options[:limit]).map do |match|
         match.to_s
       end
+
+      # take current buffer (by definition, the most recently used) and move it
+      # to the end of the results
+      (matches[1..-1] || []) + [matches.first].compact
     end
 
     def initialize
