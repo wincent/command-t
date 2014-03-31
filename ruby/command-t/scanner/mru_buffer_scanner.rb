@@ -26,7 +26,7 @@ require 'command-t/scanner/buffer_scanner'
 
 module CommandT
   # Returns a list of all open buffers, sorted in MRU order.
-  class MruBufferScanner < BufferScanner
+  class MRUBufferScanner < BufferScanner
     include VIM::PathUtilities
 
     def paths
@@ -44,5 +44,5 @@ module CommandT
         end
       end.compact.reverse
     end
-  end # class MruBufferScanner
+  end # class MRUBufferScanner
 end # module CommandT

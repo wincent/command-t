@@ -195,7 +195,7 @@ module CommandT
 
       # Select next entry in list in case MRU buffer ordering is enabled and
       # buffers are currently being displayed.
-      if @active_finder == buffer_finder && get_bool('g:CommandTUseMruBufferOrder')
+      if @active_finder == buffer_finder && get_bool('g:CommandTUseMRUBufferOrder')
         if get_bool('g:CommandTMatchWindowReverse')
           @match_window.select_prev
         else
@@ -381,8 +381,8 @@ module CommandT
 
     def buffer_finder
       @buffer_finder ||= begin
-        if get_bool('g:CommandTUseMruBufferOrder')
-          CommandT::MruBufferFinder.new
+        if get_bool('g:CommandTUseMRUBufferOrder')
+          CommandT::MRUBufferFinder.new
         else
           CommandT::BufferFinder.new
         end
