@@ -867,13 +867,13 @@ order):
   Anthony Panozzo         Nadav Samet             Steven Moazami
   Daniel Hahler           Nate Kane               Sung Pae
   Felix Tjandrawibawa     Nicholas Alpi           Thomas Pelletier
-  Gary Bernhardt          Noon Silk               Victor Hugo Borja
-  Ivan Ukhov              Paul Jolly              Vít Ondruch
-  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
-  Lucas de Vries          Rainux Luo              Yan Pritzker
-  Marcus Brito            Roland Puntaier         Yiding Jia
-  Marian Schubert         Scott Bronson           Zak Johnson
-  Matthew Todd            Seth Fowler
+  Gary Bernhardt          Noon Silk               Ton van den Heuvel
+  Ivan Ukhov              Paul Jolly              Victor Hugo Borja
+  Jeff Kreeftmeijer       Pavel Sergeev           Vít Ondruch
+  Lucas de Vries          Rainux Luo              Woody Peterson
+  Marcus Brito            Roland Puntaier         Yan Pritzker
+  Marian Schubert         Scott Bronson           Yiding Jia
+  Matthew Todd            Seth Fowler             Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -975,6 +975,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.9 (not yet released)
+
+- added MRU (most-recently-used) buffer finder (patch from Ton van den Heuvel)
 
 1.8 (not yet released)
 
