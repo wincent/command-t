@@ -34,7 +34,7 @@ module CommandT
       unused_buffers = (0..(::VIM::Buffer.count - 1)).map do |n|
         buffer = ::VIM::Buffer[n]
         buffer if buffer.name && !MRU.used?(buffer)
-      end.compact
+      end
 
       # Combine all most recently used buffers and all unused buffers, and
       # return all listed buffer paths.
