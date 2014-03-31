@@ -410,4 +410,4 @@ module CommandT
         :include_filenames => get_bool('g:CommandTTagIncludeFilenames')
     end
   end # class Controller
-end # module commandT
+end # module CommandT
