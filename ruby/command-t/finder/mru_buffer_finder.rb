@@ -34,7 +34,12 @@ module CommandT
 
       # take current buffer (by definition, the most recently used) and move it
       # to the end of the results
-      (matches[1..-1] || []) + [matches.first].compact
+      if MRU.stack.last &&
+        relative_path_under_working_directory(MRU.stack.last.name) == matches.first
+        matches[1..-1] + [matches.first]
+      else
+        matches
+      end
     end
 
     def initialize
