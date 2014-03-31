@@ -25,6 +25,7 @@ module CommandT
   class Stub
     @@load_error = ['command-t.vim could not load the C extension',
                     'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
+                    "Vim Ruby version: #{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}",
                     'For more information type:    :help command-t']
 
     [
