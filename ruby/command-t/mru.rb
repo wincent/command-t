@@ -31,11 +31,11 @@ module CommandT
       end
 
       # Mark the current buffer as having been used, effectively moving it to
-      # the bottom of the stack.
+      # the top of the stack.
       def touch
         if $curbuf.name
           stack.delete $curbuf
-          stack.unshift $curbuf
+          stack.push $curbuf
         end
       end
 

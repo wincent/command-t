@@ -38,11 +38,11 @@ module CommandT
 
       # Combine all most recently used buffers and all unused buffers, and
       # return all listed buffer paths.
-      (MRU.stack + unused_buffers).map do |buffer|
+      (unused_buffers + MRU.stack).map do |buffer|
         if ::VIM::evaluate('buflisted(%d)' % buffer.number) == 1
           relative_path_under_working_directory buffer.name
         end
-      end.compact
+      end.compact.reverse
     end
   end # class MruBufferScanner
 end # module CommandT
