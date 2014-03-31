@@ -21,28 +21,37 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'command-t/vim/path_utilities'
-require 'command-t/scanner'
-
 module CommandT
-  # Returns a list of all open buffers, sorted in MRU order.
-  class MruBufferScanner < Scanner
-    include VIM::PathUtilities
+  # Maintains a stack of seen buffers in MRU (most recently used) order.
+  module MRU
+    class << self
+      # The stack of used buffers in MRU order.
+      def stack
+        @stack ||= []
+      end
 
-    def paths
-      # Collect all buffers that have not been used yet.
-      unused_buffers = (0..(::VIM::Buffer.count - 1)).map do |n|
-        buffer = ::VIM::Buffer[n]
-        buffer if buffer.name && !MRU.used?(buffer)
-      end.compact
-
-      # Combine all most recently used buffers and all unused buffers, and
-      # return all listed buffer paths.
-      (MRU.stack + unused_buffers).map do |buffer|
-        if ::VIM::evaluate('buflisted(%d)' % buffer.number) == 1
-          relative_path_under_working_directory buffer.name
+      # Mark the current buffer as having been used, effectively moving it to
+      # the bottom of the stack.
+      def touch
+        if $curbuf.name
+          stack.delete $curbuf
+          stack.unshift $curbuf
         end
-      end.compact
+      end
+
+      # Mark a buffer as deleted, removing it from the stack.
+      def delete
+        # Note that $curbuf does not point to the buffer that is being deleted;
+        # we need to use Vim's <abuf> for the correct buffer number.
+        stack.delete_if do |b|
+          b.number == ::VIM::evaluate('expand("<abuf>")').to_i
+        end
+      end
+
+      # Returns `true` if `buffer` has been used (ie. is present in the stack).
+      def used?(buffer)
+        stack.include?(buffer)
+      end
     end
-  end # class MruBufferScanner
+  end # module MRU
 end # module CommandT

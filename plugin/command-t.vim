@@ -168,12 +168,17 @@ function CommandTCursorStart()
   ruby $command_t.cursor_start
 endfunction
 
+augroup CommandTMRUBuffer
+  autocmd BufEnter * ruby CommandT::MRU.touch
+  autocmd BufDelete * ruby CommandT::MRU.delete
+augroup END
+
 ruby << EOF
   # require Ruby files
   begin
-    # prepare controller
     require 'command-t/vim'
     require 'command-t/controller'
+    require 'command-t/mru'
     $command_t = CommandT::Controller.new
   rescue LoadError
     load_path_modified = false
