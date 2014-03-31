@@ -33,10 +33,11 @@ module CommandT
       # Mark the current buffer as having been used, effectively moving it to
       # the top of the stack.
       def touch
-        if $curbuf.name
-          stack.delete $curbuf
-          stack.push $curbuf
-        end
+        return unless ::VIM::evaluate('buflisted(%d)' % $curbuf.number) == 1
+        return unless $curbuf.name
+
+        stack.delete $curbuf
+        stack.push $curbuf
       end
 
       # Mark a buffer as deleted, removing it from the stack.

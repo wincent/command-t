@@ -39,7 +39,7 @@ module CommandT
       # Combine all most recently used buffers and all unused buffers, and
       # return all listed buffer paths.
       (unused_buffers + MRU.stack).map do |buffer|
-        if ::VIM::evaluate('buflisted(%d)' % buffer.number) == 1
+        if buffer && buffer.name
           relative_path_under_working_directory buffer.name
         end
       end.compact.reverse
