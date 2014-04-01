@@ -988,7 +988,7 @@ HISTORY                                         *command-t-history*
 
 - added MRU (most-recently-used) buffer finder (patch from Ton van den Heuvel)
 
-1.8 (not yet released)
+1.8 (31 March 2014)
 
 - taught Watchman file scanner to use the binary protocol instead of JSON,
   roughly doubling its speed
