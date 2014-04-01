@@ -976,7 +976,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.8 (not yet released)
+1.8 (31 March 2014)
 
 - taught Watchman file scanner to use the binary protocol instead of JSON,
   roughly doubling its speed
