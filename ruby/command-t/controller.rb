@@ -38,6 +38,40 @@ module CommandT
       @prompt = Prompt.new
     end
 
+    def init_watcher_handler
+      Signal.trap('USR1') { flush }
+    end
+
+    def watcher_dead?
+      if @watcher
+        Process.kill(0, @watcher)
+        false
+      else
+        true
+      end
+    rescue Errno::ESRCH
+      true
+    end
+
+    def init_watcher
+      kill_watcher
+
+      init_watcher_handler
+
+      path = File.join(File.dirname(__FILE__), 'watcher.rb')
+
+      @watcher = fork { exec(path, VIM.pwd) }
+      @watcher_dir = VIM.pwd
+    end
+
+    def kill_watcher
+      if @watcher
+        Process.kill('TERM', @watcher)
+      end
+    rescue Errno::ESRCH
+      nil
+    end
+
     def show_buffer_finder
       @path          = VIM::pwd
       @active_finder = buffer_finder
@@ -202,6 +236,10 @@ module CommandT
     end
 
     def show
+      if (VIM.pwd != @watcher_dir) || watcher_dead?
+        init_watcher
+      end
+
       @initial_window   = $curwin
       @initial_buffer   = $curbuf
       @match_window     = MatchWindow.new \

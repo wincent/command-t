@@ -21,6 +21,8 @@ Gem::Specification.new do |s|
 
   s.executables = []
 
+  s.add_dependency('ruby-fsevent')
+
   s.has_rdoc = false
   s.homepage = 'https://wincent.com/products/command-t'
 
