@@ -387,6 +387,10 @@ COMMANDS                                        *command-t-commands*
 
                     :nnoremap <silent> <leader>b :CommandTMRU<CR>
 
+                Note that Command-T only starts recording most recently used
+                buffers when you first use a Command-T command or mapping;
+                this is an optimization to improve startup time.
+
                                                 *:CommandTJumps*
 |:CommandTJump|   Brings up the Command-T jumplist window.
                 This works exactly like the standard file window,
@@ -871,17 +875,18 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Mike Lundy              Shlomi Fish
-  Anthony Panozzo         Nadav Samet             Steven Moazami
-  Daniel Hahler           Nate Kane               Sung Pae
-  Felix Tjandrawibawa     Nicholas Alpi           Thomas Pelletier
-  Gary Bernhardt          Noon Silk               Ton van den Heuvel
-  Ivan Ukhov              Paul Jolly              Victor Hugo Borja
-  Jeff Kreeftmeijer       Pavel Sergeev           Vít Ondruch
-  Lucas de Vries          Rainux Luo              Woody Peterson
-  Marcus Brito            Roland Puntaier         Yan Pritzker
-  Marian Schubert         Scott Bronson           Yiding Jia
-  Matthew Todd            Seth Fowler             Zak Johnson
+  Andy Waite              Nadav Samet             Steven Moazami
+  Anthony Panozzo         Nate Kane               Sung Pae
+  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
+  Felix Tjandrawibawa     Noon Silk               Ton van den Heuvel
+  Gary Bernhardt          Paul Jolly              Victor Hugo Borja
+  Ivan Ukhov              Pavel Sergeev           Vít Ondruch
+  Jeff Kreeftmeijer       Rainux Luo              Woody Peterson
+  Lucas de Vries          Roland Puntaier         Yan Pritzker
+  Marcus Brito            Ross Lagerwall          Yiding Jia
+  Marian Schubert         Scott Bronson           Zak Johnson
+  Matthew Todd            Seth Fowler
+  Mike Lundy              Shlomi Fish
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -986,6 +991,8 @@ HISTORY                                         *command-t-history*
 
 1.9 (not yet released)
 
+- improved startup time using Vim's autload mechanism (patch from Ross
+  Lagerwall)
 - added MRU (most-recently-used) buffer finder (patch from Ton van den Heuvel)
 
 1.8 (31 March 2014)
