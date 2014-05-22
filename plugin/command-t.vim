@@ -34,11 +34,11 @@ command CommandTTag call <SID>CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
 command CommandTFlush call <SID>CommandTFlush()
 
-if !hasmapto(':CommandT<CR>')
+if !hasmapto(':CommandT<CR>') && maparg('<Leader>t', 'n') == ''
   silent! nnoremap <unique> <silent> <Leader>t :CommandT<CR>
 endif
 
-if !hasmapto(':CommandTBuffer<CR>')
+if !hasmapto(':CommandTBuffer<CR>') && maparg('<Leader>b', 'n') == ''
   silent! nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
 endif
 
