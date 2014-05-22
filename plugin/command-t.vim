@@ -1,4 +1,3 @@
-" command-t.vim
 " Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 "
 " Redistribution and use in source and binary forms, with or without
@@ -27,12 +26,12 @@ if exists("g:command_t_loaded") || &cp
 endif
 let g:command_t_loaded = 1
 
-command CommandTBuffer call <SID>CommandTShowBufferFinder()
-command CommandTJump call <SID>CommandTShowJumpFinder()
-command CommandTMRU call <SID>CommandTShowMRUFinder()
-command CommandTTag call <SID>CommandTShowTagFinder()
-command -nargs=? -complete=dir CommandT call <SID>CommandTShowFileFinder(<q-args>)
-command CommandTFlush call <SID>CommandTFlush()
+command CommandTBuffer call commandt#CommandTShowBufferFinder()
+command CommandTJump call commandt#CommandTShowJumpFinder()
+command CommandTMRU call commandt#CommandTShowMRUFinder()
+command CommandTTag call commandt#CommandTShowTagFinder()
+command -nargs=? -complete=dir CommandT call commandt#CommandTShowFileFinder(<q-args>)
+command CommandTFlush call commandt#CommandTFlush()
 
 if !hasmapto(':CommandT<CR>') && maparg('<Leader>t', 'n') == ''
   silent! nnoremap <unique> <silent> <Leader>t :CommandT<CR>
@@ -42,167 +41,6 @@ if !hasmapto(':CommandTBuffer<CR>') && maparg('<Leader>b', 'n') == ''
   silent! nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
 endif
 
-function s:CommandTRubyWarning()
-  echohl WarningMsg
-  echo "command-t.vim requires Vim to be compiled with Ruby support"
-  echo "For more information type:  :help command-t"
-  echohl none
-endfunction
-
-function s:CommandTShowBufferFinder()
-  if has('ruby')
-    ruby $command_t.show_buffer_finder
-  else
-    call s:CommandTRubyWarning()
-  endif
-endfunction
-
-function s:CommandTShowFileFinder(arg)
-  if has('ruby')
-    ruby $command_t.show_file_finder
-  else
-    call s:CommandTRubyWarning()
-  endif
-endfunction
-
-function s:CommandTShowJumpFinder()
-  if has('ruby')
-    ruby $command_t.show_jump_finder
-  else
-    call s:CommandTRubyWarning()
-  endif
-endfunction
-
-function s:CommandTShowMRUFinder()
-  if has('ruby')
-    ruby $command_t.show_mru_finder
-  else
-    call s:CommandTRubyWarning()
-  endif
-endfunction
-
-function s:CommandTShowTagFinder()
-  if has('ruby')
-    ruby $command_t.show_tag_finder
-  else
-    call s:CommandTRubyWarning()
-  endif
-endfunction
-
-function s:CommandTFlush()
-  if has('ruby')
-    ruby $command_t.flush
-  else
-    call s:CommandTRubyWarning()
-  endif
-endfunction
-
 if !has('ruby')
   finish
 endif
-
-function CommandTListMatches()
-  ruby $command_t.list_matches
-endfunction
-
-function CommandTHandleKey(arg)
-  ruby $command_t.handle_key
-endfunction
-
-function CommandTBackspace()
-  ruby $command_t.backspace
-endfunction
-
-function CommandTDelete()
-  ruby $command_t.delete
-endfunction
-
-function CommandTAcceptSelection()
-  ruby $command_t.accept_selection
-endfunction
-
-function CommandTAcceptSelectionTab()
-  ruby $command_t.accept_selection :command => 'tabe'
-endfunction
-
-function CommandTAcceptSelectionSplit()
-  ruby $command_t.accept_selection :command => 'sp'
-endfunction
-
-function CommandTAcceptSelectionVSplit()
-  ruby $command_t.accept_selection :command => 'vs'
-endfunction
-
-function CommandTQuickfix()
-  ruby $command_t.quickfix
-endfunction
-
-function CommandTRefresh()
-  ruby $command_t.refresh
-endfunction
-
-function CommandTToggleFocus()
-  ruby $command_t.toggle_focus
-endfunction
-
-function CommandTCancel()
-  ruby $command_t.cancel
-endfunction
-
-function CommandTSelectNext()
-  ruby $command_t.select_next
-endfunction
-
-function CommandTSelectPrev()
-  ruby $command_t.select_prev
-endfunction
-
-function CommandTClear()
-  ruby $command_t.clear
-endfunction
-
-function CommandTCursorLeft()
-  ruby $command_t.cursor_left
-endfunction
-
-function CommandTCursorRight()
-  ruby $command_t.cursor_right
-endfunction
-
-function CommandTCursorEnd()
-  ruby $command_t.cursor_end
-endfunction
-
-function CommandTCursorStart()
-  ruby $command_t.cursor_start
-endfunction
-
-augroup CommandTMRUBuffer
-  autocmd BufEnter * ruby CommandT::MRU.touch
-  autocmd BufDelete * ruby CommandT::MRU.delete
-augroup END
-
-ruby << EOF
-  # require Ruby files
-  begin
-    require 'command-t/vim'
-    require 'command-t/controller'
-    require 'command-t/mru'
-    $command_t = CommandT::Controller.new
-  rescue LoadError
-    load_path_modified = false
-    ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
-      lib = "#{path}/ruby"
-      if !$LOAD_PATH.include?(lib) and File.exist?(lib)
-        $LOAD_PATH << lib
-        load_path_modified = true
-      end
-    end
-    retry if load_path_modified
-
-    # could get here if C extension was not compiled, or was compiled
-    # for the wrong architecture or Ruby version
-    require 'command-t/stub'
-    $command_t = CommandT::Stub.new
-  end
-EOF
