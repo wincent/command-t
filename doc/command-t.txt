@@ -754,6 +754,19 @@ To disable flow control, add the following to your `.zshrc` or
 
 See the `stty` man page for more details.
 
+Why doesn't the Escape key close the match listing in terminal Vim? ~
+
+In some terminals such as xterm the Escape key misbehaves, so Command-T
+doesn't set up a mapping for it. If you want to try using the escape key
+anyway, you can add something like the following to your ~/.vimrc file:
+
+  if &term =~ "xterm" || &term =~ "screen"
+    let g:CommandTCancelMap = ['<ESC>', '<C-c>']
+  endif
+
+This configuration has worked for me with recent versions of Vim on multiple
+platforms (OS X, CentOS etc).
+
 
 TIPS                                            *command-t-tips*
 
