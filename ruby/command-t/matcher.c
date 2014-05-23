@@ -133,6 +133,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     long i, limit, path_count, thread_count;
 #ifdef HAVE_PTHREAD_H
     long err;
+    pthread_t *threads;
 #endif
     match_t *matches;
     thread_args_t *thread_args;
@@ -178,7 +179,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
     if (path_count < THREAD_THRESHOLD)
         thread_count = 1;
-    pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
+    threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 #endif

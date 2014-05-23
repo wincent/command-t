@@ -297,6 +297,8 @@ int64_t watchman_load_int(char **ptr, char *end) {
  * starting at `ptr` and finishing at or before `end`
  */
 VALUE watchman_load_string(char **ptr, char *end) {
+    int64_t len;
+    VALUE string;
     if (*ptr >= end) {
         rb_raise(rb_eArgError, "unexpected end of input");
     }
@@ -310,14 +312,14 @@ VALUE watchman_load_string(char **ptr, char *end) {
         rb_raise(rb_eArgError, "invalid string header");
     }
 
-    int64_t len = watchman_load_int(ptr, end);
+    len = watchman_load_int(ptr, end);
     if (len == 0) { // special case for zero-length strings
         return rb_str_new2("");
     } else if (*ptr + len > end) {
         rb_raise(rb_eArgError, "insufficient string storage");
     }
 
-    VALUE string = rb_str_new(*ptr, len);
+    string = rb_str_new(*ptr, len);
     *ptr += len;
     return string;
 }
@@ -327,11 +329,12 @@ VALUE watchman_load_string(char **ptr, char *end) {
  * starting at `ptr` and finishing at or before `end`
  */
 double watchman_load_double(char **ptr, char *end) {
+    double val;
     *ptr += sizeof(int8_t); // caller has already verified the marker
     if (*ptr + sizeof(double) > end) {
         rb_raise(rb_eArgError, "insufficient double storage");
     }
-    double val = *(double *)*ptr;
+    val = *(double *)*ptr;
     *ptr += sizeof(double);
     return val;
 }
@@ -496,10 +499,14 @@ VALUE watchman_load(char **ptr, char *end) {
  * format into a normal Ruby object.
  */
 VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
+    char *ptr, *end;
+    long len;
+    uint64_t payload_size;
+    VALUE loaded;
     serialized = StringValue(serialized);
-    long len = RSTRING_LEN(serialized);
-    char *ptr = RSTRING_PTR(serialized);
-    char *end = ptr + len;
+    len = RSTRING_LEN(serialized);
+    ptr = RSTRING_PTR(serialized);
+    end = ptr + len;
 
     // expect at least the binary marker and a int8_t length counter
     if ((size_t)len < sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) * 2) {
@@ -512,7 +519,7 @@ VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
 
     // get size marker
     ptr += sizeof(WATCHMAN_BINARY_MARKER) - 1;
-    uint64_t payload_size = watchman_load_int(&ptr, end);
+    payload_size = watchman_load_int(&ptr, end);
     if (!payload_size) {
         rb_raise(rb_eArgError, "empty payload");
     }
@@ -522,7 +529,7 @@ VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
         rb_raise(rb_eArgError, "payload size mismatch (%lu)", end - (ptr + payload_size));
     }
 
-    VALUE loaded = watchman_load(&ptr, end);
+    loaded = watchman_load(&ptr, end);
 
     // one more sanity check
     if (ptr != end) {
@@ -542,15 +549,17 @@ VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
  * (integers, floats), booleans, and nil.
  */
 VALUE CommandTWatchmanUtils_dump(VALUE self, VALUE serializable) {
+    uint64_t *len;
+    VALUE serialized;
     watchman_t *w = watchman_init();
     watchman_dump(w, serializable);
 
     // update header with final length information
-    uint64_t *len = (uint64_t *)(w->data + sizeof(WATCHMAN_HEADER) - sizeof(uint64_t) - 1);
+    len = (uint64_t *)(w->data + sizeof(WATCHMAN_HEADER) - sizeof(uint64_t) - 1);
     *len = w->len - sizeof(WATCHMAN_HEADER) + 1;
 
     // prepare final return value
-    VALUE serialized = rb_str_buf_new(w->len);
+    serialized = rb_str_buf_new(w->len);
     rb_str_buf_cat(serialized, (const char*)w->data, w->len);
     watchman_free(w);
     return serialized;
@@ -582,18 +591,28 @@ void watchman_raise_system_call_error(int number) {
  * returns the result.
  */
 VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
-    int fileno = NUM2INT(rb_funcall(socket, rb_intern("fileno"), 0));
+    char *payload;
+    int fileno, flags;
+    int8_t peek[WATCHMAN_PEEK_BUFFER_SIZE];
+    int8_t sizes[] = { 0, 0, 0, 1, 2, 4, 8 };
+    int8_t *pdu_size_ptr;
+    int64_t payload_size;
+    long query_len;
+    ssize_t peek_size, sent, received;
+    void *buffer;
+    VALUE loaded, serialized;
+    fileno = NUM2INT(rb_funcall(socket, rb_intern("fileno"), 0));
 
     // do blocking I/O to simplify the following logic
-    int flags = fcntl(fileno, F_GETFL);
+    flags = fcntl(fileno, F_GETFL);
     if (fcntl(fileno, F_SETFL, flags & ~O_NONBLOCK) == -1) {
         rb_raise(rb_eRuntimeError, "unable to clear O_NONBLOCK flag");
     }
 
     // send the message
-    VALUE serialized = CommandTWatchmanUtils_dump(self, query);
-    long query_len = RSTRING_LEN(serialized);
-    ssize_t sent = send(fileno, RSTRING_PTR(serialized), query_len, 0);
+    serialized = CommandTWatchmanUtils_dump(self, query);
+    query_len = RSTRING_LEN(serialized);
+    sent = send(fileno, RSTRING_PTR(serialized), query_len, 0);
     if (sent == -1) {
         watchman_raise_system_call_error(errno);
     } else if (sent != query_len) {
@@ -602,8 +621,7 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     }
 
     // sniff to see how large the header is
-    int8_t peek[WATCHMAN_PEEK_BUFFER_SIZE];
-    ssize_t received = recv(fileno, peek, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL);
+    received = recv(fileno, peek, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL);
     if (received == -1) {
         watchman_raise_system_call_error(errno);
     } else if (received != WATCHMAN_SNIFF_BUFFER_SIZE) {
@@ -611,8 +629,7 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     }
 
     // peek at size of PDU
-    int8_t sizes[] = { 0, 0, 0, 1, 2, 4, 8 };
-    ssize_t peek_size = sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) +
+    peek_size = sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) +
         sizes[peek[sizeof(WATCHMAN_BINARY_MARKER) - 1]];
 
     received = recv(fileno, peek, peek_size, MSG_PEEK);
@@ -621,15 +638,19 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     } else if (received != peek_size) {
         rb_raise(rb_eRuntimeError, "failed to peek at PDU header");
     }
-    int8_t *pdu_size_ptr = peek + sizeof(WATCHMAN_BINARY_MARKER) - sizeof(int8_t);
-    int64_t payload_size =
+    pdu_size_ptr = peek + sizeof(WATCHMAN_BINARY_MARKER) - sizeof(int8_t);
+    payload_size =
         peek_size +
         watchman_load_int((char **)&pdu_size_ptr, (char *)peek + peek_size);
 
     // actually read the PDU
-    void *buffer = xmalloc(payload_size);
+    buffer = xmalloc(payload_size);
     if (!buffer) {
-        rb_raise(rb_eNoMemError, "failed to allocate %lld bytes", payload_size);
+        rb_raise(
+            rb_eNoMemError,
+            "failed to allocate %lld bytes",
+            (long long int)payload_size
+        );
     }
     received = recv(fileno, buffer, payload_size, MSG_WAITALL);
     if (received == -1) {
@@ -637,8 +658,8 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     } else if (received != payload_size) {
         rb_raise(rb_eRuntimeError, "failed to load PDU");
     }
-    char *payload = buffer + peek_size;
-    VALUE loaded = watchman_load(&payload, payload + payload_size);
+    payload = (char *)buffer + peek_size;
+    loaded = watchman_load(&payload, payload + payload_size);
     free(buffer);
     return loaded;
 }
