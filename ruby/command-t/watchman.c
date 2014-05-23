@@ -526,14 +526,22 @@ VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
 
     // sanity check length
     if (ptr + payload_size != end) {
-        rb_raise(rb_eArgError, "payload size mismatch (%lu)", end - (ptr + payload_size));
+        rb_raise(
+            rb_eArgError,
+            "payload size mismatch (%lu)",
+            (unsigned long)(end - (ptr + payload_size))
+        );
     }
 
     loaded = watchman_load(&ptr, end);
 
     // one more sanity check
     if (ptr != end) {
-        rb_raise(rb_eArgError, "payload termination mismatch (%lu)", end - ptr);
+        rb_raise(
+            rb_eArgError,
+            "payload termination mismatch (%lu)",
+            (unsigned long)(end - ptr)
+        );
     }
 
     return loaded;
