@@ -1,4 +1,4 @@
-# Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -202,6 +202,20 @@ describe CommandT::Matcher do
         doc/command-t.txt
         TODO
       ]
+    end
+
+    it "doesn't incorrectly accept repeats of the last-matched character" do
+      # https://github.com/wincent/Command-T/issues/82
+      matcher = matcher(*%w[ash/system/user/config.h])
+      matcher.sorted_matches_for('usercc').should == []
+
+      # simpler test case
+      matcher = matcher(*%w[foobar])
+      matcher.sorted_matches_for('fooooo').should == []
+
+      # minimal repro
+      matcher = matcher(*%w[ab])
+      matcher.sorted_matches_for('aa').should == []
     end
   end
 end

@@ -127,7 +127,6 @@ void *match_thread(void *thread_args)
     return NULL;
 }
 
-
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
     long i, limit, path_count, thread_count;
