@@ -1,4 +1,4 @@
-// Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+// Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -125,11 +125,10 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                 }
 
                 score += score_for_char;
-                last_idx = haystack_idx + 1;
+                last_idx = ++haystack_idx;
                 break;
             }
         }
-
         if (!found) {
             score = 0.0;
             goto memoize;
