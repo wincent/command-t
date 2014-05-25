@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   files = files.reject { |f| f =~ /\.(rbc|o|log|plist|dSYM)/ }
 
   s.files = files
+  s.license = 'BSD'
   s.require_path = 'ruby'
   s.extensions = 'ruby/command-t/extconf.rb'
 
