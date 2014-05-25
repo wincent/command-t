@@ -603,6 +603,7 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     int fileno, flags;
     int8_t peek[WATCHMAN_PEEK_BUFFER_SIZE];
     int8_t sizes[] = { 0, 0, 0, 1, 2, 4, 8 };
+    int8_t sizes_idx;
     int8_t *pdu_size_ptr;
     int64_t payload_size;
     long query_len;
@@ -637,8 +638,12 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     }
 
     // peek at size of PDU
+    sizes_idx = peek[sizeof(WATCHMAN_BINARY_MARKER) - 1];
+    if (sizes_idx < WATCHMAN_INT8_MARKER || sizes_idx > WATCHMAN_INT64_MARKER) {
+        rb_raise(rb_eRuntimeError, "bad PDU size marker");
+    }
     peek_size = sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) +
-        sizes[peek[sizeof(WATCHMAN_BINARY_MARKER) - 1]];
+        sizes[sizes_idx];
 
     received = recv(fileno, peek, peek_size, MSG_PEEK);
     if (received == -1) {
