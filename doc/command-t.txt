@@ -1007,6 +1007,12 @@ HISTORY                                         *command-t-history*
 - improved startup time using Vim's autload mechanism (patch from Ross
   Lagerwall)
 - added MRU (most-recently-used) buffer finder (patch from Ton van den Heuvel)
+- fixed edge case in matching algorithm which could cause spurious matches
+  with queries containing repeated characters
+- fixed slight positive bias in the match scoring algorithm's weighting of
+  matching characters based on distance from last match
+- tune memoization in match scoring algorithm, yield a more than 10% speed
+  boost
 
 1.8 (31 March 2014)
 
