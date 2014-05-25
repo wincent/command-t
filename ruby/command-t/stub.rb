@@ -1,4 +1,4 @@
-# Copyright 2010-2011 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -25,10 +25,18 @@ module CommandT
   class Stub
     @@load_error = ['command-t.vim could not load the C extension',
                     'Please see INSTALLATION and TROUBLE-SHOOTING in the help',
+                    "Vim Ruby version: #{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}",
                     'For more information type:    :help command-t']
 
-    [:flush, :show_buffer_finder, :show_file_finder, :show_tag_finder].each do |method|
-      define_method(method.to_sym) { warn *@@load_error }
+    [
+      :flush,
+      :show_buffer_finder,
+      :show_file_finder,
+      :show_jump_finder,
+      :show_mru_finder,
+      :show_tag_finder
+    ].each do |method|
+      define_method(method) { warn *@@load_error }
     end
 
   private

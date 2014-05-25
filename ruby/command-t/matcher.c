@@ -132,6 +132,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     long i, limit, path_count, thread_count;
 #ifdef HAVE_PTHREAD_H
     long err;
+    pthread_t *threads;
 #endif
     match_t *matches;
     thread_args_t *thread_args;
@@ -143,6 +144,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE paths;
     VALUE results;
     VALUE scanner;
+    VALUE sort_option;
     VALUE threads_option;
 
     // process arguments: 1 mandatory, 1 optional
@@ -157,6 +159,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     // check optional options has for overrides
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
+    sort_option = CommandT_option_from_hash("sort", options);
 
     // get unsorted matches
     scanner = rb_iv_get(self, "@scanner");
@@ -175,7 +178,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
     if (path_count < THREAD_THRESHOLD)
         thread_count = 1;
-    pthread_t *threads = malloc(sizeof(pthread_t) * thread_count);
+    threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 #endif
@@ -216,13 +219,15 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     free(threads);
 #endif
 
-    if (RSTRING_LEN(abbrev) == 0 ||
-        (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
-        // alphabetic order if search string is only "" or "."
-        qsort(matches, path_count, sizeof(match_t), cmp_alpha);
-    else
-        // for all other non-empty search strings, sort by score
-        qsort(matches, path_count, sizeof(match_t), cmp_score);
+    if (NIL_P(sort_option) || sort_option == Qtrue) {
+        if (RSTRING_LEN(abbrev) == 0 ||
+            (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
+            // alphabetic order if search string is only "" or "."
+            qsort(matches, path_count, sizeof(match_t), cmp_alpha);
+        else
+            // for all other non-empty search strings, sort by score
+            qsort(matches, path_count, sizeof(match_t), cmp_score);
+    }
 
     results = rb_ary_new();
 

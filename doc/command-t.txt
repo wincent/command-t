@@ -369,18 +369,30 @@ paths which begin with the same prefix.
 COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
-|:CommandT|     Brings up the Command-T file window, starting in the
+|:CommandT|       Brings up the Command-T file window, starting in the
                 current working directory as returned by the|:pwd|
                 command.
 
                                                 *:CommandTBuffer*
-|:CommandTBuffer|Brings up the Command-T buffer window.
+|:CommandTBuffer| Brings up the Command-T buffer window.
                 This works exactly like the standard file window,
                 except that the selection is limited to files that
                 you already have open in buffers.
 
+                                                *:CommandTMRU*
+|:CommandTMRU|    Brings up the Command-T buffer window, except that matches
+                are shown in MRU (most recently used) order. If you prefer to
+                use this over the normal buffer finder, I suggest overwriting
+                the standard mapping with a command like:
+
+                    :nnoremap <silent> <leader>b :CommandTMRU<CR>
+
+                Note that Command-T only starts recording most recently used
+                buffers when you first use a Command-T command or mapping;
+                this is an optimization to improve startup time.
+
                                                 *:CommandTJumps*
-|:CommandTJump| Brings up the Command-T jumplist window.
+|:CommandTJump|   Brings up the Command-T jumplist window.
                 This works exactly like the standard file window,
                 except that the selection is limited to files that
                 you already have in the jumplist. Note that jumps
@@ -388,13 +400,13 @@ COMMANDS                                        *command-t-commands*
                 documentation for more info).
 
                                                 *:CommandTTag*
-|:CommandTTag| Brings up the Command-T window tags window, which can
+|:CommandTTag|    Brings up the Command-T window tags window, which can
                 be used to select from the tags, if any, returned by
                 Vim's |taglist()| function. See Vim's |tag| documentation
                 for general info on tags.
 
                                                 *:CommandTFlush*
-|:CommandTFlush|Instructs the plug-in to flush its path cache, causing
+|:CommandTFlush|  Instructs the plug-in to flush its path cache, causing
                 the directory to be rescanned for new or deleted paths
                 the next time the file window is shown (pressing <C-f> when
                 a match listing is visible flushes the cache immediately; this
@@ -742,6 +754,19 @@ To disable flow control, add the following to your `.zshrc` or
 
 See the `stty` man page for more details.
 
+Why doesn't the Escape key close the match listing in terminal Vim? ~
+
+In some terminals such as xterm the Escape key misbehaves, so Command-T
+doesn't set up a mapping for it. If you want to try using the escape key
+anyway, you can add something like the following to your ~/.vimrc file:
+
+  if &term =~ "xterm" || &term =~ "screen"
+    let g:CommandTCancelMap = ['<ESC>', '<C-c>']
+  endif
+
+This configuration has worked for me with recent versions of Vim on multiple
+platforms (OS X, CentOS etc).
+
 
 TIPS                                            *command-t-tips*
 
@@ -863,17 +888,18 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Mike Lundy              Shlomi Fish
-  Anthony Panozzo         Nadav Samet             Steven Moazami
-  Daniel Hahler           Nate Kane               Sung Pae
-  Felix Tjandrawibawa     Nicholas Alpi           Thomas Pelletier
-  Gary Bernhardt          Noon Silk               Victor Hugo Borja
-  Ivan Ukhov              Paul Jolly              Vít Ondruch
-  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
-  Lucas de Vries          Rainux Luo              Yan Pritzker
-  Marcus Brito            Roland Puntaier         Yiding Jia
+  Andy Waite              Nadav Samet             Steven Moazami
+  Anthony Panozzo         Nate Kane               Sung Pae
+  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
+  Felix Tjandrawibawa     Noon Silk               Ton van den Heuvel
+  Gary Bernhardt          Paul Jolly              Victor Hugo Borja
+  Ivan Ukhov              Pavel Sergeev           Vít Ondruch
+  Jeff Kreeftmeijer       Rainux Luo              Woody Peterson
+  Lucas de Vries          Roland Puntaier         Yan Pritzker
+  Marcus Brito            Ross Lagerwall          Yiding Jia
   Marian Schubert         Scott Bronson           Zak Johnson
   Matthew Todd            Seth Fowler
+  Mike Lundy              Shlomi Fish
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -975,6 +1001,18 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.9 (not yet released)
+
+- improved startup time using Vim's autload mechanism (patch from Ross
+  Lagerwall)
+- added MRU (most-recently-used) buffer finder (patch from Ton van den Heuvel)
+- fixed edge case in matching algorithm which could cause spurious matches
+  with queries containing repeated characters
+- fixed slight positive bias in the match scoring algorithm's weighting of
+  matching characters based on distance from last match
+- tune memoization in match scoring algorithm, yield a more than 10% speed
+  boost
 
 1.8 (31 March 2014)
 
