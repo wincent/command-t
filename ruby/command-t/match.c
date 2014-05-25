@@ -51,9 +51,10 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     long i, j, distance;
     int found;
     double score_for_char;
+    long memo_idx = haystack_idx;
 
     // do we have a memoized result we can return?
-    double memoized = m->memo[needle_idx * m->needle_len + haystack_idx];
+    double memoized = m->memo[needle_idx * m->needle_len + memo_idx];
     if (memoized != DBL_MAX)
         return memoized;
 
@@ -144,7 +145,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     score = score > seen_score ? score : seen_score;
 
 memoize:
-    m->memo[needle_idx * m->needle_len + haystack_idx] = score;
+    m->memo[needle_idx * m->needle_len + memo_idx] = score;
     return score;
 }
 
