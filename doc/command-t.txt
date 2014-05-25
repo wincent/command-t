@@ -1002,7 +1002,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.9 (not yet released)
+1.9 (25 May 2014)
 
 - improved startup time using Vim's autload mechanism (patch from Ross
   Lagerwall)
