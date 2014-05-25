@@ -1011,7 +1011,7 @@ HISTORY                                         *command-t-history*
   with queries containing repeated characters
 - fixed slight positive bias in the match scoring algorithm's weighting of
   matching characters based on distance from last match
-- tune memoization in match scoring algorithm, yield a more than 10% speed
+- tune memoization in match scoring algorithm, yielding a more than 10% speed
   boost
 
 1.8 (31 March 2014)
