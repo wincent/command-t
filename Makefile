@@ -3,7 +3,7 @@ cfiles      := $(shell find ruby -name '*.c')
 cheaders    := $(shell find ruby -name '*.h')
 depends     := $(shell find ruby -name depend)
 txtfiles    := $(shell find doc -name '*.txt')
-vimfiles    := $(shell find plugin -name '*.vim')
+vimfiles    := $(shell find autoload plugin -name '*.vim')
 
 vimball:	command-t.vba
 
