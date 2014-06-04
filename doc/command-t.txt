@@ -94,10 +94,14 @@ On OS X Snow Leopard, Lion and Mountain Lion, the system comes with Ruby 1.8.7
 and all recent versions of MacVim (the 7.2 snapshots and 7.3) are linked
 against it.
 
-On OS X Mavericks, the default system ruby is 2.0, but MacVim continues to
-link against 1.8.7, which is also present on the system at:
+On OS X Mavericks, the default system Ruby is 2.0, but MacVim continues to
+link against 1.8.7, as does the Apple-provided Vim. Ruby 1.8.7 is present on
+the system at:
 
   /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
+
+On OS X Yosemite, the default system Ruby is 2.0, and the Vim that comes with
+the system links against it.
 
 On Linux and similar platforms, the linked version of Ruby will depend on
 your distribution. You can usually find this out by examining the
