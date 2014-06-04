@@ -5,7 +5,6 @@ CONTENTS                                        *command-t-contents*
  1. Introduction            |command-t-intro|
  2. Requirements            |command-t-requirements|
  3. Installation            |command-t-installation|
- 3. Managing using Pathogen |command-t-pathogen|
  4. Trouble-shooting        |command-t-trouble-shooting|
  5. Usage                   |command-t-usage|
  6. Commands                |command-t-commands|
@@ -144,26 +143,128 @@ folder.
 
 INSTALLATION                                    *command-t-installation*
 
-You can install Command-T by obtaining the source files and building the C
-extension. The recommended way to get the source is by using a plug-in
-management system such as Pathogen (see |command-t-pathogen|).
+You install Command-T by obtaining the source files and building the C
+extension.
 
-Command-T is also distributed as a "vimball" which means that it can be
-installed by opening it in Vim and then sourcing it:
+The recommended way to get the source is by using a plug-in management system.
+There are several such systems available, and my preferred one is Pathogen
+(https://github.com/tpope/vim-pathogen) due to its simplicity and robustness.
 
-  :e command-t.vba
-  :so %
+Other plug-in managers include:
 
-The files will be installed in your |'runtimepath'|. To check where this is
-you can issue:
+- Vundle: https://github.com/gmarik/Vundle.vim (see |command-t-vundle|)
+- NeoBundle: https://github.com/Shougo/neobundle.vim (see
+  |command-t-neobundle|)
+- VAM: https://github.com/MarcWeber/vim-addon-manager (see |command-t-vam|)
 
-  :echo &rtp
+The following sections outline how to use each of these managers to download
+Command-T, and finally |command-t-compile| describes how to compile it.
 
-The C extension must then be built, which can be done from the shell. If you
-use a typical |'runtimepath'| then the files were installed inside ~/.vim and
-you can build the extension with:
+                                                         *command-t-pathogen*
+Obtaining the source using Pathogen ~
 
-  cd ~/.vim/ruby/command-t
+Pathogen is a plugin that allows you to maintain plugin installations in
+separate, isolated subdirectories under the "bundle" directory in your
+|'runtimepath'|. The following examples assume that you already have
+Pathogen installed and configured, and that you are installing into
+`~/.vim/bundle`.
+
+If you manage your entire `~/.vim` folder using Git then you can add the
+Command-T repository as a submodule:
+
+  cd ~/.vim
+  git submodule add git://git.wincent.com/command-t.git bundle/command-t
+  git submodule init
+
+Or if you just wish to do a simple clone instead of using submodules:
+
+  cd ~/.vim
+  git clone git://git.wincent.com/command-t.git bundle/command-t
+
+Once you have a local copy of the repository you can update it at any time
+with:
+
+  cd ~/.vim/bundle/command-t
+  git pull
+
+Or you can switch to a specific release with:
+
+  cd ~/.vim/bundle/command-t
+  git checkout 1.10
+
+To generate the help tags under Pathogen it is necessary to do so explicitly
+from inside Vim:
+
+  :call pathogen#helptags()
+
+For more information about Pathogen, see:
+
+  https://github.com/tpope/vim-pathogen
+
+                                                           *command-t-vundle*
+Obtaining the source using Vundle ~
+
+Anywhere between the calls to `vundle#begin` and `vundle#end` in your
+`~/.vimrc`, add a `Plugin` directive telling Vundle of your desire to use
+Command-T:
+
+  call vundle#begin()
+  Plugin 'wincent/command-t'
+  call vundle#end()
+
+To actually install the plug-in run `:PluginInstall` from inside Vim. After
+this, you can proceed to compile Command-T (see |command-t-compile|).
+
+For more information about Vundle, see:
+
+  https://github.com/gmarik/Vundle.vim
+
+                                                        *command-t-neobundle*
+Obtaining the source using NeoBundle ~
+
+Anywhere between the calls to `neobundle#begin` and `neobundle#end` in your
+`~/.vimrc`, add a `NeoBundle` directive telling NeoBundle of your desire to use
+Command-T:
+
+  call neobundle#begin(expand('~/.vim/bundle/'))
+  NeoBundle 'wincent/command-t'
+  call neobundle#end()
+
+To actually install the plug-in run `:NeoBundleInstall` from inside Vim. After
+this, you can proceed to compile Command-T (see |command-t-compile|).
+
+For more information about NeoBundle, see:
+
+  https://github.com/Shougo/neobundle.vim
+                                                              *command-t-vam*
+Obtaining the source using VAM ~
+
+After the call to `vam#ActivateAddons` in your `~/.vimrc`, add Command-T to
+the `VAMActivate` call:
+
+  call vam#ActivateAddons([])
+  VAMActivate github:wincent/command-t
+
+After VAM has downloaded Command-T, you can proceed to compile it (see
+|command-t-compile|).
+
+For more information about VAM, see:
+
+  https://github.com/MarcWeber/vim-addon-manager
+
+                                                         *command-t-compile*
+Compiling Command-T ~
+
+The C extension must be built, which can be done from the shell. If you use a
+typical Pathogen, Vundle or NeoBundle set-up then the files were installed inside
+`~/.vim/bundle/command-t`. A typical VAM installation path might be
+`~/.vim/vim-addons/command-t`.
+
+Wherever the Command-T files were installed, you can build the extension by
+changing to the `ruby/command-t` subdirectory and running a couple of commands
+as follows:
+
+  cd ~/.vim/bundle/command-t/ruby/command-t
   ruby extconf.rb
   make
 
@@ -179,7 +280,7 @@ Note: If you are on OS X Mavericks and compiling against MacVim, the default
 system Ruby is 2.0 but MacVim still links against the older 1.8.7 Ruby that is
 also bundled with the system; in this case the build command becomes:
 
-  cd ~/.vim/ruby/command-t
+  cd ~/.vim/bundle/command-t/ruby/command-t
   /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby extconf.rb
   make
 
@@ -201,50 +302,6 @@ Note: If you are on Fedora 17+, you can install Command-T from the system
 repository with:
 
   su -c 'yum install vim-command-t'
-
-MANAGING USING PATHOGEN                         *command-t-pathogen*
-
-Pathogen is a plugin that allows you to maintain plugin installations in
-separate, isolated subdirectories under the "bundle" directory in your
-|'runtimepath'|. The following examples assume that you already have
-Pathogen installed and configured, and that you are installing into
-~/.vim/bundle. For more information about Pathogen, see:
-
-  http://www.vim.org/scripts/script.php?script_id=2332
-
-If you manage your entire ~/.vim folder using Git then you can add the
-Command-T repository as a submodule:
-
-  cd ~/.vim
-  git submodule add git://git.wincent.com/command-t.git bundle/command-t
-  git submodule init
-
-Or if you just wish to do a simple clone instead of using submodules:
-
-  cd ~/.vim
-  git clone git://git.wincent.com/command-t.git bundle/command-t
-
-Once you have a local copy of the repository you can update it at any time
-with:
-
-  cd ~/.vim/bundle/command-t
-  git pull
-
-Or you can switch to a specific release with:
-
-  cd ~/.vim/bundle/command-t
-  git checkout 0.8b
-
-After installing or updating you must build the extension:
-
-  cd ~/.vim/bundle/command-t/ruby/command-t
-  ruby extconf.rb
-  make
-
-While the Vimball installation automatically generates the help tags, under
-Pathogen it is necessary to do so explicitly from inside Vim:
-
-  :call pathogen#helptags()
 
 
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
@@ -362,7 +419,7 @@ The following is also available on terminals which support it:
     <Esc>       cancel (dismisses file listing)
 
 Note that the default mappings can be overriden by setting options in your
-~/.vimrc file (see the OPTIONS section for a full list of available options).
+`~/.vimrc` file (see the OPTIONS section for a full list of available options).
 
 In addition, when the file listing has focus, typing a character will cause
 the selection to jump to the first path which begins with that character.
@@ -428,7 +485,7 @@ By default Command-T comes with only two mappings:
   <Leader>b     bring up the Command-T buffer window
 
 However, Command-T won't overwrite a pre-existing mapping so if you prefer
-to define different mappings use lines like these in your ~/.vimrc:
+to define different mappings use lines like these in your `~/.vimrc`:
 
   nnoremap <silent> <Leader>t :CommandT<CR>
   nnoremap <silent> <Leader>b :CommandTBuffer<CR>
@@ -436,7 +493,7 @@ to define different mappings use lines like these in your ~/.vimrc:
 Replacing "<Leader>t" or "<Leader>b" with your mapping of choice.
 
 Note that in the case of MacVim you actually can map to Command-T (written
-as <D-t> in Vim) in your ~/.gvimrc file if you first unmap the existing menu
+as <D-t> in Vim) in your `~/.gvimrc` file if you first unmap the existing menu
 binding of Command-T to "New Tab":
 
   if has("gui_macvim")
@@ -452,8 +509,8 @@ overriding the mappings are listed below under OPTIONS.
 
 OPTIONS                                         *command-t-options*
 
-A number of options may be set in your ~/.vimrc to influence the behaviour of
-the plug-in. To set an option, you include a line like this in your ~/.vimrc:
+A number of options may be set in your `~/.vimrc` to influence the behaviour of
+the plug-in. To set an option, you include a line like this in your `~/.vimrc`:
 
     let g:CommandTMaxFiles=20000
 
@@ -570,7 +627,7 @@ Following is a list of all available options:
       |g:CommandTScanDotDirectories| affects the behaviour at scan-time.
 
       Note also that even with this setting off you can still use Command-T to
-      open files inside a "dot-directory" such as ~/.vim, but you have to use
+      open files inside a "dot-directory" such as `~/.vim`, but you have to use
       the |:cd| command to change into that directory first. For example:
 
         :cd ~/.vim
@@ -622,7 +679,7 @@ Following is a list of all available options:
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
-window, you would add the following to your ~/.vimrc:
+window, you would add the following to your `~/.vimrc`:
 
   let g:CommandTCancelMap='<C-x>'
 
@@ -762,7 +819,7 @@ Why doesn't the Escape key close the match listing in terminal Vim? ~
 
 In some terminals such as xterm the Escape key misbehaves, so Command-T
 doesn't set up a mapping for it. If you want to try using the escape key
-anyway, you can add something like the following to your ~/.vimrc file:
+anyway, you can add something like the following to your `~/.vimrc` file:
 
   if &term =~ "xterm" || &term =~ "screen"
     let g:CommandTCancelMap = ['<ESC>', '<C-c>']
@@ -940,10 +997,10 @@ per hour from the authoritative repository:
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
 
-As many users choose to track Command-T using Pathogen, which often means
-running a version later than the last official release, the intention is that
-the "master" branch should be kept in a stable and reliable state as much as
-possible.
+As many users choose to track Command-T using Pathogen or similar, which often
+means running a version later than the last official release, the intention is
+that the "master" branch should be kept in a stable and reliable state as much
+as possible.
 
 Riskier changes are first cooked on the "next" branch for a period before
 being merged into master. You can track this branch if you're feeling wild and
