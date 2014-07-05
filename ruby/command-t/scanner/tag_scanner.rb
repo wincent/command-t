@@ -30,14 +30,19 @@ module CommandT
 
     def initialize options = {}
       @include_filenames = options[:include_filenames] || false
+      @cached_tags = nil
     end
 
     def paths
-      taglist.map do |tag|
+      @cached_tags ||= taglist.map do |tag|
         path = tag['name']
         path << ":#{tag['filename']}" if @include_filenames
         path
       end.uniq.sort
+    end
+
+    def flush
+      @cached_tags = nil
     end
 
   private

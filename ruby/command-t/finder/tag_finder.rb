@@ -40,5 +40,9 @@ module CommandT
       #  open the tag and center the screen on it
       ::VIM::command "silent! tag #{selection} | :normal zz"
     end
+
+    def flush
+      @scanner.flush
+    end
   end # class TagFinder
 end # module CommandT
