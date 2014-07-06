@@ -949,8 +949,9 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Nadav Samet             Steven Moazami
-  Anthony Panozzo         Nate Kane               Sung Pae
+  Andy Waite              Mike Lundy              Shlomi Fish
+  Anthony Panozzo         Nadav Samet             Steven Moazami
+  Artem Nezvigin          Nate Kane               Sung Pae
   Daniel Hahler           Nicholas Alpi           Thomas Pelletier
   Felix Tjandrawibawa     Noon Silk               Ton van den Heuvel
   Gary Bernhardt          Paul Jolly              Victor Hugo Borja
@@ -960,7 +961,6 @@ order):
   Marcus Brito            Ross Lagerwall          Yiding Jia
   Marian Schubert         Scott Bronson           Zak Johnson
   Matthew Todd            Seth Fowler
-  Mike Lundy              Shlomi Fish
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1062,6 +1062,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.9.2 (not yet released)
+
+- improve tag finder performance by caching tag lists (patch from Artem
+  Nezvigin)
 
 1.9.1 (30 May 2014)
 

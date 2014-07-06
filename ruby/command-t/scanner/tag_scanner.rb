@@ -1,4 +1,4 @@
-# Copyright 2011-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2011-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,14 +30,19 @@ module CommandT
 
     def initialize options = {}
       @include_filenames = options[:include_filenames] || false
+      @cached_tags = nil
     end
 
     def paths
-      taglist.map do |tag|
+      @cached_tags ||= taglist.map do |tag|
         path = tag['name']
         path << ":#{tag['filename']}" if @include_filenames
         path
       end.uniq.sort
+    end
+
+    def flush
+      @cached_tags = nil
     end
 
   private

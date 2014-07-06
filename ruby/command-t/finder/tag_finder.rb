@@ -1,4 +1,4 @@
-# Copyright 2011-2012 Wincent Colaiuta. All rights reserved.
+# Copyright 2011-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,10 @@ module CommandT
 
       #  open the tag and center the screen on it
       ::VIM::command "silent! tag #{selection} | :normal zz"
+    end
+
+    def flush
+      @scanner.flush
     end
   end # class TagFinder
 end # module CommandT
