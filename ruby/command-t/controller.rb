@@ -202,6 +202,18 @@ module CommandT
       @needs_update = false
     end
 
+    def tab_command
+      get_string('g:CommandTAcceptSelectionTabCommand') || 'tabe'
+    end
+
+    def split_command
+      get_string('g:CommandTAcceptSelectionSplitCommand') || 'sp'
+    end
+
+    def vsplit_command
+      get_string('g:CommandTAcceptSelectionVSplitCommand') || 'vs'
+    end
+
   private
 
     def list_matches!
@@ -271,7 +283,7 @@ module CommandT
       if !get_bool('&modified') ||
         get_bool('&hidden') ||
         get_bool('&autowriteall') && !get_bool('&readonly')
-        'e'
+        get_string('g:CommandTAcceptSelectionCommand') || 'e'
       else
         'sp'
       end
