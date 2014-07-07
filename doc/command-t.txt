@@ -1067,6 +1067,8 @@ HISTORY                                         *command-t-history*
 
 - improve tag finder performance by caching tag lists (patch from Artem
   Nezvigin)
+- consider the |'autowriteall'| option when deciding whether to open a file in
+  a split
 
 1.9.1 (30 May 2014)
 
