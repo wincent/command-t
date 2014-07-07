@@ -676,6 +676,60 @@ Following is a list of all available options:
 
       See also |command-t-wildignore|.
 
+                                              *g:CommandTAcceptSelectionCommand*
+  |g:CommandTAcceptSelectionCommand|            string (default: 'e')
+
+      The Vim command that will be used to open a selection from the match
+      listing (via |g:CommandTAcceptSelectionMap|).
+
+      For an example of how this can be used to apply arbitrarily complex
+      logic, see the example in |g:CommandTAcceptSelectionTabCommand| below.
+
+                                           *g:CommandTAcceptSelectionTabCommand*
+  |g:CommandTAcceptSelectionTabCommand|      string (default: 'tabe')
+
+      The Vim command that will be used to open a selection from the match
+      listing in a new tab (via |g:CommandTAcceptSelectionSplitMap|).
+
+      For example, this can be used to switch to an existing buffer (rather
+      than opening a duplicate buffer with the selection in a new tab) with
+      configuration such as the following:
+
+          set switchbuf=usetab
+
+          function! GotoOrOpen(...)
+            for file in a:000
+              if bufexists(file)
+                exec "sb " . file
+              else
+                exec "tabe " . file
+              endif
+            endfor
+          endfunction
+
+          command! -nargs=+ GotoOrOpen call GotoOrOpen("<args>")
+
+          let g:CommandTAcceptSelectionTabCommand = 'GotoOrOpen'
+
+                                        *g:CommandTAcceptSelectionSplitCommand*
+  |g:CommandTAcceptSelectionSplitCommand| string (default: 'sp')
+
+      The Vim command that will be used to open a selection from the match
+      listing in a split (via |g:CommandTAcceptSelectionVSplitMap|).
+
+      For an example of how this can be used to apply arbitrarily complex
+      logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
+
+                                        *g:CommandTAcceptSelectionVsplitCommand*
+                                        string (default: 'vs')
+  |g:CommandTAcceptSelectionVSplitCommand|
+
+      The Vim command that will be used to open a selection from the match
+      listing in a vertical split (via |g:CommandTAcceptSelectionVSplitMap|).
+
+      For an example of how this can be used to apply arbitrarily complex
+      logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
@@ -949,18 +1003,18 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Mike Lundy              Shlomi Fish
-  Anthony Panozzo         Nadav Samet             Steven Moazami
-  Artem Nezvigin          Nate Kane               Sung Pae
-  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
-  Felix Tjandrawibawa     Noon Silk               Ton van den Heuvel
-  Gary Bernhardt          Paul Jolly              Victor Hugo Borja
-  Ivan Ukhov              Pavel Sergeev           Vít Ondruch
-  Jeff Kreeftmeijer       Rainux Luo              Woody Peterson
-  Lucas de Vries          Roland Puntaier         Yan Pritzker
-  Marcus Brito            Ross Lagerwall          Yiding Jia
-  Marian Schubert         Scott Bronson           Zak Johnson
-  Matthew Todd            Seth Fowler
+  Andy Waite              Mike Lundy              Seth Fowler
+  Anthony Panozzo         Nadav Samet             Shlomi Fish
+  Artem Nezvigin          Nate Kane               Steven Moazami
+  Daniel Hahler           Nicholas Alpi           Sung Pae
+  Felix Tjandrawibawa     Noon Silk               Thomas Pelletier
+  Gary Bernhardt          Ole Petter Bang         Ton van den Heuvel
+  Ivan Ukhov              Paul Jolly              Victor Hugo Borja
+  Jeff Kreeftmeijer       Pavel Sergeev           Vít Ondruch
+  Lucas de Vries          Rainux Luo              Woody Peterson
+  Marcus Brito            Roland Puntaier         Yan Pritzker
+  Marian Schubert         Ross Lagerwall          Yiding Jia
+  Matthew Todd            Scott Bronson           Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1063,12 +1117,13 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.9.2 (not yet released)
+1.10 (not yet released)
 
 - improve tag finder performance by caching tag lists (patch from Artem
   Nezvigin)
 - consider the |'autowriteall'| option when deciding whether to open a file in
   a split
+- make selection acceptance commands configurable (patch from Ole Petter Bang)
 
 1.9.1 (30 May 2014)
 
