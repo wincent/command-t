@@ -268,10 +268,12 @@ module CommandT
     end
 
     def default_open_command
-      if !get_bool('&hidden') && get_bool('&modified')
-        'sp'
-      else
+      if !get_bool('&modified') ||
+        get_bool('&hidden') ||
+        get_bool('&autowriteall') && !get_bool('&readonly')
         'e'
+      else
+        'sp'
       end
     end
 
