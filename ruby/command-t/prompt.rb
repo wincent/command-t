@@ -48,16 +48,17 @@ module CommandT
 
     # Remove word before cursor
     def clear_prev_word!
-      r = @abbrev[@col..-1]
-      l = @abbrev[0..@col]
-      l_split = l.index(/(\w*|\s*|\W)$/)
-      if l_split == 0
-        @abbrev = r
-      else
-        @abbrev = l[0..l_split-1]
-        @abbrev << r unless r.nil?
-      end
-      @col = l_split
+      suffix_length = @abbrev.length - @col
+      @abbrev.match(
+        %r{
+          (.*?)                 # prefix
+          \w*\s*                # word to clear
+          (.{#{suffix_length}}) # suffix
+          \z
+        }x
+      )
+      @abbrev = $~[1] + $~[2]
+      @col = @abbrev.length - suffix_length
       redraw
     end
 
