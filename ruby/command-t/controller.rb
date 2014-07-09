@@ -165,6 +165,11 @@ module CommandT
       list_matches!
     end
 
+    def clear_prev_word
+      @prompt.clear_prev_word!
+      list_matches!
+    end
+
     def cursor_left
       @prompt.cursor_left if @focus == @prompt
     end
@@ -348,6 +353,7 @@ module CommandT
         'Backspace'             => '<BS>',
         'Cancel'                => ['<C-c>', '<Esc>'],
         'Clear'                 => '<C-u>',
+        'ClearPrevWord'         => '<C-w>',
         'CursorEnd'             => '<C-e>',
         'CursorLeft'            => ['<Left>', '<C-h>'],
         'CursorRight'           => ['<Right>', '<C-l>'],

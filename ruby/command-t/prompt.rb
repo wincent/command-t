@@ -1,4 +1,4 @@
-# Copyright 2010 Wincent Colaiuta. All rights reserved.
+# Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,22 @@ module CommandT
     def clear!
       @abbrev = ''
       @col    = 0
+      redraw
+    end
+
+    # Remove word before cursor
+    def clear_prev_word!
+      suffix_length = @abbrev.length - @col
+      @abbrev.match(
+        %r{
+          (.*?)                 # prefix
+          \w*\s*                # word to clear
+          (.{#{suffix_length}}) # suffix
+          \z
+        }x
+      )
+      @abbrev = $~[1] + $~[2]
+      @col = @abbrev.length - suffix_length
       redraw
     end
 
