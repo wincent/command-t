@@ -784,6 +784,9 @@ Following is a list of all map settings and their defaults:
                                       *g:CommandTClearMap*
                   |g:CommandTClearMap|  <C-u>
 
+                                      *g:CommandTClearPrevWordMap*
+          |g:CommandTClearPrevWordMap|  <C-w>
+
                                       *g:CommandTRefreshMap*
                 |g:CommandTRefreshMap|  <C-f>
 
@@ -1003,18 +1006,19 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Mike Lundy              Seth Fowler
-  Anthony Panozzo         Nadav Samet             Shlomi Fish
-  Artem Nezvigin          Nate Kane               Steven Moazami
-  Daniel Hahler           Nicholas Alpi           Sung Pae
-  Felix Tjandrawibawa     Noon Silk               Thomas Pelletier
-  Gary Bernhardt          Ole Petter Bang         Ton van den Heuvel
-  Ivan Ukhov              Paul Jolly              Victor Hugo Borja
-  Jeff Kreeftmeijer       Pavel Sergeev           Vít Ondruch
-  Lucas de Vries          Rainux Luo              Woody Peterson
-  Marcus Brito            Roland Puntaier         Yan Pritzker
-  Marian Schubert         Ross Lagerwall          Yiding Jia
-  Matthew Todd            Scott Bronson           Zak Johnson
+  Andy Waite              Mike Lundy              Shlomi Fish
+  Anthony Panozzo         Nadav Samet             Steven Moazami
+  Artem Nezvigin          Nate Kane               Sung Pae
+  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
+  Felix Tjandrawibawa     Noon Silk               Ton van den Heuvel
+  Gary Bernhardt          Ole Petter Bang         Victor Hugo Borja
+  Ivan Ukhov              Paul Jolly              Vít Ondruch
+  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
+  Kevin Webster           Rainux Luo              Yan Pritzker
+  Lucas de Vries          Roland Puntaier         Yiding Jia
+  Marcus Brito            Ross Lagerwall          Zak Johnson
+  Marian Schubert         Scott Bronson
+  Matthew Todd            Seth Fowler
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1124,6 +1128,8 @@ HISTORY                                         *command-t-history*
 - consider the |'autowriteall'| option when deciding whether to open a file in
   a split
 - make selection acceptance commands configurable (patch from Ole Petter Bang)
+- add <C-w> mapping to delete previous word of the match prompt (patch from
+  Kevin Webster)
 
 1.9.1 (30 May 2014)
 
