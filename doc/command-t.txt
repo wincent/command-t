@@ -1130,6 +1130,8 @@ HISTORY                                         *command-t-history*
 - make selection acceptance commands configurable (patch from Ole Petter Bang)
 - add <C-w> mapping to delete previous word of the match prompt (patch from
   Kevin Webster)
+- try harder to always clear status line after closing the match listing
+  (patch from Ton van den Heuvel)
 
 1.9.1 (30 May 2014)
 
