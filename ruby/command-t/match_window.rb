@@ -40,11 +40,12 @@ module CommandT
       @reverse_list    = options[:match_window_reverse]
 
       # save existing window dimensions so we can restore them later
-      @windows = []
-      (0..(::VIM::Window.count - 1)).each do |i|
-        @windows << OpenStruct.new(:index   => i,
-                                   :height  => ::VIM::Window[i].height,
-                                   :width   => ::VIM::Window[i].width)
+      @windows = (0..(::VIM::Window.count - 1)).map do |i|
+        OpenStruct.new(
+          :index  => i,
+          :height => ::VIM::Window[i].height,
+          :width  => ::VIM::Window[i].width
+        )
       end
 
       set 'timeout', true        # ensure mappings timeout
