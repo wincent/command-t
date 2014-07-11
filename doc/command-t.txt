@@ -1132,6 +1132,8 @@ HISTORY                                         *command-t-history*
   Kevin Webster)
 - try harder to always clear status line after closing the match listing
   (patch from Ton van den Heuvel)
+- don't allow MRU autocommands to produce errors when the extension has not
+  been compiled
 
 1.9.1 (30 May 2014)
 
