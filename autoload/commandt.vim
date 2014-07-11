@@ -174,9 +174,9 @@ augroup END
 ruby << EOF
   # require Ruby files
   begin
+    require 'command-t/mru'
     require 'command-t/vim'
     require 'command-t/controller'
-    require 'command-t/mru'
     $command_t = CommandT::Controller.new
   rescue LoadError
     load_path_modified = false
