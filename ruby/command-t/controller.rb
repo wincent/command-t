@@ -199,8 +199,9 @@ module CommandT
 
       @matches = @active_finder.sorted_matches_for(
         @prompt.abbrev,
-        :limit   => match_limit,
-        :threads => CommandT::Util.processor_count
+        :case_sensitive => case_sensitive?,
+        :limit          => match_limit,
+        :threads        => CommandT::Util.processor_count
       )
       @match_window.matches = @matches
 
@@ -252,6 +253,26 @@ module CommandT
         min_height = max_height if max_height != 0 && min_height > max_height
         min_height
       end
+    end
+
+    def case_sensitive?
+      if @prompt.abbrev.match(/[A-Z]/)
+        if VIM::exists?('g:CommandTSmartCase')
+          smart_case = get_bool('g:CommandTSmartCase')
+        else
+          smart_case = get_bool('&smartcase')
+        end
+
+        if smart_case
+          return true
+        end
+      end
+
+      if VIM::exists?('g:CommandTIgnoreCase')
+        return !get_bool('g:CommandTIgnoreCase')
+      end
+
+      false
     end
 
     def get_number(name, default = nil)

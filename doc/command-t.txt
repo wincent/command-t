@@ -676,6 +676,20 @@ Following is a list of all available options:
 
       See also |command-t-wildignore|.
 
+                                                *g:CommandTIgnoreCase*
+  |g:CommandTIgnoreCase|                          boolean (default: 1)
+
+      Ignore case when searching. Defaults to on, which means that searching
+      is case-insensitive by default. See also |g:CommandTSmartCase|.
+
+                                                *g:CommandTSmartCase*
+  |g:CommandTSmartCase|                           boolean (default: none)
+
+      Override the |g:CommandTIgnoreCase| setting if the search pattern
+      contains uppercase characters, forcing the match to be case-sensitive.
+      If unset (which is the default), the value of the Vim |'smartcase'|
+      setting will be used instead.
+
                                               *g:CommandTAcceptSelectionCommand*
   |g:CommandTAcceptSelectionCommand|            string (default: 'e')
 
@@ -1006,19 +1020,19 @@ Command-T is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Mike Lundy              Shlomi Fish
-  Anthony Panozzo         Nadav Samet             Steven Moazami
-  Artem Nezvigin          Nate Kane               Sung Pae
-  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
-  Felix Tjandrawibawa     Noon Silk               Ton van den Heuvel
-  Gary Bernhardt          Ole Petter Bang         Victor Hugo Borja
-  Ivan Ukhov              Paul Jolly              Vít Ondruch
+  Andy Waite              Matthew Todd            Seth Fowler
+  Anthony Panozzo         Mike Lundy              Shlomi Fish
+  Artem Nezvigin          Nadav Samet             Steven Moazami
+  Daniel Hahler           Nate Kane               Sung Pae
+  Felix Tjandrawibawa     Nicholas Alpi           Thomas Pelletier
+  Gary Bernhardt          Noon Silk               Ton van den Heuvel
+  Ivan Ukhov              Ole Petter Bang         Victor Hugo Borja
+  Jacek Wysocki           Paul Jolly              Vít Ondruch
   Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
   Kevin Webster           Rainux Luo              Yan Pritzker
   Lucas de Vries          Roland Puntaier         Yiding Jia
   Marcus Brito            Ross Lagerwall          Zak Johnson
   Marian Schubert         Scott Bronson
-  Matthew Todd            Seth Fowler
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1134,6 +1148,8 @@ HISTORY                                         *command-t-history*
   (patch from Ton van den Heuvel)
 - don't allow MRU autocommands to produce errors when the extension has not
   been compiled
+- add |g:CommandTIgnoreCase| and |g:CommandTSmartCase| options, providing
+  support for case-sensitive matching (based on patch from Jacek Wysocki)
 
 1.9.1 (30 May 2014)
 

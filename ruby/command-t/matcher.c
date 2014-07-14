@@ -103,6 +103,7 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 typedef struct {
     int thread_count;
     int thread_index;
+    int case_sensitive;
     match_t *matches;
     long path_count;
     VALUE paths;
@@ -119,6 +120,7 @@ void *match_thread(void *thread_args)
         VALUE path = RARRAY_PTR(args->paths)[i];
         calculate_match(path,
                         args->abbrev,
+                        args->case_sensitive,
                         args->always_show_dot_files,
                         args->never_show_dot_files,
                         &args->matches[i]);
@@ -137,6 +139,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     match_t *matches;
     thread_args_t *thread_args;
     VALUE abbrev;
+    VALUE case_sensitive;
     VALUE always_show_dot_files;
     VALUE limit_option;
     VALUE never_show_dot_files;
@@ -153,13 +156,15 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (NIL_P(abbrev))
         rb_raise(rb_eArgError, "nil abbrev");
 
-    abbrev = StringValue(abbrev);
-    abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
-
     // check optional options has for overrides
+    case_sensitive = CommandT_option_from_hash("case_sensitive", options);
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
     sort_option = CommandT_option_from_hash("sort", options);
+
+    abbrev = StringValue(abbrev);
+    if (case_sensitive != Qtrue)
+        abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
 
     // get unsorted matches
     scanner = rb_iv_get(self, "@scanner");
@@ -189,6 +194,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     for (i = 0; i < thread_count; i++) {
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
+        thread_args[i].case_sensitive = case_sensitive == Qtrue;
         thread_args[i].matches = matches;
         thread_args[i].path_count = path_count;
         thread_args[i].paths = paths;

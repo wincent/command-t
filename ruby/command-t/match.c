@@ -36,6 +36,7 @@ typedef struct {
     int     dot_file;               // boolean: true if str is a dot-file
     int     always_show_dot_files;  // boolean
     int     never_show_dot_files;   // boolean
+    int     case_sensitive;         // boolean
     double  *memo;                  // memoization
 } matchinfo_t;
 
@@ -82,7 +83,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                     if (dot_search)         // and we are searching for a dot
                         dot_file_match = 1; // so this must be a match
                 }
-            } else if (d >= 'A' && d <= 'Z') {
+            } else if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
                 d += 'a' - 'A'; // add 32 to downcase
             }
 
@@ -151,6 +152,7 @@ memoize:
 
 void calculate_match(VALUE str,
                      VALUE needle,
+                     VALUE case_sensitive,
                      VALUE always_show_dot_files,
                      VALUE never_show_dot_files,
                      match_t *out)
@@ -166,6 +168,7 @@ void calculate_match(VALUE str,
     m.dot_file              = 0;
     m.always_show_dot_files = always_show_dot_files == Qtrue;
     m.never_show_dot_files  = never_show_dot_files == Qtrue;
+    m.case_sensitive        = case_sensitive;
 
     // calculate score
     score = 1.0;

@@ -1,4 +1,4 @@
-// Copyright 2010-2013 Wincent Colaiuta. All rights reserved.
+// Copyright 2010-2014 Wincent Colaiuta. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@ typedef struct {
 
 extern void calculate_match(VALUE str,
                             VALUE needle,
+                            VALUE case_sensitive,
                             VALUE always_show_dot_files,
                             VALUE never_show_dot_files,
                             match_t *out);
