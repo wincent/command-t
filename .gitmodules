@@ -4,3 +4,6 @@
 [submodule "vendor/vimscriptuploader"]
 	path = vendor/vimscriptuploader
 	url = git://github.com/tomtom/vimscriptuploader.rb.git
+[submodule "vendor/vroom"]
+	path = vendor/vroom
+	url = https://github.com/google/vroom.git
