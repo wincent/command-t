@@ -74,7 +74,7 @@ describe CommandT::Controller do
   def stub_match_window(selection)
     match_window = Object.new
     stub(match_window).matches = anything
-    stub(match_window).close
+    stub(match_window).leave
     stub(match_window).selection.returns(selection)
     stub(CommandT::MatchWindow).new.returns(match_window)
   end
