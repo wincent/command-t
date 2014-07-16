@@ -15,9 +15,8 @@ CONTENTS                                        *command-t-contents*
 11. Authors                 |command-t-authors|
 12. Development             |command-t-development|
 13. Website                 |command-t-website|
-14. Donations               |command-t-donations|
-15. License                 |command-t-license|
-16. History                 |command-t-history|
+14. License                 |command-t-license|
+15. History                 |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -1098,15 +1097,6 @@ at:
 Bug reports should be submitted to the issue tracker at:
 
   https://wincent.com/issues
-
-
-DONATIONS                                       *command-t-donations*
-
-Command-T itself is free software released under the terms of the BSD license.
-If you would like to support further development you can make a donation via
-PayPal to win@wincent.com:
-
-  https://wincent.com/products/command-t/donations
 
 
 LICENSE                                         *command-t-license*
