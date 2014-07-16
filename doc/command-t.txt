@@ -1136,7 +1136,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.10 (not yet released)
+1.10 (15 July 2014)
 
 - improve tag finder performance by caching tag lists (patch from Artem
   Nezvigin)
