@@ -1003,7 +1003,8 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
-- version 1.8 (March 2013) sped up the Watchman file scanner by switching its
+- version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
+- version 1.8 (March 2014) sped up the Watchman file scanner by switching its
   communication from the JSON to the binary Watchman protocol
 - version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
   |g:CommandTFileScanner| settings, along with support for the Watchman file
