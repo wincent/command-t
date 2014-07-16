@@ -86,22 +86,12 @@ The general release sequence is:
   rake prerelease
   rake gem
   rake push
-  bundle exec rake upload:all
+  rake upload:all
 
-Most of the Rake tasks run fine without Bundler, and in fact, we
-don't want Bundler in the prerelease task because it will tamper
-with the environment in a way that breaks multiruby.
-
-We use Bundler for the upload task because the www.vim.org
-uploader uses Bundler to ensure that the Mechanize gem is available.
+Note: the upload task depends on the Mechanize gem; and may require a
+prior `gem install mechanize`
 
   END
-end
-
-task :check_bundler do
-  unless ENV.has_key? 'BUNDLE_GEMFILE'
-    warn 'warning: Bundler is not loaded; try running with `bundle exec rake`'
-  end
 end
 
 desc 'Run specs'
@@ -179,7 +169,7 @@ namespace :upload do
   end
 
   desc 'Upload current vimball to www.vim.org'
-  task :vim => [:check_bundler, :vimball] do
+  task :vim => :vimball do
     prepare_release_notes
     sh "vendor/vimscriptuploader/vimscriptuploader.rb \
             --id 3025 \
