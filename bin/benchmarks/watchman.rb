@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# Copyright 2014 Wincent Colaiuta. All rights reserved.
+# Copyright 2014 Greg Hurrell. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
