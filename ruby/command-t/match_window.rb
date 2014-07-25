@@ -160,7 +160,7 @@ module CommandT
     end
 
     def select_next
-      if @selection < @matches.length - 1
+      if @selection < [@matches.length, max_lines].min - 1
         @selection += 1
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
