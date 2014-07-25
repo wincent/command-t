@@ -160,7 +160,7 @@ module CommandT
     end
 
     def select_next
-      if @selection < @matches.length - 1
+      if @selection < [@matches.length, max_lines].min - 1
         @selection += 1
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
@@ -328,6 +328,10 @@ module CommandT
       lock
     end
 
+    def max_lines
+      [1, VIM::Screen.lines - 5].max
+    end
+
     # Print all matches.
     def print_matches
       match_count = @matches.length
@@ -339,8 +343,6 @@ module CommandT
         clear
         actual_lines = 1
         @window_width = @window.width # update cached value
-        max_lines = VIM::Screen.lines - 5
-        max_lines = 1 if max_lines < 0
         actual_lines = match_count < @min_height ? @min_height : match_count
         actual_lines = max_lines if actual_lines > max_lines
         @window.height = actual_lines
