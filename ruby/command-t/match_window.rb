@@ -328,6 +328,10 @@ module CommandT
       lock
     end
 
+    def max_lines
+      [1, VIM::Screen.lines - 5].max
+    end
+
     # Print all matches.
     def print_matches
       match_count = @matches.length
@@ -339,8 +343,6 @@ module CommandT
         clear
         actual_lines = 1
         @window_width = @window.width # update cached value
-        max_lines = VIM::Screen.lines - 5
-        max_lines = 1 if max_lines < 0
         actual_lines = match_count < @min_height ? @min_height : match_count
         actual_lines = max_lines if actual_lines > max_lines
         @window.height = actual_lines
