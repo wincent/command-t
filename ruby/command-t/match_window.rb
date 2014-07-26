@@ -345,8 +345,7 @@ module CommandT
         actual_lines = [match_count, @min_height].max
         actual_lines = [max_lines, actual_lines].min
         @window.height = actual_lines
-        (1..actual_lines).each do |line|
-          idx = line - 1
+        (1..actual_lines).each_with_index do |line, idx|
           if @@buffer.count >= line
             @@buffer[line] = match_text_for_idx idx
           else
