@@ -1020,19 +1020,19 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Matthew Todd            Seth Fowler
-  Anthony Panozzo         Mike Lundy              Shlomi Fish
-  Artem Nezvigin          Nadav Samet             Steven Moazami
-  Daniel Hahler           Nate Kane               Sung Pae
-  Felix Tjandrawibawa     Nicholas Alpi           Thomas Pelletier
-  Gary Bernhardt          Noon Silk               Ton van den Heuvel
-  Ivan Ukhov              Ole Petter Bang         Victor Hugo Borja
-  Jacek Wysocki           Paul Jolly              Vít Ondruch
-  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
-  Kevin Webster           Rainux Luo              Yan Pritzker
-  Lucas de Vries          Roland Puntaier         Yiding Jia
-  Marcus Brito            Ross Lagerwall          Zak Johnson
-  Marian Schubert         Scott Bronson
+  Andy Waite              Matthew Todd            Scott Bronson
+  Anthony Panozzo         Mike Lundy              Seth Fowler
+  Artem Nezvigin          Nadav Samet             Shlomi Fish
+  Daniel Hahler           Nate Kane               Steven Moazami
+  Felix Tjandrawibawa     Nicholas Alpi           Sung Pae
+  Gary Bernhardt          Noon Silk               Thomas Pelletier
+  Ivan Ukhov              Ole Petter Bang         Ton van den Heuvel
+  Jacek Wysocki           Paul Jolly              Victor Hugo Borja
+  Jeff Kreeftmeijer       Pavel Sergeev           Vít Ondruch
+  Kevin Webster           Rainux Luo              Woody Peterson
+  Lucas de Vries          Richard Feldman         Yan Pritzker
+  Marcus Brito            Roland Puntaier         Yiding Jia
+  Marian Schubert         Ross Lagerwall          Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1125,6 +1125,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.10.1 (not yet released)
+
+- improve edge-case handling in match results window code (patches from
+  Richard Feldman)
 
 1.10 (15 July 2014)
 
