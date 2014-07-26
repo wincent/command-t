@@ -228,7 +228,7 @@ module CommandT
   private
 
     def _next
-      if @selection < @window.height - 1
+      if @selection < [@window.height, @matches.length].min - 1
         @selection += 1
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
@@ -244,7 +244,6 @@ module CommandT
         move_cursor_to_selected_line
       end
     end
-
 
     # Translate from a 0-indexed match index to a 1-indexed Vim line number.
     # Also takes into account reversed listings.
