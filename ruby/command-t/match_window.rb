@@ -160,11 +160,11 @@ module CommandT
     end
 
     def select_next
-      @reverse_list ? prev : _next
+      @reverse_list ? _prev : _next
     end
 
     def select_prev
-      @reverse_list ? _next : prev
+      @reverse_list ? _next : _prev
     end
 
     def matches= matches
@@ -237,7 +237,7 @@ module CommandT
       end
     end
 
-    def prev
+    def _prev
       if @selection > 0
         @selection -= 1
         print_match(@selection + 1) # redraw old selection (removes marker)
