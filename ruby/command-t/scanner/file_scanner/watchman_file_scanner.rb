@@ -22,7 +22,7 @@ module CommandT
 
       def paths
         @paths[@path] ||= begin
-          ensure_cache_under_limit
+          prepare_paths
           sockname = Watchman::Utils.load(
             %x{watchman --output-encoding=bser get-sockname}
           )['sockname']
