@@ -194,7 +194,7 @@ module CommandT
       end
     end
 
-    def find char
+    def find(char)
       # is this a new search or the continuation of a previous one?
       now = Time.now
       if @last_key_time.nil? or @last_key_time < (now - 0.5)
@@ -205,10 +205,11 @@ module CommandT
       @last_key_time = now
 
       # see if there's anything up ahead that matches
-      @matches.each_with_index do |match, idx|
+      matches = @reverse_list ? @matches.reverse : @matches
+      matches.each_with_index do |match, idx|
         if match[0, @find_string.length].casecmp(@find_string) == 0
           old_selection = @selection
-          @selection = idx
+          @selection = @reverse_list ? matches.length - idx - 1 : idx
           print_match(old_selection)  # redraw old selection (removes marker)
           print_match(@selection)     # redraw new selection (adds marker)
           break
