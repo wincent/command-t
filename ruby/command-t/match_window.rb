@@ -349,7 +349,7 @@ module CommandT
           if @@buffer.count >= line
             @@buffer[line] = match_text_for_idx(idx)
           else
-            @@buffer.append(line - 1, match_text_for_idx(idx))
+            @@buffer.append(idx, match_text_for_idx(idx))
           end
         end
         lock
