@@ -341,7 +341,6 @@ module CommandT
         return unless VIM::Window.select(@window)
         unlock
         clear
-        actual_lines = 1
         @window_width = @window.width # update cached value
         actual_lines = match_count < @min_height ? @min_height : match_count
         actual_lines = max_lines if actual_lines > max_lines
