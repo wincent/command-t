@@ -342,8 +342,8 @@ module CommandT
         unlock
         clear
         @window_width = @window.width # update cached value
-        actual_lines = match_count < @min_height ? @min_height : match_count
-        actual_lines = max_lines if actual_lines > max_lines
+        actual_lines = [match_count, @min_height].max
+        actual_lines = [max_lines, actual_lines].min
         @window.height = actual_lines
         (1..actual_lines).each do |line|
           idx = line - 1
