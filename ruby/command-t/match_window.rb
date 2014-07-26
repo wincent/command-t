@@ -347,9 +347,9 @@ module CommandT
         @window.height = actual_lines
         (1..actual_lines).each_with_index do |line, idx|
           if @@buffer.count >= line
-            @@buffer[line] = match_text_for_idx idx
+            @@buffer[line] = match_text_for_idx(idx)
           else
-            @@buffer.append line - 1, match_text_for_idx(idx)
+            @@buffer.append(line - 1, match_text_for_idx(idx))
           end
         end
         lock
