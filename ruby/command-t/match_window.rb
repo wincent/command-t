@@ -106,7 +106,6 @@ module CommandT
       ::VIM::command 'autocmd BufUnload <buffer> silent! ruby $command_t.unload'
 
       @has_focus  = false
-      @selection  = nil
       @abbrev     = ''
       @window     = $curwin
     end
@@ -160,28 +159,17 @@ module CommandT
     end
 
     def select_next
-      if @selection < [@matches.length, max_lines].min - 1
-        @selection += 1
-        print_match(@selection - 1) # redraw old selection (removes marker)
-        print_match(@selection)     # redraw new selection (adds marker)
-        move_cursor_to_selected_line
-      end
+      @reverse_list ? prev : _next
     end
 
     def select_prev
-      if @selection > 0
-        @selection -= 1
-        print_match(@selection + 1) # redraw old selection (removes marker)
-        print_match(@selection)     # redraw new selection (adds marker)
-        move_cursor_to_selected_line
-      end
+      @reverse_list ? _next : prev
     end
 
     def matches= matches
-      matches = matches.reverse if @reverse_list
       if matches != @matches
         @matches = matches
-        @selection = @reverse_list ? @matches.length - 1 : 0
+        @selection = 0
         print_matches
         move_cursor_to_selected_line
       end
@@ -238,6 +226,31 @@ module CommandT
 
   private
 
+    def _next
+      if @selection < @window.height - 1
+        @selection += 1
+        print_match(@selection - 1) # redraw old selection (removes marker)
+        print_match(@selection)     # redraw new selection (adds marker)
+        move_cursor_to_selected_line
+      end
+    end
+
+    def prev
+      if @selection > 0
+        @selection -= 1
+        print_match(@selection + 1) # redraw old selection (removes marker)
+        print_match(@selection)     # redraw new selection (adds marker)
+        move_cursor_to_selected_line
+      end
+    end
+
+
+    # Translate from a 0-indexed match index to a 1-indexed Vim line number.
+    # Also takes into account reversed listings.
+    def line(match_index)
+      @reverse_list ? @window.height - match_index : match_index + 1
+    end
+
     def set(setting, value)
       @settings ||= Settings.new
       @settings.set(setting, value)
@@ -247,14 +260,14 @@ module CommandT
       # on some non-GUI terminals, the cursor doesn't hide properly
       # so we move the cursor to prevent it from blinking away in the
       # upper-left corner in a distracting fashion
-      @window.cursor = [@selection + 1, 0]
+      @window.cursor = [line(@selection), 0]
     end
 
     def print_error msg
       return unless VIM::Window.select(@window)
       unlock
       clear
-      @window.height = @min_height > 0 ? @min_height : 1
+      @window.height = [1, @min_height].min
       @@buffer[1] = "-- #{msg} --"
       lock
     end
@@ -317,10 +330,10 @@ module CommandT
     end
 
     # Print just the specified match.
-    def print_match idx
+    def print_match(idx)
       return unless VIM::Window.select(@window)
       unlock
-      @@buffer[idx + 1] = match_text_for_idx idx
+      @@buffer[line(idx)] = match_text_for_idx idx
       lock
     end
 
@@ -341,11 +354,16 @@ module CommandT
         desired_lines = [match_count, @min_height].max
         desired_lines = [max_lines, desired_lines].min
         @window.height = desired_lines
-        (1..@window.height).each_with_index do |line, idx|
-          if @@buffer.count >= line
-            @@buffer[line] = match_text_for_idx(idx)
+        matches = []
+        (0...@window.height).each do |idx|
+          text = match_text_for_idx(idx)
+          @reverse_list ? matches.unshift(text) : matches.push(text)
+        end
+        matches.each_with_index do |match, idx|
+          if @@buffer.count > idx
+            @@buffer[idx + 1] = match
           else
-            @@buffer.append(idx, match_text_for_idx(idx))
+            @@buffer.append(idx, match)
           end
         end
         lock

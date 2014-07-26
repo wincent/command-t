@@ -387,11 +387,14 @@ module CommandT
       ::VIM::command 'augroup END'
     end
 
-    # Returns the desired maximum number of matches, based on available
-    # vertical space and the g:CommandTMaxHeight option.
+    # Returns the desired maximum number of matches, based on available vertical
+    # space and the g:CommandTMaxHeight option.
+    #
+    # Note the "available" space is actually a theoretical upper bound; it takes
+    # into account screen dimensions but not things like existing splits which
+    # may reduce the amount of space in practice.
     def match_limit
-      limit = VIM::Screen.lines - 5
-      limit = 1 if limit < 0
+      limit = [1, VIM::Screen.lines - 5].max
       limit = [limit, max_height].min if max_height > 0
       limit
     end
