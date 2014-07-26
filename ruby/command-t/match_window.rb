@@ -165,8 +165,6 @@ module CommandT
         print_match(@selection - 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
         move_cursor_to_selected_line
-      else
-        # (possibly) loop or scroll
       end
     end
 
@@ -176,8 +174,6 @@ module CommandT
         print_match(@selection + 1) # redraw old selection (removes marker)
         print_match(@selection)     # redraw new selection (adds marker)
         move_cursor_to_selected_line
-      else
-        # (possibly) loop or scroll
       end
     end
 
