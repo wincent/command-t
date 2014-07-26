@@ -29,14 +29,10 @@ module CommandT
   class FileScanner
     # Uses git ls-files to scan for files
     class GitFileScanner < FindFileScanner
-      class GitUnavailable < RuntimeError; end
-
       def paths
-        pwd = Dir.pwd
-        @paths[@path] ||= begin
+        @paths[@path] ||= Dir.chdir(@path) do
           prepare_paths
 
-          Dir.chdir(@path)
           command = "git ls-files --exclude-standard "
           stdin, stdout, stderr = Open3.popen3(*[
             "git",
@@ -52,16 +48,11 @@ module CommandT
             take(@max_files).
             to_a
 
-          if err = stderr.gets
-            raise GitUnavailable
-          end
+          # either git is not available, or this is not a git repository
+          # fall back to find
+          return super if stderr.gets
 
           all_files
-        rescue GitUnavailable
-          # git not available, fall back to find
-          super
-        ensure
-          Dir.chdir(pwd)
         end
       end
     end # class GitFileScanner

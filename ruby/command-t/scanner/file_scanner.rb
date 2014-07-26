@@ -53,13 +53,11 @@ module CommandT
       @paths_keys << @path
     end
 
-    def path_excluded?(path, prefix_len = nil)
+    def path_excluded?(path, prefix_len = @prefix_len)
       # first strip common prefix (@path) from path to match VIM's behavior
-      prefix_len ||= @prefix_len
       path = path[(prefix_len + 1)..-1]
       path = VIM::escape_for_single_quotes path
       ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
-      false
     end
 
     def set_wild_ignore(ignore)
