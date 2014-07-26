@@ -6,6 +6,7 @@ require 'command-t/finder'
 require 'command-t/scanner/file_scanner/ruby_file_scanner'
 require 'command-t/scanner/file_scanner/find_file_scanner'
 require 'command-t/scanner/file_scanner/watchman_file_scanner'
+require 'command-t/scanner/file_scanner/git_file_scanner'
 
 module CommandT
   class FileFinder < Finder
@@ -17,6 +18,8 @@ module CommandT
         @scanner = FileScanner::FindFileScanner.new(path, options)
       when 'watchman'
         @scanner = FileScanner::WatchmanFileScanner.new(path, options)
+      when 'git'
+        @scanner = FileScanner::GitFileScanner.new(path, options)
       else
         raise ArgumentError, "unknown scanner type '#{options[:scanner]}'"
       end
