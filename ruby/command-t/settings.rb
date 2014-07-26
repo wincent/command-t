@@ -11,6 +11,7 @@ module CommandT
       insertmode
       report
       showcmd
+      scrolloff
       sidescroll
       sidescrolloff
       timeout

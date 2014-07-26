@@ -35,6 +35,7 @@ module CommandT
       set 'equalalways', false   # don't auto-balance window sizes
       set 'timeoutlen', 0        # respond immediately to mappings
       set 'report', 9999         # don't show "X lines changed" reports
+      set 'scrolloff', 0         # don't scroll near buffer edges
       set 'sidescroll', 0        # don't sidescroll in jumps
       set 'sidescrolloff', 0     # don't sidescroll automatically
       set 'updatetime', options[:debounce_interval]
