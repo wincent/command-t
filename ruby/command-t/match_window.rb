@@ -338,10 +338,10 @@ module CommandT
         unlock
         clear
         @window_width = @window.width # update cached value
-        actual_lines = [match_count, @min_height].max
-        actual_lines = [max_lines, actual_lines].min
-        @window.height = actual_lines
-        (1..actual_lines).each_with_index do |line, idx|
+        desired_lines = [match_count, @min_height].max
+        desired_lines = [max_lines, desired_lines].min
+        @window.height = desired_lines
+        (1..@window.height).each_with_index do |line, idx|
           if @@buffer.count >= line
             @@buffer[line] = match_text_for_idx(idx)
           else
