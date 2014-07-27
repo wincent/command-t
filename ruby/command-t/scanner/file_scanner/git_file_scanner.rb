@@ -26,12 +26,12 @@ module CommandT
               take(@max_files).
               to_a
 
-            # either git is not available, or this is not a git repository
-            # fall back to find
-            return super if stderr.gets
-
-            all_files
+            # will fall back to find if not a git repository or there's an error
+            stderr.gets ? super : all_files
           end
+        rescue Errno::ENOENT => e
+          # git executable not present and executable
+          super
         ensure
           set_wild_ignore(@base_wild_ignore)
         end
