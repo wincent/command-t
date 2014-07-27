@@ -573,6 +573,10 @@ Following is a list of all available options:
         work on systems without the tool or with an incompatible version of
         the tool.
 
+      - "git": uses `git ls-files` to quickly produce a list of files; when
+        Git isn't available or the path being searched is not inside a Git
+        repository falls back to "find".
+
       - "watchman": uses Watchman (https://github.com/facebook/watchman) if
         available; otherwise falls back to "find". Note that this scanner is
         intended for use with very large hierarchies (hundreds of thousands of
@@ -1020,19 +1024,20 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Andy Waite              Matthew Todd            Scott Bronson
-  Anthony Panozzo         Mike Lundy              Seth Fowler
-  Artem Nezvigin          Nadav Samet             Shlomi Fish
-  Daniel Hahler           Nate Kane               Steven Moazami
-  Felix Tjandrawibawa     Nicholas Alpi           Sung Pae
-  Gary Bernhardt          Noon Silk               Thomas Pelletier
-  Ivan Ukhov              Ole Petter Bang         Ton van den Heuvel
-  Jacek Wysocki           Paul Jolly              Victor Hugo Borja
-  Jeff Kreeftmeijer       Pavel Sergeev           Vít Ondruch
-  Kevin Webster           Rainux Luo              Woody Peterson
-  Lucas de Vries          Richard Feldman         Yan Pritzker
-  Marcus Brito            Roland Puntaier         Yiding Jia
-  Marian Schubert         Ross Lagerwall          Zak Johnson
+  Andy Waite              Mike Lundy              Seth Fowler
+  Anthony Panozzo         Nadav Samet             Shlomi Fish
+  Artem Nezvigin          Nate Kane               Steven Moazami
+  Daniel Hahler           Nicholas Alpi           Sung Pae
+  Felix Tjandrawibawa     Noon Silk               Thomas Pelletier
+  Gary Bernhardt          Ole Petter Bang         Ton van den Heuvel
+  Ivan Ukhov              Patrick Hayes           Victor Hugo Borja
+  Jacek Wysocki           Paul Jolly              Vít Ondruch
+  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
+  Kevin Webster           Rainux Luo              Yan Pritzker
+  Lucas de Vries          Richard Feldman         Yiding Jia
+  Marcus Brito            Roland Puntaier         Zak Johnson
+  Marian Schubert         Ross Lagerwall
+  Matthew Todd            Scott Bronson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1126,10 +1131,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.10.1 (not yet released)
+1.11 (not yet released)
 
 - improve edge-case handling in match results window code (patches from
   Richard Feldman)
+- add "git" file scanner (patch from Patrick Hayes)
 
 1.10 (15 July 2014)
 
