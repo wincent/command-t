@@ -1,9 +1,7 @@
 # Copyright 2014 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
-require 'command-t/vim'
-require 'command-t/scanner/file_scanner'
-require 'open3'
+require 'command-t/scanner/file_scanner/find_file_scanner'
 
 module CommandT
   class FileScanner
