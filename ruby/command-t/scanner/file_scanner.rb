@@ -54,10 +54,16 @@ module CommandT
     end
 
     def path_excluded?(path, prefix_len = @prefix_len)
-      # first strip common prefix (@path) from path to match VIM's behavior
-      path = path[(prefix_len + 1)..-1]
-      path = VIM::escape_for_single_quotes path
-      ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+      # if there is no wild_ignore, skip the call to evaluate which can be
+      # expensive for large file lists
+      if @wild_ignore && !@wild_ignore.empty?
+        # first strip common prefix (@path) from path to match VIM's behavior
+        path = path[(prefix_len + 1)..-1]
+        path = VIM::escape_for_single_quotes path
+        ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+      else
+        false
+      end
     end
 
     def set_wild_ignore(ignore)
