@@ -38,10 +38,22 @@ describe CommandT::FileScanner::RubyFileScanner do
   end
 
   describe "'wildignore' exclusion" do
-    it "calls on VIM's expand() function for pattern filtering" do
-      @scanner = CommandT::FileScanner::RubyFileScanner.new @dir
-      mock(::VIM).evaluate(/expand\(.+\)/).times(10)
-      @scanner.paths
+    context "when there is a 'wildignore' setting in effect" do
+      it "calls on VIM's expand() function for pattern filtering" do
+        stub(::VIM).command(/set wildignore/)
+        scanner =
+          CommandT::FileScanner::RubyFileScanner.new @dir, :wild_ignore => '*.o'
+        mock(::VIM).evaluate(/expand\(.+\)/).times(10)
+        scanner.paths
+      end
+    end
+
+    context "when there is no 'wildignore' setting in effect" do
+      it "does not call VIM's expand() function" do
+        scanner = CommandT::FileScanner::RubyFileScanner.new @dir
+        mock(::VIM).evaluate(/expand\(.+\)/).never
+        scanner.paths
+      end
     end
   end
 

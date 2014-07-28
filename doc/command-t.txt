@@ -1136,6 +1136,7 @@ HISTORY                                         *command-t-history*
 - improve edge-case handling in match results window code (patches from
   Richard Feldman)
 - add "git" file scanner (patch from Patrick Hayes)
+- speed-up when 'wildignore' is unset (patch from Patrick Hayes)
 
 1.10 (15 July 2014)
 
