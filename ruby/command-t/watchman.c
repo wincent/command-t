@@ -13,6 +13,7 @@
 #error no st.h header found
 #endif
 
+#include <stdint.h>     /* for uint8_t */
 #include <fcntl.h>      /* for fcntl() */
 #include <sys/errno.h>  /* for errno */
 #include <sys/socket.h> /* for recv(), MSG_PEEK */
