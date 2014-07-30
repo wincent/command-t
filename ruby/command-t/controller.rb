@@ -45,7 +45,21 @@ module CommandT
 
     def show_file_finder
       # optional parameter will be desired starting directory, or ""
-      @path             = File.expand_path(::VIM::evaluate('a:arg'), VIM::pwd)
+
+      arg = ::VIM::evaluate('a:arg')
+      if arg && arg.size > 0
+        @path = File.expand_path(arg, VIM::pwd)
+      else
+        traverse = get_string('g:CommandTTraverseSCM') || 'file'
+        case traverse
+        when 'file'
+          @path = nearest_ancestor(VIM::current_file_dir, scm_markers)
+        when 'dir'
+          @path = nearest_ancestor(VIM::pwd, scm_markers)
+        end
+      end
+
+      @path             = VIM::pwd unless @path
       @active_finder    = file_finder
       file_finder.path  = @path
       show
@@ -201,6 +215,13 @@ module CommandT
     end
 
   private
+
+    def scm_markers
+      markers = get_string('g:CommandTSCMDirectories')
+      markers = markers && markers.split(/\s*,\s*/)
+      markers = %w[.git .hg .svn .bzr _darcs] unless markers && markers.length
+      markers
+    end
 
     def list_matches!
       list_matches(:force => true)

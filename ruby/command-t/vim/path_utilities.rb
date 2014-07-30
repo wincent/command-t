@@ -15,6 +15,19 @@ module CommandT
         pwd = File.expand_path(VIM::pwd) + '/'
         path.index(pwd) == 0 ? path[pwd.length..-1] : path
       end
+
+      def nearest_ancestor(starting_directory, markers)
+        path = File.expand_path(starting_directory)
+        while !markers.
+          map { |dir| File.join(path, dir) }.
+          map { |dir| File.directory?(dir) }.
+          any?
+          return nil if path == '/'
+          path = File.expand_path(File.join(path, '..'))
+        end
+        path
+      end
+
     end # module PathUtilities
   end # module VIM
 end # module CommandT
