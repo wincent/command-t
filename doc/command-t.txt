@@ -585,6 +585,34 @@ Following is a list of all available options:
         Command-T would usually consult, such as 'wildignore' and
         |g:CommandTScanDotDirectories| are ignored.
 
+                                               *g:CommandTTraverseSCM*
+  |g:CommandTTraverseSCM|                        string (default: 'file')
+
+      Instructs Command-T how to chose a root path when opening a file finder
+      without an explicit path argument. Possible values are:
+
+      - "file": starting from the file currently being edited, traverse
+        upwards through the filesystem hierarchy until you find an SCM root
+        (as indicated by the presence of a ".git", ".hg" or similar directory)
+        and use that as the base path. If no such root is found, fallback to
+        using Vim's present working directory as a root. The list of SCM
+        directories that Command-T uses to detect an SCM root can be
+        customized with the |g:CommandTSCMDirectories| option.
+
+      - "dir": traverse upwards looking for an SCM root just like the "file"
+        setting (above), but instead of starting from the file currently being
+        edited, start from Vim's present working directory instead.
+
+      - "pwd": use Vim's present working directory as a root (ie. attempt no
+        traversal).
+
+                                               *g:CommandTSCMDirectories*
+  |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
+
+      The marker directories that Command-T will use to identify SCM roots
+      during traversal (see |g:CommandTTraverseSCM| above).
+
+
                                                *g:CommandTMinHeight*
   |g:CommandTMinHeight|                          number (default: 0)
 
@@ -1024,20 +1052,21 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta           Matthew Todd            Scott Bronson
-  Andy Waite              Mike Lundy              Seth Fowler
-  Anthony Panozzo         Nadav Samet             Shlomi Fish
-  Artem Nezvigin          Nate Kane               Steven Moazami
-  Daniel Hahler           Nicholas Alpi           Sung Pae
-  Felix Tjandrawibawa     Noon Silk               Thomas Pelletier
-  Gary Bernhardt          Ole Petter Bang         Ton van den Heuvel
-  Ivan Ukhov              Patrick Hayes           Victor Hugo Borja
-  Jacek Wysocki           Paul Jolly              Vít Ondruch
-  Jeff Kreeftmeijer       Pavel Sergeev           Woody Peterson
-  Kevin Webster           Rainux Luo              Yan Pritzker
-  Lucas de Vries          Richard Feldman         Yiding Jia
-  Marcus Brito            Roland Puntaier         Zak Johnson
-  Marian Schubert         Ross Lagerwall
+  Abhinav Gupta           Marian Schubert         Scott Bronson
+  Andy Waite              Matthew Todd            Seth Fowler
+  Anthony Panozzo         Mike Lundy              Shlomi Fish
+  Artem Nezvigin          Nadav Samet             Steven Moazami
+  Ben Osheroff            Nate Kane               Sung Pae
+  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
+  David Szotten           Noon Silk               Ton van den Heuvel
+  Felix Tjandrawibawa     Ole Petter Bang         Victor Hugo Borja
+  Gary Bernhardt          Patrick Hayes           Vít Ondruch
+  Ivan Ukhov              Paul Jolly              Woody Peterson
+  Jacek Wysocki           Pavel Sergeev           Yan Pritzker
+  Jeff Kreeftmeijer       Rainux Luo              Yiding Jia
+  Kevin Webster           Richard Feldman         Zak Johnson
+  Lucas de Vries          Roland Puntaier
+  Marcus Brito            Ross Lagerwall
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1137,6 +1166,9 @@ HISTORY                                         *command-t-history*
   Richard Feldman)
 - add "git" file scanner (patch from Patrick Hayes)
 - speed-up when 'wildignore' is unset (patch from Patrick Hayes)
+- add |g:CommandTTraverseSCM| setting which anchors Command-T's file finder to
+  the nearest SCM directory (based on patches from David Szotten and Ben
+  Osheroff)
 
 1.10 (15 July 2014)
 
