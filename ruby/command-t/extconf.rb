@@ -18,6 +18,7 @@ header('string.h')
 
 # optional headers (for CommandT::Watchman::Utils)
 if have_header('fcntl.h') &&
+  have_header('stdint.h') &&
   have_header('sys/errno.h') &&
   have_header('sys/socket.h')
   RbConfig::MAKEFILE_CONFIG['DEFS'] += ' -DWATCHMAN_BUILD'
