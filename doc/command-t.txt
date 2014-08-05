@@ -311,12 +311,11 @@ linked against at compile time. For example, if one is 32-bit and the other is
 64-bit, or one is from the Ruby 1.9 series and the other is from the 1.8
 series, then the plug-in is not likely to work.
 
-As such, on OS X, I recommend using the standard Ruby that comes with the
-system (currently 1.8.7) along with the latest version of MacVim (currently
-version 7.3). If you wish to use custom builds of Ruby or of MacVim (not
-recommmended) then you will have to take extra care to ensure that the exact
-same Ruby environment is in effect when building Ruby, Vim and the Command-T
-extension.
+On OS X, Apple tends to change the version of Ruby that comes with the system
+with each major release. See |command-t-requirements| above for details about
+specific versions. If you wish to use custom builds of Ruby or of MacVim then
+you will have to take extra care to ensure that the exact same Ruby
+environment is in effect when building Ruby, Vim and the Command-T extension.
 
 For Windows, the following combination is known to work:
 
@@ -341,6 +340,17 @@ extension and to Vim itself when they were built. If the Ruby-related
 flags or architecture flags are different then it is likely that something
 has changed in your Ruby environment and the extension may not work until
 you eliminate the discrepancy.
+
+From inside Vim, you can confirm the version of Ruby that it is using by
+issuing this command:
+
+  :ruby puts "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}"
+
+Finally, beware that if you change your installation method for Command-T (for
+example, switching from one plugin manager to another) you should verify that
+you remove all of the files installed by the previous installation method; if
+you fail to do this, Vim may end up executing the old code, invalidating all
+your attempts to get Vim and Command-T using the same version of Ruby.
 
 
 USAGE                                           *command-t-usage*
