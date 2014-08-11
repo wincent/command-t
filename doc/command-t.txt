@@ -302,6 +302,17 @@ repository with:
 
   su -c 'yum install vim-command-t'
 
+                                                       *command-t-appstream*
+AppStream Metadata ~
+
+When preparing a Command-T package for distribution on Linux using Gnome
+Software or another AppStream compatible application, there is a metafile in
+appstream directory.
+
+You can find more about AppStream specification at:
+
+  http://www.freedesktop.org/software/appstream/docs/
+
 
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
 
