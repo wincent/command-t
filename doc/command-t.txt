@@ -302,6 +302,17 @@ repository with:
 
   su -c 'yum install vim-command-t'
 
+                                                         *command-t-appstream*
+AppStream Metadata ~
+
+When preparing Command-T package for Linux distribution, which is using Gnome
+Software or other AppStream compatible application, thehere is available
+metafile in appstream directory.
+
+You can find more about AppStream specification at:
+
+  http://www.freedesktop.org/software/appstream/docs/
+
 
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
 
@@ -1179,6 +1190,7 @@ HISTORY                                         *command-t-history*
 - add |g:CommandTTraverseSCM| setting which anchors Command-T's file finder to
   the nearest SCM directory (based on patches from David Szotten and Ben
   Osheroff)
+- add AppStream metadata (patch from Vít Ondruch)
 
 1.10 (15 July 2014)
 
