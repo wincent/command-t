@@ -765,7 +765,7 @@ Following is a list of all available options:
 
           function! GotoOrOpen(...)
             for file in a:000
-              if bufexists(file)
+              if bufwinnr(file) != -1
                 exec "sb " . file
               else
                 exec "tabe " . file
@@ -776,6 +776,8 @@ Following is a list of all available options:
           command! -nargs=+ GotoOrOpen call GotoOrOpen("<args>")
 
           let g:CommandTAcceptSelectionTabCommand = 'GotoOrOpen'
+
+      For a slightly more comprehensive example, see: https://wt.pe/e
 
                                         *g:CommandTAcceptSelectionSplitCommand*
   |g:CommandTAcceptSelectionSplitCommand| string (default: 'sp')
