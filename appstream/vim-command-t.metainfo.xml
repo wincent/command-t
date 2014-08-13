@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Vít Ondruch <v.ondruch@gmail.com> -->
+<component type="addon">
+<id>vim-command-t</id>
+<extends>gvim.desktop</extends>
+<name>command-t</name>
+<summary>Provides an extremely fast, intuitive mechanism for opening files with a minimal number of keystrokes</summary>
+<url type="homepage">https://wincent.com/products/command-t</url>
+<metadata_license>CC0-1.0</metadata_license>
+<project_license>BSD</project_license>
+<updatecontact>v.ondruch@gmail.com</updatecontact>
+</component>
