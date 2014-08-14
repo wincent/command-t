@@ -16,8 +16,14 @@ describe CommandT::Controller do
       stub_vim '/working/directory'
     end
 
+    def set_string(name, value)
+      stub(::VIM).evaluate(%{exists("#{name}")}).returns(1)
+      stub(::VIM).evaluate(name).returns(value)
+    end
+
     it 'opens relative paths inside the working directory' do
       stub(::VIM).evaluate('a:arg').returns('')
+      set_string('g:CommandTTraverseSCM', 'pwd')
       controller.show_file_finder
       mock(::VIM).command('silent e path/to/selection')
       controller.accept_selection
