@@ -20,7 +20,7 @@ module CommandT
         path = File.expand_path(starting_directory)
         while !markers.
           map { |dir| File.join(path, dir) }.
-          map { |dir| File.directory?(dir) }.
+          map { |dir| File.exist?(dir) }.
           any?
           return nil if path == '/'
           path = File.expand_path(File.join(path, '..'))
