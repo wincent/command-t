@@ -319,7 +319,7 @@ module CommandT
     # for the match.
     #
     def match_with_syntax_highlight match
-      highlight_chars = @prompt.abbrev.downcase.scan(/./mu).to_a
+      highlight_chars = @prompt.abbrev.downcase.scan(/./mu)
       match.scan(/./mu).inject([]) do |output, char|
         if char.downcase == highlight_chars.first
           highlight_chars.shift
