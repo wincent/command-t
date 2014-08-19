@@ -108,6 +108,10 @@ by looking at the output of:
 
   :ruby puts "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}"
 
+Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
+
+  :ruby puts RUBY_VERSION
+
 A suitable Ruby environment for Windows can be installed using the Ruby
 1.8.7-p299 RubyInstaller available at:
 
@@ -356,6 +360,10 @@ From inside Vim, you can confirm the version of Ruby that it is using by
 issuing this command:
 
   :ruby puts "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}"
+
+Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
+
+  :ruby puts RUBY_VERSION
 
 Finally, beware that if you change your installation method for Command-T (for
 example, switching from one plugin manager to another) you should verify that
