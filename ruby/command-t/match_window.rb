@@ -3,6 +3,11 @@
 
 require 'ostruct'
 require 'command-t/settings'
+if RUBY_VERSION=='1.8.5'
+  # refer to https://www.ruby-forum.com/topic/157574
+  require 'jcode'
+end
+
 
 module CommandT
   class MatchWindow
@@ -319,8 +324,8 @@ module CommandT
     # for the match.
     #
     def match_with_syntax_highlight match
-      highlight_chars = @prompt.abbrev.downcase.chars.to_a
-      match.chars.inject([]) do |output, char|
+      highlight_chars = @prompt.abbrev.downcase.each_char.to_a
+      match.each_char.inject([]) do |output, char|
         if char.downcase == highlight_chars.first
           highlight_chars.shift
           output.concat [MH_START, char, MH_END]
