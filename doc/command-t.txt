@@ -1075,7 +1075,8 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta           Marian Schubert         Scott Bronson
+  Abhinav Gupta           Marcus Brito            Ross Lagerwall
+  Aleksandrs Ļedovskis    Marian Schubert         Scott Bronson
   Andy Waite              Matthew Todd            Seth Fowler
   Anthony Panozzo         Mike Lundy              Shlomi Fish
   Artem Nezvigin          Nadav Samet             Steven Moazami
@@ -1089,7 +1090,6 @@ order):
   Jeff Kreeftmeijer       Rainux Luo              Yiding Jia
   Kevin Webster           Richard Feldman         Zak Johnson
   Lucas de Vries          Roland Puntaier
-  Marcus Brito            Ross Lagerwall
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
