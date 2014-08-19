@@ -21,6 +21,7 @@ if have_header('fcntl.h') &&
   have_header('stdint.h') &&
   have_header('sys/errno.h') &&
   have_header('sys/socket.h')
+  RbConfig::MAKEFILE_CONFIG['DEFS'] ||= ''
   RbConfig::MAKEFILE_CONFIG['DEFS'] += ' -DWATCHMAN_BUILD'
 
   have_header('ruby/st.h') # >= 1.9; sets HAVE_RUBY_ST_H
