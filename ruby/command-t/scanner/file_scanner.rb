@@ -54,13 +54,21 @@ module CommandT
     end
 
     def path_excluded?(path, prefix_len = @prefix_len)
-      # if there is no wild_ignore, skip the call to evaluate which can be
-      # expensive for large file lists
-      if @wild_ignore && !@wild_ignore.empty?
+      if apply_wild_ignore?
         # first strip common prefix (@path) from path to match VIM's behavior
         path = path[(prefix_len + 1)..-1]
         path = VIM::escape_for_single_quotes path
         ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+      end
+    end
+
+    # Used to skip expensive calls to `expand()` when there is no applicable
+    # wildignore.
+    def apply_wild_ignore?
+      if @wild_ignore
+        return !@wild_ignore.empty?
+      else
+        return !@base_wild_ignore.empty?
       end
     end
 

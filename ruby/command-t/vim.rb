@@ -23,7 +23,7 @@ module CommandT
     end
 
     def self.wild_ignore
-      exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
+      exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s || ''
     end
 
     def self.current_file_dir
