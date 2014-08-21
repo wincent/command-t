@@ -3,7 +3,7 @@
 
 module CommandT
   module VIM
-    class Window
+    module Window
       class << self
         def select(window)
           return true if $curwin == window
@@ -15,6 +15,6 @@ module CommandT
           end
         end
       end
-    end # class Window
+    end # module Window
   end # module VIM
 end # module CommandT
