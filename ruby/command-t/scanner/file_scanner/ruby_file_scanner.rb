@@ -8,30 +8,26 @@ module CommandT
   class FileScanner
     # Pure Ruby implementation of a file scanner.
     class RubyFileScanner < FileScanner
-      def paths
-        super || begin
-          @paths[@path] = []
-          @depth        = 0
-          @files        = 0
-          set_wild_ignore(@wild_ignore)
-          add_paths_for_directory @path, @paths[@path]
-        rescue FileLimitExceeded
-        ensure
-          set_wild_ignore(@base_wild_ignore)
-        end
-        @paths[@path]
+      def paths!
+        accumulator = []
+        @depth = 0
+        @files = 0
+        add_paths_for_directory(@path, accumulator)
+        accumulator
+      rescue FileLimitExceeded
+        accumulator
       end
 
     private
 
-      def looped_symlink? path
+      def looped_symlink?(path)
         if File.symlink?(path)
           target = File.expand_path(File.readlink(path), File.dirname(path))
           target.include?(@path) || @path.include?(target)
         end
       end
 
-      def add_paths_for_directory dir, accumulator
+      def add_paths_for_directory(dir, accumulator)
         Dir.foreach(dir) do |entry|
           next if ['.', '..'].include?(entry)
           path = File.join(dir, entry)
@@ -45,7 +41,7 @@ module CommandT
               next if (entry.match(/\A\./) && !@scan_dot_directories)
               next if looped_symlink?(path)
               @depth += 1
-              add_paths_for_directory path, accumulator
+              add_paths_for_directory(path, accumulator)
               @depth -= 1
             end
           end

@@ -26,15 +26,11 @@ module CommandT
       @base_wild_ignore     = VIM::wild_ignore
     end
 
-    def prepare_paths
-      ensure_cache_under_limit
-      @prefix_len = @path.chomp('/').length
-    end
-
     def paths
-      @paths[@path] || begin
-        prepare_paths
-        nil
+      @paths[@path] ||= begin
+        ensure_cache_under_limit
+        @prefix_len = @path.chomp('/').length
+        set_wild_ignore { paths! }
       end
     end
 
@@ -43,6 +39,10 @@ module CommandT
     end
 
   private
+
+    def paths!
+      raise RuntimeError, 'subclass responsibility'
+    end
 
     def ensure_cache_under_limit
       # Ruby 1.8 doesn't have an ordered hash, so use a separate stack to
@@ -62,18 +62,21 @@ module CommandT
       end
     end
 
+    def has_custom_wild_ignore?
+      @wild_ignore && !@wild_ignore.empty?
+    end
+
     # Used to skip expensive calls to `expand()` when there is no applicable
     # wildignore.
     def apply_wild_ignore?
-      if @wild_ignore
-        return !@wild_ignore.empty?
-      else
-        return !@base_wild_ignore.empty?
-      end
+      has_custom_wild_ignore? || !@base_wild_ignore.empty?
     end
 
-    def set_wild_ignore(ignore)
-      ::VIM::command("set wildignore=#{ignore}") if @wild_ignore
+    def set_wild_ignore(&block)
+      ::VIM::command("set wildignore=#{@wild_ignore}") if has_custom_wild_ignore?
+      yield
+    ensure
+      ::VIM::command("set wildignore=#{@base_wild_ignore}") if has_custom_wild_ignore?
     end
   end # class FileScanner
 end # module CommandT
