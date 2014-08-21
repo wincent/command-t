@@ -1195,6 +1195,7 @@ HISTORY                                         *command-t-history*
 
 - compatibility fixes with Ruby 1.8.6 (patch from Emily Strickland)
 - compatibility fixes with Ruby 1.8.5
+- fix 'wildignore' being ignored (bug present since 1.11)
 
 1.11 (15 August 2014)
 
