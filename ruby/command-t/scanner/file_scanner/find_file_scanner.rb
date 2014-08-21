@@ -38,7 +38,7 @@ module CommandT
           counter = 1
           stdout.readlines.each do |line|
             next if path_excluded?(line.chomp!)
-            paths << line[@prefix_len + 1..-1]
+            paths << line[@prefix_len..-1]
             break if (counter += 1) > @max_files
           end
         end

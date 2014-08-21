@@ -29,7 +29,7 @@ module CommandT
     def paths
       @paths[@path] ||= begin
         ensure_cache_under_limit
-        @prefix_len = @path.chomp('/').length
+        @prefix_len = @path.chomp('/').length + 1
         set_wild_ignore { paths! }
       end
     end
@@ -56,7 +56,7 @@ module CommandT
     def path_excluded?(path, prefix_len = @prefix_len)
       if apply_wild_ignore?
         # first strip common prefix (@path) from path to match VIM's behavior
-        path = path[(prefix_len + 1)..-1]
+        path = path[prefix_len..-1]
         path = VIM::escape_for_single_quotes path
         ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
       end

@@ -35,7 +35,7 @@ module CommandT
             if File.file?(path)
               @files += 1
               raise FileLimitExceeded if @files > @max_files
-              accumulator << path[@prefix_len + 1..-1]
+              accumulator << path[@prefix_len..-1]
             elsif File.directory?(path)
               next if @depth >= @max_depth
               next if (entry.match(/\A\./) && !@scan_dot_directories)
