@@ -7,12 +7,12 @@ require 'command-t/finder'
 
 module CommandT
   class TagFinder < Finder
-    def initialize options = {}
+    def initialize(options = {})
       @scanner = TagScanner.new options
       @matcher = Matcher.new @scanner, :always_show_dot_files => true
     end
 
-    def open_selection command, selection, options = {}
+    def open_selection(command, selection, options = {})
       if @scanner.include_filenames
         selection = selection[0, selection.index(':')]
       end

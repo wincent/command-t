@@ -9,7 +9,7 @@ module CommandT
 
     private
 
-      def relative_path_under_working_directory path
+      def relative_path_under_working_directory(path)
         # any path under the working directory will be specified as a relative
         # path to improve the readability of the buffer list etc
         pwd = File.expand_path(VIM::pwd) + '/'

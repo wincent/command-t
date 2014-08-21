@@ -6,7 +6,7 @@ require 'ostruct'
 require 'command-t/scanner/buffer_scanner'
 
 describe CommandT::BufferScanner do
-  def buffer name
+  def buffer(name)
     b = OpenStruct.new
     b.name = name
     b

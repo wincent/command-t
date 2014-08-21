@@ -10,7 +10,7 @@ module CommandT
       ::VIM::evaluate('has("syntax")').to_i != 0
     end
 
-    def self.exists? str
+    def self.exists?(str)
       ::VIM::evaluate(%{exists("#{str}")}).to_i != 0
     end
 
@@ -31,7 +31,7 @@ module CommandT
     end
 
     # Execute cmd, capturing the output into a variable and returning it.
-    def self.capture cmd
+    def self.capture(cmd)
       ::VIM::command 'silent redir => g:command_t_captured_output'
       ::VIM::command cmd
       ::VIM::command 'silent redir END'
@@ -40,7 +40,7 @@ module CommandT
 
     # Escape a string for safe inclusion in a Vim single-quoted string
     # (single quotes escaped by doubling, everything else is literal)
-    def self.escape_for_single_quotes str
+    def self.escape_for_single_quotes(str)
       str.gsub "'", "''"
     end
   end # module VIM

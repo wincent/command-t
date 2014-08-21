@@ -13,7 +13,7 @@ module CommandT
     MH_END            = '</commandt>'
     @@buffer          = nil
 
-    def initialize options = {}
+    def initialize(options = {})
       @highlight_color = options[:highlight_color] || 'PmenuSel'
       @min_height      = options[:min_height]
       @prompt          = options[:prompt]
@@ -151,7 +151,7 @@ module CommandT
       show_cursor
     end
 
-    def add! char
+    def add!(char)
       @abbrev += char
     end
 
@@ -167,7 +167,7 @@ module CommandT
       @reverse_list ? _next : _prev
     end
 
-    def matches= matches
+    def matches=(matches)
       if matches != @matches
         @matches = matches
         @selection = 0
@@ -264,7 +264,7 @@ module CommandT
       @window.cursor = [line(@selection), 0]
     end
 
-    def print_error msg
+    def print_error(msg)
       return unless VIM::Window.select(@window)
       unlock
       clear
@@ -296,7 +296,7 @@ module CommandT
       end
     end
 
-    def match_text_for_idx idx
+    def match_text_for_idx(idx)
       match = truncated_match @matches[idx].to_s
       if idx == @selection
         prefix = SELECTION_MARKER
@@ -318,7 +318,7 @@ module CommandT
     # were used by the matching/scoring algorithm to determine the best score
     # for the match.
     #
-    def match_with_syntax_highlight match
+    def match_with_syntax_highlight(match)
       highlight_chars = @prompt.abbrev.downcase.scan(/./mu)
       match.scan(/./mu).inject([]) do |output, char|
         if char.downcase == highlight_chars.first
@@ -373,7 +373,7 @@ module CommandT
 
     # Prepare padding for match text (trailing spaces) so that selection
     # highlighting extends all the way to the right edge of the window.
-    def padding_for_selected_match str
+    def padding_for_selected_match(str)
       len = str.length
       if len >= @window_width - MARKER_LENGTH
         ''
@@ -384,7 +384,7 @@ module CommandT
 
     # Convert "really/long/path" into "really...path" based on available
     # window width.
-    def truncated_match str
+    def truncated_match(str)
       len = str.length
       available_width = @window_width - MARKER_LENGTH
       return str if len <= available_width

@@ -23,7 +23,7 @@ module CommandT
 
   private
 
-    def line_contains_filename? line
+    def line_contains_filename?(line)
       line.split.count > 3
     end
 

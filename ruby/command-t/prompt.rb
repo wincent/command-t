@@ -43,7 +43,7 @@ module CommandT
     end
 
     # Insert a character at (before) the current cursor position.
-    def add! char
+    def add!(char)
       left, cursor, right = abbrev_segments
       @abbrev = left + char + cursor + right
       @col += 1
@@ -145,7 +145,7 @@ module CommandT
       [left, cursor, right]
     end
 
-    def set_status *args
+    def set_status(*args)
       # see ':help :echo' for why forcing a redraw here helps
       # prevent the status line from getting inadvertantly cleared
       # after our echo commands

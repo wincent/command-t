@@ -22,7 +22,7 @@ module CommandT
 
   private
 
-    def warn *msg
+    def warn(*msg)
       ::VIM::command 'echohl WarningMsg'
       msg.each { |m| ::VIM::command "echo '#{m}'" }
       ::VIM::command 'echohl none'

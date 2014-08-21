@@ -130,7 +130,7 @@ module CommandT
       end
     end
 
-    def accept_selection options = {}
+    def accept_selection(options = {})
       selection = @match_window.selection
       hide
       open_selection(selection, options) unless selection.nil?
@@ -289,7 +289,7 @@ module CommandT
     end
 
     # expect a string or a list of strings
-    def get_list_or_string name
+    def get_list_or_string(name)
       return nil unless VIM::exists?(name)
       list_or_string = ::VIM::evaluate("#{name}")
       if list_or_string.kind_of?(Array)
@@ -300,7 +300,7 @@ module CommandT
     end
 
     # Backslash-escape space, \, |, %, #, "
-    def sanitize_path_string str
+    def sanitize_path_string(str)
       # for details on escaping command-line mode arguments see: :h :
       # (that is, help on ":") in the Vim documentation.
       str.gsub(/[ \\|%#"]/, '\\\\\0')
@@ -336,7 +336,7 @@ module CommandT
       end
     end
 
-    def open_selection selection, options = {}
+    def open_selection(selection, options = {})
       command = options[:command] || default_open_command
       selection = File.expand_path selection, @path
       selection = relative_path_under_working_directory selection
@@ -347,7 +347,7 @@ module CommandT
       @active_finder.open_selection command, selection, options
     end
 
-    def map key, function, param = nil
+    def map(key, function, param = nil)
       ::VIM::command "noremap <silent> <buffer> #{key} " \
         ":call CommandT#{function}(#{param})<CR>"
     end

@@ -9,7 +9,7 @@ module CommandT
   class MRUBufferFinder < BufferFinder
     # Override sorted_matches_for to prevent MRU ordered matches from being
     # ordered alphabetically.
-    def sorted_matches_for str, options = {}
+    def sorted_matches_for(str, options = {})
       matches = super(str, options.merge(:sort => false))
 
       # take current buffer (by definition, the most recently used) and move it

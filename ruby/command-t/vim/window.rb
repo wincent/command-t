@@ -4,7 +4,7 @@
 module CommandT
   module VIM
     class Window
-      def self.select window
+      def self.select(window)
         return true if $curwin == window
         initial = $curwin
         while true do

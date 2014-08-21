@@ -13,21 +13,21 @@ module CommandT
   class Finder
     include VIM::PathUtilities
 
-    def initialize path = Dir.pwd, options = {}
+    def initialize(path = Dir.pwd, options = {})
       raise RuntimeError, 'Subclass responsibility'
     end
 
     # Options:
     #   :limit (integer): limit the number of returned matches
-    def sorted_matches_for str, options = {}
+    def sorted_matches_for(str, options = {})
       @matcher.sorted_matches_for str, options
     end
 
-    def open_selection command, selection, options = {}
+    def open_selection(command, selection, options = {})
       ::VIM::command "silent #{command} #{selection}"
     end
 
-    def path= path
+    def path=(path)
       @scanner.path = path
     end
   end # class Finder

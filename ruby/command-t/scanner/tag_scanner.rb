@@ -8,7 +8,7 @@ module CommandT
   class TagScanner < Scanner
     attr_reader :include_filenames
 
-    def initialize options = {}
+    def initialize(options = {})
       @include_filenames = options[:include_filenames] || false
       @cached_tags = nil
     end

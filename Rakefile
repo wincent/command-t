@@ -30,11 +30,11 @@ def clear
   "\033[0m"
 end
 
-def warn str
+def warn(str)
   puts "#{yellow}warning: #{str}#{clear}"
 end
 
-def err str
+def err(str)
   puts "#{red}error: #{str}#{clear}"
 end
 

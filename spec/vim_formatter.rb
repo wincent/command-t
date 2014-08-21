@@ -11,7 +11,7 @@ module Spec
 
         # TODO: handle pending issues
         # TODO: vim-side function for printing progress
-        def dump_failure counter, failure
+        def dump_failure(counter, failure)
           path = failure.exception.backtrace.find do |frame|
             frame =~ %r{\bspec/.*_spec\.rb:\d+\z}
           end
@@ -21,12 +21,12 @@ module Spec
 
         def dump_pending; end
 
-        def dump_summary duration, example_count, failure_count, pending_count
+        def dump_summary(duration, example_count, failure_count, pending_count)
         end
 
       private
 
-        def relativize_path path
+        def relativize_path(path)
           @wd ||= Pathname.new Dir.getwd
           begin
             return Pathname.new(path).relative_path_from(@wd)
