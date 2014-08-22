@@ -2,7 +2,6 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'open3'
-require 'command-t/vim'
 require 'command-t/vim/path_utilities'
 require 'command-t/scanner/file_scanner'
 

@@ -3,7 +3,6 @@
 
 require 'pathname'
 require 'socket'
-require 'command-t/vim'
 require 'command-t/vim/path_utilities'
 require 'command-t/scanner/file_scanner'
 require 'command-t/scanner/file_scanner/find_file_scanner'
