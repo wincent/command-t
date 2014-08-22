@@ -41,7 +41,7 @@ module CommandT
   private
 
     def paths!
-      raise RuntimeError, 'subclass responsibility'
+      raise RuntimeError, 'Subclass responsibility'
     end
 
     def ensure_cache_under_limit
