@@ -50,7 +50,7 @@ module CommandT
       if arg && arg.size > 0
         @path = File.expand_path(arg, VIM::pwd)
       else
-        traverse = get_string('g:CommandTTraverseSCM') || 'file'
+        traverse = VIM::get_string('g:CommandTTraverseSCM') || 'file'
         case traverse
         when 'file'
           @path = nearest_ancestor(VIM::current_file_dir, scm_markers)
@@ -203,21 +203,21 @@ module CommandT
     end
 
     def tab_command
-      get_string('g:CommandTAcceptSelectionTabCommand') || 'tabe'
+      VIM::get_string('g:CommandTAcceptSelectionTabCommand') || 'tabe'
     end
 
     def split_command
-      get_string('g:CommandTAcceptSelectionSplitCommand') || 'sp'
+      VIM::get_string('g:CommandTAcceptSelectionSplitCommand') || 'sp'
     end
 
     def vsplit_command
-      get_string('g:CommandTAcceptSelectionVSplitCommand') || 'vs'
+      VIM::get_string('g:CommandTAcceptSelectionVSplitCommand') || 'vs'
     end
 
   private
 
     def scm_markers
-      markers = get_string('g:CommandTSCMDirectories')
+      markers = VIM::get_string('g:CommandTSCMDirectories')
       markers = markers && markers.split(/\s*,\s*/)
       markers = %w[.git .hg .svn .bzr _darcs] unless markers && markers.length
       markers
@@ -231,11 +231,11 @@ module CommandT
       @initial_window   = $curwin
       @initial_buffer   = $curbuf
       @match_window     = MatchWindow.new \
-        :highlight_color      => get_string('g:CommandTHighlightColor'),
-        :match_window_at_top  => get_bool('g:CommandTMatchWindowAtTop'),
-        :match_window_reverse => get_bool('g:CommandTMatchWindowReverse'),
+        :highlight_color      => VIM::get_string('g:CommandTHighlightColor'),
+        :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
+        :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse'),
         :min_height           => min_height,
-        :debounce_interval    => get_number('g:CommandTInputDebounce', 50),
+        :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 50,
         :prompt               => @prompt
       @focus            = @prompt
       @prompt.focus
@@ -245,12 +245,12 @@ module CommandT
     end
 
     def max_height
-      @max_height ||= get_number('g:CommandTMaxHeight', 0)
+      @max_height ||= VIM::get_number('g:CommandTMaxHeight') || 0
     end
 
     def min_height
       @min_height ||= begin
-        min_height = get_number('g:CommandTMinHeight', 0)
+        min_height = VIM::get_number('g:CommandTMinHeight') || 0
         min_height = max_height if max_height != 0 && min_height > max_height
         min_height
       end
@@ -259,9 +259,9 @@ module CommandT
     def case_sensitive?
       if @prompt.abbrev.match(/[A-Z]/)
         if VIM::exists?('g:CommandTSmartCase')
-          smart_case = get_bool('g:CommandTSmartCase')
+          smart_case = VIM::get_bool('g:CommandTSmartCase')
         else
-          smart_case = get_bool('&smartcase')
+          smart_case = VIM::get_bool('&smartcase')
         end
 
         if smart_case
@@ -270,33 +270,10 @@ module CommandT
       end
 
       if VIM::exists?('g:CommandTIgnoreCase')
-        return !get_bool('g:CommandTIgnoreCase')
+        return !VIM::get_bool('g:CommandTIgnoreCase')
       end
 
       false
-    end
-
-    def get_number(name, default = nil)
-      VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_i : default
-    end
-
-    def get_bool(name)
-      VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_i != 0 : nil
-    end
-
-    def get_string(name)
-      VIM::exists?(name) ? ::VIM::evaluate("#{name}").to_s : nil
-    end
-
-    # expect a string or a list of strings
-    def get_list_or_string(name)
-      return nil unless VIM::exists?(name)
-      list_or_string = ::VIM::evaluate("#{name}")
-      if list_or_string.kind_of?(Array)
-        list_or_string.map { |item| item.to_s }
-      else
-        list_or_string.to_s
-      end
     end
 
     # Backslash-escape space, \, |, %, #, "
@@ -307,10 +284,10 @@ module CommandT
     end
 
     def default_open_command
-      if !get_bool('&modified') ||
-        get_bool('&hidden') ||
-        get_bool('&autowriteall') && !get_bool('&readonly')
-        get_string('g:CommandTAcceptSelectionCommand') || 'e'
+      if !VIM::get_bool('&modified') ||
+        VIM::get_bool('&hidden') ||
+        VIM::get_bool('&autowriteall') && !VIM::get_bool('&readonly')
+        VIM::get_string('g:CommandTAcceptSelectionCommand') || 'e'
       else
         'sp'
       end
@@ -387,7 +364,7 @@ module CommandT
         'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
         'ToggleFocus'           => '<Tab>',
       }.each do |key, value|
-        if override = get_list_or_string("g:CommandT#{key}Map")
+        if override = VIM::get_list_or_string("g:CommandT#{key}Map")
           Array(override).each do |mapping|
             map mapping, key
           end
@@ -430,14 +407,14 @@ module CommandT
 
     def file_finder
       @file_finder ||= CommandT::FileFinder.new nil,
-        :max_depth              => get_number('g:CommandTMaxDepth'),
-        :max_files              => get_number('g:CommandTMaxFiles'),
-        :max_caches             => get_number('g:CommandTMaxCachedDirectories'),
-        :always_show_dot_files  => get_bool('g:CommandTAlwaysShowDotFiles'),
-        :never_show_dot_files   => get_bool('g:CommandTNeverShowDotFiles'),
-        :scan_dot_directories   => get_bool('g:CommandTScanDotDirectories'),
-        :wild_ignore            => get_string('g:CommandTWildIgnore'),
-        :scanner                => get_string('g:CommandTFileScanner')
+        :max_depth              => VIM::get_number('g:CommandTMaxDepth'),
+        :max_files              => VIM::get_number('g:CommandTMaxFiles'),
+        :max_caches             => VIM::get_number('g:CommandTMaxCachedDirectories'),
+        :always_show_dot_files  => VIM::get_bool('g:CommandTAlwaysShowDotFiles'),
+        :never_show_dot_files   => VIM::get_bool('g:CommandTNeverShowDotFiles'),
+        :scan_dot_directories   => VIM::get_bool('g:CommandTScanDotDirectories'),
+        :wild_ignore            => VIM::get_string('g:CommandTWildIgnore'),
+        :scanner                => VIM::get_string('g:CommandTFileScanner')
     end
 
     def jump_finder
@@ -446,7 +423,7 @@ module CommandT
 
     def tag_finder
       @tag_finder ||= CommandT::TagFinder.new \
-        :include_filenames => get_bool('g:CommandTTagIncludeFilenames')
+        :include_filenames => VIM::get_bool('g:CommandTTagIncludeFilenames')
     end
   end # class Controller
 end # module CommandT

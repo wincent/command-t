@@ -1,6 +1,8 @@
 # Copyright 2010-2014 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
+require 'command-t/vim'
+
 module CommandT
   # Convenience class for saving and restoring global settings.
   class Settings
@@ -52,13 +54,13 @@ module CommandT
 
       case value
       when TrueClass, FalseClass
-        @settings.push([setting, get_bool(setting)]) if global?(setting)
+        @settings.push([setting, VIM::get_bool("&#{setting}")]) if global?(setting)
         set_bool setting, value
       when Numeric
-        @settings.push([setting, get_number(setting)]) if global?(setting)
+        @settings.push([setting, VIM::get_number("&#{setting}")]) if global?(setting)
         set_number setting, value
       when String
-        @settings.push([setting, get_string(setting)]) if global?(setting)
+        @settings.push([setting, VIM::get_string("&#{setting}")]) if global?(setting)
         set_string setting, value
       end
     end
@@ -80,18 +82,6 @@ module CommandT
 
     def global?(setting)
       GLOBAL_SETTINGS.include?(setting)
-    end
-
-    def get_bool(setting)
-      ::VIM::evaluate("&#{setting}").to_i == 1
-    end
-
-    def get_number(setting)
-      ::VIM::evaluate("&#{setting}").to_i
-    end
-
-    def get_string(name)
-      ::VIM::evaluate("&#{name}").to_s
     end
 
     def set_bool(setting, value)

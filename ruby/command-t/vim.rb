@@ -22,6 +22,29 @@ module CommandT
         ::VIM::evaluate(%{exists("#{str}")}).to_i != 0
       end
 
+      def get_number(name)
+        exists?(name) ? ::VIM::evaluate("#{name}").to_i : nil
+      end
+
+      def get_bool(name)
+        exists?(name) ? ::VIM::evaluate("#{name}").to_i != 0 : nil
+      end
+
+      def get_string(name)
+        exists?(name) ? ::VIM::evaluate("#{name}").to_s : nil
+      end
+
+      # expect a string or a list of strings
+      def get_list_or_string(name)
+        return nil unless exists?(name)
+        list_or_string = ::VIM::evaluate("#{name}")
+        if list_or_string.kind_of?(Array)
+          list_or_string.map { |item| item.to_s }
+        else
+          list_or_string.to_s
+        end
+      end
+
       def pwd
         ::VIM::evaluate 'getcwd()'
       end
