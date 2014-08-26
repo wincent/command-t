@@ -7,16 +7,19 @@ require 'command-t/vim/window'
 module CommandT
   module VIM
     class << self
-      def has_syntax?
-        ::VIM::evaluate('has("syntax")').to_i != 0
+      # Check for the existence of a feature such as "conceal" or "syntax".
+      def has?(feature)
+        ::VIM::evaluate(%{has("#{feature}")}).to_i != 0
       end
 
+      # Check for the presence of a setting such as:
+      #
+      #   - g:CommandTSmartCase (plug-in setting)
+      #   - &wildignore         (Vim setting)
+      #   - +cursorcolumn       (Vim setting, that works)
+      #
       def exists?(str)
         ::VIM::evaluate(%{exists("#{str}")}).to_i != 0
-      end
-
-      def has_conceal?
-        ::VIM::evaluate('has("conceal")').to_i != 0
       end
 
       def pwd

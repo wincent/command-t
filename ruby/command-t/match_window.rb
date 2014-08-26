@@ -74,13 +74,13 @@ module CommandT
       end
 
       # syntax coloring
-      if VIM::has_syntax?
+      if VIM::has?('syntax')
         ::VIM::command "syntax match CommandTSelection \"^#{SELECTION_MARKER}.\\+$\""
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO MATCHES --$"'
         ::VIM::command 'syntax match CommandTNoEntries "^-- NO SUCH FILE OR DIRECTORY --$"'
         set 'synmaxcol', 9999
 
-        if VIM::has_conceal?
+        if VIM::has?('conceal')
           set 'conceallevel', 2
           set 'concealcursor', 'nvic'
           ::VIM::command 'syntax region CommandTCharMatched ' \
@@ -179,7 +179,7 @@ module CommandT
     def focus
       unless @has_focus
         @has_focus = true
-        if VIM::has_syntax?
+        if VIM::has?('syntax')
           ::VIM::command 'highlight link CommandTSelection Search'
         end
       end
@@ -188,7 +188,7 @@ module CommandT
     def unfocus
       if @has_focus
         @has_focus = false
-        if VIM::has_syntax?
+        if VIM::has?('syntax')
           ::VIM::command "highlight link CommandTSelection #{@highlight_color}"
         end
       end
@@ -302,7 +302,7 @@ module CommandT
         prefix = SELECTION_MARKER
         suffix = padding_for_selected_match match
       else
-        if VIM::has_syntax? && VIM::has_conceal?
+        if VIM::has?('syntax') && VIM::has?('conceal')
           match = match_with_syntax_highlight match
         end
         prefix = UNSELECTED_MARKER
