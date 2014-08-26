@@ -22,7 +22,7 @@ module CommandT
       @max_caches           = options[:max_caches] || 1
       @scan_dot_directories = options[:scan_dot_directories] || false
       @wild_ignore          = options[:wild_ignore]
-      @base_wild_ignore     = VIM::wild_ignore
+      @base_wild_ignore     = wild_ignore
     end
 
     def paths
@@ -38,6 +38,10 @@ module CommandT
     end
 
   private
+
+    def wild_ignore
+      VIM::exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
+    end
 
     def paths!
       raise RuntimeError, 'Subclass responsibility'
@@ -68,7 +72,7 @@ module CommandT
     # Used to skip expensive calls to `expand()` when there is no applicable
     # wildignore.
     def apply_wild_ignore?
-      has_custom_wild_ignore? || !@base_wild_ignore.empty?
+      has_custom_wild_ignore? || @base_wild_ignore
     end
 
     def set_wild_ignore(&block)

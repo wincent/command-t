@@ -26,10 +26,6 @@ module CommandT
         ::VIM::evaluate 'getcwd()'
       end
 
-      def wild_ignore
-        exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s || ''
-      end
-
       def current_file_dir
         ::VIM::evaluate 'expand("%:p:h")'
       end
