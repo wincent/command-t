@@ -19,8 +19,8 @@ module CommandT
 
       # take current buffer (by definition, the most recently used) and move it
       # to the end of the results
-      if MRU.stack.last &&
-        relative_path_under_working_directory(MRU.stack.last.name) == matches.first
+      if MRU.last &&
+        relative_path_under_working_directory(MRU.last.name) == matches.first
         matches[1..-1] + [matches.first]
       else
         matches

@@ -10,6 +10,11 @@ module CommandT
         @stack ||= []
       end
 
+      # The (last) most recent buffer in the stack, if any.
+      def last
+        stack.last
+      end
+
       # Mark the current buffer as having been used, effectively moving it to
       # the top of the stack.
       def touch
