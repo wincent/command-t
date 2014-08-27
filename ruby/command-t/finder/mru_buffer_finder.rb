@@ -7,6 +7,11 @@ require 'command-t/finder/buffer_finder'
 
 module CommandT
   class MRUBufferFinder < BufferFinder
+    def initialize
+      @scanner = MRUBufferScanner.new
+      @matcher = Matcher.new @scanner, :always_show_dot_files => true
+    end
+
     # Override sorted_matches_for to prevent MRU ordered matches from being
     # ordered alphabetically.
     def sorted_matches_for(str, options = {})
@@ -20,11 +25,6 @@ module CommandT
       else
         matches
       end
-    end
-
-    def initialize
-      @scanner = MRUBufferScanner.new
-      @matcher = Matcher.new @scanner, :always_show_dot_files => true
     end
   end # class MRUBufferFinder
 end # CommandT
