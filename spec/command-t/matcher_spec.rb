@@ -197,5 +197,23 @@ describe CommandT::Matcher do
       matcher = matcher(*%w[ab])
       matcher.sorted_matches_for('aa').should == []
     end
+
+    it 'ignores dotfiles by default' do
+      matcher = matcher(*%w[.foo .bar])
+      matcher.sorted_matches_for('foo').should == []
+    end
+
+    it 'shows dotfiles if the query starts with a dot' do
+      matcher = matcher(*%w[.foo .bar])
+      matcher.sorted_matches_for('.fo').should == %w[.foo]
+    end
+
+    it "doesn't show dotfiles if the query contains a non-leading dot" do
+      matcher = matcher(*%w[.foo.txt .bar.txt])
+      matcher.sorted_matches_for('f.t').should == []
+
+      # counter-example
+      matcher.sorted_matches_for('.f.t').should == %w[.foo.txt]
+    end
   end
 end
