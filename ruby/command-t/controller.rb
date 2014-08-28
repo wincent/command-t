@@ -56,10 +56,11 @@ module CommandT
           @path = nearest_ancestor(VIM::current_file_dir, scm_markers)
         when 'dir'
           @path = nearest_ancestor(VIM::pwd, scm_markers)
+        else
+          @path = VIM::pwd
         end
       end
 
-      @path             = VIM::pwd unless @path
       @active_finder    = file_finder
       file_finder.path  = @path
       show
