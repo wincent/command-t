@@ -1215,7 +1215,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.11.1 (unreleased)
+1.11.1 (29 August 2014)
 
 - compatibility fixes with Ruby 1.8.6 (patch from Emily Strickland)
 - compatibility fixes with Ruby 1.8.5
