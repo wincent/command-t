@@ -1215,6 +1215,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.11.2 (2 September 2014)
+
+- fix error while using Command-T outside of an SCM repo (bug present since
+  1.11.1)
+
 1.11.1 (29 August 2014)
 
 - compatibility fixes with Ruby 1.8.6 (patch from Emily Strickland)
