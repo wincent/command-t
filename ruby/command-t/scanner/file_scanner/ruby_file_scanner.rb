@@ -47,6 +47,8 @@ module CommandT
         end
       rescue Errno::EACCES
         # skip over directories for which we don't have access
+      rescue ArgumentError
+        # skip over bad file names
       end
     end # class RubyFileScanner
   end # class FileScanner
