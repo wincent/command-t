@@ -1107,21 +1107,22 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta           Lucas de Vries          Roland Puntaier
-  Aleksandrs Ļedovskis    Marcus Brito            Ross Lagerwall
-  Andy Waite              Marian Schubert         Scott Bronson
-  Anthony Panozzo         Matthew Todd            Seth Fowler
-  Artem Nezvigin          Mike Lundy              Shlomi Fish
-  Ben Osheroff            Nadav Samet             Steven Moazami
-  Daniel Hahler           Nate Kane               Sung Pae
-  David Szotten           Nicholas Alpi           Thomas Pelletier
-  Emily Strickland        Noon Silk               Ton van den Heuvel
-  Felix Tjandrawibawa     Ole Petter Bang         Victor Hugo Borja
-  Gary Bernhardt          Patrick Hayes           Vít Ondruch
-  Ivan Ukhov              Paul Jolly              Woody Peterson
-  Jacek Wysocki           Pavel Sergeev           Yan Pritzker
-  Jeff Kreeftmeijer       Rainux Luo              Yiding Jia
-  Kevin Webster           Richard Feldman         Zak Johnson
+  Abhinav Gupta           Marcus Brito            Scott Bronson
+  Aleksandrs Ļedovskis    Marian Schubert         Seth Fowler
+  Andy Waite              Matthew Todd            Sherzod Gapirov
+  Anthony Panozzo         Mike Lundy              Shlomi Fish
+  Artem Nezvigin          Nadav Samet             Steven Moazami
+  Ben Osheroff            Nate Kane               Sung Pae
+  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
+  David Szotten           Noon Silk               Ton van den Heuvel
+  Emily Strickland        Ole Petter Bang         Victor Hugo Borja
+  Felix Tjandrawibawa     Patrick Hayes           Vít Ondruch
+  Gary Bernhardt          Paul Jolly              Woody Peterson
+  Ivan Ukhov              Pavel Sergeev           Yan Pritzker
+  Jacek Wysocki           Rainux Luo              Yiding Jia
+  Jeff Kreeftmeijer       Richard Feldman         Zak Johnson
+  Kevin Webster           Roland Puntaier
+  Lucas de Vries          Ross Lagerwall
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1214,6 +1215,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.11.3 (not yet released)
+
+- ignore impromperly encoded filenames (patch from Sherzod Gapirov)
 
 1.11.2 (2 September 2014)
 
