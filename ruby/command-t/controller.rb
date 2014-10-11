@@ -53,12 +53,12 @@ module CommandT
         traverse = VIM::get_string('g:CommandTTraverseSCM') || 'file'
         case traverse
         when 'file'
-          @path = nearest_ancestor(VIM::current_file_dir, scm_markers)
+          @path = nearest_ancestor(VIM::current_file_dir, scm_markers) || VIM::pwd
         when 'dir'
-          @path = nearest_ancestor(VIM::pwd, scm_markers)
+          @path = nearest_ancestor(VIM::pwd, scm_markers) || VIM::pwd
+        else
+          @path = VIM::pwd
         end
-
-        @path = VIM::pwd unless @path
       end
 
       @active_finder    = file_finder
