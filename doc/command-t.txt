@@ -1216,9 +1216,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.11.3 (not yet released)
+1.11.3 (10 October 2014)
 
 - ignore impromperly encoded filenames (patch from Sherzod Gapirov)
+- fix failure to update path when using |:cd| in conjunction with
+  |g:CommandTTraverseSCM| set to "pwd" (bug present since 1.11.2)
 
 1.11.2 (2 September 2014)
 
