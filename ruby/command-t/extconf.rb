@@ -1,7 +1,16 @@
 # Copyright 2010-2014 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
-require 'mkmf'
+begin
+  require 'mkmf'
+rescue LoadError
+  puts <<-DOC.gsub(/^\s+/, '')
+    Unable to require "mkmf"; you may need to install Ruby development tools
+    (depending on your system, a "ruby-dev"/"ruby-devel" package or similar).
+    [exiting]
+  DOC
+  exit 1
+end
 
 def header(item)
   unless find_header(item)
