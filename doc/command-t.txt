@@ -112,6 +112,11 @@ Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
 
   :ruby puts RUBY_VERSION
 
+Some Linux distributions package Ruby development tools separately from Ruby
+itself; if you're using such a system you may need to install the "ruby-dev",
+"ruby-devel" or similar package using your system's package manager in order
+to build Command-T.
+
 A suitable Ruby environment for Windows can be installed using the Ruby
 1.8.7-p299 RubyInstaller available at:
 
