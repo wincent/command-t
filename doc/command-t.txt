@@ -1221,6 +1221,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+1.11.4 (not yet released)
+
+- fix infinite loop on Windows when |g:CommandTTraverseSCM| is set to a value
+  other than "pwd" (bug present since 1.11)
+
 1.11.3 (10 October 2014)
 
 - ignore impromperly encoded filenames (patch from Sherzod Gapirov)

@@ -22,8 +22,9 @@ module CommandT
           map { |dir| File.join(path, dir) }.
           map { |dir| File.exist?(dir) }.
           any?
-          return nil if path == '/'
-          path = File.expand_path(File.join(path, '..'))
+          next_path = File.expand_path(File.join(path, '..'))
+          return nil if next_path == path
+          path = next_path
         end
         path
       end
