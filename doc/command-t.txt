@@ -1221,10 +1221,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-1.11.4 (not yet released)
+1.11.4 (4 November 2014)
 
 - fix infinite loop on Windows when |g:CommandTTraverseSCM| is set to a value
   other than "pwd" (bug present since 1.11)
+- handle unwanted split edgecase when |'hidden'| is set, the current buffer is
+  modified, and it is visible in more than one window
 
 1.11.3 (10 October 2014)
 

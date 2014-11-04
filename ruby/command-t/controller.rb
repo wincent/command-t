@@ -284,10 +284,19 @@ module CommandT
       str.gsub(/[ \\|%#"]/, '\\\\\0')
     end
 
+    def current_buffer_visible_in_other_window
+      count = (0...::VIM::Window.count).to_a.inject(0) do |acc, i|
+        acc += 1 if ::VIM::Window[i].buffer.number == $curbuf.number
+        acc
+      end
+      count > 1
+    end
+
     def default_open_command
       if !VIM::get_bool('&modified') ||
         VIM::get_bool('&hidden') ||
-        VIM::get_bool('&autowriteall') && !VIM::get_bool('&readonly')
+        VIM::get_bool('&autowriteall') && !VIM::get_bool('&readonly') ||
+        current_buffer_visible_in_other_window
         VIM::get_string('g:CommandTAcceptSelectionCommand') || 'e'
       else
         'sp'
