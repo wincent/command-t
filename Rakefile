@@ -131,22 +131,6 @@ task :make do
   end
 end
 
-namespace :make do
-  desc 'Compile under all multiruby versions'
-  task :all do
-    system './compile-test.sh'
-    bail_on_failure
-  end
-end
-
-namespace :spec do
-  desc 'Run specs under all multiruby versions'
-  task :all do
-    system './multi-spec.sh'
-    bail_on_failure
-  end
-end
-
 desc 'Check that the current HEAD is tagged'
 task :check_tag do
   unless system 'git describe --exact-match HEAD 2> /dev/null'
@@ -155,7 +139,7 @@ task :check_tag do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => ['make:all', 'spec:all', :vimball, :check_tag]
+task :prerelease => ['make', 'spec', :vimball, :check_tag]
 
 namespace :upload do
   desc 'Upload current vimball to Amazon S3'
