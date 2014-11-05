@@ -8,12 +8,14 @@ require 'command-t/finder/mru_buffer_finder'
 require 'command-t/finder/tag_finder'
 require 'command-t/match_window'
 require 'command-t/prompt'
+require 'command-t/scm_utilities'
 require 'command-t/vim/path_utilities'
 require 'command-t/util'
 
 module CommandT
   class Controller
     include VIM::PathUtilities
+    include SCMUtilities
 
     def initialize
       @prompt = Prompt.new

@@ -16,19 +16,6 @@ module CommandT
         path.index(pwd) == 0 ? path[pwd.length..-1] : path
       end
 
-      def nearest_ancestor(starting_directory, markers)
-        path = File.expand_path(starting_directory)
-        while !markers.
-          map { |dir| File.join(path, dir) }.
-          map { |dir| File.exist?(dir) }.
-          any?
-          next_path = File.expand_path(File.join(path, '..'))
-          return nil if next_path == path
-          path = next_path
-        end
-        path
-      end
-
     end # module PathUtilities
   end # module VIM
 end # module CommandT
