@@ -2,6 +2,7 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'command-t/ext' # CommandT::Matcher
+require 'command-t/path_utilities'
 
 module CommandT
   # Encapsulates a Scanner instance (which builds up a list of available files
@@ -11,7 +12,7 @@ module CommandT
   # Specialized subclasses use different kinds of scanners adapted for
   # different kinds of search (files, buffers).
   class Finder
-    include VIM::PathUtilities
+    include PathUtilities
 
     def initialize(path = Dir.pwd, options = {})
       raise RuntimeError, 'Subclass responsibility'

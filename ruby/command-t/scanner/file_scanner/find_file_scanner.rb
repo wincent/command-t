@@ -2,14 +2,14 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'open3'
-require 'command-t/vim/path_utilities'
+require 'command-t/path_utilities'
 require 'command-t/scanner/file_scanner'
 
 module CommandT
   class FileScanner
     # A FileScanner which shells out to the `find` executable in order to scan.
     class FindFileScanner < FileScanner
-      include VIM::PathUtilities
+      include PathUtilities
 
       def paths!
         # temporarily set field separator to NUL byte; this setting is
