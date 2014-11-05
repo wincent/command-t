@@ -2,14 +2,14 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'command-t/ext' # CommandT::Matcher
-require 'command-t/scanner/buffer_scanner'
-require 'command-t/finder'
 
 module CommandT
-  class BufferFinder < Finder
-    def initialize
-      @scanner = BufferScanner.new
-      @matcher = Matcher.new @scanner, :always_show_dot_files => true
-    end
-  end # class BufferFinder
+  class Finder
+    class BufferFinder < Finder
+      def initialize
+        @scanner = Scanner::BufferScanner.new
+        @matcher = Matcher.new @scanner, :always_show_dot_files => true
+      end
+    end # class BufferFinder
+  end # class Finder
 end # CommandT

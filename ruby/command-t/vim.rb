@@ -1,11 +1,11 @@
 # Copyright 2010-2014 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
-require 'command-t/vim/screen'
-require 'command-t/vim/window'
-
 module CommandT
   module VIM
+    autoload :Screen, 'command-t/vim/screen'
+    autoload :Window, 'command-t/vim/window'
+
     class << self
       # Check for the existence of a feature such as "conceal" or "syntax".
       def has?(feature)

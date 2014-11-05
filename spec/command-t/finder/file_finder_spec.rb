@@ -2,11 +2,10 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
-require 'command-t/finder/file_finder'
 
-describe CommandT::FileFinder do
+describe CommandT::Finder::FileFinder do
   before :all do
-    @finder = CommandT::FileFinder.new File.join(File.dirname(__FILE__), '..',
+    @finder = CommandT::Finder::FileFinder.new File.join(File.dirname(__FILE__), '..',
       '..', '..', 'fixtures')
     @all_fixtures = %w(
       bar/abc

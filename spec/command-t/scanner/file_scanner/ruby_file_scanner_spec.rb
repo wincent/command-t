@@ -2,15 +2,14 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
-require 'command-t/scanner/file_scanner/ruby_file_scanner'
 
-describe CommandT::FileScanner::RubyFileScanner do
+describe CommandT::Scanner::FileScanner::RubyFileScanner do
   before do
     @dir = File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'fixtures')
     @all_fixtures = %w(
       bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta
     )
-    @scanner = CommandT::FileScanner::RubyFileScanner.new(@dir)
+    @scanner = CommandT::Scanner::FileScanner::RubyFileScanner.new(@dir)
 
     stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
@@ -42,7 +41,7 @@ describe CommandT::FileScanner::RubyFileScanner do
       it "calls on VIM's expand() function for pattern filtering" do
         stub(::VIM).command(/set wildignore/)
         scanner =
-          CommandT::FileScanner::RubyFileScanner.new @dir, :wild_ignore => '*.o'
+          CommandT::Scanner::FileScanner::RubyFileScanner.new @dir, :wild_ignore => '*.o'
         mock(::VIM).evaluate(/expand\(.+\)/).times(10)
         scanner.paths
       end
@@ -50,7 +49,7 @@ describe CommandT::FileScanner::RubyFileScanner do
 
     context "when there is no 'wildignore' setting in effect" do
       it "does not call VIM's expand() function" do
-        scanner = CommandT::FileScanner::RubyFileScanner.new @dir
+        scanner = CommandT::Scanner::FileScanner::RubyFileScanner.new @dir
         mock(::VIM).evaluate(/expand\(.+\)/).never
         scanner.paths
       end
@@ -59,7 +58,7 @@ describe CommandT::FileScanner::RubyFileScanner do
 
   describe ':max_depth option' do
     it 'does not descend below "max_depth" levels' do
-      @scanner = CommandT::FileScanner::RubyFileScanner.new @dir, :max_depth => 1
+      @scanner = CommandT::Scanner::FileScanner::RubyFileScanner.new @dir, :max_depth => 1
       @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
     end
   end

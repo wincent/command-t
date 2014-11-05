@@ -2,7 +2,6 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
-require 'command-t/vim'
 
 describe CommandT::VIM do
   describe '.escape_for_single_quotes' do

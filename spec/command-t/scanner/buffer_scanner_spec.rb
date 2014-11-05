@@ -3,9 +3,8 @@
 
 require 'spec_helper'
 require 'ostruct'
-require 'command-t/scanner/buffer_scanner'
 
-describe CommandT::BufferScanner do
+describe CommandT::Scanner::BufferScanner do
   def buffer(name)
     b = OpenStruct.new
     b.name = name
@@ -14,7 +13,7 @@ describe CommandT::BufferScanner do
 
   before do
     @paths = %w(bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta)
-    @scanner = CommandT::BufferScanner.new
+    @scanner = CommandT::Scanner::BufferScanner.new
     stub(@scanner).relative_path_under_working_directory(is_a(String)) { |arg| arg }
     stub(::VIM::Buffer).count { 7 }
     (0..6).each do |n|

@@ -154,9 +154,7 @@ augroup END
 ruby << EOF
   # require Ruby files
   begin
-    require 'command-t/mru'
-    require 'command-t/vim'
-    require 'command-t/controller'
+    require 'command-t'
     $command_t = CommandT::Controller.new
   rescue LoadError
     load_path_modified = false
@@ -171,7 +169,6 @@ ruby << EOF
 
     # could get here if C extension was not compiled, or was compiled
     # for the wrong architecture or Ruby version
-    require 'command-t/stub'
     $command_t = CommandT::Stub.new
   end
 EOF

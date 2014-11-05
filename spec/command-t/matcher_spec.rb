@@ -3,8 +3,7 @@
 
 require 'spec_helper'
 require 'ostruct'
-require 'command-t/scanner'
-require 'command-t/ext'
+require 'command-t/ext' # CommandT::Matcher
 
 describe CommandT::Matcher do
   def matcher(*paths)

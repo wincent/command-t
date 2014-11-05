@@ -2,13 +2,12 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
-require 'command-t/finder/buffer_finder'
 
-describe CommandT::BufferFinder do
+describe CommandT::Finder::BufferFinder do
   before do
     @paths = %w(.git/config .vim/notes .vimrc baz foo/beta)
-    any_instance_of(CommandT::BufferScanner, :paths => @paths)
-    @finder = CommandT::BufferFinder.new
+    any_instance_of(CommandT::Scanner::BufferScanner, :paths => @paths)
+    @finder = CommandT::Finder::BufferFinder.new
   end
 
   describe 'sorted_matches_for method' do

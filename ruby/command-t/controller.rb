@@ -1,17 +1,6 @@
 # Copyright 2010-2014 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
-require 'command-t/finder/buffer_finder'
-require 'command-t/finder/jump_finder'
-require 'command-t/finder/file_finder'
-require 'command-t/finder/mru_buffer_finder'
-require 'command-t/finder/tag_finder'
-require 'command-t/match_window'
-require 'command-t/path_utilities'
-require 'command-t/prompt'
-require 'command-t/scm_utilities'
-require 'command-t/util'
-
 module CommandT
   class Controller
     include PathUtilities
@@ -410,15 +399,15 @@ module CommandT
     end
 
     def buffer_finder
-      @buffer_finder ||= CommandT::BufferFinder.new
+      @buffer_finder ||= CommandT::Finder::BufferFinder.new
     end
 
     def mru_finder
-      @mru_finder ||= CommandT::MRUBufferFinder.new
+      @mru_finder ||= CommandT::Finder::MRUBufferFinder.new
     end
 
     def file_finder
-      @file_finder ||= CommandT::FileFinder.new nil,
+      @file_finder ||= CommandT::Finder::FileFinder.new nil,
         :max_depth              => VIM::get_number('g:CommandTMaxDepth'),
         :max_files              => VIM::get_number('g:CommandTMaxFiles'),
         :max_caches             => VIM::get_number('g:CommandTMaxCachedDirectories'),
@@ -430,11 +419,11 @@ module CommandT
     end
 
     def jump_finder
-      @jump_finder ||= CommandT::JumpFinder.new
+      @jump_finder ||= CommandT::Finder::JumpFinder.new
     end
 
     def tag_finder
-      @tag_finder ||= CommandT::TagFinder.new \
+      @tag_finder ||= CommandT::Finder::TagFinder.new \
         :include_filenames => VIM::get_bool('g:CommandTTagIncludeFilenames')
     end
   end # class Controller

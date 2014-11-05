@@ -2,7 +2,6 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
-require 'command-t/controller'
 
 describe CommandT::Controller do
   describe 'accept selection' do
@@ -51,10 +50,10 @@ describe CommandT::Controller do
   end
 
   def stub_finder(sorted_matches=[])
-    finder = CommandT::FileFinder.new
+    finder = CommandT::Finder::FileFinder.new
     stub(finder).path = anything
     stub(finder).sorted_matches_for(anything, anything).returns(sorted_matches)
-    stub(CommandT::FileFinder).new.returns(finder)
+    stub(CommandT::Finder::FileFinder).new.returns(finder)
   end
 
   def stub_match_window(selection)

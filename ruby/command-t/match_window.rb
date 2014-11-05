@@ -2,7 +2,6 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'ostruct'
-require 'command-t/settings'
 
 module CommandT
   class MatchWindow
