@@ -150,7 +150,7 @@ module CommandT
       # prevent the status line from getting inadvertantly cleared
       # after our echo commands
       ::VIM::command 'redraw'
-      while (highlight = args.shift) and  (text = args.shift) do
+      while (highlight = args.shift) && (text = args.shift)
         text = VIM::escape_for_single_quotes text
         ::VIM::command "echohl #{highlight}"
         ::VIM::command "echon '#{text}'"

@@ -47,7 +47,7 @@ def prepare_release_notes
       break unless lines.shift == '' &&
                   (line = lines.shift) && line =~ /^\d\.\d/ &&
                   lines.shift == ''
-      while line = lines.shift and line != ''
+      while line = lines.shift && line != ''
         out.puts line
       end
       break

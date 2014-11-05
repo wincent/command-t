@@ -162,7 +162,7 @@ ruby << EOF
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
       lib = "#{path}/ruby"
-      if !$LOAD_PATH.include?(lib) and File.exist?(lib)
+      if !$LOAD_PATH.include?(lib) && File.exist?(lib)
         $LOAD_PATH << lib
         load_path_modified = true
       end

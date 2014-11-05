@@ -77,7 +77,7 @@ module CommandT
           IO.popen(%w[/usr/sbin/pmcycles -m]).read.count("\n")
         elsif File.executable?('/usr/sbin/lsdev')
           IO.popen(%w[/usr/sbin/lsdev -Cc processor -S 1]).read.count("\n")
-        elsif File.executable?('/usr/sbin/sysconf') and os_name =~ /irix/i
+        elsif File.executable?('/usr/sbin/sysconf') && os_name =~ /irix/i
           IO.popen(%w[/usr/sbin/sysconf NPROC_ONLN]).read.to_i
         elsif File.executable?('/usr/sbin/sysctl')
           IO.popen(%w[/usr/sbin/sysctl -n hw.ncpu]).read.to_i
