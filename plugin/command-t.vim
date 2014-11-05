@@ -20,7 +20,3 @@ endif
 if !hasmapto(':CommandTBuffer<CR>') && maparg('<Leader>b', 'n') == ''
   silent! nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
 endif
-
-if !has('ruby')
-  finish
-endif
