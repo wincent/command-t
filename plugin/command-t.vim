@@ -12,6 +12,7 @@ command CommandTMRU call commandt#CommandTShowMRUFinder()
 command CommandTTag call commandt#CommandTShowTagFinder()
 command -nargs=? -complete=dir CommandT call commandt#CommandTShowFileFinder(<q-args>)
 command CommandTFlush call commandt#CommandTFlush()
+command CommandTLoad call commandt#CommandTLoad()
 
 if !hasmapto(':CommandT<CR>') && maparg('<Leader>t', 'n') == ''
   silent! nnoremap <unique> <silent> <Leader>t :CommandT<CR>

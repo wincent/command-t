@@ -61,6 +61,12 @@ function commandt#CommandTFlush()
   endif
 endfunction
 
+function commandt#CommandTLoad()
+  if !has('ruby')
+    call s:CommandTRubyWarning()
+  endif
+endfunction
+
 if !has('ruby')
   finish
 endif

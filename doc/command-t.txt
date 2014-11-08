@@ -509,6 +509,13 @@ COMMANDS                                        *command-t-commands*
                 re-evaluated, causing any changes made to settings via the
                 |:let| command to be picked up.
 
+                                                *:CommandTLoad*
+|:CommandTLoad|   Immediately loads the plug-in files, if they haven't been
+                loaded already (normally, the files are loaded lazily the
+                first time you run a Command-T command or use a Command-T
+                mapping). This command may be useful for people wishing to
+                extend Command-T by "monkey patching" its functionality.
+
 
 MAPPINGS                                        *command-t-mappings*
 
@@ -1220,6 +1227,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+1.12 (not yet released)
+
+- add |:CommandTLoad| command
 
 1.11.4 (4 November 2014)
 
