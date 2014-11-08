@@ -112,6 +112,10 @@ module CommandT
       @window     = $curwin
     end
 
+    def buffer_number
+      @@buffer and @@buffer.number
+    end
+
     def close
       # Unlisted buffers like those provided by Netrw, NERDTree and Vim's help
       # don't actually appear in the buffer list; if they are the only such
