@@ -1,6 +1,8 @@
 # Copyright 2010-2014 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
+require 'command-t/ext' # CommandT::Matcher, CommandT::Watchman::Utils
+
 module CommandT
   # Encapsulates a Scanner instance (which builds up a list of available files
   # in a directory) and a Matcher instance (which selects from that list based
