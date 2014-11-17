@@ -28,21 +28,6 @@ typedef struct {
 VALUE watchman_load(char **ptr, char *end);
 void watchman_dump(watchman_t *w, VALUE serializable);
 
-/**
- * Inspect a ruby object (debugging aid)
- */
-#define ruby_inspect(obj) rb_funcall(rb_mKernel, rb_intern("p"), 1, obj)
-
-/**
- * Print `count` bytes of memory at `address` (debugging aid)
- */
-#define dump(address, count) \
-    do { \
-        for (int i = 0; i < count; i++) { \
-            printf("%02x ", ((unsigned char *)address)[i]); printf("\n"); \
-        } \
-    } while(0)
-
 #define WATCHMAN_DEFAULT_STORAGE 4096
 
 #define WATCHMAN_BINARY_MARKER   "\x00\x01"
