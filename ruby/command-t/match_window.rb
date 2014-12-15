@@ -407,12 +407,12 @@ module CommandT
       #   Cursor xxx cleared                -> :hi! clear Cursor
       highlight = VIM::capture 'silent! 0verbose highlight Cursor'
 
-      if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/
-        "link Cursor #{$~[1]}"
-      elsif highlight =~ /^Cursor\s+xxx\s+cleared/
+      if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
+        "link Cursor #{$~[1]}".gsub(/\s+/, ' ')
+      elsif highlight =~ /^Cursor\s+xxx\s+cleared/m
         'clear Cursor'
-      elsif highlight =~ /Cursor\s+xxx\s+(.+)/
-        "Cursor #{$~[1]}"
+      elsif highlight =~ /Cursor\s+xxx\s+(.+)/m
+        "Cursor #{$~[1]}".gsub(/\s+/, ' ')
       else # likely cause E411 Cursor highlight group not found
         nil
       end
