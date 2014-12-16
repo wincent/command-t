@@ -1232,6 +1232,7 @@ HISTORY                                         *command-t-history*
 - add |:CommandTLoad| command
 - fix rare failure to restore cursor color after closing Command-T (patch from
   Vlad Seghete)
+- doc fixes (patch from Daniel Hahler)
 
 1.11.4 (4 November 2014)
 
