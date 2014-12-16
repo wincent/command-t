@@ -1128,12 +1128,12 @@ order):
   Daniel Hahler           Nicholas Alpi           Thomas Pelletier
   David Szotten           Noon Silk               Ton van den Heuvel
   Emily Strickland        Ole Petter Bang         Victor Hugo Borja
-  Felix Tjandrawibawa     Patrick Hayes           Vít Ondruch
-  Gary Bernhardt          Paul Jolly              Woody Peterson
-  Ivan Ukhov              Pavel Sergeev           Yan Pritzker
-  Jacek Wysocki           Rainux Luo              Yiding Jia
-  Jeff Kreeftmeijer       Richard Feldman         Zak Johnson
-  Kevin Webster           Roland Puntaier
+  Felix Tjandrawibawa     Patrick Hayes           Vlad Seghete
+  Gary Bernhardt          Paul Jolly              Vít Ondruch
+  Ivan Ukhov              Pavel Sergeev           Woody Peterson
+  Jacek Wysocki           Rainux Luo              Yan Pritzker
+  Jeff Kreeftmeijer       Richard Feldman         Yiding Jia
+  Kevin Webster           Roland Puntaier         Zak Johnson
   Lucas de Vries          Ross Lagerwall
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
@@ -1231,6 +1231,8 @@ HISTORY                                         *command-t-history*
 1.12 (not yet released)
 
 - add |:CommandTLoad| command
+- fix rare failure to restore cursor color after closing Command-T (patch from
+  Vlad Seghete)
 
 1.11.4 (4 November 2014)
 
