@@ -6,14 +6,14 @@ if exists("g:command_t_autoloaded") || &cp
 endif
 let g:command_t_autoloaded = 1
 
-function s:CommandTRubyWarning()
+function! s:CommandTRubyWarning()
   echohl WarningMsg
   echo "command-t.vim requires Vim to be compiled with Ruby support"
   echo "For more information type:  :help command-t"
   echohl none
 endfunction
 
-function commandt#CommandTShowBufferFinder()
+function! commandt#CommandTShowBufferFinder()
   if has('ruby')
     ruby $command_t.show_buffer_finder
   else
@@ -21,7 +21,7 @@ function commandt#CommandTShowBufferFinder()
   endif
 endfunction
 
-function commandt#CommandTShowFileFinder(arg)
+function! commandt#CommandTShowFileFinder(arg)
   if has('ruby')
     ruby $command_t.show_file_finder
   else
@@ -29,7 +29,7 @@ function commandt#CommandTShowFileFinder(arg)
   endif
 endfunction
 
-function commandt#CommandTShowJumpFinder()
+function! commandt#CommandTShowJumpFinder()
   if has('ruby')
     ruby $command_t.show_jump_finder
   else
@@ -37,7 +37,7 @@ function commandt#CommandTShowJumpFinder()
   endif
 endfunction
 
-function commandt#CommandTShowMRUFinder()
+function! commandt#CommandTShowMRUFinder()
   if has('ruby')
     ruby $command_t.show_mru_finder
   else
@@ -45,7 +45,7 @@ function commandt#CommandTShowMRUFinder()
   endif
 endfunction
 
-function commandt#CommandTShowTagFinder()
+function! commandt#CommandTShowTagFinder()
   if has('ruby')
     ruby $command_t.show_tag_finder
   else
@@ -53,7 +53,7 @@ function commandt#CommandTShowTagFinder()
   endif
 endfunction
 
-function commandt#CommandTFlush()
+function! commandt#CommandTFlush()
   if has('ruby')
     ruby $command_t.flush
   else
@@ -61,7 +61,7 @@ function commandt#CommandTFlush()
   endif
 endfunction
 
-function commandt#CommandTLoad()
+function! commandt#CommandTLoad()
   if !has('ruby')
     call s:CommandTRubyWarning()
   endif
@@ -71,83 +71,83 @@ if !has('ruby')
   finish
 endif
 
-function CommandTListMatches()
+function! CommandTListMatches()
   ruby $command_t.list_matches
 endfunction
 
-function CommandTHandleKey(arg)
+function! CommandTHandleKey(arg)
   ruby $command_t.handle_key
 endfunction
 
-function CommandTBackspace()
+function! CommandTBackspace()
   ruby $command_t.backspace
 endfunction
 
-function CommandTDelete()
+function! CommandTDelete()
   ruby $command_t.delete
 endfunction
 
-function CommandTAcceptSelection()
+function! CommandTAcceptSelection()
   ruby $command_t.accept_selection
 endfunction
 
-function CommandTAcceptSelectionTab()
+function! CommandTAcceptSelectionTab()
   ruby $command_t.accept_selection :command => $command_t.tab_command
 endfunction
 
-function CommandTAcceptSelectionSplit()
+function! CommandTAcceptSelectionSplit()
   ruby $command_t.accept_selection :command => $command_t.split_command
 endfunction
 
-function CommandTAcceptSelectionVSplit()
+function! CommandTAcceptSelectionVSplit()
   ruby $command_t.accept_selection :command => $command_t.vsplit_command
 endfunction
 
-function CommandTQuickfix()
+function! CommandTQuickfix()
   ruby $command_t.quickfix
 endfunction
 
-function CommandTRefresh()
+function! CommandTRefresh()
   ruby $command_t.refresh
 endfunction
 
-function CommandTToggleFocus()
+function! CommandTToggleFocus()
   ruby $command_t.toggle_focus
 endfunction
 
-function CommandTCancel()
+function! CommandTCancel()
   ruby $command_t.cancel
 endfunction
 
-function CommandTSelectNext()
+function! CommandTSelectNext()
   ruby $command_t.select_next
 endfunction
 
-function CommandTSelectPrev()
+function! CommandTSelectPrev()
   ruby $command_t.select_prev
 endfunction
 
-function CommandTClear()
+function! CommandTClear()
   ruby $command_t.clear
 endfunction
 
-function CommandTClearPrevWord()
+function! CommandTClearPrevWord()
   ruby $command_t.clear_prev_word
 endfunction
 
-function CommandTCursorLeft()
+function! CommandTCursorLeft()
   ruby $command_t.cursor_left
 endfunction
 
-function CommandTCursorRight()
+function! CommandTCursorRight()
   ruby $command_t.cursor_right
 endfunction
 
-function CommandTCursorEnd()
+function! CommandTCursorEnd()
   ruby $command_t.cursor_end
 endfunction
 
-function CommandTCursorStart()
+function! CommandTCursorStart()
   ruby $command_t.cursor_start
 endfunction
 
