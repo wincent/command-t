@@ -390,13 +390,11 @@ by issuing the command:
   :CommandT
 
 A prompt will appear at the bottom of the screen along with a file window
-showing all of the files in the current directory (as returned by the
-|:pwd| command).
+showing all of the files in the directory according to |g:CommandTTraverseSCM|
+(which defaults to the SCM root of the current file).
 
-For the most efficient file navigation within a project it's recommended that
-you |:cd| into the root directory of your project when starting to work on it.
-If you wish to open a file from outside of the project folder you can pass in
-an optional path argument (relative or absolute) to |:CommandT|:
+You can pass in an optional path argument to |:CommandT| (relative to the
+current working directory (|:pwd|) or absolute):
 
   :CommandT ../path/to/other/files
 
@@ -629,13 +627,13 @@ Following is a list of all available options:
                                                *g:CommandTTraverseSCM*
   |g:CommandTTraverseSCM|                        string (default: 'file')
 
-      Instructs Command-T how to chose a root path when opening a file finder
+      Instructs Command-T how to choose a root path when opening a file finder
       without an explicit path argument. Possible values are:
 
       - "file": starting from the file currently being edited, traverse
         upwards through the filesystem hierarchy until you find an SCM root
         (as indicated by the presence of a ".git", ".hg" or similar directory)
-        and use that as the base path. If no such root is found, fallback to
+        and use that as the base path. If no such root is found, fall back to
         using Vim's present working directory as a root. The list of SCM
         directories that Command-T uses to detect an SCM root can be
         customized with the |g:CommandTSCMDirectories| option.
