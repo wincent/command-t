@@ -211,7 +211,7 @@ module CommandT
     def scm_markers
       markers = VIM::get_string('g:CommandTSCMDirectories')
       markers = markers && markers.split(/\s*,\s*/)
-      markers = %w[.git .hg .svn .bzr _darcs] unless markers && markers.length
+      markers = %w[.git .hg .svn .bzr _darcs] unless markers && markers.any?
       markers
     end
 
