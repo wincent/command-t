@@ -276,13 +276,34 @@ as follows:
   ruby extconf.rb
   make
 
-Note: If you are an RVM or rbenv user, you must perform the build using the
-same version of Ruby that Vim itself is linked against. This will often be the
-system Ruby, which can be selected before issuing the "make" command with one
-of the following commands:
+Note: If you are an RVM or rbenv user, you must build CommandT using the same
+version of Ruby that Vim itself is linked against. You can find out the
+version that Vim is linked against by issuing following command inside Vim:
 
-  rvm use system
-  rbenv local system
+  :ruby puts "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}"
+
+Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
+
+  :ruby puts RUBY_VERSION
+
+You can either set your version of Ruby to the output of the above command and
+then build Command-T, or re-build Vim with a version of Ruby you prefer.
+
+To set the version of Ruby, issue one of the following commands before
+the `make` command:
+
+  rvm use VERSION # where "VERSION" is the Ruby version Vim is linked against
+  rbenv local VERSION
+
+If you decide to re-build Vim, for OS X, you can simply use Homebrew to
+uninstall and re-install Vim with following commands:
+
+  brew uninstall vim
+  brew install vim
+
+For more information about Homebrew, see:
+
+  http://brew.sh
 
 Note: If you are on OS X Mavericks and compiling against MacVim, the default
 system Ruby is 2.0 but MacVim still links against the older 1.8.7 Ruby that is
