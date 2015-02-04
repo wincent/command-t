@@ -1273,7 +1273,7 @@ HISTORY                                         *command-t-history*
 - add |:CommandTLoad| command
 - fix rare failure to restore cursor color after closing Command-T (patch from
   Vlad Seghete)
-- doc fixes (patch from Daniel Hahler)
+- doc fixes and updates (patches from Daniel Hahler and Nicholas T.)
 - make it possible to force reloading of the plug-in (patch from Daniel
   Hahler)
 - add |g:CommandTEncoding| option, to work around rare encoding compatibility
