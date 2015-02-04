@@ -849,6 +849,15 @@ Following is a list of all available options:
       For an example of how this can be used to apply arbitrarily complex
       logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
 
+                                              *g:CommandTEncoding*
+  |g:CommandTEncoding|                          string (default: none)
+
+      In most environments Command-T will work just fine using the character
+      encoding settings from your local environment. This setting can be used
+      to force Command-T to use a specific encoding, such as "UTF-8", if your
+      environment ends up defaulting to an undesired encoding, such as
+      "ASCII-8BIT".
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
@@ -1267,6 +1276,8 @@ HISTORY                                         *command-t-history*
 - doc fixes (patch from Daniel Hahler)
 - make it possible to force reloading of the plug-in (patch from Daniel
   Hahler)
+- add |g:CommandTEncoding| option, to work around rare encoding compatibility
+  issues
 
 1.11.4 (4 November 2014)
 

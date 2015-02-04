@@ -26,6 +26,16 @@ module CommandT
 
     def initialize
       @prompt = Prompt.new
+
+      encoding = VIM::get_string('g:CommandTEncoding')
+      if encoding
+        begin
+          encoding = Encoding.find(encoding)
+          Encoding.default_external = encoding
+          Encoding.default_internal = encoding
+        rescue
+        end
+      end
     end
 
     def show_buffer_finder
