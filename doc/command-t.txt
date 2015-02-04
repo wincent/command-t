@@ -370,11 +370,22 @@ Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
 
   :ruby puts RUBY_VERSION
 
-Finally, beware that if you change your installation method for Command-T (for
-example, switching from one plugin manager to another) you should verify that
-you remove all of the files installed by the previous installation method; if
-you fail to do this, Vim may end up executing the old code, invalidating all
-your attempts to get Vim and Command-T using the same version of Ruby.
+Additionally, beware that if you change your installation method for Command-T
+(for example, switching from one plugin manager to another) you should verify
+that you remove all of the files installed by the previous installation
+method; if you fail to do this, Vim may end up executing the old code,
+invalidating all your attempts to get Vim and Command-T using the same version
+of Ruby.
+
+Finally, if you end up changing Ruby versions or upgrading other parts of the
+system (the operating system itself, or Vim, for example), you may need to
+issue an additional "make clean" before re-building Command-T; this ensures
+that potentially incompatible build products are disposed of and re-created
+during the build:
+
+  make clean
+  ruby extconf.rb
+  make
 
 
 USAGE                                           *command-t-usage*
