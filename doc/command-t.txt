@@ -1150,22 +1150,22 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta           Marcus Brito            Scott Bronson
-  Aleksandrs Ļedovskis    Marian Schubert         Seth Fowler
-  Andy Waite              Matthew Todd            Sherzod Gapirov
-  Anthony Panozzo         Mike Lundy              Shlomi Fish
-  Artem Nezvigin          Nadav Samet             Steven Moazami
-  Ben Osheroff            Nate Kane               Sung Pae
-  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
-  David Szotten           Noon Silk               Ton van den Heuvel
-  Emily Strickland        Ole Petter Bang         Victor Hugo Borja
-  Felix Tjandrawibawa     Patrick Hayes           Vlad Seghete
-  Gary Bernhardt          Paul Jolly              Vít Ondruch
-  Ivan Ukhov              Pavel Sergeev           Woody Peterson
-  Jacek Wysocki           Rainux Luo              Yan Pritzker
-  Jeff Kreeftmeijer       Richard Feldman         Yiding Jia
-  Kevin Webster           Roland Puntaier         Zak Johnson
-  Lucas de Vries          Ross Lagerwall
+  Abhinav Gupta           Marcus Brito            Ross Lagerwall
+  Aleksandrs Ļedovskis    Marian Schubert         Scott Bronson
+  Andy Waite              Matthew Todd            Seth Fowler
+  Anthony Panozzo         Mike Lundy              Sherzod Gapirov
+  Artem Nezvigin          Nadav Samet             Shlomi Fish
+  Ben Osheroff            Nate Kane               Steven Moazami
+  Daniel Hahler           Nicholas Alpi           Sung Pae
+  David Szotten           Nicholas T.             Thomas Pelletier
+  Emily Strickland        Noon Silk               Ton van den Heuvel
+  Felix Tjandrawibawa     Ole Petter Bang         Victor Hugo Borja
+  Gary Bernhardt          Patrick Hayes           Vlad Seghete
+  Ivan Ukhov              Paul Jolly              Vít Ondruch
+  Jacek Wysocki           Pavel Sergeev           Woody Peterson
+  Jeff Kreeftmeijer       Rainux Luo              Yan Pritzker
+  Kevin Webster           Richard Feldman         Yiding Jia
+  Lucas de Vries          Roland Puntaier         Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
