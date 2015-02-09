@@ -404,10 +404,13 @@ module CommandT
       # transformed in a certain way in order to reapply the highlight:
       #   Cursor xxx guifg=bg guibg=fg      -> :hi! Cursor guifg=bg guibg=fg
       #   Cursor xxx links to SomethingElse -> :hi! link Cursor SomethingElse
+      #   Cursor xxx [definition]\nlinks to VisualNOS -> both of above
       #   Cursor xxx cleared                -> :hi! clear Cursor
       highlight = VIM::capture 'silent! 0verbose highlight Cursor'
 
-      if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
+      if highlight =~ /^Cursor\s+xxx\s+(.+)\blinks to (\w+)/m
+        "Cursor #{$~[1]} | highlight! link Cursor #{$~[2]}".gsub(/\s+/, ' ')
+      elsif highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
         "link Cursor #{$~[1]}".gsub(/\s+/, ' ')
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/m
         'clear Cursor'
