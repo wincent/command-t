@@ -410,15 +410,18 @@ module CommandT
       highlight = VIM::capture 'silent! 0verbose highlight Cursor'
 
       if highlight =~ /^Cursor\s+xxx\s+(.+)\blinks to (\w+)/m
-        "Cursor #{$~[1]} | highlight! link Cursor #{$~[2]}".gsub(/\s+/, ' ')
+        [
+          "Cursor #{$~[1]}",
+          "link Cursor #{$~[2]}".gsub(/\s+/, ' ')
+        ]
       elsif highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
-        "link Cursor #{$~[1]}".gsub(/\s+/, ' ')
+        ["link Cursor #{$~[1]}".gsub(/\s+/, ' ')]
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/m
-        'clear Cursor'
+        ['clear Cursor']
       elsif highlight =~ /Cursor\s+xxx\s+(.+)/m
-        "Cursor #{$~[1]}".gsub(/\s+/, ' ')
+        ["Cursor #{$~[1]}".gsub(/\s+/, ' ')]
       else # likely cause E411 Cursor highlight group not found
-        nil
+        []
       end
     end
 
@@ -430,7 +433,9 @@ module CommandT
 
     def show_cursor
       if @cursor_highlight
-        ::VIM::command "highlight #{@cursor_highlight}"
+        @cursor_highlight.each do |highlight|
+          ::VIM::command "highlight! #{highlight}"
+        end
       end
     end
 
