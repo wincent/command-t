@@ -422,7 +422,7 @@ module CommandT
           end
         else
           Array(value).each do |mapping|
-            unless mapping == '<Esc>' && term =~ /\A(screen|xterm|vt100)/
+            unless mapping == '<Esc>' && term =~ /\A(rxvt|screen|vt100|xterm)/
               map mapping, key
             end
           end
