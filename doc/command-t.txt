@@ -1280,6 +1280,8 @@ HISTORY                                         *command-t-history*
   issues
 - fix error restoring cursor highlights involving some configurations (patch
   from Daniel Hahler)
+- skip set-up of |<Esc>| key mapping on rxvt terminals (patch from Daniel
+  Hahler)
 
 1.11.4 (4 November 2014)
 
