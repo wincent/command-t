@@ -12,6 +12,8 @@ module CommandT
     MH_END            = '</commandt>'
     @@buffer          = nil
 
+    Highlight = Struct.new(:highlight, :bang)
+
     def initialize(options = {})
       @highlight_color = options[:highlight_color] || 'PmenuSel'
       @min_height      = options[:min_height]
@@ -411,15 +413,15 @@ module CommandT
 
       if highlight =~ /^Cursor\s+xxx\s+(.+)\blinks to (\w+)/m
         [
-          "Cursor #{$~[1]}",
-          "link Cursor #{$~[2]}".gsub(/\s+/, ' ')
+          Highlight.new("Cursor #{$~[1]}"),
+          Highlight.new("link Cursor #{$~[2]}".gsub(/\s+/, ' '), '!')
         ]
       elsif highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
-        ["link Cursor #{$~[1]}".gsub(/\s+/, ' ')]
+        [Highlight.new("link Cursor #{$~[1]}".gsub(/\s+/, ' '))]
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/m
-        ['clear Cursor']
+        [Highlight.new('clear Cursor')]
       elsif highlight =~ /Cursor\s+xxx\s+(.+)/m
-        ["Cursor #{$~[1]}".gsub(/\s+/, ' ')]
+        [Highlight.new("Cursor #{$~[1]}".gsub(/\s+/, ' '))]
       else # likely cause E411 Cursor highlight group not found
         []
       end
@@ -434,7 +436,7 @@ module CommandT
     def show_cursor
       if @cursor_highlight
         @cursor_highlight.each do |highlight|
-          ::VIM::command "highlight! #{highlight}"
+          ::VIM::command "highlight#{highlight.bang} #{highlight.highlight}"
         end
       end
     end
