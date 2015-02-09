@@ -400,11 +400,12 @@ module CommandT
     end
 
     def get_cursor_highlight
-      # there are 3 possible formats to check for, each needing to be
+      # there are 4 possible formats to check for, each needing to be
       # transformed in a certain way in order to reapply the highlight:
       #   Cursor xxx guifg=bg guibg=fg      -> :hi! Cursor guifg=bg guibg=fg
       #   Cursor xxx links to SomethingElse -> :hi! link Cursor SomethingElse
-      #   Cursor xxx [definition]\nlinks to VisualNOS -> both of above
+      #   Cursor xxx [definition]
+      #              links to VisualNOS     -> both of the above
       #   Cursor xxx cleared                -> :hi! clear Cursor
       highlight = VIM::capture 'silent! 0verbose highlight Cursor'
 
