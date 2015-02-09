@@ -1278,6 +1278,8 @@ HISTORY                                         *command-t-history*
   Hahler)
 - add |g:CommandTEncoding| option, to work around rare encoding compatibility
   issues
+- fix error restoring cursor highlights involving some configurations (patch
+  from Daniel Hahler)
 
 1.11.4 (4 November 2014)
 
