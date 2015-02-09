@@ -371,7 +371,7 @@ module CommandT
           end
         else
           Array(value).each do |mapping|
-            unless mapping == '<Esc>' && ::VIM::evaluate('has("gui_running")') == 0
+            unless mapping == '<Esc>' && term =~ /\A(rxvt|screen|xterm|vt100)/
               map mapping, key
             end
           end
