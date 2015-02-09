@@ -414,14 +414,14 @@ module CommandT
       if highlight =~ /^Cursor\s+xxx\s+(.+)\blinks to (\w+)/m
         [
           Highlight.new("Cursor #{$~[1]}"),
-          Highlight.new("link Cursor #{$~[2]}".gsub(/\s+/, ' '), '!')
+          Highlight.new("link Cursor #{$~[2]}", '!')
         ]
       elsif highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
-        [Highlight.new("link Cursor #{$~[1]}".gsub(/\s+/, ' '))]
+        [Highlight.new("link Cursor #{$~[1]}")]
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/m
         [Highlight.new('clear Cursor')]
       elsif highlight =~ /Cursor\s+xxx\s+(.+)/m
-        [Highlight.new("Cursor #{$~[1]}".gsub(/\s+/, ' '))]
+        [Highlight.new("Cursor #{$~[1]}")]
       else # likely cause E411 Cursor highlight group not found
         []
       end
@@ -436,7 +436,8 @@ module CommandT
     def show_cursor
       if @cursor_highlight
         @cursor_highlight.each do |highlight|
-          ::VIM::command "highlight#{highlight.bang} #{highlight.highlight}"
+          config = highlight.highlight.gsub(/\s+/, ' ')
+          ::VIM::command "highlight#{highlight.bang} #{config}"
         end
       end
     end
