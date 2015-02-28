@@ -466,7 +466,8 @@ module CommandT
         :never_show_dot_files   => VIM::get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => VIM::get_bool('g:CommandTScanDotDirectories'),
         :wild_ignore            => VIM::get_string('g:CommandTWildIgnore'),
-        :scanner                => VIM::get_string('g:CommandTFileScanner')
+        :scanner                => VIM::get_string('g:CommandTFileScanner'),
+        :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules')
     end
 
     def jump_finder

@@ -678,6 +678,13 @@ Following is a list of all available options:
       - "pwd": use Vim's present working directory as a root (ie. attempt no
         traversal).
 
+                                               *g:CommandTGitScanSubmodules*
+  |g:CommandTGitScanSubmodules|                  boolean (default: 0)
+
+      If set to 1, Command-T will scan submodules (recursively) when using the
+      "git" file scanner (see |g:CommandTFileScanner|).
+
+
                                                *g:CommandTSCMDirectories*
   |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
 
@@ -1159,22 +1166,22 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta           Marcus Brito            Ross Lagerwall
-  Aleksandrs Ļedovskis    Marian Schubert         Scott Bronson
-  Andy Waite              Matthew Todd            Seth Fowler
-  Anthony Panozzo         Mike Lundy              Sherzod Gapirov
-  Artem Nezvigin          Nadav Samet             Shlomi Fish
-  Ben Osheroff            Nate Kane               Steven Moazami
-  Daniel Hahler           Nicholas Alpi           Sung Pae
-  David Szotten           Nicholas T.             Thomas Pelletier
-  Emily Strickland        Noon Silk               Ton van den Heuvel
-  Felix Tjandrawibawa     Ole Petter Bang         Victor Hugo Borja
-  Gary Bernhardt          Patrick Hayes           Vlad Seghete
-  Ivan Ukhov              Paul Jolly              Vít Ondruch
-  Jacek Wysocki           Pavel Sergeev           Woody Peterson
-  Jeff Kreeftmeijer       Rainux Luo              Yan Pritzker
-  Kevin Webster           Richard Feldman         Yiding Jia
-  Lucas de Vries          Roland Puntaier         Zak Johnson
+  Abhinav Gupta           Lucas de Vries          Ross Lagerwall
+  Aleksandrs Ļedovskis    Marcus Brito            Scott Bronson
+  Andy Waite              Marian Schubert         Seth Fowler
+  Anthony Panozzo         Matthew Todd            Sherzod Gapirov
+  Artem Nezvigin          Mike Lundy              Shlomi Fish
+  Ben Boeckel             Nadav Samet             Steven Moazami
+  Ben Osheroff            Nate Kane               Sung Pae
+  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
+  David Szotten           Noon Silk               Ton van den Heuvel
+  Emily Strickland        Ole Petter Bang         Victor Hugo Borja
+  Felix Tjandrawibawa     Patrick Hayes           Vlad Seghete
+  Gary Bernhardt          Paul Jolly              Vít Ondruch
+  Ivan Ukhov              Pavel Sergeev           Woody Peterson
+  Jacek Wysocki           Rainux Luo              Yan Pritzker
+  Jeff Kreeftmeijer       Richard Feldman         Yiding Jia
+  Kevin Webster           Roland Puntaier         Zak Johnson
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1282,6 +1289,8 @@ HISTORY                                         *command-t-history*
   from Daniel Hahler)
 - skip set-up of |<Esc>| key mapping on rxvt terminals (patch from Daniel
   Hahler)
+- add |g:CommandTGitScanSubmodules| option, which can be used to recursively
+  scan submodules when the "git" file scanner is used (patch from Ben Boeckel)
 
 1.11.4 (4 November 2014)
 
