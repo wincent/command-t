@@ -38,24 +38,24 @@ module CommandT
       end
     end
 
+    # For possible use in status lines.
     def active_finder
-      @active_finder and @active_finder.class.name or ''
+      @active_finder && @active_finder.class.name
     end
 
+    # For possible use in status lines.
     def path
-      @path or ''
+      @path
     end
 
-    def is_own_buffer buffer_number
-      if @match_window and buffer_number == @match_window.buffer_number
-        return true
-      else
-        return false
-      end
+    # For possible use in status lines.
+    def is_own_buffer(buffer_number)
+      @match_window && buffer_number == @match_window.buffer_number
     end
 
-    def return_is_own_buffer buffer_number
-      if is_own_buffer buffer_number
+    # For possible use in status lines.
+    def return_is_own_buffer(buffer_number)
+      if is_own_buffer(buffer_number)
         ::VIM::command 'return 1'
       else
         ::VIM::command 'return 0'

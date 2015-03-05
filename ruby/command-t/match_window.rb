@@ -113,7 +113,7 @@ module CommandT
     end
 
     def buffer_number
-      @@buffer and @@buffer.number
+      @@buffer && @@buffer.number
     end
 
     def close

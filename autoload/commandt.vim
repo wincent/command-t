@@ -67,6 +67,7 @@ function! commandt#CommandTLoad()
   endif
 endfunction
 
+" For possible use in status lines.
 function commandt#CommandTActiveFinder()
   if has('ruby')
     ruby ::VIM::command "return '#{$command_t.active_finder}'"
@@ -75,14 +76,16 @@ function commandt#CommandTActiveFinder()
   endif
 endfunction
 
+" For possible use in status lines.
 function commandt#CommandTPath()
   if has('ruby')
-    ruby ::VIM::command "return '#{($command_t.path.gsub(/'/, "''")}'"
+    ruby ::VIM::command "return '#{($command_t.path || '').gsub(/'/, "''")}'"
   else
     return ''
   endif
 endfunction
 
+" For possible use in status lines.
 function commandt#CommandTCheckBuffer(buffer_number)
   if has('ruby')
     execute 'ruby $command_t.return_is_own_buffer' a:buffer_number
