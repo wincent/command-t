@@ -4,7 +4,7 @@
 module CommandT
   class Scanner
     class FileScanner
-      class FileLimitExceeded < ::RuntimeError; end
+      FileLimitExceeded = Class.new(::RuntimeError)
     end # class FileScanner
   end # class Scanner
 end # module Command-T

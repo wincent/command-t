@@ -6,7 +6,7 @@ module CommandT
     class FileScanner
       # Uses git ls-files to scan for files
       class GitFileScanner < FindFileScanner
-        class LsFilesError < ::RuntimeError; end
+        LsFilesError = Class.new(::RuntimeError)
 
         def paths!
           Dir.chdir(@path) do

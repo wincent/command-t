@@ -15,7 +15,7 @@ module CommandT
       class WatchmanFileScanner < FindFileScanner
         # Exception raised when Watchman is unavailable or unable to process the
         # requested path.
-        class WatchmanUnavailable < RuntimeError; end
+        WatchmanUnavailable = Class.new(::RuntimeError)
 
         def paths!
           sockname = Watchman::Utils.load(

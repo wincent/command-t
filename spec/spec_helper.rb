@@ -25,5 +25,5 @@ module VIM
     def evaluate(*args); end
   end
 
-  class Buffer; end
+  Buffer = Class.new
 end
