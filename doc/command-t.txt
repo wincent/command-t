@@ -1166,22 +1166,31 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta           Lucas de Vries          Ross Lagerwall
-  Aleksandrs Ļedovskis    Marcus Brito            Scott Bronson
-  Andy Waite              Marian Schubert         Seth Fowler
-  Anthony Panozzo         Matthew Todd            Sherzod Gapirov
-  Artem Nezvigin          Mike Lundy              Shlomi Fish
-  Ben Boeckel             Nadav Samet             Steven Moazami
-  Ben Osheroff            Nate Kane               Sung Pae
-  Daniel Hahler           Nicholas Alpi           Thomas Pelletier
-  David Szotten           Noon Silk               Ton van den Heuvel
-  Emily Strickland        Ole Petter Bang         Victor Hugo Borja
-  Felix Tjandrawibawa     Patrick Hayes           Vlad Seghete
-  Gary Bernhardt          Paul Jolly              Vít Ondruch
-  Ivan Ukhov              Pavel Sergeev           Woody Peterson
-  Jacek Wysocki           Rainux Luo              Yan Pritzker
-  Jeff Kreeftmeijer       Richard Feldman         Yiding Jia
-  Kevin Webster           Roland Puntaier         Zak Johnson
+  Abhinav Gupta                   Noon Silk
+  Aleksandrs Ļedovskis            Ole Petter Bang
+  Andy Waite                      Patrick Hayes
+  Anthony Panozzo                 Paul Jolly
+  Artem Nezvigin                  Pavel Sergeev
+  Ben Boeckel                     Rainux Luo
+  Ben Osheroff                    Richard Feldman
+  Daniel Hahler                   Roland Puntaier
+  David Szotten                   Ross Lagerwall
+  Emily Strickland                Scott Bronson
+  Felix Tjandrawibawa             Seth Fowler
+  Gary Bernhardt                  Sherzod Gapirov
+  Ivan Ukhov                      Shlomi Fish
+  Jacek Wysocki                   Steven Moazami
+  Jeff Kreeftmeijer               Sung Pae
+  Kevin Webster                   Thomas Pelletier
+  Lucas de Vries                  Ton van den Heuvel
+  Marcus Brito                    Victor Hugo Borja
+  Marian Schubert                 Vlad Seghete
+  Matthew Todd                    Vít Ondruch
+  Mike Lundy                      Woody Peterson
+  Nadav Samet                     Yan Pritzker
+  Nate Kane                       Yiding Jia
+  Nicholas Alpi                   Zak Johnson
+  Nikolai Aleksandrovich Pavlov
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
