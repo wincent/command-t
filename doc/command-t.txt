@@ -1119,6 +1119,12 @@ anchored at the root level of your repository in any case.
 Command-T will internally cache up to 10 different directories, so even if you
 |cd| repeatedly, it should only need to scan each directory once.
 
+    let g:CommandTSmartCase = 1
+
+Makes Command-T perform case-sensitive matching whenever the search pattern
+includes an uppercase letter. This allows you to narrow the search results
+listing with fewer keystrokes. See also |g:CommandTIgnoreCase|.
+
 It's advisable to keep a long-running Vim instance in place and let it cache
 the directory listings rather than repeatedly closing and re-opening Vim in
 order to edit every file. On those occasions when you do need to flush the
@@ -1148,6 +1154,8 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
+- version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
+  |g:CommandTSmartCase| options
 - version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
 - version 1.8 (March 2014) sped up the Watchman file scanner by switching its
   communication from the JSON to the binary Watchman protocol
