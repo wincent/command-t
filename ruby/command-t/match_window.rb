@@ -103,9 +103,11 @@ module CommandT
       # perform cleanup using an autocmd to ensure we don't get caught out
       # by some unexpected means of dismissing or leaving the Command-T window
       # (eg. <C-W q>, <C-W k> etc)
-      ::VIM::command 'autocmd! * <buffer>'
+      ::VIM::command 'augroup CommandTMatchWindow'
+      ::VIM::command 'autocmd!'
       ::VIM::command 'autocmd BufLeave <buffer> silent! ruby $command_t.leave'
       ::VIM::command 'autocmd BufUnload <buffer> silent! ruby $command_t.unload'
+      ::VIM::command 'augroup END'
 
       @has_focus  = false
       @abbrev     = ''

@@ -455,8 +455,8 @@ module CommandT
     end
 
     def set_up_autocmds
-      ::VIM::command 'augroup Command-T'
-      ::VIM::command 'au!'
+      ::VIM::command 'augroup CommandTController'
+      ::VIM::command 'autocmd!'
       ::VIM::command 'autocmd CursorHold <buffer> :call CommandTListMatches()'
       ::VIM::command 'augroup END'
     end
