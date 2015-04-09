@@ -1226,11 +1226,10 @@ the clone URL for which is:
 
   git://git.wincent.com/command-t.git
 
-Mirrors exist on GitHub and Gitorious; these are automatically updated once
-per hour from the authoritative repository:
+A mirror exists on GitHub, which is automatically updated once per hour from
+the authoritative repository:
 
   https://github.com/wincent/command-t
-  https://gitorious.org/command-t/command-t
 
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
