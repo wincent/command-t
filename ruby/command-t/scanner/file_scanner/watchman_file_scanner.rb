@@ -46,10 +46,10 @@ module CommandT
 
             paths['files']
           end
+        rescue Errno::ENOENT, WatchmanError
+          # watchman executable not present, or unable to fulfil request
+          super
         end
-      rescue Errno::ENOENT, WatchmanError
-        # watchman executable not present, or unable to fulfil request
-        super
       end # class WatchmanFileScanner
     end # class FileScanner
   end # class Scanner
