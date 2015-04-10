@@ -188,7 +188,19 @@ ruby << EOF
   # require Ruby files
   begin
     require 'command-t'
-    $command_t = CommandT::Controller.new
+
+    # Make sure we're running with the same version of Ruby that Command-T was
+    # compiled with.
+    patchlevel = defined?(RUBY_PATCHLEVEL) ? RUBY_PATCHLEVEL : nil
+    if CommandT::Metadata::UNKNOWN == true || (
+      CommandT::Metadata::EXPECTED_RUBY_VERSION == RUBY_VERSION &&
+      CommandT::Metadata::EXPECTED_RUBY_PATCHLEVEL == patchlevel
+    )
+      require 'command-t/ext' # eager load, to catch compilation problems early
+      $command_t = CommandT::Controller.new
+    else
+      $command_t = CommandT::Stub.new
+    end
   rescue LoadError
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
@@ -200,8 +212,6 @@ ruby << EOF
     end
     retry if load_path_modified
 
-    # could get here if C extension was not compiled, or was compiled
-    # for the wrong architecture or Ruby version
     $command_t = CommandT::Stub.new
   end
 EOF
