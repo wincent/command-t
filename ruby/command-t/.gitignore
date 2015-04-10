@@ -1,6 +1,7 @@
-Makefile
-*.o
-*.log
-ext.*
-!ext.c
-!ext.h
+/*.log
+/*.o
+/Makefile
+/ext.*
+/metadata.rb
+!/ext.c
+!/ext.h
