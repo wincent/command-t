@@ -15,13 +15,13 @@ module CommandT
       class WatchmanFileScanner < FindFileScanner
         # Exception raised when Watchman is unavailable or unable to process the
         # requested path.
-        WatchmanUnavailable = Class.new(::RuntimeError)
+        WatchmanError = Class.new(::RuntimeError)
 
         def paths!
           sockname = Watchman::Utils.load(
             %x{watchman --output-encoding=bser get-sockname}
           )['sockname']
-          raise WatchmanUnavailable unless $?.exitstatus.zero?
+          raise WatchmanError, 'get-sockname failed' unless $?.exitstatus.zero?
 
           UNIXSocket.open(sockname) do |socket|
             root = Pathname.new(@path).realpath.to_s
@@ -31,7 +31,8 @@ module CommandT
               result = Watchman::Utils.query(['watch', root], socket)
 
               # root_restrict_files setting may prevent Watchman from working
-              raise WatchmanUnavailable if result.has_key?('error')
+              # or enforce_root_files/root_files (>= version 3.1)
+              raise WatchmanError, result['error'] if result.has_key?('error')
             end
 
             query = ['query', root, {
@@ -41,12 +42,12 @@ module CommandT
             paths = Watchman::Utils.query(query, socket)
 
             # could return error if watch is removed
-            raise WatchmanUnavailable if paths.has_key?('error')
+            raise WatchmanError, paths['error'] if paths.has_key?('error')
 
             paths['files']
           end
         end
-      rescue Errno::ENOENT, WatchmanUnavailable
+      rescue Errno::ENOENT, WatchmanError
         # watchman executable not present, or unable to fulfil request
         super
       end # class WatchmanFileScanner
