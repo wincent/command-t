@@ -1307,6 +1307,8 @@ HISTORY                                         *command-t-history*
   Hahler)
 - add |g:CommandTGitScanSubmodules| option, which can be used to recursively
   scan submodules when the "git" file scanner is used (patch from Ben Boeckel)
+- fix for not falling back to "find"-based scanner when a Watchman-related
+  error occurs
 
 1.11.4 (4 November 2014)
 
