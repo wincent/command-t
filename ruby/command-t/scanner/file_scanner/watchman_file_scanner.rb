@@ -18,10 +18,8 @@ module CommandT
         WatchmanError = Class.new(::RuntimeError)
 
         def paths!
-          raw_sockname = %x{watchman --output-encoding=bser get-sockname}
-          raise WatchmanError, 'get-sockname failed' if !$?.exitstatus.zero?
           sockname = extract_value(
-            Watchman::Utils.load(raw_sockname),
+            Watchman::Utils.load(get_raw_sockname),
             'sockname'
           )
 
@@ -58,6 +56,11 @@ module CommandT
           object[key]
         end
 
+        def get_raw_sockname
+          raw_sockname = %x{watchman --output-encoding=bser get-sockname}
+          raise WatchmanError, 'get-sockname failed' if !$?.exitstatus.zero?
+          raw_sockname
+        end
       end # class WatchmanFileScanner
     end # class FileScanner
   end # class Scanner
