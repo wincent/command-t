@@ -18,12 +18,12 @@ module CommandT
         WatchmanError = Class.new(::RuntimeError)
 
         def paths!
-          sockname = Watchman::Utils.load(
-            %x{watchman --output-encoding=bser get-sockname}
-          )['sockname']
-          raise WatchmanError, 'get-sockname failed' unless $?.exitstatus.zero?
+          raw_sockname = %x{watchman --output-encoding=bser get-sockname}
+          raise WatchmanError, 'get-sockname failed' if !$?.exitstatus.zero?
+          result = Watchman::Utils.load(raw_sockname)
+          raise WatchmanError, result['error'] if result.has_key?('error')
 
-          UNIXSocket.open(sockname) do |socket|
+          UNIXSocket.open(result['sockname']) do |socket|
             root = Pathname.new(@path).realpath.to_s
             roots = Watchman::Utils.query(['watch-list'], socket)['roots']
             if !roots.include?(root)
