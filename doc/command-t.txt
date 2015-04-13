@@ -1291,6 +1291,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+next (not yet released)
+
+- avoid "W10: Warning: Changing a readonly file" when starting Vim in
+  read-only mode (ie. as `view` or with the `-R` option)
+
 1.12 (9 April 2015)
 
 - add |:CommandTLoad| command

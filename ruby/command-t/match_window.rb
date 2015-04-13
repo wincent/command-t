@@ -52,6 +52,7 @@ module CommandT
         set 'bufhidden', 'unload' # unload buf when no longer displayed
         set 'buftype', 'nofile'   # buffer is not related to any file
         set 'modifiable', false   # prevent manual edits
+        set 'readonly', false     # avoid W10 "Changing a readonly file"
         set 'swapfile', false     # don't create a swapfile
         set 'wrap', false         # don't soft-wrap
         set 'number', false       # don't show line numbers

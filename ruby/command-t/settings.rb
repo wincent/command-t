@@ -33,6 +33,7 @@ module CommandT
       list
       modifiable
       number
+      readonly
       relativenumber
       spell
       swapfile
