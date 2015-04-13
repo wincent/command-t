@@ -180,6 +180,7 @@ endfunction
 
 " note that we only start tracking buffers from first (autoloaded) use of Command-T
 augroup CommandTMRUBuffer
+  autocmd!
   autocmd BufEnter * ruby CommandT::MRU.touch
   autocmd BufDelete * ruby CommandT::MRU.delete
 augroup END
