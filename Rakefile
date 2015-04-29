@@ -107,7 +107,7 @@ task :prerelease => ['make', 'spec', :vimball, :check_tag]
 desc 'Prepare release notes from HISTORY'
 task :notes do
   File.open('.release-notes.txt', 'w') do |out|
-    lines = File.readlines('doc/command-t.txt').each { |line| line.chomp! }
+    lines = File.readlines('doc/command-t.txt').each(&:chomp!)
     while line = lines.shift do
       next unless line =~ /^HISTORY +\*command-t-history\*$/
       break unless lines.shift == '' &&
