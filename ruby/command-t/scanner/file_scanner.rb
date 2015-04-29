@@ -1,4 +1,4 @@
-# Copyright 2010-2014 Greg Hurrell. All rights reserved.
+# Copyright 2010-2015 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
@@ -9,9 +9,6 @@ module CommandT
     # obtain file listings via different strategies (for examples, see the
     # RubyFileScanner and FindFileScanner subclasses).
     class FileScanner < Scanner
-      # Errors
-      autoload :FileLimitExceeded,   'command-t/scanner/file_scanner/file_limit_exceeded'
-
       # Subclasses
       autoload :FindFileScanner,     'command-t/scanner/file_scanner/find_file_scanner'
       autoload :GitFileScanner,      'command-t/scanner/file_scanner/git_file_scanner'

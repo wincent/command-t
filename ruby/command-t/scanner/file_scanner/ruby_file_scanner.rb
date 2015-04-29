@@ -1,9 +1,11 @@
-# Copyright 2010-2014 Greg Hurrell. All rights reserved.
+# Copyright 2010-2015 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
   class Scanner
     class FileScanner
+      FileLimitExceeded = Class.new(::RuntimeError)
+
       # Pure Ruby implementation of a file scanner.
       class RubyFileScanner < FileScanner
         def paths!
