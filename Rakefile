@@ -38,43 +38,6 @@ def err(str)
   puts "#{red}error: #{str}#{clear}"
 end
 
-def prepare_release_notes
-  # extract base release notes from README.txt HISTORY section
-  File.open('.release-notes.txt', 'w') do |out|
-    lines = File.readlines('README.txt').each { |line| line.chomp! }
-    while line = lines.shift do
-      next unless line =~ /^HISTORY +\*command-t-history\*$/
-      break unless lines.shift == '' &&
-                  (line = lines.shift) && line =~ /^\d\.\d/ &&
-                  lines.shift == ''
-      while line = lines.shift && line != ''
-        out.puts line
-      end
-      break
-    end
-    out.puts ''
-    out.puts '# Please edit the release notes to taste.'
-    out.puts '# Blank lines and lines beginning with a hash will be removed.'
-    out.puts '# To abort, exit your editor with a non-zero exit status (:cquit in Vim).'
-  end
-
-  unless system "$EDITOR .release-notes.txt"
-    err "editor exited with non-zero exit status; aborting"
-    exit 1
-  end
-
-  filtered = read_release_notes
-  File.open('.release-notes.txt', 'w') do |out|
-    out.print filtered
-  end
-end
-
-def read_release_notes
-  File.readlines('.release-notes.txt').reject do |line|
-    line =~ /^(#.*|\s*)$/ # filter comment lines and blank lines
-  end.join
-end
-
 task :default => :spec
 
 desc 'Print help on preparing a release'
@@ -141,6 +104,40 @@ end
 desc 'Run checks prior to release'
 task :prerelease => ['make', 'spec', :vimball, :check_tag]
 
+desc 'Prepare release notes from HISTORY'
+task :notes do
+  File.open('.release-notes.txt', 'w') do |out|
+    lines = File.readlines('doc/command-t.txt').each { |line| line.chomp! }
+    while line = lines.shift do
+      next unless line =~ /^HISTORY +\*command-t-history\*$/
+      break unless lines.shift == '' &&
+                  (line = lines.shift) && line =~ /^\d\.\d/ &&
+                  lines.shift == ''
+      while line = lines.shift && line != ''
+        out.puts line
+      end
+      break
+    end
+    out.puts ''
+    out.puts '# Please edit the release notes to taste.'
+    out.puts '# Blank lines and lines beginning with a hash will be removed.'
+    out.puts '# To abort, exit your editor with a non-zero exit status (:cquit in Vim).'
+  end
+
+  unless system "$EDITOR .release-notes.txt"
+    err "editor exited with non-zero exit status; aborting"
+    exit 1
+  end
+
+  filtered = File.readlines('.release-notes.txt').reject do |line|
+    line =~ /^(#.*|\s*)$/ # filter comment lines and blank lines
+  end.join
+
+  File.open('.release-notes.txt', 'w') do |out|
+    out.print filtered
+  end
+end
+
 namespace :upload do
   desc 'Upload current vimball to Amazon S3'
   task :s3 => :vimball do
@@ -153,8 +150,7 @@ namespace :upload do
   end
 
   desc 'Upload current vimball to www.vim.org'
-  task :vim => :vimball do
-    prepare_release_notes
+  task :vim => [:vimball, :notes] do
     sh "vendor/vimscriptuploader/vimscriptuploader.rb \
             --id 3025 \
             --file command-t-#{version}.vba \
