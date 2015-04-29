@@ -202,7 +202,7 @@ module CommandT
     def cancel
       hide
     end
-    guard :toggle_focus
+    guard :cancel
 
     def select_next
       @match_window.select_next
