@@ -113,7 +113,7 @@ task :notes do
       break unless lines.shift == '' &&
                   (line = lines.shift) && line =~ /^\d\.\d/ &&
                   lines.shift == ''
-      while line = lines.shift && line != ''
+      while (line = lines.shift) && line != ''
         out.puts line
       end
       break
