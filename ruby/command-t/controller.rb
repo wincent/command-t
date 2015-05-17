@@ -261,7 +261,8 @@ module CommandT
         @prompt.abbrev,
         :case_sensitive => case_sensitive?,
         :limit          => match_limit,
-        :threads        => CommandT::Util.processor_count
+        :threads        => CommandT::Util.processor_count,
+        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpacesInSearchTerm'),
       )
       @match_window.matches = @matches
 
