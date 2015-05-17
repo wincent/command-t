@@ -123,6 +123,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE always_show_dot_files;
     VALUE limit_option;
     VALUE never_show_dot_files;
+    VALUE ignore_spaces;
     VALUE options;
     VALUE paths;
     VALUE results;
@@ -141,10 +142,14 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
     sort_option = CommandT_option_from_hash("sort", options);
+    ignore_spaces = CommandT_option_from_hash("ignore_spaces", options);
 
     abbrev = StringValue(abbrev);
     if (case_sensitive != Qtrue)
         abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
+
+    if (ignore_spaces == Qtrue)
+        abbrev = rb_funcall(abbrev, rb_intern("delete"), 1, rb_str_new2(" "));
 
     // get unsorted matches
     scanner = rb_iv_get(self, "@scanner");
