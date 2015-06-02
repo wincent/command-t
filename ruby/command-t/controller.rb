@@ -262,7 +262,7 @@ module CommandT
         :case_sensitive => case_sensitive?,
         :limit          => match_limit,
         :threads        => CommandT::Util.processor_count,
-        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpacesInSearchTerm'),
+        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces'),
       )
       @match_window.matches = @matches
 

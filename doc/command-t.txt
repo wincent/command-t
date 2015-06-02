@@ -865,8 +865,8 @@ Following is a list of all available options:
       environment ends up defaulting to an undesired encoding, such as
       "ASCII-8BIT".
 
-                                        *g:CommandTIgnoreSpacesInSearchTerm*
-  |g:CommandTIgnoreSpacesInSearchTerm|    boolean (default: 0)
+                                              *g:CommandTIgnoreSpaces*
+  |g:CommandTIgnoreSpaces|                      boolean (default: 0)
 
       When typing a search term into Command-T, use this option to have it
       ignore spaces. Without this option set, it will search for literal
