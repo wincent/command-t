@@ -1300,6 +1300,8 @@ HISTORY                                         *command-t-history*
 
 next (not yet released)
 
+- add |:CommandTIgnoreSpaces| option
+
 1.13 (29 April 2015)
 
 - avoid "W10: Warning: Changing a readonly file" when starting Vim in
