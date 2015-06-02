@@ -1300,7 +1300,7 @@ HISTORY                                         *command-t-history*
 
 next (not yet released)
 
-- add |:CommandTIgnoreSpaces| option
+- add |:CommandTIgnoreSpaces| option (patch from KJ Tsanaktsidis)
 
 1.13 (29 April 2015)
 
