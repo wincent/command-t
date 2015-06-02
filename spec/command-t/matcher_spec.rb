@@ -49,6 +49,20 @@ describe CommandT::Matcher do
       matches.map { |m| m.to_s }.should == ['Foo']
     end
 
+    it 'considers the space character to match a literal space' do
+      paths = ['path_no_space', 'path with/space']
+      matches = matcher(*paths).sorted_matches_for('path space')
+      matches.map { |m| m.to_s }.should == ['path with/space']
+    end
+
+    context 'when the ignore_spaces option in specified' do
+      it 'ignores the space character' do
+        paths = ['path_no_space', 'path with/space']
+        matches = matcher(*paths).sorted_matches_for('path space', :ignore_spaces => true)
+        matches.map { |m| m.to_s }.should == ['path_no_space', 'path with/space']
+      end
+    end
+
     it 'considers the empty string to match everything' do
       matches = matcher('foo').sorted_matches_for('')
       matches.map { |m| m.to_s }.should == ['foo']

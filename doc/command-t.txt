@@ -865,6 +865,13 @@ Following is a list of all available options:
       environment ends up defaulting to an undesired encoding, such as
       "ASCII-8BIT".
 
+                                              *g:CommandTIgnoreSpaces*
+  |g:CommandTIgnoreSpaces|                      boolean (default: 0)
+
+      When typing a search term into Command-T, use this option to have it
+      ignore spaces. Without this option set, it will search for literal
+      spaces inside file names.
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
@@ -1174,21 +1181,22 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta                   Noon Silk
-  Aleksandrs Ļedovskis            Ole Petter Bang
-  Andy Waite                      Patrick Hayes
-  Anthony Panozzo                 Paul Jolly
-  Artem Nezvigin                  Pavel Sergeev
-  Ben Boeckel                     Rainux Luo
-  Ben Osheroff                    Richard Feldman
-  Daniel Hahler                   Roland Puntaier
-  David Szotten                   Ross Lagerwall
-  Emily Strickland                Scott Bronson
-  Felix Tjandrawibawa             Seth Fowler
-  Gary Bernhardt                  Sherzod Gapirov
-  Ivan Ukhov                      Shlomi Fish
-  Jacek Wysocki                   Steven Moazami
-  Jeff Kreeftmeijer               Sung Pae
+  Abhinav Gupta                   Nikolai Aleksandrovich Pavlov
+  Aleksandrs Ļedovskis            Noon Silk
+  Andy Waite                      Ole Petter Bang
+  Anthony Panozzo                 Patrick Hayes
+  Artem Nezvigin                  Paul Jolly
+  Ben Boeckel                     Pavel Sergeev
+  Ben Osheroff                    Rainux Luo
+  Daniel Hahler                   Richard Feldman
+  David Szotten                   Roland Puntaier
+  Emily Strickland                Ross Lagerwall
+  Felix Tjandrawibawa             Scott Bronson
+  Gary Bernhardt                  Seth Fowler
+  Ivan Ukhov                      Sherzod Gapirov
+  Jacek Wysocki                   Shlomi Fish
+  Jeff Kreeftmeijer               Steven Moazami
+  KJ Tsanaktsidis                 Sung Pae
   Kevin Webster                   Thomas Pelletier
   Lucas de Vries                  Ton van den Heuvel
   Marcus Brito                    Victor Hugo Borja
@@ -1198,7 +1206,6 @@ order):
   Nadav Samet                     Yan Pritzker
   Nate Kane                       Yiding Jia
   Nicholas Alpi                   Zak Johnson
-  Nikolai Aleksandrovich Pavlov
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1292,6 +1299,8 @@ POSSIBILITY OF SUCH DAMAGE.
 HISTORY                                         *command-t-history*
 
 next (not yet released)
+
+- add |:CommandTIgnoreSpaces| option
 
 1.13 (29 April 2015)
 
