@@ -872,8 +872,6 @@ Following is a list of all available options:
       ignore spaces. Without this option set, it will search for literal
       spaces inside file names.
 
-        
-
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
