@@ -43,9 +43,9 @@ module CommandT
 
       # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
-      if @@buffer # still have buffer from last time
-        ::VIM::command "silent! #{split_location} #{@@buffer.number}sbuffer"
-        raise "Can't re-open GoToFile buffer" unless $curbuf.number == @@buffer.number
+      if ((number = buffer_number)) # still have buffer from last time
+        ::VIM::command "silent! #{split_location} #{number}sbuffer"
+        raise "Can't re-open GoToFile buffer" unless $curbuf.number == number
         $curwin.height = 1
       else        # creating match window for first time and set it up
         ::VIM::command "silent! #{split_location} 1split GoToFile"
@@ -117,6 +117,9 @@ module CommandT
 
     def buffer_number
       @@buffer && @@buffer.number
+    rescue Vim::DeletedBufferError
+      # Beware of people manually deleting Command-T's hidden, unlisted buffer.
+      @@buffer = nil
     end
 
     def close
