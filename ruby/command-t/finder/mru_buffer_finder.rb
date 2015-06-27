@@ -23,6 +23,10 @@ module CommandT
           matches
         end
       end
+
+      def name
+        'Recent'
+      end
     end # class MRUBufferFinder
   end # class Finder
 end # CommandT

@@ -24,6 +24,10 @@ module CommandT
       def flush
         @scanner.flush
       end
+
+      def name
+        'Files'
+      end
     end # class FileFinder
   end # class Finder
 end # module CommandT

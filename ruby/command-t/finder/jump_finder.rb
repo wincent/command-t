@@ -8,6 +8,10 @@ module CommandT
         @scanner = Scanner::JumpScanner.new
         @matcher = Matcher.new @scanner, :always_show_dot_files => true
       end
+
+      def name
+        'Jumps'
+      end
     end # class JumpFinder
   end # class Finder
 end # module CommandT

@@ -28,6 +28,7 @@ module CommandT
       concealcursor
       conceallevel
       cursorline
+      filetype
       foldcolumn
       foldlevel
       list

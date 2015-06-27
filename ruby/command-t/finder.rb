@@ -23,6 +23,12 @@ module CommandT
       raise RuntimeError, 'Subclass responsibility'
     end
 
+    # Returns a human-readable name describing the finder, for display in the
+    # statusline attached to the MatchWindow buffer.
+    def name
+      raise RuntimeError, 'Subclass responsibility'
+    end
+
     # Options:
     #   :limit (integer): limit the number of returned matches
     def sorted_matches_for(str, options = {})

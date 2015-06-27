@@ -304,7 +304,8 @@ module CommandT
         :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse'),
         :min_height           => min_height,
         :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 50,
-        :prompt               => @prompt
+        :prompt               => @prompt,
+        :name                 => "Command-T [#{@active_finder.name}]"
       @focus            = @prompt
       @prompt.focus
       register_for_key_presses

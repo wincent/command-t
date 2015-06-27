@@ -21,6 +21,10 @@ module CommandT
       def flush
         @scanner.flush
       end
+
+      def name
+        'Tags'
+      end
     end # class TagFinder
   end # class Finder
 end # module CommandT

@@ -8,6 +8,10 @@ module CommandT
         @scanner = Scanner::BufferScanner.new
         @matcher = Matcher.new @scanner, :always_show_dot_files => true
       end
+
+      def name
+        'Buffers'
+      end
     end # class BufferFinder
   end # class Finder
 end # CommandT

@@ -1298,10 +1298,17 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-next (not yet released)
+2.0a (not yet released)
 
 - add |:CommandTIgnoreSpaces| option (patch from KJ Tsanaktsidis)
 - make Command-T resilient to people deleting its hidden, unlisted buffer
+- the match listing buffer now has filetype "command-t", which may be useful
+  for detectability/extensibility
+- Command-T now sets the name of the match listing buffer according to how it
+  was invoked (ie. for the file finder, the name is "Command-T [Files]", for
+  the buffer finder, the name is "Command-T [Buffers]", and so on);
+  previously the name was a fixed as "GoToFile" regardless of the active
+  finder type
 
 1.13 (29 April 2015)
 

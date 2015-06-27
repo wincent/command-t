@@ -20,6 +20,9 @@ module CommandT
       @prompt          = options[:prompt]
       @reverse_list    = options[:match_window_reverse]
 
+      quoted_name = VIM::escape_for_single_quotes(options[:name])
+      escaped_name = ::VIM::evaluate("fnameescape('#{quoted_name}')")
+
       # save existing window dimensions so we can restore them later
       @windows = (0..(::VIM::Window.count - 1)).map do |i|
         OpenStruct.new(
@@ -45,24 +48,29 @@ module CommandT
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
       if ((number = buffer_number)) # still have buffer from last time
         ::VIM::command "silent! #{split_location} #{number}sbuffer"
-        raise "Can't re-open GoToFile buffer" unless $curbuf.number == number
+        if $curbuf.number != number
+          raise "Can't re-open Command-T match listing buffer"
+        end
         $curwin.height = 1
+        ::VIM::command "0file"
+        ::VIM::command "file #{escaped_name}"
       else        # creating match window for first time and set it up
-        ::VIM::command "silent! #{split_location} 1split GoToFile"
-        set 'bufhidden', 'unload' # unload buf when no longer displayed
-        set 'buftype', 'nofile'   # buffer is not related to any file
-        set 'modifiable', false   # prevent manual edits
-        set 'readonly', false     # avoid W10 "Changing a readonly file"
-        set 'swapfile', false     # don't create a swapfile
-        set 'wrap', false         # don't soft-wrap
-        set 'number', false       # don't show line numbers
-        set 'list', false         # don't use List mode (visible tabs etc)
-        set 'foldcolumn', 0       # don't show a fold column at side
-        set 'foldlevel', 99       # don't fold anything
-        set 'cursorline', false   # don't highlight line cursor is on
-        set 'spell', false        # spell-checking off
-        set 'buflisted', false    # don't show up in the buffer list
-        set 'textwidth', 0        # don't hard-wrap (break long lines)
+        ::VIM::command "silent! #{split_location} 1split #{escaped_name}"
+        set 'bufhidden', 'unload'   # unload buf when no longer displayed
+        set 'buftype', 'nofile'     # buffer is not related to any file
+        set 'filetype', 'command-t' # provide for detectability/extensibility
+        set 'modifiable', false     # prevent manual edits
+        set 'readonly', false       # avoid W10 "Changing a readonly file"
+        set 'swapfile', false       # don't create a swapfile
+        set 'wrap', false           # don't soft-wrap
+        set 'number', false         # don't show line numbers
+        set 'list', false           # don't use List mode (visible tabs etc)
+        set 'foldcolumn', 0         # don't show a fold column at side
+        set 'foldlevel', 99         # don't fold anything
+        set 'cursorline', false     # don't highlight line cursor is on
+        set 'spell', false          # spell-checking off
+        set 'buflisted', false      # don't show up in the buffer list
+        set 'textwidth', 0          # don't hard-wrap (break long lines)
 
         # don't show the color column
         set 'colorcolumn', 0 if VIM::exists?('+colorcolumn')
@@ -71,7 +79,9 @@ module CommandT
         set 'relativenumber', false if VIM::exists?('+relativenumber')
 
         # sanity check: make sure the buffer really was created
-        raise "Can't find GoToFile buffer" unless $curbuf.name.match /GoToFile\z/
+        if File.basename($curbuf.name) != options[:name]
+          raise "Can't find Command-T match listing buffer"
+        end
         @@buffer = $curbuf
       end
 
@@ -143,7 +153,9 @@ module CommandT
       # For more details, see: https://wincent.com/issues/1617
       if $curbuf.number == 0
         # use bwipeout as bunload fails if passed the name of a hidden buffer
-        ::VIM::command 'silent! bwipeout! GoToFile'
+        base = File.basename($curbuf.name)
+        escaped_name = ::VIM::evaluate("fnameescape('#{base}')")
+        ::VIM::command "silent! bwipeout! #{escaped_name}"
         @@buffer = nil
       else
         ::VIM::command "silent! bunload! #{@@buffer.number}"
