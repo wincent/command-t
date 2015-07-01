@@ -2,21 +2,22 @@
 
 CONTENTS                                        *command-t-contents*
 
- 1. Introduction            |command-t-intro|
- 2. Requirements            |command-t-requirements|
- 3. Installation            |command-t-installation|
- 4. Trouble-shooting        |command-t-trouble-shooting|
- 5. Usage                   |command-t-usage|
- 6. Commands                |command-t-commands|
- 7. Mappings                |command-t-mappings|
- 8. Options                 |command-t-options|
- 9. FAQ                     |command-t-faq|
-10. Tips                    |command-t-tips|
-11. Authors                 |command-t-authors|
-12. Development             |command-t-development|
-13. Website                 |command-t-website|
-14. License                 |command-t-license|
-15. History                 |command-t-history|
+ 1. Introduction                    |command-t-intro|
+ 2. Requirements                    |command-t-requirements|
+ 3. Installation                    |command-t-installation|
+ 4. Trouble-shooting                |command-t-trouble-shooting|
+ 5. Usage                           |command-t-usage|
+ 6. Commands                        |command-t-commands|
+ 7. Mappings                        |command-t-mappings|
+ 8. Options                         |command-t-options|
+ 9. Integration and Extensibility   |command-t-integration-and-extensibility|
+10. FAQ                             |command-t-faq|
+11. Tips                            |command-t-tips|
+12. Authors                         |command-t-authors|
+13. Development                     |command-t-development|
+14. Website                         |command-t-website|
+15. License                         |command-t-license|
+16. History                         |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -997,6 +998,53 @@ settings can be used to control behavior:
       - The "watchman" scanner is intended for use with massive hierarchies
         where speed is of the utmost import, so it doesn't consult
         'wildignore' at all.
+
+
+INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
+
+For the purposes of integrating with other plug-ins, or otherwise extending
+Command-T's functionality, a number of hooks and features are provided. Note
+that making use of any of these extension points is considered to be advanced
+configuration, and the more invasive the modifications, the greater the risk
+that they will interact poorly with future versions of Command-T. Proceed with
+caution.
+
+                                                *command-t-filetype*
+command-t filetype ~
+
+Command-T displays its match listing using a special Vim buffer with a
+filetype of  `command-t`. This can be used in |ftplugins| or elsewhere to set up
+an |autocommand| or apply custom configuration.
+
+For example of an |ftplugin| that sets a custom 'statusline' for the
+Command-T match listing buffer, see: https://wt.pe/f
+
+                                                *command-t-load*
+                                                *commandt#Load*
+Eager loading with commandt#CommandTLoad ~
+
+In order to minimize Vim startup time, most of Command-T's functionality is
+only loaded on first use, via Vim's |autoload| mechanism.
+
+If you should wish to monkey patch some Command-T functionality, the
+`commandt#Load()` function (also exposed via the |:CommandTLoad| command) is
+provided as a means of eager-loading Command-T's code, so that you can go
+ahead and patch it.
+
+                                                *commandt#ActiveFinder*
+                                                *commandt#CheckBuffer*
+                                                *commandt#Path*
+Statusline hooks ~
+
+A number of methods are provided that may be useful for creating a
+context-sensitive 'statusline'.
+
+- `commandt#ActiveFinder()`: Returns the class name of the currently
+  active finder.
+- `commandt#Path()`: Returns the path that Command-T is currently
+  searching.
+- `commandt#CheckBuffer()`: Takes a buffer number and returns true if
+  it is the Command-T match listing buffer.
 
 
 FAQ                                             *command-t-faq*
