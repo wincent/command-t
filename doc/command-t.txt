@@ -1366,6 +1366,28 @@ HISTORY                                         *command-t-history*
   - `commandt#CommandTShowJumpFinder()` is now `commandt#JumpFinder()`
   - `commandt#CommandTShowMRUFinder()` is now `commandt#MRUFinder()`
   - `commandt#CommandTShowTagFinder()` is now `commandt#TagFinder()`
+- A number of functions have been turned into "private" autoloaded functions,
+  to make it clear that they are intended only for internal use:
+  - `CommandTAcceptSelection()` is now `commandt#private#AcceptSelection()`
+  - `CommandTAcceptSelectionSplit()` is now `commandt#private#AcceptSelectionSplit()`
+  - `CommandTAcceptSelectionTab()` is now `commandt#private#AcceptSelectionTab()`
+  - `CommandTAcceptSelectionVSplit()` is now `commandt#private#AcceptSelectionVSplit()`
+  - `CommandTBackspace()` is now `commandt#private#Backspace()`
+  - `CommandTCancel()` is now `commandt#private#Cancel()`
+  - `CommandTClear()` is now `commandt#private#Clear()`
+  - `CommandTClearPrevWord()` is now `commandt#private#ClearPrevWord()`
+  - `CommandTCursorEnd()` is now `commandt#private#CursorEnd()`
+  - `CommandTCursorLeft()` is now `commandt#private#CursorLeft()`
+  - `CommandTCursorRight()` is now `commandt#private#CursorRight()`
+  - `CommandTCursorStart()` is now `commandt#private#CursorStart()`
+  - `CommandTDelete()` is now `commandt#private#Delete()`
+  - `CommandTHandleKey()` is now `commandt#private#HandleKey()`
+  - `CommandTListMatches()` is now `commandt#private#ListMatches()`
+  - `CommandTQuickfix()` is now `commandt#private#Quickfix()`
+  - `CommandTRefresh()` is now `commandt#private#Refresh()`
+  - `CommandTSelectNext()` is now `commandt#private#SelectNext()`
+  - `CommandTSelectPrev()` is now `commandt#private#SelectPrev()`
+  - `CommandTToggleFocus()` is now `commandt#private#ToggleFocus()`
 
 1.13 (29 April 2015)
 

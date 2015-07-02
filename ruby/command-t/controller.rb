@@ -404,7 +404,7 @@ module CommandT
 
     def map(key, function, param = nil)
       ::VIM::command "noremap <silent> <buffer> #{key} " \
-        ":call CommandT#{function}(#{param})<CR>"
+        ":call commandt#private##{function}(#{param})<CR>"
     end
 
     def term
@@ -459,7 +459,7 @@ module CommandT
     def set_up_autocmds
       ::VIM::command 'augroup CommandTController'
       ::VIM::command 'autocmd!'
-      ::VIM::command 'autocmd CursorHold <buffer> :call CommandTListMatches()'
+      ::VIM::command 'autocmd CursorHold <buffer> :call commandt#private#ListMatches()'
       ::VIM::command 'augroup END'
     end
 
