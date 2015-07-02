@@ -1357,6 +1357,15 @@ HISTORY                                         *command-t-history*
   the buffer finder, the name is "Command-T [Buffers]", and so on);
   previously the name was a fixed as "GoToFile" regardless of the active
   finder type
+- Many internal function names have changed, so if you or your plug-ins are
+  calling those internals they will need to be updated:
+  - `commandt#CommandTFlush()` is now `commandt#Flush()`
+  - `commandt#CommandTLoad()` is now `commandt#Load()`
+  - `commandt#CommandTShowBufferFinder()` is now `commandt#BufferFinder()`
+  - `commandt#CommandTShowFileFinder()` is now `commandt#FileFinder()`
+  - `commandt#CommandTShowJumpFinder()` is now `commandt#JumpFinder()`
+  - `commandt#CommandTShowMRUFinder()` is now `commandt#MRUFinder()`
+  - `commandt#CommandTShowTagFinder()` is now `commandt#TagFinder()`
 
 1.13 (29 April 2015)
 
