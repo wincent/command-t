@@ -15,9 +15,9 @@ command! CommandTFlush call commandt#Flush()
 command! CommandTLoad call commandt#Load()
 
 if !hasmapto(':CommandT<CR>') && maparg('<Leader>t', 'n') ==# ''
-  silent! nnoremap <unique> <silent> <Leader>t :CommandT<CR>
+  nnoremap <unique> <silent> <Leader>t :CommandT<CR>
 endif
 
 if !hasmapto(':CommandTBuffer<CR>') && maparg('<Leader>b', 'n') ==# ''
-  silent! nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
+  nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
 endif
