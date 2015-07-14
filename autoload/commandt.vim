@@ -202,7 +202,7 @@ ruby << EOF
     else
       $command_t = CommandT::Stub.new
     end
-  rescue LoadError
+  rescue LoadError, Gem::Ext::BuildError
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
       lib = "#{path}/ruby"
