@@ -793,6 +793,14 @@ Following is a list of all available options:
       Ignore case when searching. Defaults to on, which means that searching
       is case-insensitive by default. See also |g:CommandTSmartCase|.
 
+                                                *g:CommandTRecursiveMatch*
+  |g:CommandTRecursiveMatch|                      boolean (default: 1)
+
+      Use this to downgrade Command-T's match-scoring algorithm to its older,
+      non-recursive form. Doing so may improve the responsiveness of the match
+      listing, but at the cost of slightly less precision in the ranking of
+      results.
+
                                                 *g:CommandTSmartCase*
   |g:CommandTSmartCase|                           boolean (default: none)
 
@@ -1174,17 +1182,25 @@ anchored at the root level of your repository in any case.
 Command-T will internally cache up to 10 different directories, so even if you
 |cd| repeatedly, it should only need to scan each directory once.
 
+It's advisable to keep a long-running Vim instance in place and let it cache
+the directory listings rather than repeatedly closing and re-opening Vim in
+order to edit every file. On those occasions when you do need to flush the
+cache (ie. with |CommandTFlush| or <C-f> in the match listing window), use of
+the Watchman scanner should make the delay barely noticeable.
+
     let g:CommandTSmartCase = 1
 
 Makes Command-T perform case-sensitive matching whenever the search pattern
 includes an uppercase letter. This allows you to narrow the search results
 listing with fewer keystrokes. See also |g:CommandTIgnoreCase|.
 
-It's advisable to keep a long-running Vim instance in place and let it cache
-the directory listings rather than repeatedly closing and re-opening Vim in
-order to edit every file. On those occasions when you do need to flush the
-cache (ie. with |CommandTFlush| or <C-f> in the match listing window), use of
-the Watchman scanner should make the delay barely noticeable.
+    let g:CommandTRecursiveMatch = 0
+
+This one is a little more subjective. You may want to turn off Command-T's
+recursive match-scoring algorithm to save some cycles. This finds matches more
+quickly at the possible cost of ranking them slightly less precisely. Whether
+applying this setting helps or hurts you in a very large repo is probably
+repo-dependent.
 
 As noted in the introduction, Command-T works best when you adopt a
 "path-centric" mentality. This is especially true on very large hierarchies.
@@ -1209,6 +1225,7 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
+- version 2.0a (not yet released) added the |g:CommandTRecursiveMatch| option
 - version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
   |g:CommandTSmartCase| options
 - version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
@@ -1388,6 +1405,7 @@ HISTORY                                         *command-t-history*
   - `CommandTSelectNext()` is now `commandt#private#SelectNext()`
   - `CommandTSelectPrev()` is now `commandt#private#SelectPrev()`
   - `CommandTToggleFocus()` is now `commandt#private#ToggleFocus()`
+- add |g:CommandTRecursiveMatch| option
 
 1.13 (29 April 2015)
 
