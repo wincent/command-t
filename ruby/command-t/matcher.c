@@ -140,7 +140,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (NIL_P(abbrev))
         rb_raise(rb_eArgError, "nil abbrev");
 
-    // check optional options has for overrides
+    // check optional options hash for overrides
     case_sensitive = CommandT_option_from_hash("case_sensitive", options);
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
