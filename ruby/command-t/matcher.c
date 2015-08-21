@@ -1,4 +1,4 @@
-// Copyright 2010-2014 Greg Hurrell. All rights reserved.
+// Copyright 2010-2015 Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
 #include <stdlib.h>  /* for qsort() */
@@ -90,6 +90,7 @@ typedef struct {
     VALUE abbrev;
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
+    VALUE recurse;
 } thread_args_t;
 
 void *match_thread(void *thread_args)
@@ -103,6 +104,7 @@ void *match_thread(void *thread_args)
                         args->case_sensitive,
                         args->always_show_dot_files,
                         args->never_show_dot_files,
+                        args->recurse,
                         &args->matches[i]);
     }
 
@@ -126,6 +128,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE ignore_spaces;
     VALUE options;
     VALUE paths;
+    VALUE recurse;
     VALUE results;
     VALUE scanner;
     VALUE sort_option;
@@ -143,6 +146,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     threads_option = CommandT_option_from_hash("threads", options);
     sort_option = CommandT_option_from_hash("sort", options);
     ignore_spaces = CommandT_option_from_hash("ignore_spaces", options);
+    recurse = CommandT_option_from_hash("recurse", options);
 
     abbrev = StringValue(abbrev);
     if (case_sensitive != Qtrue)
@@ -186,6 +190,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].abbrev = abbrev;
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
+        thread_args[i].recurse = recurse;
 
 #ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {

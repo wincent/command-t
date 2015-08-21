@@ -1,4 +1,4 @@
-// Copyright 2010-2014 Greg Hurrell. All rights reserved.
+// Copyright 2010-2015 Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
 #include <ruby.h>
@@ -14,4 +14,5 @@ extern void calculate_match(VALUE str,
                             VALUE case_sensitive,
                             VALUE always_show_dot_files,
                             VALUE never_show_dot_files,
+                            VALUE recurse,
                             match_t *out);

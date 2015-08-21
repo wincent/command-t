@@ -1,4 +1,4 @@
-# Copyright 2010-2014 Greg Hurrell. All rights reserved.
+# Copyright 2010-2015 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
@@ -26,8 +26,8 @@ module CommandT
         exists?(name) ? ::VIM::evaluate("#{name}").to_i : nil
       end
 
-      def get_bool(name)
-        exists?(name) ? ::VIM::evaluate("#{name}").to_i != 0 : nil
+      def get_bool(name, default = nil)
+        exists?(name) ? ::VIM::evaluate("#{name}").to_i != 0 : default
       end
 
       def get_string(name)

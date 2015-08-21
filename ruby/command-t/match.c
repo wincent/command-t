@@ -1,4 +1,4 @@
-// Copyright 2010-2014 Greg Hurrell. All rights reserved.
+// Copyright 2010-2015 Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
 #include <float.h> /* for DBL_MAX */
@@ -16,6 +16,7 @@ typedef struct {
     int     always_show_dot_files;  // boolean
     int     never_show_dot_files;   // boolean
     int     case_sensitive;         // boolean
+    int     recurse;                // boolean
     double  *memo;                  // memoization
 } matchinfo_t;
 
@@ -94,7 +95,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
                     score_for_char *= factor;
                 }
 
-                if (++j < m->haystack_len) {
+                if (++j < m->haystack_len && m->recurse) {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
                     double sub_score = recursive_match(m, j, i, last_idx, score);
@@ -125,6 +126,7 @@ void calculate_match(VALUE str,
                      VALUE case_sensitive,
                      VALUE always_show_dot_files,
                      VALUE never_show_dot_files,
+                     VALUE recurse,
                      match_t *out)
 {
     long i, max;
@@ -138,6 +140,7 @@ void calculate_match(VALUE str,
     m.always_show_dot_files = always_show_dot_files == Qtrue;
     m.never_show_dot_files  = never_show_dot_files == Qtrue;
     m.case_sensitive        = case_sensitive;
+    m.recurse               = recurse == Qtrue;
 
     // calculate score
     score = 1.0;

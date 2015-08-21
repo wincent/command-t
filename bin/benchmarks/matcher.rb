@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# Copyright 2013-2014 Greg Hurrell. All rights reserved.
+# Copyright 2013-2015 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 lib  = File.expand_path('../../ruby', File.dirname(__FILE__))
@@ -25,7 +25,11 @@ Benchmark.bmbm do |b|
     b.report(test['name']) do
       test['times'].times do
         test['queries'].each do |query|
-          matcher.sorted_matches_for(query, :threads => threads)
+          matcher.sorted_matches_for(
+            query,
+            :threads => threads,
+            :recurse => ENV.fetch('RECURSE', '1') == '1'
+          )
         end
       end
     end
