@@ -1406,6 +1406,7 @@ HISTORY                                         *command-t-history*
   - `CommandTSelectPrev()` is now `commandt#private#SelectPrev()`
   - `CommandTToggleFocus()` is now `commandt#private#ToggleFocus()`
 - add |g:CommandTRecursiveMatch| option
+- stop distribution as a vimball in favor of a zip archive
 
 1.13 (29 April 2015)
 
@@ -1488,7 +1489,7 @@ HISTORY                                         *command-t-history*
 
 1.9.1 (30 May 2014)
 
-- include the file in the release vimball archive that was missing from the
+- include the file in the release archive that was missing from the
   1.9 release
 
 1.9 (25 May 2014)

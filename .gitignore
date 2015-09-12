@@ -1,5 +1,4 @@
 .release-notes.txt
 .ruby-version
-command-t.recipe
 /.bundle
 vendor/bundle
