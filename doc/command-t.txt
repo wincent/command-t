@@ -1707,4 +1707,4 @@ HISTORY                                         *command-t-history*
 - initial public release
 
 ------------------------------------------------------------------------------
-vim:tw=78:ft=help:
+vim:ts=8:tw=78:ft=help:
