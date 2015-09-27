@@ -2,9 +2,14 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
+  begin
+    require 'command-t/metadata'
+  rescue LoadError
+    require 'command-t/metadata/fallback'
+  end
+
   autoload :Controller,    'command-t/controller'
   autoload :Finder,        'command-t/finder'
-  autoload :Metadata,      'command-t/metadata'
   autoload :MRU,           'command-t/mru'
   autoload :MatchWindow,   'command-t/match_window'
   autoload :PathUtilities, 'command-t/path_utilities'
