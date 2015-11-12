@@ -48,7 +48,7 @@ module CommandT
         raise "Can't re-open GoToFile buffer" unless $curbuf.number == @@buffer.number
         $curwin.height = 1
       else        # creating match window for first time and set it up
-        ::VIM::command "silent! #{split_location} 1split GoToFile"
+        ::VIM::command "silent! keepalt #{split_location} 1split GoToFile"
         set 'bufhidden', 'unload' # unload buf when no longer displayed
         set 'buftype', 'nofile'   # buffer is not related to any file
         set 'modifiable', false   # prevent manual edits
