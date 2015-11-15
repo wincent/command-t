@@ -53,7 +53,7 @@ module CommandT
         end
         $curwin.height = 1
         ::VIM::command "0file"
-        ::VIM::command "file #{escaped_name}"
+        ::VIM::command "keepalt file #{escaped_name}"
       else        # creating match window for first time and set it up
         ::VIM::command "silent! keepalt #{split_location} 1split #{escaped_name}"
         set 'bufhidden', 'unload'   # unload buf when no longer displayed
