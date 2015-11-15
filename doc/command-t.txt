@@ -1261,16 +1261,17 @@ order):
   Ivan Ukhov                      Sherzod Gapirov
   Jacek Wysocki                   Shlomi Fish
   Jeff Kreeftmeijer               Steven Moazami
-  KJ Tsanaktsidis                 Sung Pae
-  Kevin Webster                   Thomas Pelletier
-  Lucas de Vries                  Ton van den Heuvel
-  Marcus Brito                    Victor Hugo Borja
-  Marian Schubert                 Vlad Seghete
-  Matthew Todd                    Vít Ondruch
-  Mike Lundy                      Woody Peterson
-  Nadav Samet                     Yan Pritzker
-  Nate Kane                       Yiding Jia
-  Nicholas Alpi                   Zak Johnson
+  Jerome Castaneda                Sung Pae
+  KJ Tsanaktsidis                 Thomas Pelletier
+  Kevin Webster                   Ton van den Heuvel
+  Lucas de Vries                  Victor Hugo Borja
+  Marcus Brito                    Vlad Seghete
+  Marian Schubert                 Vít Ondruch
+  Matthew Todd                    Woody Peterson
+  Mike Lundy                      Yan Pritzker
+  Nadav Samet                     Yiding Jia
+  Nate Kane                       Zak Johnson
+  Nicholas Alpi
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1407,6 +1408,8 @@ HISTORY                                         *command-t-history*
   - `CommandTToggleFocus()` is now `commandt#private#ToggleFocus()`
 - add |g:CommandTRecursiveMatch| option
 - stop distribution as a vimball in favor of a zip archive
+- don't clobber |alternate-file| name when opening Command-T match listing
+  (patch from Jerome Castaneda)
 
 1.13 (29 April 2015)
 
