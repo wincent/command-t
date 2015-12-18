@@ -770,10 +770,17 @@ Following is a list of all available options:
       When this setting is off (the default) the matches in the |:CommandTTag|
       listing do not include filenames.
 
+                                                *g:CommandTCursorColor*
+                                                string (default: 'Underlined')
+  |g:CommandTCursorColor|
+
+      Specifies the |:highlight| color that will be applied to the cursor in
+      the Command-T prompt.
+
                                                 *g:CommandTHighlightColor*
   |g:CommandTHighlightColor|                      string (default: 'PmenuSel')
 
-      Specifies the highlight color that will be used to show the currently
+      Specifies the |:highlight| color that will be used to show the currently
       selected item in the match listing window.
 
                                                 *g:CommandTWildIgnore*
@@ -1410,6 +1417,7 @@ HISTORY                                         *command-t-history*
 - stop distribution as a vimball in favor of a zip archive
 - don't clobber |alternate-file| name when opening Command-T match listing
   (patch from Jerome Castaneda)
+- add |g:CommandTCursorColor| option
 
 1.13 (29 April 2015)
 
