@@ -14,10 +14,12 @@ command! -nargs=? -complete=dir CommandT call commandt#FileFinder(<q-args>)
 command! CommandTFlush call commandt#Flush()
 command! CommandTLoad call commandt#Load()
 
-if !hasmapto(':CommandT<CR>') && maparg('<Leader>t', 'n') ==# ''
-  nnoremap <unique> <silent> <Leader>t :CommandT<CR>
+if !hasmapto('<Plug>(CommandT)') && maparg('<Leader>t', 'n') ==# ''
+  nmap <unique> <Leader>t <Plug>(CommandT)
 endif
+nnoremap <silent> <Plug>(CommandT) :CommandT<CR>
 
-if !hasmapto(':CommandTBuffer<CR>') && maparg('<Leader>b', 'n') ==# ''
-  nnoremap <unique> <silent> <Leader>b :CommandTBuffer<CR>
+if !hasmapto('<Plug>(CommandTBuffer)') && maparg('<Leader>b', 'n') ==# ''
+  nmap <unique> <Leader>b <Plug>(CommandTBuffer)
 endif
+nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
