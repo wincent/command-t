@@ -23,3 +23,10 @@ if !hasmapto('<Plug>(CommandTBuffer)') && maparg('<Leader>b', 'n') ==# ''
   nmap <unique> <Leader>b <Plug>(CommandTBuffer)
 endif
 nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
+
+if has('jumplist')
+  if !hasmapto('<Plug>(CommandTJump)') && maparg('<Leader>j', 'n') ==# ''
+    nmap <unique> <Leader>j <Plug>(CommandTJump)
+  endif
+  nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
+endif
