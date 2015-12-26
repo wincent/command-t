@@ -214,7 +214,7 @@ For more information about Pathogen, see:
 Obtaining the source using Vundle ~
 
 Anywhere between the calls to `vundle#begin` and `vundle#end` in your
-`~/.vimrc`, add a `Plugin` directive telling Vundle of your desire to use
+|.vimrc|, add a `Plugin` directive telling Vundle of your desire to use
 Command-T:
 
   call vundle#begin()
@@ -232,7 +232,7 @@ For more information about Vundle, see:
 Obtaining the source using NeoBundle ~
 
 Anywhere between the calls to `neobundle#begin` and `neobundle#end` in your
-`~/.vimrc`, add a `NeoBundle` directive telling NeoBundle of your desire to use
+|.vimrc|, add a `NeoBundle` directive telling NeoBundle of your desire to use
 Command-T:
 
   call neobundle#begin(expand('~/.vim/bundle/'))
@@ -248,7 +248,7 @@ For more information about NeoBundle, see:
                                                               *command-t-vam*
 Obtaining the source using VAM ~
 
-After the call to `vam#ActivateAddons` in your `~/.vimrc`, add Command-T to
+After the call to `vam#ActivateAddons` in your |.vimrc|, add Command-T to
 the `VAMActivate` call:
 
   call vam#ActivateAddons([])
@@ -484,7 +484,7 @@ The following is also available on terminals which support it:
     <Esc>       cancel (dismisses file listing)
 
 Note that the default mappings can be overriden by setting options in your
-`~/.vimrc` file (see the OPTIONS section for a full list of available options).
+|.vimrc| file (see the OPTIONS section for a full list of available options).
 
 In addition, when the file listing has focus, typing a character will cause
 the selection to jump to the first path which begins with that character.
@@ -566,7 +566,7 @@ By default Command-T comes with only three mappings:
 <Leader>j       bring up the Command-T jumplist window
 
 Note that Command-T won't overwrite a pre-existing mapping so if you prefer
-to define different mappings use lines like these in your `~/.vimrc`:
+to define different mappings use lines like these in your |.vimrc|:
 
   nnoremap <silent> <Leader>t <Plug>(CommandT)
   nnoremap <silent> <Leader>b <Plug>(CommandTBuffer)
@@ -575,7 +575,7 @@ to define different mappings use lines like these in your `~/.vimrc`:
 Replacing "<Leader>t", "<Leader>b" or "<Leader>j" with your mapping of choice.
 
 Note that in the case of MacVim you actually can map to Command-T (written
-as <D-t> in Vim) in your `~/.gvimrc` file if you first unmap the existing menu
+as <D-t> in Vim) in your |.gvimrc| file if you first unmap the existing menu
 binding of Command-T to "New Tab":
 
   if has("gui_macvim")
@@ -591,8 +591,8 @@ overriding the mappings are listed below under OPTIONS.
 
 OPTIONS                                         *command-t-options*
 
-A number of options may be set in your `~/.vimrc` to influence the behaviour of
-the plug-in. To set an option, you include a line like this in your `~/.vimrc`:
+A number of options may be set in your |.vimrc| to influence the behaviour of
+the plug-in. To set an option, you include a line like this in your |.vimrc|:
 
     let g:CommandTMaxFiles=20000
 
@@ -901,7 +901,7 @@ Following is a list of all available options:
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
-window, you would add the following to your `~/.vimrc`:
+window, you would add the following to your |.vimrc|:
 
   let g:CommandTCancelMap='<C-x>'
 
@@ -1115,7 +1115,7 @@ Why doesn't the Escape key close the match listing in terminal Vim? ~
 
 In some terminals such as xterm the Escape key misbehaves, so Command-T
 doesn't set up a mapping for it. If you want to try using the escape key
-anyway, you can add something like the following to your `~/.vimrc` file:
+anyway, you can add something like the following to your |.vimrc| file:
 
   if &term =~ "xterm" || &term =~ "screen"
     let g:CommandTCancelMap = ['<ESC>', '<C-c>']
