@@ -42,7 +42,13 @@ let s:deprecated = {
 for [old, new] in items(s:deprecated)
   execute
     \  "function! " . old . "(...) abort \n" .
-    \  "  echoerr \"" . old . "() is deprecated: use " . new . "() instead\"\n" .
+    \  "  call inputsave()\n" .
+    \  "  echohl ErroMsg\n" .
+    \  "  let l:message = \"" . old . "() is deprecated: use " . new . "() instead\"\n" .
+    \  "  call input(l:message . ' [press ENTER to continue]')\n" .
+    \  "  echohl NONE\n" .
+    \  "  call inputrestore()\n" .
+    \  "  echo\n" .
     \  "  if len(a:000) == 0\n" .
     \  "    call " . new . "()\n" .
     \  "  else\n" .
