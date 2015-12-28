@@ -1381,7 +1381,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-2.0a (not yet released)
+2.0 (28 December 2015)
 
 - add |:CommandTIgnoreSpaces| option (patch from KJ Tsanaktsidis)
 - make Command-T resilient to people deleting its hidden, unlisted buffer
