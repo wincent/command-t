@@ -261,7 +261,7 @@ module CommandT
         :case_sensitive => case_sensitive?,
         :limit          => match_limit,
         :threads        => CommandT::Util.processor_count,
-        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces'),
+        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces', true),
         :recurse        => VIM::get_bool('g:CommandTRecursiveMatch', true),
       )
       @match_window.matches = @matches
@@ -307,7 +307,7 @@ module CommandT
       @match_window     = MatchWindow.new \
         :highlight_color      => VIM::get_string('g:CommandTHighlightColor'),
         :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
-        :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse'),
+        :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse', true),
         :min_height           => min_height,
         :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 50,
         :prompt               => prompt,
@@ -320,7 +320,7 @@ module CommandT
     end
 
     def max_height
-      @max_height ||= VIM::get_number('g:CommandTMaxHeight') || 0
+      @max_height ||= VIM::get_number('g:CommandTMaxHeight') || 15
     end
 
     def min_height

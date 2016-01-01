@@ -628,7 +628,7 @@ Following is a list of all available options:
       there is no limit on the number of cached directories.
 
                                                *g:CommandTMaxHeight*
-  |g:CommandTMaxHeight|                          number (default: 0)
+  |g:CommandTMaxHeight|                          number (default: 15)
 
       The maximum height in lines the match window is allowed to expand to.
       If set to 0, the window will occupy as much of the available space as
@@ -760,19 +760,20 @@ Following is a list of all available options:
       When this setting is off (the default) the match window will appear at
       the bottom so as to keep it near to the prompt. Turning it on causes the
       match window to appear at the top instead. This may be preferable if you
-      want the best match (usually the first one) to appear in a fixed location
-      on the screen rather than moving as the number of matches changes during
+      if you have |g:CommandTMatchWindowReverse| set to 0 and want the best
+      match (usually the first one) to appear in a fixed location on the
+      screen rather than moving as the number of matches changes during
       typing.
 
                                                 *g:CommandTMatchWindowReverse*
-  |g:CommandTMatchWindowReverse|                  boolean (default: 0)
+  |g:CommandTMatchWindowReverse|                  boolean (default: 1)
 
-      When this setting is off (the default) the matches will appear from
-      top to bottom with the topmost being selected. Turning it on causes the
-      matches to be reversed so the best match is at the bottom and the
-      initially selected match is the bottom most. This may be preferable if
-      you want the best match to appear in a fixed location on the screen
-      but still be near the prompt at the bottom.
+      When this setting is on (the default), matches will be shown in reverse
+      order, with the best match at the bottom (ie. closest to the prompt).
+      The initially selected match will be the bottom-most, which is
+      preferable if you want the best match to appear in a fixed location on
+      the screen (independently of the number of results). When set to 0,
+      matches will appear from top to bottom with the topmost being selected.
 
                                                 *g:CommandTTagIncludeFilenames*
   |g:CommandTTagIncludeFilenames|                 boolean (default: 0)
@@ -892,11 +893,10 @@ Following is a list of all available options:
       "ASCII-8BIT".
 
                                               *g:CommandTIgnoreSpaces*
-  |g:CommandTIgnoreSpaces|                      boolean (default: 0)
+  |g:CommandTIgnoreSpaces|                      boolean (default: 1)
 
-      When typing a search term into Command-T, use this option to have it
-      ignore spaces. Without this option set, it will search for literal
-      spaces inside file names.
+      When typing a search term into Command-T, ignore spaces. When set to 0,
+      Command-T will search for literal spaces inside file names.
 
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
@@ -1380,6 +1380,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+3.0 (not yet released)
+
+- change |g:CommandTIgnoreSpaces| default value to 1.
+- change |g:CommandTMatchWindowReverse| default value to 1.
+- change |g:CommandTMaxHeight| default value to 15.
 
 2.0 (28 December 2015)
 
