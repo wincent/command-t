@@ -1242,7 +1242,7 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
-- version 2.0a (not yet released) added the |g:CommandTRecursiveMatch| option
+- version 2.0 (December 2015) added the |g:CommandTRecursiveMatch| option
 - version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
   |g:CommandTSmartCase| options
 - version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
