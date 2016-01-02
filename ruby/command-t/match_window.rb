@@ -23,15 +23,6 @@ module CommandT
       quoted_name = VIM::escape_for_single_quotes(options[:name])
       escaped_name = ::VIM::evaluate("fnameescape('#{quoted_name}')")
 
-      # save existing window dimensions so we can restore them later
-      @windows = (0..(::VIM::Window.count - 1)).map do |i|
-        OpenStruct.new(
-          :index  => i,
-          :height => ::VIM::Window[i].height,
-          :width  => ::VIM::Window[i].width
-        )
-      end
-
       set 'timeout', true        # ensure mappings timeout
       set 'hlsearch', false      # don't highlight search strings
       set 'insertmode', false    # don't make Insert mode the default
@@ -43,6 +34,36 @@ module CommandT
       set 'sidescroll', 0        # don't sidescroll in jumps
       set 'sidescrolloff', 0     # don't sidescroll automatically
       set 'updatetime', options[:debounce_interval]
+
+      # Save existing window views so we can restore them later.
+      current_window = ::VIM::evaluate('winnr()')
+      @windows = (0..(::VIM::Window.count - 1)).map do |i|
+        focus_window(i + 1)
+        view = ::VIM::evaluate('winsaveview()')
+        window = OpenStruct.new(
+          :index    => i,
+          :height   => ::VIM::Window[i].height,
+          :width    => ::VIM::Window[i].width,
+          :lnum     => view['lnum'],
+          :col      => view['col'],
+          :coladd   => view['coladd'],
+          :curswant => view['curswant'],
+          :topline  => view['topline'],
+          :topfill  => view['topfill'],
+          :leftcol  => view['leftcol'],
+          :skipcol  => view['skipcol'],
+        )
+
+        # When creating a split for the match window, move the cursor to the
+        # opposite side of the window's viewport to prevent unwanted scrolling.
+        boundary_line = options[:match_window_at_top] ?
+          ::VIM::evaluate("line('w$')") :
+          view['topline']
+        ::VIM::evaluate("winrestview({'lnum': #{boundary_line}})")
+
+        window
+      end
+      focus_window(current_window)
 
       # show match window
       split_location = options[:match_window_at_top] ? 'topleft' : 'botright'
@@ -168,7 +189,7 @@ module CommandT
     end
 
     def unload
-      restore_window_dimensions
+      restore_window_views
       @settings.restore
       @prompt.dispose
       show_cursor
@@ -251,6 +272,10 @@ module CommandT
 
   private
 
+    def focus_window(number)
+      ::VIM::command("noautocmd #{number}wincmd w")
+    end
+
     def _next
       if @selection < [@window.height, @matches.length].min - 1
         @selection += 1
@@ -296,7 +321,7 @@ module CommandT
       lock
     end
 
-    def restore_window_dimensions
+    def restore_window_views
       # sort from tallest to shortest, tie-breaking on window width
       @windows.sort! do |a, b|
         order = b.height <=> a.height
@@ -310,13 +335,26 @@ module CommandT
       # starting with the tallest ensures that there are no constraints
       # preventing windows on the side of vertical splits from regaining
       # their original full size
+      current_window = ::VIM::evaluate('winnr()')
       @windows.each do |w|
         # beware: window may be nil
         if window = ::VIM::Window[w.index]
           window.height = w.height
           window.width  = w.width
+          focus_window(w.index + 1)
+          ::VIM::evaluate("winrestview({" +
+            "'lnum': #{w.lnum}," +
+            "'col': #{w.col}, " +
+            "'coladd': #{w.coladd}, " +
+            "'curswant': #{w.curswant}, " +
+            "'topline': #{w.topline}, " +
+            "'topfill': #{w.topfill}, " +
+            "'leftcol': #{w.leftcol}, " +
+            "'skipcol': #{w.skipcol}" +
+          "})")
         end
       end
+      focus_window(current_window)
     end
 
     def match_text_for_idx(idx)
