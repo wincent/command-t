@@ -19,7 +19,7 @@ describe CommandT::Matcher do
 
   describe '#sorted_matches_for' do
     def ordered_matches(paths, query)
-      matcher(*paths).sorted_matches_for(query)
+      matcher(*paths).sorted_matches_for(query, :recurse => true)
     end
 
     it 'raises an ArgumentError if passed nil' do
