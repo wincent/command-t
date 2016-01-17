@@ -81,9 +81,9 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 }
 
 typedef struct {
-    int thread_count;
-    int thread_index;
-    int case_sensitive;
+    long thread_count;
+    long thread_index;
+    long case_sensitive;
     match_t *matches;
     long path_count;
     VALUE paths;

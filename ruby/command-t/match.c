@@ -139,7 +139,7 @@ void calculate_match(VALUE str,
     m.max_score_per_char    = (1.0 / m.haystack_len + 1.0 / m.needle_len) / 2;
     m.always_show_dot_files = always_show_dot_files == Qtrue;
     m.never_show_dot_files  = never_show_dot_files == Qtrue;
-    m.case_sensitive        = case_sensitive;
+    m.case_sensitive        = (int)case_sensitive;
     m.recurse               = recurse == Qtrue;
 
     // calculate score
