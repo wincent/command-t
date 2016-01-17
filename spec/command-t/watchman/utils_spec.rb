@@ -71,15 +71,15 @@ describe CommandT::Watchman::Utils do
   end
 
   it 'roundtrips `true` booleans' do
-    expect(roundtrip(true)).to be_true
+    expect(roundtrip(true)).to be true
   end
 
   it 'roundtrips `false` booleans' do
-    expect(roundtrip(false)).to be_false
+    expect(roundtrip(false)).to be false
   end
 
   it 'roundtrips nil' do
-    expect(roundtrip(nil)).to be_nil
+    expect(roundtrip(nil)).to be nil
   end
 
   describe '.load' do
@@ -278,17 +278,17 @@ describe CommandT::Watchman::Utils do
 
     it 'loads boolean `true` values' do
       input = binary("\x00\x01\x03\x01\x08")
-      expect(described_class.load(input)).to be_true
+      expect(described_class.load(input)).to be true
     end
 
     it 'loads boolean `false` values' do
       input = binary("\x00\x01\x03\x01\x09")
-      expect(described_class.load(input)).to be_false
+      expect(described_class.load(input)).to be false
     end
 
     it 'loads nil' do
       input = binary("\x00\x01\x03\x01\x0a")
-      expect(described_class.load(input)).to be_nil
+      expect(described_class.load(input)).to be nil
     end
 
     it 'loads templates' do
