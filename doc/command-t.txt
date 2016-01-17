@@ -1386,6 +1386,8 @@ HISTORY                                         *command-t-history*
 - change |g:CommandTIgnoreSpaces| default value to 1.
 - change |g:CommandTMatchWindowReverse| default value to 1.
 - change |g:CommandTMaxHeight| default value to 15.
+- try harder to avoid scrolling other buffer when showing or hiding the match
+  listing
 
 2.0 (28 December 2015)
 
