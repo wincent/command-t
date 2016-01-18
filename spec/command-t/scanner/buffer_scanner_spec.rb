@@ -23,7 +23,7 @@ describe CommandT::Scanner::BufferScanner do
 
   describe 'paths method' do
     it 'returns a list of regular files' do
-      @scanner.paths.should =~ @paths
+      expect(@scanner.paths).to match_array(@paths)
     end
   end
 end

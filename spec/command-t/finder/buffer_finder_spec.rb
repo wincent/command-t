@@ -12,29 +12,29 @@ describe CommandT::Finder::BufferFinder do
 
   describe 'sorted_matches_for method' do
     it 'returns an empty array when no matches' do
-      @finder.sorted_matches_for('kung foo fighting').should == []
+      expect(@finder.sorted_matches_for('kung foo fighting')).to eq([])
     end
 
     it 'returns all files when query string is empty' do
-      @finder.sorted_matches_for('').should == @paths
+      expect(@finder.sorted_matches_for('')).to eq(@paths)
     end
 
     it 'returns files in alphabetical order when query string is empty' do
       results = @finder.sorted_matches_for('')
-      results.should == results.sort
+      expect(results).to eq(results.sort)
     end
 
     it 'returns matching files in score order' do
-      @finder.sorted_matches_for('ba').should == %w(baz foo/beta)
-      @finder.sorted_matches_for('a').should == %w(baz foo/beta)
+      expect(@finder.sorted_matches_for('ba')).to eq(%w(baz foo/beta))
+      expect(@finder.sorted_matches_for('a')).to eq(%w(baz foo/beta))
     end
 
     it 'returns matching dot files even when search term does not include a dot' do
-      @finder.sorted_matches_for('i').should include('.vimrc')
+      expect(@finder.sorted_matches_for('i')).to include('.vimrc')
     end
 
     it 'returns matching files inside dot directories even when search term does not include a dot' do
-      @finder.sorted_matches_for('i').should include('.vim/notes')
+      expect(@finder.sorted_matches_for('i')).to include('.vim/notes')
     end
 
     it "does not use the Vim expand() function to consult the 'wildignore' setting" do
@@ -43,13 +43,13 @@ describe CommandT::Finder::BufferFinder do
     end
 
     it 'obeys the :limit option for empty search strings' do
-      @finder.sorted_matches_for('', :limit => 1).
-        should == %w(.git/config)
+      expect(@finder.sorted_matches_for('', :limit => 1)).
+        to eq(%w(.git/config))
     end
 
     it 'obeys the :limit option for non-empty search strings' do
-      @finder.sorted_matches_for('i', :limit => 2).
-        should == %w(.vimrc .vim/notes)
+      expect(@finder.sorted_matches_for('i', :limit => 2)).
+        to eq(%w(.vimrc .vim/notes))
     end
   end
 end

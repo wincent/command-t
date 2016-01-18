@@ -18,21 +18,21 @@ describe CommandT::Scanner::FileScanner::RubyFileScanner do
 
   describe 'paths method' do
     it 'returns a list of regular files' do
-      @scanner.paths.should =~ @all_fixtures
+      expect(@scanner.paths).to match_array(@all_fixtures)
     end
   end
 
   describe 'path= method' do
     it 'allows repeated applications of scanner at different paths' do
-      @scanner.paths.should =~ @all_fixtures
+      expect(@scanner.paths).to match_array(@all_fixtures)
 
       # drill down 1 level
       @scanner.path = File.join(@dir, 'foo')
-      @scanner.paths.should =~ %w(alpha/t1 alpha/t2 beta)
+      expect(@scanner.paths).to match_array(%w(alpha/t1 alpha/t2 beta))
 
       # and another
       @scanner.path = File.join(@dir, 'foo', 'alpha')
-      @scanner.paths.should =~ %w(t1 t2)
+      expect(@scanner.paths).to match_array(%w(t1 t2))
     end
   end
 
@@ -59,7 +59,7 @@ describe CommandT::Scanner::FileScanner::RubyFileScanner do
   describe ':max_depth option' do
     it 'does not descend below "max_depth" levels' do
       @scanner = CommandT::Scanner::FileScanner::RubyFileScanner.new @dir, :max_depth => 1
-      @scanner.paths.should =~ %w(bar/abc bar/xyz baz bing foo/beta)
+      expect(@scanner.paths).to match_array(%w(bar/abc bar/xyz baz bing foo/beta))
     end
   end
 end
