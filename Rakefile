@@ -38,7 +38,7 @@ def err(str)
   puts "#{red}error: #{str}#{clear}"
 end
 
-task :default => :spec
+task :default => :help
 
 desc 'Print help on preparing a release'
 task :help do
@@ -51,8 +51,9 @@ The general release sequence is:
   rake push
   rake upload:all
 
-Note: the upload task depends on the Mechanize gem; and may require a
-prior `gem install mechanize`
+For a full list of available tasks:
+
+  rake -T
 
   END
 end
