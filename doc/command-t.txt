@@ -1379,7 +1379,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-3.0 (not yet released)
+3.0 (19 January 2015)
 
 - change |g:CommandTIgnoreSpaces| default value to 1.
 - change |g:CommandTMatchWindowReverse| default value to 1.
