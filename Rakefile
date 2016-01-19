@@ -96,8 +96,18 @@ task :check_tag do
   end
 end
 
+desc 'Verify that required dependencies are installed'
+task :check_deps do
+  begin
+    require 'rubygems'
+    require 'mechanize'
+  rescue LoadError
+    warn 'mechanize not installed (`gem install mechanize` in order to upload)'
+  end
+end
+
 desc 'Run checks prior to release'
-task :prerelease => [:make, :spec, :archive, :check_tag]
+task :prerelease => [:make, :spec, :archive, :check_tag, :check_deps]
 
 desc 'Prepare release notes from HISTORY'
 task :notes do
