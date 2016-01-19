@@ -96,7 +96,7 @@ task :check_tag do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => ['make', 'spec', :archive, :check_tag]
+task :prerelease => [:make, :spec, :archive, :check_tag]
 
 desc 'Prepare release notes from HISTORY'
 task :notes do
@@ -155,7 +155,7 @@ namespace :upload do
   end
 
   desc 'Upload current archive everywhere'
-  task :all => [ :s3, :vim ]
+  task :all => [:s3, :vim]
 end
 
 desc 'Create the ruby gem package'
