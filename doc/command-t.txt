@@ -39,10 +39,6 @@ called. This means narrowing your search down by including some characters
 from the upper path components rather than just entering characters from the
 filename itself.
 
-Screencasts demonstrating the plug-in can be viewed at:
-
-  https://wincent.com/products/command-t
-
 
 REQUIREMENTS                                    *command-t-requirements*
 
@@ -182,13 +178,13 @@ If you manage your entire `~/.vim` folder using Git then you can add the
 Command-T repository as a submodule:
 
   cd ~/.vim
-  git submodule add git://git.wincent.com/command-t.git bundle/command-t
+  git submodule add https://github.com/wincent/command-t.git bundle/command-t
   git submodule init
 
 Or if you just wish to do a simple clone instead of using submodules:
 
   cd ~/.vim
-  git clone git://git.wincent.com/command-t.git bundle/command-t
+  git clone https://github.com/wincent/command-t.git bundle/command-t
 
 Once you have a local copy of the repository you can update it at any time
 with:
@@ -1307,19 +1303,19 @@ LustyExplorer is available from:
 
 DEVELOPMENT                                     *command-t-development*
 
-Development in progress can be inspected via the project's Git web-based
-repository browser at:
+Development in progress can be inspected at:
 
-  https://wincent.com/repos/command-t
+  https://github.com/wincent/command-t
 
 the clone URL for which is:
 
-  git://git.wincent.com/command-t.git
+  https://github.com/wincent/command-t.git
 
-A mirror exists on GitHub, which is automatically updated once per hour from
-the authoritative repository:
+Mirrors exist on GitLab and BitBucket, and are automatically updated once per
+hour:
 
-  https://github.com/wincent/command-t
+  https://gitlab.com/wincent/command-t
+  https://bitbucket.org/ghurrell/command-t
 
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
@@ -1340,9 +1336,11 @@ WEBSITE                                         *command-t-website*
 
 The official website for Command-T is:
 
-  https://wincent.com/products/command-t
+  https://github.com/wincent/command-t
 
-The latest release will always be available from there.
+The latest release will always be available from:
+
+  https://github.com/wincent/command-t/releases
 
 A copy of each release is also available from the official Vim scripts site
 at:
@@ -1351,7 +1349,7 @@ at:
 
 Bug reports should be submitted to the issue tracker at:
 
-  https://wincent.com/issues
+  https://github.com/wincent/command-t/issues
 
 
 LICENSE                                         *command-t-license*
