@@ -1379,7 +1379,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-3.0 (19 January 2015)
+3.0.1 (25 January 2016)
+
+- restore compatiblity with Ruby 1.8.7.
+
+3.0 (19 January 2016)
 
 - change |g:CommandTIgnoreSpaces| default value to 1.
 - change |g:CommandTMatchWindowReverse| default value to 1.

@@ -262,7 +262,7 @@ module CommandT
         :limit          => match_limit,
         :threads        => CommandT::Util.processor_count,
         :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces', true),
-        :recurse        => VIM::get_bool('g:CommandTRecursiveMatch', true),
+        :recurse        => VIM::get_bool('g:CommandTRecursiveMatch', true)
       )
       @match_window.matches = @matches
 

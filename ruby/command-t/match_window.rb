@@ -51,7 +51,7 @@ module CommandT
           :topline  => view['topline'],
           :topfill  => view['topfill'],
           :leftcol  => view['leftcol'],
-          :skipcol  => view['skipcol'],
+          :skipcol  => view['skipcol']
         )
 
         # When creating a split for the match window, move the cursor to the
