@@ -1379,6 +1379,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+next (not yet released)
+
 3.0.1 (25 January 2016)
 
 - restore compatibility with Ruby 1.8.7.
