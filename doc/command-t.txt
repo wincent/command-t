@@ -1381,7 +1381,7 @@ HISTORY                                         *command-t-history*
 
 3.0.1 (25 January 2016)
 
-- restore compatiblity with Ruby 1.8.7.
+- restore compatibility with Ruby 1.8.7.
 
 3.0 (19 January 2016)
 
