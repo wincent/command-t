@@ -1067,6 +1067,26 @@ context-sensitive 'statusline'.
 - `commandt#CheckBuffer()`: Takes a buffer number and returns true if
   it is the Command-T match listing buffer.
 
+                                                *command-t-custom-autocommands*
+Custom autocommands ~
+
+                                                *CommandTWillShowMatchListing*
+                                                *CommandTDidHideMatchListing*
+
+Command-T runs the following "User" autocommands just prior to showing the
+match listing window and just after hiding it:
+
+  - CommandTWillShowMatchListing
+  - CommandTDidHideMatchListing
+
+For example, to call a pair of custom functions in response to these events,
+you might do: >
+
+   autocmd! User CommandTWillShowMatchListing
+   autocmd User CommandTWillShowMatchListing call CustomWillShow()
+   autocmd! User CommandTDidHideMatchListing
+   autocmd User CommandTDidHideMatchListing call CustomDidHide()
+
 
 FAQ                                             *command-t-faq*
 
@@ -1379,9 +1399,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-3.0.2 (not yet released)
+3.1 (not yet released)
 
 - Minimize flicker on opening and closing the match listing in MacVim.
+- Add |CommandTWillShowMatchListing| and |CommandTDidHideMatchListing| "User"
+  autocommands.
 
 3.0.1 (25 January 2016)
 

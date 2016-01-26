@@ -23,6 +23,8 @@ module CommandT
       quoted_name = VIM::escape_for_single_quotes(options[:name])
       escaped_name = ::VIM::evaluate("fnameescape('#{quoted_name}')")
 
+      run_will_show_autocmd
+
       set 'timeout', true        # ensure mappings timeout
       set 'hlsearch', false      # don't highlight search strings
       set 'insertmode', false    # don't make Insert mode the default
@@ -193,6 +195,7 @@ module CommandT
       @prompt.dispose
       @settings.restore
       show_cursor
+      run_did_hide_autocmd
     end
 
     def add!(char)
@@ -355,6 +358,18 @@ module CommandT
         end
       end
       focus_window(current_window)
+    end
+
+    def run_will_show_autocmd
+      run_autocmd('CommandTWillShowMatchListing')
+    end
+
+    def run_did_hide_autocmd
+      run_autocmd('CommandTDidHideMatchListing')
+    end
+
+    def run_autocmd(cmd)
+      ::VIM::command("call commandt#private#RunAutocmd('#{cmd}')")
     end
 
     def match_text_for_idx(idx)

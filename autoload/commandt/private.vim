@@ -80,3 +80,11 @@ endfunction
 function! commandt#private#CursorStart() abort
   ruby $command_t.cursor_start
 endfunction
+
+function! commandt#private#RunAutocmd(cmd) abort
+  if v:version > 703 || v:version == 703 && has('patch438')
+    execute 'silent doautocmd <nomodeline> User ' . a:cmd
+  else
+    execute 'silent doautocmd User ' . a:cmd
+  endif
+endfunction
