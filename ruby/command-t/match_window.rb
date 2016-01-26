@@ -190,8 +190,8 @@ module CommandT
 
     def unload
       restore_window_views
-      @settings.restore
       @prompt.dispose
+      @settings.restore
       show_cursor
     end
 

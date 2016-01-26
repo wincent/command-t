@@ -1379,7 +1379,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-next (not yet released)
+3.0.2 (not yet released)
+
+- Minimize flicker on opening and closing the match listing in MacVim.
 
 3.0.1 (25 January 2016)
 
