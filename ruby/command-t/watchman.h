@@ -8,7 +8,7 @@
  *
  * Methods for working with the Watchman binary protocol
  *
- * @see https://github.com/facebook/watchman/blob/master/BSER.markdown
+ * @see https://github.com/facebook/watchman/blob/master/website/_docs/BSER.markdown
  */
 
 /**
