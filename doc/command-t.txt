@@ -236,7 +236,18 @@ Command-T:
   call neobundle#end()
 
 To actually install the plug-in run `:NeoBundleInstall` from inside Vim. After
-this, you can proceed to compile Command-T (see |command-t-compile|).
+this, you can proceed to compile Command-T (see |command-t-compile|) manually,
+or if you wish to have NeoBundle attempt to do so automatically, you can use a
+configuration like this:
+
+  call neobundle#begin(expand('~/.vim/bundle/'))
+  NeoBundle 'wincent/command-t', {
+    \   'build_commands': ['make', 'ruby'],
+    \   'build': {
+    \      'unix': 'cd ruby/command-t && { make clean; ruby extconf.rb && make }'
+    \   }
+    \ }
+  call neobundle#end()
 
 For more information about NeoBundle, see:
 
