@@ -1416,6 +1416,9 @@ HISTORY                                         *command-t-history*
 
 next (not yet released)
 
+- A non-leading dot in the search query can now match against dot-files and
+  "dot-directories" in non-leading path components.
+
 3.0.2 (9 February 2016)
 
 - Minimize flicker on opening and closing the match listing in MacVim.

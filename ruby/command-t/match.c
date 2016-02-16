@@ -55,7 +55,7 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
             char d = m->haystack_p[j];
             if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') { // this is a dot-file
-                    int dot_search = (i == 0 && c == '.'); // searching for a dot
+                    int dot_search = c == '.'; // searching for a dot
                     if (m->never_show_dot_files || (!dot_search && !m->always_show_dot_files)) {
                         score = 0.0;
                         goto memoize;

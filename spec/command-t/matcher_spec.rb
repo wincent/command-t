@@ -228,5 +228,10 @@ describe CommandT::Matcher do
       # counter-example
       expect(matcher.sorted_matches_for('.f.t')).to eq(%w[.foo.txt])
     end
+
+    it "shows dotfiles when there is a non-leading dot that matches a leading dot within a path component" do
+      matcher = matcher(*%w[this/.secret/stuff.txt something.else])
+      expect(matcher.sorted_matches_for('t.sst')).to eq(%w[this/.secret/stuff.txt])
+    end
   end
 end
