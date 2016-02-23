@@ -16,8 +16,9 @@ CONTENTS                                        *command-t-contents*
 12. Authors                         |command-t-authors|
 13. Development                     |command-t-development|
 14. Website                         |command-t-website|
-15. License                         |command-t-license|
-16. History                         |command-t-history|
+15. Related projects                |command-t-related-projects|
+16. License                         |command-t-license|
+17. History                         |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -822,9 +823,9 @@ Following is a list of all available options:
   |g:CommandTRecursiveMatch|                      boolean (default: 1)
 
       Use this to downgrade Command-T's match-scoring algorithm to its older,
-      non-recursive form. Doing so may improve the responsiveness of the match
-      listing, but at the cost of slightly less precision in the ranking of
-      results.
+      cruder, less expensive form. Doing so may improve the responsiveness of
+      the match listing, but at the cost of slightly less precision in the
+      ranking of results.
 
                                                 *g:CommandTSmartCase*
   |g:CommandTSmartCase|                           boolean (default: none)
@@ -1240,11 +1241,12 @@ listing with fewer keystrokes. See also |g:CommandTIgnoreCase|.
 
     let g:CommandTRecursiveMatch = 0
 
-This one is a little more subjective. You may want to turn off Command-T's
-recursive match-scoring algorithm to save some cycles. This finds matches more
-quickly at the possible cost of ranking them slightly less precisely. Whether
-applying this setting helps or hurts you in a very large repo is probably
-repo-dependent.
+This one is a little more subjective. You may want to downgrade Command-T's
+match-scoring algorithm to a cheaper but less precise method to save some
+cycles. This finds matches more quickly at the possible cost of ranking them
+slightly less precisely. Whether applying this setting helps or hurts you in a
+very large repo is probably repo-dependent. For reference, I do not use this
+setting, even in repos of over 500,000 files.
 
 As noted in the introduction, Command-T works best when you adopt a
 "path-centric" mentality. This is especially true on very large hierarchies.
@@ -1269,20 +1271,22 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
-- version 2.0 (December 2015) added the |g:CommandTRecursiveMatch| option
-- version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
-  |g:CommandTSmartCase| options
-- version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
-- version 1.8 (March 2014) sped up the Watchman file scanner by switching its
-  communication from the JSON to the binary Watchman protocol
-- version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
+- Version 3.1 (February 2016) sped up the matching algorithm by 21% by adding
+  a prescan step.
+- Version 2.0 (December 2015) added the |g:CommandTRecursiveMatch| option.
+- Version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
+  |g:CommandTSmartCase| options.
+- Version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost.
+- Version 1.8 (March 2014) sped up the Watchman file scanner by switching its
+  communication from the JSON to the binary Watchman protocol.
+- Version 1.7 (February 2014) added the |g:CommandTInputDebounce| and
   |g:CommandTFileScanner| settings, along with support for the Watchman file
-  scanner
-- version 1.6 (December 2013) added parallelized search
-- version 1.5 (September 2013) added memoization to the matching algorithm,
+  scanner.
+- Version 1.6 (December 2013) added parallelized search.
+- Version 1.5 (September 2013) added memoization to the matching algorithm,
   improving general performance on large hierarchies, but delivering
   spectacular gains on hierarchies with "pathological" characteristics that
-  lead the algorithm to exhibit degenerate behavior
+  lead the algorithm to exhibit degenerate behavior.
 
 AUTHORS                                         *command-t-authors*
 
@@ -1387,6 +1391,23 @@ Bug reports should be submitted to the issue tracker at:
   https://github.com/wincent/command-t/issues
 
 
+RELATED PROJECTS                                *command-t-related-projects*
+
+fuzzy-native ~
+
+Command-T's matching algorithm ported to C++ and wrapped inside a Node NPM
+module:
+
+  https://github.com/hansonw/fuzzy-native
+
+ctrlp-cmatcher ~
+
+Command-T's matching algorithm wrapped in a Python extension, for use with
+the CtrlP Vim plug-in:
+
+  https://github.com/JazzCore/ctrlp-cmatcher
+
+
 LICENSE                                         *command-t-license*
 
 Copyright 2010-present Greg Hurrell. All rights reserved.
@@ -1414,10 +1435,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-next (not yet released)
+3.1 (not yet released)
 
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
+- Matching algorithm sped up by about 21% thanks to a prescan step
+  (optimizations suggested by Hanson Wang).
 
 3.0.2 (9 February 2016)
 
