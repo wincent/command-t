@@ -38,8 +38,8 @@ double recursive_match(matchinfo_t *m,    // sharable meta-data
     if (memoized != DBL_MAX)
         return memoized;
 
-    // bail early if not enough room (left) in haystack for (rest of) needle
-    if (m->haystack_len - haystack_idx < m->needle_len - needle_idx) {
+    // Bail early if string can't possibly match.
+    if (haystack_idx > m->rightmost_match_p[needle_idx]) {
         score = 0.0;
         goto memoize;
     }
