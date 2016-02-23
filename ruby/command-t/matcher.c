@@ -13,6 +13,12 @@
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #endif
 
+// Struct for representing an individual match.
+typedef struct {
+    VALUE   path;
+    double  score;
+} match_t;
+
 // comparison function for use with qsort
 int cmp_alpha(const void *a, const void *b)
 {
@@ -90,7 +96,7 @@ typedef struct {
     VALUE abbrev;
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
-    VALUE recurse;
+    VALUE compute_all_scorings;
 } thread_args_t;
 
 void *match_thread(void *thread_args)
@@ -98,14 +104,15 @@ void *match_thread(void *thread_args)
     long i;
     thread_args_t *args = (thread_args_t *)thread_args;
     for (i = args->thread_index; i < args->path_count; i += args->thread_count) {
-        VALUE path = RARRAY_PTR(args->paths)[i];
-        calculate_match(path,
-                        args->abbrev,
-                        args->case_sensitive,
-                        args->always_show_dot_files,
-                        args->never_show_dot_files,
-                        args->recurse,
-                        &args->matches[i]);
+        args->matches[i].path = RARRAY_PTR(args->paths)[i];
+        args->matches[i].score = calculate_match(
+                args->matches[i].path,
+                args->abbrev,
+                args->case_sensitive,
+                args->always_show_dot_files,
+                args->never_show_dot_files,
+                args->compute_all_scorings
+        );
     }
 
     return NULL;
@@ -128,7 +135,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE ignore_spaces;
     VALUE options;
     VALUE paths;
-    VALUE recurse;
+    VALUE compute_all_scorings;
     VALUE results;
     VALUE scanner;
     VALUE sort_option;
@@ -146,7 +153,18 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     threads_option = CommandT_option_from_hash("threads", options);
     sort_option = CommandT_option_from_hash("sort", options);
     ignore_spaces = CommandT_option_from_hash("ignore_spaces", options);
-    recurse = CommandT_option_from_hash("recurse", options);
+
+    // Historically, the "compute all scores" behavior was implemented in terms
+    // of two `for` loops and some recursion. The user-facing option was
+    // therefore (miguidedly) called `g:CommandTRecursiveMatch`.
+    //
+    // Since then, we've refactored it to always use recursion, plus one `for`
+    // loop. Opting out of the "compute all" behavior now means an early `break`
+    // from the `for` loop, but we still recurse.
+    //
+    // We therefore switch over to `compute_all_scorings` here while maintaining
+    // the name of the user-facing option.
+    compute_all_scorings = CommandT_option_from_hash("recurse", options);
 
     abbrev = StringValue(abbrev);
     if (case_sensitive != Qtrue)
@@ -190,7 +208,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].abbrev = abbrev;
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
-        thread_args[i].recurse = recurse;
+        thread_args[i].compute_all_scorings = compute_all_scorings;
 
 #ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {

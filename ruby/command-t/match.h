@@ -3,16 +3,11 @@
 
 #include <ruby.h>
 
-// struct for representing an individual match
-typedef struct {
-    VALUE   path;
-    double  score;
-} match_t;
-
-extern void calculate_match(VALUE str,
-                            VALUE needle,
-                            VALUE case_sensitive,
-                            VALUE always_show_dot_files,
-                            VALUE never_show_dot_files,
-                            VALUE recurse,
-                            match_t *out);
+extern double calculate_match(
+    VALUE str,
+    VALUE needle,
+    VALUE case_sensitive,
+    VALUE always_show_dot_files,
+    VALUE never_show_dot_files,
+    VALUE compute_all_scorings
+);
