@@ -162,6 +162,7 @@ Other plug-in managers include:
 - NeoBundle: https://github.com/Shougo/neobundle.vim (see
   |command-t-neobundle|)
 - VAM: https://github.com/MarcWeber/vim-addon-manager (see |command-t-vam|)
+- vim-plug: https://github.com/junegunn/vim-plug (see |command-t-vim-plug|)
 
 The following sections outline how to use each of these managers to download
 Command-T, and finally |command-t-compile| describes how to compile it.
@@ -253,6 +254,7 @@ configuration like this:
 For more information about NeoBundle, see:
 
   https://github.com/Shougo/neobundle.vim
+
                                                               *command-t-vam*
 Obtaining the source using VAM ~
 
@@ -269,13 +271,40 @@ For more information about VAM, see:
 
   https://github.com/MarcWeber/vim-addon-manager
 
+                                                           *command-t-vim-plug*
+Obtaining the source using vim-plug ~
+
+Anywhere between the calls to `plug#begin` and `plug#end` in your
+|.vimrc|, add a `Plug` directive telling vim-plug of your desire to use
+Command-T:
+
+  call plug#begin()
+  Plugin 'wincent/command-t'
+  call plug#end()
+
+To actually install the plug-in run `:PlugInstall` from inside Vim. After
+this, you can proceed to compile Command-T (see |command-t-compile|) manually,
+or if you wish to have vim-plug attempt to do so automatically, you can use a
+configuration like this:
+
+  call plug#begin()
+  Plug 'wincent/command-t', {
+    \   'do': 'cd ruby/command-t && ruby extconf.rb && make'
+    \ }
+  call plug#end()
+
+For more information about vim-plug, see:
+
+  https://github.com/junegunn/vim-plug
+
                                                          *command-t-compile*
 Compiling Command-T ~
 
 The C extension must be built, which can be done from the shell. If you use a
 typical Pathogen, Vundle or NeoBundle set-up then the files were installed inside
 `~/.vim/bundle/command-t`. A typical VAM installation path might be
-`~/.vim/vim-addons/command-t`.
+`~/.vim/vim-addons/command-t`, and vim-plug would be
+`~/.vim/plugged/Command-T/`.
 
 Wherever the Command-T files were installed, you can build the extension by
 changing to the `ruby/command-t` subdirectory and running a couple of commands
