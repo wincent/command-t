@@ -591,7 +591,7 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     if (sent == -1) {
         watchman_raise_system_call_error(errno);
     } else if (sent != query_len) {
-        rb_raise(rb_eRuntimeError, "expected to send %ld bytes but sent %ld",
+        rb_raise(rb_eRuntimeError, "expected to send %ld bytes but sent %zd",
             query_len, sent);
     }
 
