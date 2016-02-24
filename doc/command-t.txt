@@ -1134,7 +1134,7 @@ your terminal has frozen, but it hasn't.
 To disable flow control, add the following to your `.zshrc` or
 `.bash_profile`:
 
-  stty -ixon
+  stty -ixon -ixoff
 
 See the `stty` man page for more details.
 
