@@ -1294,36 +1294,37 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
 
-  Abhinav Gupta                   Nicholas T.
-  Aleksandrs Ļedovskis            Nicolas Alpi
-  Andy Waite                      Nikolai Aleksandrovich Pavlov
-  Anthony Panozzo                 Noon Silk
-  Artem Nezvigin                  Ole Petter Bang
-  Ben Boeckel                     Patrick Hayes
-  Daniel Hahler                   Paul Jolly
-  David Szotten                   Pavel Sergeev
-  Emily Strickland                Rainux Luo
-  Felix Tjandrawibawa             Richard Feldman
-  Gary Bernhardt                  Roland Puntaier
-  Greg Hurrell                    Ross Lagerwall
-  Ivan Ukhov                      Scott Bronson
-  Jeff Kreeftmeijer               Seth Fowler
-  Jerome Castaneda                Sherzod Gapirov
-  Joe Lencioni                    Shlomi Fish
-  KJ Tsanaktsidis                 Steven Moazami
-  Kevin Webster                   Sung Pae
-  Kien Nguyen Duc                 Thomas Pelletier
-  Lucas de Vries                  Ton van den Heuvel
-  Marcus Brito                    Victor Hugo Borja
-  Marian Schubert                 Vlad Seghete
-  Matthew Todd                    Vít Ondruch
-  Mike Lundy                      Woody Peterson
-  Nadav Samet                     Yan Pritzker
-  Nate Kane                       Zak Johnson
+  Abhinav Gupta                 Nicolas Alpi
+  Aleksandrs Ļedovskis          Nikolai Aleksandrovich Pavlov
+  Andy Waite                    Nilo César Teixeira
+  Anthony Panozzo               Noon Silk
+  Artem Nezvigin                Ole Petter Bang
+  Ben Boeckel                   Patrick Hayes
+  Daniel Hahler                 Paul Jolly
+  David Szotten                 Pavel Sergeev
+  Emily Strickland              Rainux Luo
+  Felix Tjandrawibawa           Richard Feldman
+  Gary Bernhardt                Roland Puntaier
+  Greg Hurrell                  Ross Lagerwall
+  Ivan Ukhov                    Scott Bronson
+  Jeff Kreeftmeijer             Seth Fowler
+  Jerome Castaneda              Sherzod Gapirov
+  Joe Lencioni                  Shlomi Fish
+  KJ Tsanaktsidis               Steven Moazami
+  Kevin Webster                 Sung Pae
+  Kien Nguyen Duc               Thomas Pelletier
+  Lucas de Vries                Ton van den Heuvel
+  Marcus Brito                  Victor Hugo Borja
+  Marian Schubert               Vlad Seghete
+  Matthew Todd                  Vít Ondruch
+  Mike Lundy                    Woody Peterson
+  Nadav Samet                   Yan Pritzker
+  Nate Kane                     Zak Johnson
+  Nicholas T.
 
-Additionally, Jacek Wysocki and Yiding Jia wrote patches which were not
-directly included but which served as a model for changes that did end up
-making it in.
+Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
+were not directly included but which served as a model for changes that did
+end up making it in.
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
