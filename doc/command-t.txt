@@ -1323,19 +1323,19 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
 
-  Abhinav Gupta                   Nicholas T.
-  Aleksandrs Ļedovskis            Nicolas Alpi
-  Andy Waite                      Nikolai Aleksandrovich Pavlov
-  Anthony Panozzo                 Nilo César Teixeira
-  Artem Nezvigin                  Noon Silk
-  Ben Boeckel                     Ole Petter Bang
-  Daniel Burgess                  Patrick Hayes
-  Daniel Hahler                   Paul Jolly
-  David Szotten                   Pavel Sergeev
-  Emily Strickland                Rainux Luo
-  Felix Tjandrawibawa             Richard Feldman
-  Gary Bernhardt                  Roland Puntaier
-  Greg Hurrell                    Ross Lagerwall
+  Abhinav Gupta                   Nicolas Alpi
+  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
+  Andy Waite                      Nilo César Teixeira
+  Anthony Panozzo                 Noon Silk
+  Artem Nezvigin                  Ole Petter Bang
+  Ben Boeckel                     Patrick Hayes
+  Daniel Burgess                  Paul Jolly
+  Daniel Hahler                   Pavel Sergeev
+  David Szotten                   Rainux Luo
+  Emily Strickland                Richard Feldman
+  Felix Tjandrawibawa             Roland Puntaier
+  Gary Bernhardt                  Ross Lagerwall
+  Greg Hurrell                    Sam Morris
   Ivan Ukhov                      Scott Bronson
   Jeff Kreeftmeijer               Seth Fowler
   Jerome Castaneda                Sherzod Gapirov
@@ -1350,6 +1350,7 @@ order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
   Mike Lundy                      Woody Peterson
   Nadav Samet                     Yan Pritzker
   Nate Kane                       Zak Johnson
+  Nicholas T.
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
