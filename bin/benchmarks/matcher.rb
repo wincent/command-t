@@ -25,11 +25,15 @@ Benchmark.bmbm do |b|
     b.report(test['name']) do
       test['times'].times do
         test['queries'].each do |query|
-          matcher.sorted_matches_for(
-            query,
-            :threads => threads,
-            :recurse => ENV.fetch('RECURSE', '1') == '1'
-          )
+          query.split(//).reduce('') do |acc, char|
+            query = acc + char
+            matcher.sorted_matches_for(
+              query,
+              :threads => threads,
+              :recurse => ENV.fetch('RECURSE', '1') == '1'
+            )
+            query
+          end
         end
       end
     end
