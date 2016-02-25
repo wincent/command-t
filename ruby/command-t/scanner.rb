@@ -8,5 +8,15 @@ module CommandT
     autoload :JumpScanner,      'command-t/scanner/jump_scanner'
     autoload :MRUBufferScanner, 'command-t/scanner/mru_buffer_scanner'
     autoload :TagScanner,       'command-t/scanner/tag_scanner'
+
+    # Subclasses implement this method to return the list of paths that should
+    # be searched.
+    #
+    # Note that as an optimization, the C extension will record the
+    # `Object#object_id` of the returned array and assumes it will not be
+    # mutated.
+    def paths
+      raise RuntimeError, 'Subclass responsibility'
+    end
   end # class Scanner
 end # module CommandT

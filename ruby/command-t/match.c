@@ -112,11 +112,14 @@ double calculate_match(
     VALUE case_sensitive,
     VALUE always_show_dot_files,
     VALUE never_show_dot_files,
-    VALUE compute_all_scorings
+    VALUE compute_all_scorings,
+    long needle_bitmask,
+    long *haystack_bitmask
 ) {
     matchinfo_t m;
     long i, max;
     double score            = 1.0;
+    int compute_bitmasks    = *haystack_bitmask == 0;
     m.haystack_p            = RSTRING_PTR(haystack);
     m.haystack_len          = RSTRING_LEN(haystack);
     m.needle_p              = RSTRING_PTR(needle);
@@ -140,27 +143,43 @@ double calculate_match(
             }
         }
     } else if (m.haystack_len > 0) { // Normal case.
-        // Pre-scan string to see if it matches at all (short-circuits).
-        // Record rightmost match match for each character (used to prune search space).
-        char rightmost_match_p[m.needle_len];
-        long rightmost_index = m.haystack_len;
-        for (i = m.needle_len - 1; i >= 0; i--) {
-            char c = m.needle_p[i];
-            while (--rightmost_index >= 0) {
-                char d = m.haystack_p[rightmost_index];
-                if (!m.case_sensitive && d >= 'A' && d <= 'Z') {
-                    d = d + ('a' - 'A');
-                }
-                if (c == d) {
-                    rightmost_match_p[i] = rightmost_index;
-                    break;
-                }
-            }
-            if (rightmost_index < 0) {
+        if (*haystack_bitmask) {
+            if ((needle_bitmask & *haystack_bitmask) != needle_bitmask) {
                 return 0.0;
             }
         }
+
+        // Pre-scan string to see if it matches at all (short-circuits).
+        // Record rightmost math match for each character (used to prune search space).
+        // Record bitmask for haystack to speed up future searches.
+        char rightmost_match_p[m.needle_len];
         m.rightmost_match_p = rightmost_match_p;
+        long needle_idx = m.needle_len - 1;
+        long mask = 0;
+        for (i = m.haystack_len - 1; i >= 0; i--) {
+            char c = m.haystack_p[i];
+            char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
+            if (!m.case_sensitive) {
+                c = lower;
+            }
+            if (compute_bitmasks) {
+                mask |= (1 << (lower - 'a'));
+            }
+
+            if (needle_idx >= 0) {
+                char d = m.needle_p[needle_idx];
+                if (c == d) {
+                    rightmost_match_p[needle_idx] = i;
+                    needle_idx--;
+                }
+            }
+        }
+        if (compute_bitmasks) {
+            *haystack_bitmask = mask;
+        }
+        if (needle_idx != -1) {
+            return 0.0;
+        }
 
         // Prepare for memoization.
         double memo[m.haystack_len * m.needle_len];

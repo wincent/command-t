@@ -3,8 +3,8 @@
 
 #include <stdlib.h>  /* for qsort() */
 #include <string.h>  /* for strncmp() */
-#include "matcher.h"
 #include "match.h"
+#include "matcher.h"
 #include "ext.h"
 #include "ruby_compat.h"
 
@@ -19,7 +19,7 @@ typedef struct {
     double  score;
 } match_t;
 
-// comparison function for use with qsort
+// Comparison function for use with qsort.
 int cmp_alpha(const void *a, const void *b)
 {
     match_t a_match = *(match_t *)a;
@@ -35,11 +35,11 @@ int cmp_alpha(const void *a, const void *b)
     if (a_len > b_len) {
         order = strncmp(a_p, b_p, b_len);
         if (order == 0)
-            order = 1; // shorter string (b) wins
+            order = 1; // shorter string (b) wins.
     } else if (a_len < b_len) {
         order = strncmp(a_p, b_p, a_len);
         if (order == 0)
-            order = -1; // shorter string (a) wins
+            order = -1; // shorter string (a) wins.
     } else {
         order = strncmp(a_p, b_p, a_len);
     }
@@ -47,16 +47,16 @@ int cmp_alpha(const void *a, const void *b)
     return order;
 }
 
-// comparison function for use with qsort
+// Comparison function for use with qsort.
 int cmp_score(const void *a, const void *b)
 {
     match_t a_match = *(match_t *)a;
     match_t b_match = *(match_t *)b;
 
     if (a_match.score > b_match.score)
-        return -1; // a scores higher, a should appear sooner
+        return -1; // a scores higher, a should appear sooner.
     else if (a_match.score < b_match.score)
-        return 1;  // b scores higher, a should appear later
+        return 1;  // b scores higher, a should appear later.
     else
         return cmp_alpha(a, b);
 }
@@ -68,7 +68,7 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
     VALUE options;
     VALUE scanner;
 
-    // process arguments: 1 mandatory, 1 optional
+    // Process arguments: 1 mandatory, 1 optional.
     if (rb_scan_args(argc, argv, "11", &scanner, &options) == 1)
         options = Qnil;
     if (NIL_P(scanner))
@@ -76,7 +76,7 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
 
     rb_iv_set(self, "@scanner", scanner);
 
-    // check optional options hash for overrides
+    // Check optional options hash for overrides.
     always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
     never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
 
@@ -92,11 +92,13 @@ typedef struct {
     long case_sensitive;
     match_t *matches;
     long path_count;
-    VALUE paths;
-    VALUE abbrev;
+    VALUE haystacks;
+    VALUE needle;
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
     VALUE compute_all_scorings;
+    long needle_bitmask;
+    long *haystack_bitmasks;
 } thread_args_t;
 
 void *match_thread(void *thread_args)
@@ -104,18 +106,35 @@ void *match_thread(void *thread_args)
     long i;
     thread_args_t *args = (thread_args_t *)thread_args;
     for (i = args->thread_index; i < args->path_count; i += args->thread_count) {
-        args->matches[i].path = RARRAY_PTR(args->paths)[i];
+        args->matches[i].path = RARRAY_PTR(args->haystacks)[i];
         args->matches[i].score = calculate_match(
                 args->matches[i].path,
-                args->abbrev,
+                args->needle,
                 args->case_sensitive,
                 args->always_show_dot_files,
                 args->never_show_dot_files,
-                args->compute_all_scorings
+                args->compute_all_scorings,
+                args->needle_bitmask,
+                &args->haystack_bitmasks[i]
         );
     }
 
     return NULL;
+}
+
+long calculate_bitmask(VALUE string) {
+    char *str = RSTRING_PTR(string);
+    long len = RSTRING_LEN(string);
+    long i;
+    long mask = 0;
+    for (i = 0; i < len; i++) {
+        if (str[i] >= 'a' && str[i] <= 'z') {
+            mask |= (1 << (str[i] - 'a'));
+        } else if (str[i] >= 'A' && str[i] <= 'Z') {
+            mask |= (1 << (str[i] - 'A'));
+        }
+    }
+    return mask;
 }
 
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
@@ -125,34 +144,43 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     long err;
     pthread_t *threads;
 #endif
+    long *bitmasks;
     match_t *matches;
     thread_args_t *thread_args;
-    VALUE abbrev;
-    VALUE case_sensitive;
     VALUE always_show_dot_files;
-    VALUE limit_option;
-    VALUE never_show_dot_files;
+    VALUE case_sensitive;
+    VALUE compute_all_scorings;
     VALUE ignore_spaces;
+    VALUE limit_option;
+    VALUE needle;
+    VALUE never_show_dot_files;
+    VALUE new_paths_object_id;
     VALUE options;
     VALUE paths;
-    VALUE compute_all_scorings;
+    VALUE paths_object_id;
     VALUE results;
     VALUE scanner;
     VALUE sort_option;
     VALUE threads_option;
+    VALUE wrapped_bitmasks;
+    VALUE wrapped_matches;
 
-    // process arguments: 1 mandatory, 1 optional
-    if (rb_scan_args(argc, argv, "11", &abbrev, &options) == 1)
+    // Process arguments: 1 mandatory, 1 optional.
+    if (rb_scan_args(argc, argv, "11", &needle, &options) == 1)
         options = Qnil;
-    if (NIL_P(abbrev))
-        rb_raise(rb_eArgError, "nil abbrev");
+    if (NIL_P(needle))
+        rb_raise(rb_eArgError, "nil needle");
 
-    // check optional options hash for overrides
+    long needle_bitmask = calculate_bitmask(needle);
+
+    // Check optional options hash for overrides.
     case_sensitive = CommandT_option_from_hash("case_sensitive", options);
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
     sort_option = CommandT_option_from_hash("sort", options);
     ignore_spaces = CommandT_option_from_hash("ignore_spaces", options);
+    always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
+    never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
 
     // Historically, the "compute all scores" behavior was implemented in terms
     // of two `for` loops and some recursion. The user-facing option was
@@ -166,23 +194,63 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     // the name of the user-facing option.
     compute_all_scorings = CommandT_option_from_hash("recurse", options);
 
-    abbrev = StringValue(abbrev);
+    needle = StringValue(needle);
     if (case_sensitive != Qtrue)
-        abbrev = rb_funcall(abbrev, rb_intern("downcase"), 0);
+        needle = rb_funcall(needle, rb_intern("downcase"), 0);
 
     if (ignore_spaces == Qtrue)
-        abbrev = rb_funcall(abbrev, rb_intern("delete"), 1, rb_str_new2(" "));
+        needle = rb_funcall(needle, rb_intern("delete"), 1, rb_str_new2(" "));
 
-    // get unsorted matches
+    // Get unsorted matches.
     scanner = rb_iv_get(self, "@scanner");
     paths = rb_funcall(scanner, rb_intern("paths"), 0);
-    always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
-    never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
-
     path_count = RARRAY_LEN(paths);
-    matches = malloc(path_count * sizeof(match_t));
-    if (!matches)
-        rb_raise(rb_eNoMemError, "memory allocation failed");
+
+    // Cached C data, not visible to Ruby layer.
+    paths_object_id = rb_ivar_get(self, rb_intern("paths_object_id"));
+    new_paths_object_id = rb_funcall(paths, rb_intern("object_id"), 0);
+    rb_ivar_set(self, rb_intern("paths_object_id"), new_paths_object_id);
+    if (
+        NIL_P(paths_object_id) ||
+        NUM2LONG(new_paths_object_id) != NUM2LONG(paths_object_id)
+    ) {
+        // `paths` changed, need to replace matches array.
+        paths_object_id = new_paths_object_id;
+        matches = malloc(path_count * sizeof(match_t));
+        if (!matches) {
+            rb_raise(rb_eNoMemError, "memory allocation failed");
+        }
+        wrapped_matches = Data_Wrap_Struct(
+            rb_cObject,
+            0,
+            free,
+            matches
+        );
+        rb_ivar_set(self, rb_intern("matches"), wrapped_matches);
+        bitmasks = calloc(path_count, sizeof(long));
+        if (!bitmasks) {
+            rb_raise(rb_eNoMemError, "memory allocation failed");
+        }
+        wrapped_bitmasks = Data_Wrap_Struct(
+            rb_cObject,
+            0,
+            free,
+            bitmasks
+        );
+        rb_ivar_set(self, rb_intern("bitmasks"), wrapped_bitmasks);
+    } else {
+        // Get existing arrays.
+        Data_Get_Struct(
+            rb_ivar_get(self, rb_intern("matches")),
+            match_t,
+            matches
+        );
+        Data_Get_Struct(
+            rb_ivar_get(self, rb_intern("bitmasks")),
+            long,
+            bitmasks
+        );
+    }
 
     thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
 
@@ -204,11 +272,13 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].case_sensitive = case_sensitive == Qtrue;
         thread_args[i].matches = matches;
         thread_args[i].path_count = path_count;
-        thread_args[i].paths = paths;
-        thread_args[i].abbrev = abbrev;
+        thread_args[i].haystacks = paths;
+        thread_args[i].needle = needle;
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
         thread_args[i].compute_all_scorings = compute_all_scorings;
+        thread_args[i].needle_bitmask = needle_bitmask;
+        thread_args[i].haystack_bitmasks = bitmasks;
 
 #ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {
@@ -234,8 +304,8 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 #endif
 
     if (NIL_P(sort_option) || sort_option == Qtrue) {
-        if (RSTRING_LEN(abbrev) == 0 ||
-            (RSTRING_LEN(abbrev) == 1 && RSTRING_PTR(abbrev)[0] == '.'))
+        if (RSTRING_LEN(needle) == 0 ||
+            (RSTRING_LEN(needle) == 1 && RSTRING_PTR(needle)[0] == '.'))
             // alphabetic order if search string is only "" or "."
             qsort(matches, path_count, sizeof(match_t), cmp_alpha);
         else
@@ -255,6 +325,5 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         }
     }
 
-    free(matches);
     return results;
 }
