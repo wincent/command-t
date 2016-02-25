@@ -197,6 +197,17 @@ describe CommandT::Matcher do
       ])
     end
 
+    it 'provides intuitive results for "matchh" search' do
+      pending 'further investigation'
+      expect(ordered_matches(%w[
+        vendor/bundle/ruby/1.8/gems/rspec-expectations-2.14.5/spec/rspec/matchers/has_spec.rb
+        ruby/command-t/match.h
+      ], 'matchh')).to eq(%w[
+        ruby/command-t/match.h
+        vendor/bundle/ruby/1.8/gems/rspec-expectations-2.14.5/spec/rspec/matchers/has_spec.rb
+      ])
+    end
+
     it "doesn't incorrectly accept repeats of the last-matched character" do
       # https://github.com/wincent/Command-T/issues/82
       matcher = matcher(*%w[ash/system/user/config.h])
