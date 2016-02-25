@@ -13,5 +13,12 @@ extern VALUE mCommandTWatchmanUtils; // module CommandT::Watchman::Utils
 // raised if it is not nil and not a hash.
 VALUE CommandT_option_from_hash(const char *option, VALUE hash);
 
-// Debugging macro.
-#define ruby_inspect(obj) rb_funcall(rb_mKernel, rb_intern("p"), 1, obj)
+// Debugging macros.
+#define L(...) { \
+    fprintf(stdout, __VA_ARGS__); \
+    fflush(stdout); \
+} while (0)
+#define RUBY_INSPECT(obj) do { \
+    rb_funcall(rb_mKernel, rb_intern("p"), 1, obj); \
+    fflush(stdout); \
+} while (0)
