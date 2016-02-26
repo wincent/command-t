@@ -256,8 +256,9 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
 #ifdef HAVE_PTHREAD_H
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
-    if (path_count < THREAD_THRESHOLD)
+    if (path_count < THREAD_THRESHOLD) {
         thread_count = 1;
+    }
     threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");

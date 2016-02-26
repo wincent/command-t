@@ -15,7 +15,7 @@ typedef struct {
     long    haystack_len;           // Length of same.
     char    *needle_p;              // Pointer to search string (needle).
     long    needle_len;             // Length of same.
-    char    *rightmost_match_p;     // Rightmost match for each char in needle.
+    long    *rightmost_match_p;     // Rightmost match for each char in needle.
     double  max_score_per_char;
     int     always_show_dot_files;  // Boolean.
     int     never_show_dot_files;   // Boolean.
@@ -32,6 +32,17 @@ double recursive_match(
     double score_for_char;
     long i, distance;
     double score = NON_MATCH;
+
+    if (needle_idx == m->needle_len) {
+        // Matched whole needle in previous frame; this is the base case.
+        return 0.0;
+    } else if (
+        needle_idx > haystack_idx ||
+        haystack_idx + (m->needle_len - needle_idx) > m->rightmost_match_p[m->needle_len - 1] + 1
+    ) {
+        // Impossible to match here; return NON_MATCH.
+        return score;
+    }
 
     // Do we have a memoized result we can return?
     double *memoized = &m->memo[needle_idx * m->needle_len + haystack_idx];
@@ -117,7 +128,7 @@ double calculate_match(
     long *haystack_bitmask
 ) {
     matchinfo_t m;
-    long i, max;
+    long i;
     double score            = 1.0;
     int compute_bitmasks    = *haystack_bitmask == 0;
     m.haystack_p            = RSTRING_PTR(haystack);
@@ -152,7 +163,7 @@ double calculate_match(
         // Pre-scan string to see if it matches at all (short-circuits).
         // Record rightmost math match for each character (used to prune search space).
         // Record bitmask for haystack to speed up future searches.
-        char rightmost_match_p[m.needle_len];
+        long rightmost_match_p[m.needle_len];
         m.rightmost_match_p = rightmost_match_p;
         long needle_idx = m.needle_len - 1;
         long mask = 0;
@@ -182,8 +193,15 @@ double calculate_match(
         }
 
         // Prepare for memoization.
-        double memo[m.haystack_len * m.needle_len];
-        for (i = 0, max = m.haystack_len * m.needle_len; i < max; i++) {
+        // - Snip off corners.
+        // - Valid because we know needle_len < haystack_len from above.
+        // - Avoid collisions above with a guard clause.
+        long haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
+        long memo_size =
+            haystack_limit * m.needle_len -
+            (m.needle_len * m.needle_len - m.needle_len);
+        double memo[memo_size];
+        for (i = 0; i < memo_size; i++) {
             memo[i] = UNSET;
         }
         m.memo = memo;
