@@ -9,7 +9,7 @@ extern double calculate_match(
     VALUE case_sensitive,
     VALUE always_show_dot_files,
     VALUE never_show_dot_files,
-    VALUE compute_all_scorings,
+    VALUE recurse,
     long needle_bitmask,
     long *haystack_bitmask
 );

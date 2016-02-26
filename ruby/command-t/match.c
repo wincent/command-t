@@ -6,7 +6,6 @@
 #include "ext.h"
 #include "ruby_compat.h"
 
-#define NON_MATCH -1e9
 #define UNSET DBL_MAX
 
 /**
@@ -88,7 +87,7 @@
  *
  *      const index = haystack_idx * needle_len + haystack_idx;
  *
- *  But note that in the code we're doind neither of those but instead:
+ *  But note that in the code we're doing neither of those but instead:
  *
  *      const index = needle_idx * needle_len + haystack_idx;
  *
@@ -289,101 +288,94 @@ typedef struct {
     int     always_show_dot_files;  // Boolean.
     int     never_show_dot_files;   // Boolean.
     int     case_sensitive;         // Boolean.
-    int     compute_all_scorings;   // Boolean.
+    int     recurse;                // Boolean.
     double  *memo;                  // Memoization.
 } matchinfo_t;
 
 double recursive_match(
     matchinfo_t *m,    // Sharable meta-data.
     long haystack_idx, // Where in the path string to start.
-    long needle_idx    // Where in the needle string to start.
+    long needle_idx,   // Where in the needle string to start.
+    long last_idx,     // Location of last matched character.
+    double score       // Cumulative score so far.
 ) {
+    long distance, i, j;
     double score_for_char;
-    long i, distance;
-    double score = NON_MATCH;
-
-    if (needle_idx == m->needle_len) {
-        // Matched whole needle in previous frame; this is the base case.
-        return 0.0;
-    } else if (
-        needle_idx > haystack_idx ||
-        haystack_idx + (m->needle_len - needle_idx) > m->rightmost_match_p[m->needle_len - 1] + 1
-    ) {
-        // Impossible to match here; return NON_MATCH.
-        return score;
-    }
 
     // Do we have a memoized result we can return?
     double *memoized = &m->memo[needle_idx * m->needle_len + haystack_idx];
     if (*memoized != UNSET) {
         return *memoized;
-    } else if (needle_idx == m->needle_len) {
-        return *memoized = 0.0;
     }
 
-    char c = m->needle_p[needle_idx];
+    // Iterate over needle.
+    for (i = needle_idx; i < m->needle_len; i++) {
+        char c = m->needle_p[i];
 
-    for (i = haystack_idx; i <= m->rightmost_match_p[needle_idx] ; i++) {
-        char d = m->haystack_p[i];
-        if (d == '.') {
-            if (i == 0 || m->haystack_p[i - 1] == '/') { // This is a dot-file.
-                int dot_search = c == '.'; // Searching for a dot.
-                if (
-                    m->never_show_dot_files ||
-                    (!dot_search && !m->always_show_dot_files)
-                ) {
-                    return *memoized = NON_MATCH;
+        // Iterate over (valid range of) haystack.
+        for (
+            j = haystack_idx;
+            j <= m->rightmost_match_p[m->needle_len - 1] - (m->needle_len - i) + 1;
+            j++
+        ) {
+            char d = m->haystack_p[j];
+            if (d == '.') {
+                if (j == 0 || m->haystack_p[j - 1] == '/') { // This is a dot-file.
+                    int dot_search = c == '.'; // Searching for a dot.
+                    if (
+                        m->never_show_dot_files ||
+                        (!dot_search && !m->always_show_dot_files)
+                    ) {
+                        return *memoized = 0.0;
+                    }
                 }
-            }
-        } else if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
-            d += 'a' - 'A'; // Add 32 to downcase.
-        }
-
-        if (c == d) {
-            // Calculate score.
-            score_for_char = m->max_score_per_char;
-            distance = i - haystack_idx;
-
-            if (distance > 1) {
-                double factor = 1.0;
-                char last = m->haystack_p[i - 1];
-                char curr = m->haystack_p[i]; // Case matters, so get again.
-                if (last == '/') {
-                    factor = 0.9;
-                } else if (
-                    last == '-' ||
-                    last == '_' ||
-                    last == ' ' ||
-                    (last >= '0' && last <= '9')
-                ) {
-                    factor = 0.8;
-                } else if (
-                    last >= 'a' && last <= 'z' &&
-                    curr >= 'A' && curr <= 'Z'
-                ) {
-                    factor = 0.8;
-                } else if (last == '.') {
-                    factor = 0.7;
-                } else {
-                    // If no "special" chars behind char, factor diminishes
-                    // as distance from last matched char increases.
-                    factor = (1.0 / distance) * 0.75;
-                }
-                score_for_char *= factor;
+            } else if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
+                d += 'a' - 'A'; // Add 32 to downcase.
             }
 
-            double new_score =
-                score_for_char +
-                recursive_match(m, i + 1, needle_idx + 1);
-            if (new_score > score) {
-                score = new_score;
-                if (!m->compute_all_scorings) {
-                    break;
+            if (c == d) {
+                // Calculate score.
+                score_for_char = m->max_score_per_char;
+                distance = j - last_idx;
+
+                if (distance > 1) {
+                    double factor = 1.0;
+                    char last = m->haystack_p[j - 1];
+                    char curr = m->haystack_p[j]; // Case matters, so get again.
+                    if (last == '/') {
+                        factor = 0.9;
+                    } else if (
+                        last == '-' ||
+                        last == '_' ||
+                        last == ' ' ||
+                        (last >= '0' && last <= '9')
+                    ) {
+                        factor = 0.8;
+                    } else if (
+                        last >= 'a' && last <= 'z' &&
+                        curr >= 'A' && curr <= 'Z'
+                    ) {
+                        factor = 0.8;
+                    } else if (last == '.') {
+                        factor = 0.7;
+                    } else {
+                        // If no "special" chars behind char, factor diminishes
+                        // as distance from last matched char increases.
+                        factor = (1.0 / distance) * 0.75;
+                    }
+                    score_for_char *= factor;
                 }
+
+                double sub_score = 0;
+                if (j + 1 < m->rightmost_match_p[i] && m->recurse) {
+                    sub_score = recursive_match(m, j + 1, i, last_idx, score) + score;
+                }
+                score += score_for_char;
+                return *memoized = sub_score > score ? sub_score : score;
             }
         }
     }
-    return *memoized = score;
+    return *memoized = 0.0;
 }
 
 double calculate_match(
@@ -392,7 +384,7 @@ double calculate_match(
     VALUE case_sensitive,
     VALUE always_show_dot_files,
     VALUE never_show_dot_files,
-    VALUE compute_all_scorings,
+    VALUE recurse,
     long needle_bitmask,
     long *haystack_bitmask
 ) {
@@ -409,7 +401,7 @@ double calculate_match(
     m.always_show_dot_files = always_show_dot_files == Qtrue;
     m.never_show_dot_files  = never_show_dot_files == Qtrue;
     m.case_sensitive        = (int)case_sensitive;
-    m.compute_all_scorings  = compute_all_scorings == Qtrue;
+    m.recurse               = recurse == Qtrue;
 
     // Special case for zero-length search string.
     if (m.needle_len == 0) {
@@ -475,7 +467,7 @@ double calculate_match(
         }
         m.memo = memo;
 
-        score = recursive_match(&m, 0, 0);
+        score = recursive_match(&m, 0, 0, 0, 0.0);
     }
-    return score == NON_MATCH ? 0.0 : score;
+    return score;
 }

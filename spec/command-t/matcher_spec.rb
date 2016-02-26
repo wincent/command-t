@@ -199,27 +199,6 @@ describe CommandT::Matcher do
 
     it 'provides intuitive results for "matchh" search' do
       # Regression introduced in 187bc18.
-      # That commit changed our search into a depth-first approach, because we
-      # recursed (continuing to pursue the in-progress match) instead of bumping
-      # our counter and finding matches starting further to the right. That in
-      # turn means given a search like the one here, we score the longer
-      # "vendor" string identically to the old algorithm, but the shorter string
-      # is scored like this:
-      # - Match first "m" in "ruby/command-t/match.h".
-      # - Proceed, scoring with some recursion and looping, until we hit the
-      #   last "a", memoizing its score.
-      # - After unwinding the stack, eventually loop until the last "m" is
-      #   matched against the "m" in the needle and scored.
-      # - Recurse to the "a", and pull out the memoized score.
-      # - Note that the score that got memoized for the "a" is used, but it is
-      #   wrong, because it was computed using the distance from some other,
-      #   previously-seen "m" and not the one we care about here.
-      # I suspect the right-biased memoization that we used to do shielded us
-      # from this issue somewhat, but it does not completely isolate us from it.
-      # It is not enough to use `haystack_idx` and `needle_idx` as memoization
-      # keys, because you also need to know "distance from last match", which we
-      # we can't compute in a left-to-right fashion.
-      pending 'rethink'
       expect(ordered_matches(%w[
         vendor/bundle/ruby/1.8/gems/rspec-expectations-2.14.5/spec/rspec/matchers/has_spec.rb
         ruby/command-t/match.h

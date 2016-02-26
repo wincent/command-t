@@ -96,7 +96,7 @@ typedef struct {
     VALUE needle;
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
-    VALUE compute_all_scorings;
+    VALUE recurse;
     long needle_bitmask;
     long *haystack_bitmasks;
 } thread_args_t;
@@ -113,7 +113,7 @@ void *match_thread(void *thread_args)
                 args->case_sensitive,
                 args->always_show_dot_files,
                 args->never_show_dot_files,
-                args->compute_all_scorings,
+                args->recurse,
                 args->needle_bitmask,
                 &args->haystack_bitmasks[i]
         );
@@ -149,7 +149,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     thread_args_t *thread_args;
     VALUE always_show_dot_files;
     VALUE case_sensitive;
-    VALUE compute_all_scorings;
+    VALUE recurse;
     VALUE ignore_spaces;
     VALUE limit_option;
     VALUE needle;
@@ -181,18 +181,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     ignore_spaces = CommandT_option_from_hash("ignore_spaces", options);
     always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
     never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
-
-    // Historically, the "compute all scores" behavior was implemented in terms
-    // of two `for` loops and some recursion. The user-facing option was
-    // therefore (miguidedly) called `g:CommandTRecursiveMatch`.
-    //
-    // Since then, we've refactored it to always use recursion, plus one `for`
-    // loop. Opting out of the "compute all" behavior now means an early `break`
-    // from the `for` loop, but we still recurse.
-    //
-    // We therefore switch over to `compute_all_scorings` here while maintaining
-    // the name of the user-facing option.
-    compute_all_scorings = CommandT_option_from_hash("recurse", options);
+    recurse = CommandT_option_from_hash("recurse", options);
 
     needle = StringValue(needle);
     if (case_sensitive != Qtrue)
@@ -277,7 +266,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].needle = needle;
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
-        thread_args[i].compute_all_scorings = compute_all_scorings;
+        thread_args[i].recurse = recurse;
         thread_args[i].needle_bitmask = needle_bitmask;
         thread_args[i].haystack_bitmasks = bitmasks;
 
