@@ -296,7 +296,6 @@ double recursive_match(
     matchinfo_t *m,    // Sharable meta-data.
     long haystack_idx, // Where in the path string to start.
     long needle_idx,   // Where in the needle string to start.
-    long last_idx,     // Location of last matched character.
     double score       // Cumulative score so far.
 ) {
     long distance, i, j;
@@ -339,7 +338,7 @@ double recursive_match(
             if (c == d) {
                 // Calculate score.
                 score_for_char = m->max_score_per_char;
-                distance = j - last_idx;
+                distance = j - haystack_idx;
 
                 if (distance > 1) {
                     double factor = 1.0;
@@ -371,7 +370,7 @@ double recursive_match(
 
                 double sub_score = 0;
                 if (j < m->rightmost_match_p[i] && m->recurse) {
-                    sub_score = recursive_match(m, j + 1, i, last_idx, score) + score;
+                    sub_score = recursive_match(m, j + 1, i, score) + score;
                 }
                 score += score_for_char;
                 *memoized = sub_score > score ? sub_score : score;
@@ -471,7 +470,7 @@ double calculate_match(
         }
         m.memo = memo;
 
-        score = recursive_match(&m, 0, 0, 0, 0.0);
+        score = recursive_match(&m, 0, 0, 0.0);
     }
     return score;
 }
