@@ -313,7 +313,7 @@ double recursive_match(
 
         // Iterate over (valid range of) haystack.
         for (
-            j = haystack_idx;
+            j = haystack_idx + i;
             j <= m->rightmost_match_p[m->needle_len - 1] - (m->needle_len - i) + 1;
             j++
         ) {
@@ -375,7 +375,6 @@ double recursive_match(
                 }
                 score += score_for_char;
                 *memoized = sub_score > score ? sub_score : score;
-                haystack_idx++;
                 break;
             }
         }
