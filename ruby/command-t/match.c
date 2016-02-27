@@ -310,7 +310,6 @@ double recursive_match(
 
     // Iterate over needle.
     for (i = needle_idx; i < m->needle_len; i++) {
-        char c = m->needle_p[i];
 
         // Iterate over (valid range of) haystack.
         for (
@@ -318,10 +317,14 @@ double recursive_match(
             j <= m->rightmost_match_p[m->needle_len - 1] - (m->needle_len - i) + 1;
             j++
         ) {
+            char c = m->needle_p[i];
             char d = m->haystack_p[j];
             if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') { // This is a dot-file.
                     int dot_search = c == '.'; // Searching for a dot.
+                    if (dot_search) {
+                        m->always_show_dot_files = 1;
+                    }
                     if (
                         m->never_show_dot_files ||
                         (!dot_search && !m->always_show_dot_files)
@@ -367,15 +370,17 @@ double recursive_match(
                 }
 
                 double sub_score = 0;
-                if (j + 1 < m->rightmost_match_p[i] && m->recurse) {
+                if (j < m->rightmost_match_p[i] && m->recurse) {
                     sub_score = recursive_match(m, j + 1, i, last_idx, score) + score;
                 }
                 score += score_for_char;
-                return *memoized = sub_score > score ? sub_score : score;
+                *memoized = sub_score > score ? sub_score : score;
+                haystack_idx++;
+                break;
             }
         }
     }
-    return *memoized = 0.0;
+    return *memoized = score;
 }
 
 double calculate_match(
