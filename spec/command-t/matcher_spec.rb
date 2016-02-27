@@ -208,6 +208,17 @@ describe CommandT::Matcher do
       ])
     end
 
+    it 'provides intuitive results for "relquepath" search' do
+      # Another regression.
+      expect(ordered_matches(%w[
+        *l**/e*t*t*/atla*/patter**/E*tAtla***el****q*e*e***al**at***HelperTra*t.php
+        static_upstream/relay/query/RelayQueryPath.js
+      ], 'relqpath')).to eq(%w[
+        static_upstream/relay/query/RelayQueryPath.js
+        *l**/e*t*t*/atla*/patter**/E*tAtla***el****q*e*e***al**at***HelperTra*t.php
+      ])
+    end
+
     it "doesn't incorrectly accept repeats of the last-matched character" do
       # https://github.com/wincent/Command-T/issues/82
       matcher = matcher(*%w[ash/system/user/config.h])

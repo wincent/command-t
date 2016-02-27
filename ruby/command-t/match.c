@@ -31,18 +31,19 @@ double recursive_match(
     double score       // Cumulative score so far.
 ) {
     long distance, i, j;
+    double *memoized;
     double score_for_char;
-
-    // Do we have a memoized result we can return?
-    double *memoized = &m->memo[haystack_idx * m->needle_len + needle_idx];
-    if (*memoized != UNSET) {
-        return *memoized;
-    }
+    double seen_score = 0;
 
     // Iterate over needle.
     for (i = needle_idx; i < m->needle_len; i++) {
         // Iterate over (valid range of) haystack.
-        for (j = haystack_idx + i; j <= m->rightmost_match_p[i]; j++) {
+        for (j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
+            // Do we have a memoized result we can return?
+            memoized = &m->memo[j * m->needle_len + i];
+            if (*memoized != UNSET) {
+                return *memoized;
+            }
             char c = m->needle_p[i];
             char d = m->haystack_p[j];
             if (d == '.') {
@@ -96,12 +97,21 @@ double recursive_match(
                     score_for_char *= factor;
                 }
 
-                if (j + 1 < m->rightmost_match_p[i] && m->recurse) {
-                    sub_score = recursive_match(m, j + 1, i, last_idx, score) + score;
+                if (j < m->rightmost_match_p[i] && m->recurse) {
+                    sub_score = recursive_match(m, j + 1, i, last_idx, score);
+                    if (sub_score > seen_score) {
+                        seen_score = sub_score;
+                    }
                 }
+                last_idx = j;
+                haystack_idx = last_idx + 1;
                 score += score_for_char;
-                *memoized = sub_score > score ? sub_score : score;
-                break;
+                *memoized = seen_score > score ? seen_score : score;
+                if (i == m->needle_len - 1) {
+                    // Whole string matched.
+                    score = *memoized;
+                    break;
+                }
             }
         }
     }
