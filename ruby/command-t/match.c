@@ -49,9 +49,6 @@ double recursive_match(
             if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') { // This is a dot-file.
                     int dot_search = c == '.'; // Searching for a dot.
-                    if (dot_search) {
-                        m->always_show_dot_files = 1; // Overwrite. Hack alert!
-                    }
                     if (
                         m->never_show_dot_files ||
                         (!dot_search && !m->always_show_dot_files)
