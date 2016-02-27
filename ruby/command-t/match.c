@@ -365,7 +365,7 @@ double recursive_match(
                 }
 
                 double sub_score = 0;
-                if (j < m->rightmost_match_p[i] && m->recurse) {
+                if (j + 1 < m->rightmost_match_p[i] && m->recurse) {
                     sub_score = recursive_match(m, j + 1, i, score) + score;
                 }
                 score += score_for_char;
