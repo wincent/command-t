@@ -145,6 +145,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     pthread_t *threads;
 #endif
     long *bitmasks;
+    long needle_bitmask;
     match_t *matches;
     thread_args_t *thread_args;
     VALUE always_show_dot_files;
@@ -171,7 +172,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (NIL_P(needle))
         rb_raise(rb_eArgError, "nil needle");
 
-    long needle_bitmask = calculate_bitmask(needle);
+    needle_bitmask = calculate_bitmask(needle);
 
     // Check optional options hash for overrides.
     case_sensitive = CommandT_option_from_hash("case_sensitive", options);

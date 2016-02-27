@@ -63,6 +63,7 @@ double recursive_match(
 
             if (c == d) {
                 // Calculate score.
+                double sub_score = 0;
                 score_for_char = m->max_score_per_char;
                 distance = j - haystack_idx;
 
@@ -94,7 +95,6 @@ double recursive_match(
                     score_for_char *= factor;
                 }
 
-                double sub_score = 0;
                 if (j + 1 < m->rightmost_match_p[i] && m->recurse) {
                     sub_score = recursive_match(m, j + 1, i, score) + score;
                 }
@@ -144,6 +144,11 @@ double calculate_match(
             }
         }
     } else if (m.haystack_len > 0) { // Normal case.
+        long haystack_limit;
+        long memo_size;
+        long needle_idx;
+        long mask;
+
         if (*haystack_bitmask) {
             if ((needle_bitmask & *haystack_bitmask) != needle_bitmask) {
                 return 0.0;
@@ -155,8 +160,8 @@ double calculate_match(
         // Record bitmask for haystack to speed up future searches.
         long rightmost_match_p[m.needle_len];
         m.rightmost_match_p = rightmost_match_p;
-        long needle_idx = m.needle_len - 1;
-        long mask = 0;
+        needle_idx = m.needle_len - 1;
+        mask = 0;
         for (i = m.haystack_len - 1; i >= 0; i--) {
             char c = m.haystack_p[i];
             char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
@@ -183,8 +188,8 @@ double calculate_match(
         }
 
         // Prepare for memoization.
-        long haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
-        long memo_size = m.needle_len * haystack_limit;
+        haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
+        memo_size = m.needle_len * haystack_limit;
         double memo[memo_size];
         for (i = 0; i < memo_size; i++) {
             memo[i] = UNSET;
