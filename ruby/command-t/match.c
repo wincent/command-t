@@ -311,11 +311,7 @@ double recursive_match(
     for (i = needle_idx; i < m->needle_len; i++) {
 
         // Iterate over (valid range of) haystack.
-        for (
-            j = haystack_idx + i;
-            j <= m->rightmost_match_p[m->needle_len - 1] - (m->needle_len - i) + 1;
-            j++
-        ) {
+        for (j = haystack_idx + i; j <= m->rightmost_match_p[i]; j++) {
             char c = m->needle_p[i];
             char d = m->haystack_p[j];
             if (d == '.') {
