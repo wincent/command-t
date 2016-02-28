@@ -55,7 +55,7 @@ int heap_compare(heap_t *heap, long a_idx, long b_idx) {
  * Returns 1 if the heap property holds (ie. parent < child).
  */
 int heap_property(heap_t *heap, long parent_idx, long child_idx) {
-    return heap_compare(heap, parent_idx, child_idx) == -1;
+    return heap_compare(heap, parent_idx, child_idx) > 0;
 }
 
 /**
@@ -104,7 +104,7 @@ void heap_heapify(heap_t *heap, long idx) {
         right_idx < heap->count ?
 
         // Right (and therefore left) child exists.
-        (heap_compare(heap, left_idx, right_idx == -1) ? left_idx : right_idx) :
+        (heap_compare(heap, left_idx, right_idx > 0) ? left_idx : right_idx) :
 
         left_idx < heap->count ?
 
