@@ -21,8 +21,7 @@ heap_t *heap_new(long capacity, heap_compare_entries comparator) {
     heap->count = 0;
     heap->capacity = capacity;
 
-    // Overallocate by one slot.
-    heap->entries = malloc((capacity + 1) * sizeof(void *));
+    heap->entries = malloc(capacity * sizeof(void *));
     if (!heap->entries) {
         free(heap);
         return NULL;
@@ -74,6 +73,11 @@ void heap_swap(heap_t *heap, long a, long b) {
  * Inserts `value` into `heap`.
  */
 void heap_insert(heap_t *heap, void *value) {
+    // If at capacity, ignore.
+    if (heap->count == heap->capacity) {
+        return;
+    }
+
     // Insert into first empty slot.
     long idx = heap->count;
     heap->entries[idx] = value;
@@ -85,11 +89,6 @@ void heap_insert(heap_t *heap, void *value) {
         heap_swap(heap, idx, parent_idx);
         idx = parent_idx;
         parent_idx = HEAP_PARENT(idx);
-    }
-
-    // If at capacity, drop excess value.
-    if (heap->count > heap->capacity) {
-        heap->count = heap->capacity;
     }
 }
 
