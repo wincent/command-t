@@ -306,7 +306,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
     results = rb_ary_new();
 
-    limit = NIL_P(limit_option) ? 0 : NUM2LONG(limit_option);
+    limit = NIL_P(limit_option) ? 15 : NUM2LONG(limit_option);
     if (limit == 0)
         limit = path_count;
     for (i = 0; i < path_count && limit > 0; i++) {
