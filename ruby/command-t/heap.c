@@ -87,7 +87,7 @@ void heap_insert(heap_t *heap, void *value) {
         parent_idx = HEAP_PARENT(idx);
     }
 
-    // If at capacity, drop largest value.
+    // If at capacity, drop excess value.
     if (heap->count > heap->capacity) {
         heap->count = heap->capacity;
     }
