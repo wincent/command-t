@@ -12,7 +12,7 @@
 /**
  * Returns a new heap, or NULL on failure.
  */
-heap_t *heap_new(int capacity, heap_compare_entries comparator) {
+heap_t *heap_new(long capacity, heap_compare_entries comparator) {
     heap_t *heap = malloc(sizeof(heap_t));
     if (!heap) {
         return NULL;
@@ -44,9 +44,9 @@ void heap_free(heap_t *heap) {
  * Compare values at indices `a_idx` and `b_idx` using the heap's comparator
  * function.
  */
-int heap_compare(heap_t *heap, int a_idx, int b_idx) {
-    void *a = heap->entries[a_idx];
-    void *b = heap->entries[b_idx];
+int heap_compare(heap_t *heap, long a_idx, long b_idx) {
+    const void *a = heap->entries[a_idx];
+    const void *b = heap->entries[b_idx];
     return heap->comparator(a, b);
 }
 
@@ -55,7 +55,7 @@ int heap_compare(heap_t *heap, int a_idx, int b_idx) {
  *
  * Returns 1 if the heap property holds (ie. parent < child).
  */
-int heap_property(heap_t *heap, int parent_idx, int child_idx) {
+int heap_property(heap_t *heap, long parent_idx, long child_idx) {
     return heap_compare(heap, parent_idx, child_idx) == -1;
 }
 
@@ -64,7 +64,7 @@ int heap_property(heap_t *heap, int parent_idx, int child_idx) {
  *
  * Swaps the values at indexes `a` and `b` within `heap`.
  */
-void heap_swap(heap_t *heap, int a, int b) {
+void heap_swap(heap_t *heap, long a, long b) {
     void *tmp = heap->entries[a];
     heap->entries[a] = heap->entries[b];
     heap->entries[b] = tmp;
@@ -75,12 +75,12 @@ void heap_swap(heap_t *heap, int a, int b) {
  */
 void heap_insert(heap_t *heap, void *value) {
     // Insert into first empty slot.
-    int idx = heap->count;
+    long idx = heap->count;
     heap->entries[idx] = value;
     heap->count++;
 
     // Bubble upwards until heap property is restored.
-    int parent_idx = HEAP_PARENT(idx);
+    long parent_idx = HEAP_PARENT(idx);
     while (idx && !heap_property(heap, parent_idx, idx)) {
         heap_swap(heap, idx, parent_idx);
         idx = parent_idx;
@@ -98,10 +98,10 @@ void heap_insert(heap_t *heap, void *value) {
  *
  * Restores the heap property starting at `idx`.
  */
-void heap_heapify(heap_t *heap, int idx) {
-    int left_idx = HEAP_LEFT(idx);
-    int right_idx = HEAP_RIGHT(idx);
-    int smallest_idx =
+void heap_heapify(heap_t *heap, long idx) {
+    long left_idx = HEAP_LEFT(idx);
+    long right_idx = HEAP_RIGHT(idx);
+    long smallest_idx =
         right_idx < heap->count ?
 
         // Right (and therefore left) child exists.
@@ -128,9 +128,9 @@ void heap_heapify(heap_t *heap, int idx) {
 /**
  * Bulk insert in O(n) time.
  */
-void heap_bulk_insert(heap_t *heap, int count, void **values) {
+void heap_bulk_insert(heap_t *heap, long count, void **values) {
     // Insert without concern for heap property.
-    int i;
+    long i;
     for (i = 0; i < count; i++) {
         heap->entries[heap->count] = values[i];
         heap->count++;
