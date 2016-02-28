@@ -130,13 +130,13 @@ void heap_heapify(heap_t *heap, long idx) {
  */
 void heap_bulk_insert(heap_t *heap, long count, void **values) {
     // Insert without concern for heap property.
+    // Ignore values in excess of capacity.
     long i;
-    for (i = 0; i < count; i++) {
+    long available = heap->capacity - heap->count;
+    long limit = available > count ? count : available;
+    for (i = 0; i < limit; i++) {
         heap->entries[heap->count] = values[i];
         heap->count++;
-        if (heap->count > heap->capacity) {
-            heap->count = heap->capacity;
-        }
     }
 
     // Re-establish heap property.
