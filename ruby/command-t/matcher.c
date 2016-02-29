@@ -5,6 +5,7 @@
 #include <string.h>  /* for strncmp() */
 #include "match.h"
 #include "matcher.h"
+#include "heap.h"
 #include "ext.h"
 #include "ruby_compat.h"
 
@@ -90,6 +91,7 @@ typedef struct {
     long thread_count;
     long thread_index;
     long case_sensitive;
+    long limit;
     match_t *matches;
     long path_count;
     VALUE haystacks;
@@ -104,22 +106,47 @@ typedef struct {
 void *match_thread(void *thread_args)
 {
     long i;
+    double score;
+    heap_t *heap = NULL;
     thread_args_t *args = (thread_args_t *)thread_args;
-    for (i = args->thread_index; i < args->path_count; i += args->thread_count) {
-        args->matches[i].path = RARRAY_PTR(args->haystacks)[i];
-        args->matches[i].score = calculate_match(
-                args->matches[i].path,
-                args->needle,
-                args->case_sensitive,
-                args->always_show_dot_files,
-                args->never_show_dot_files,
-                args->recurse,
-                args->needle_bitmask,
-                &args->haystack_bitmasks[i]
-        );
+
+    if (args->limit) {
+        // Reserve one extra slot so that we can do an insert-then-extract even
+        // when "full" (effectively allows use of min-heap to maintain a
+        // top-"limit" list of items).
+        heap = heap_new(args->limit + 1, cmp_score);
     }
 
-    return NULL;
+    for (
+        i = args->thread_index;
+        i < args->path_count;
+        i += args->thread_count
+    ) {
+        args->matches[i].path = RARRAY_PTR(args->haystacks)[i];
+        args->matches[i].score = calculate_match(
+            args->matches[i].path,
+            args->needle,
+            args->case_sensitive,
+            args->always_show_dot_files,
+            args->never_show_dot_files,
+            args->recurse,
+            args->needle_bitmask,
+            &args->haystack_bitmasks[i]
+        );
+        if (heap) {
+            if (heap->count == args->limit) {
+                score = ((match_t *)HEAP_PEEK(heap))->score;
+                if (args->matches[i].score >= score) {
+                    heap_insert(heap, &args->matches[i]);
+                    (void)heap_extract(heap);
+                }
+            } else {
+                heap_insert(heap, &args->matches[i]);
+            }
+        }
+    }
+
+    return heap;
 }
 
 long calculate_bitmask(VALUE string) {
@@ -139,14 +166,19 @@ long calculate_bitmask(VALUE string) {
 
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
-    long i, limit, path_count, thread_count;
+    long i, j, limit, path_count, thread_count;
 #ifdef HAVE_PTHREAD_H
     long err;
     pthread_t *threads;
 #endif
     long *bitmasks;
     long needle_bitmask;
+    long heap_matches_count;
+    int use_heap;
+    int sort;
     match_t *matches;
+    match_t *heap_matches;
+    heap_t *heap;
     thread_args_t *thread_args;
     VALUE always_show_dot_files;
     VALUE case_sensitive;
@@ -183,6 +215,11 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
     never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
     recurse = CommandT_option_from_hash("recurse", options);
+
+    limit = NIL_P(limit_option) ? 15 : NUM2LONG(limit_option);
+    sort = NIL_P(sort_option) || sort_option == Qtrue;
+    use_heap = limit && sort;
+    heap_matches_count = 0;
 
     needle = StringValue(needle);
     if (case_sensitive != Qtrue)
@@ -243,6 +280,12 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     }
 
     thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
+    if (use_heap) {
+        heap_matches = malloc(thread_count * limit * sizeof(match_t));
+        if (!heap_matches) {
+            rb_raise(rb_eNoMemError, "memory allocation failed");
+        }
+    }
 
 #ifdef HAVE_PTHREAD_H
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
@@ -262,6 +305,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].thread_index = i;
         thread_args[i].case_sensitive = case_sensitive == Qtrue;
         thread_args[i].matches = matches;
+        thread_args[i].limit = use_heap ? limit : 0;
         thread_args[i].path_count = path_count;
         thread_args[i].haystacks = paths;
         thread_args[i].needle = needle;
@@ -274,47 +318,87 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 #ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {
 #endif
-            // for the last "worker", we'll just use the main thread
-            (void)match_thread(&thread_args[i]);
+            // For the last "worker", we'll just use the main thread.
+            heap = match_thread(&thread_args[i]);
+            if (heap) {
+                for (j = 0; j < heap->count; j++) {
+                    heap_matches[heap_matches_count++] = *(match_t *)heap->entries[j];
+                }
+                heap_free(heap);
+            }
 #ifdef HAVE_PTHREAD_H
         } else {
             err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
-            if (err != 0)
+            if (err != 0) {
                 rb_raise(rb_eSystemCallError, "pthread_create() failure (%d)", (int)err);
+            }
         }
 #endif
     }
 
 #ifdef HAVE_PTHREAD_H
     for (i = 0; i < thread_count - 1; i++) {
-        err = pthread_join(threads[i], NULL);
-        if (err != 0)
+        err = pthread_join(threads[i], (void **)&heap);
+        if (err != 0) {
             rb_raise(rb_eSystemCallError, "pthread_join() failure (%d)", (int)err);
+        }
+        if (heap) {
+            for (j = 0; j < heap->count; j++) {
+                heap_matches[heap_matches_count++] = *(match_t *)heap->entries[j];
+            }
+            heap_free(heap);
+        }
     }
     free(threads);
 #endif
 
-    if (NIL_P(sort_option) || sort_option == Qtrue) {
-        if (RSTRING_LEN(needle) == 0 ||
-            (RSTRING_LEN(needle) == 1 && RSTRING_PTR(needle)[0] == '.'))
-            // alphabetic order if search string is only "" or "."
-            qsort(matches, path_count, sizeof(match_t), cmp_alpha);
-        else
-            // for all other non-empty search strings, sort by score
-            qsort(matches, path_count, sizeof(match_t), cmp_score);
+    if (sort) {
+        if (
+            RSTRING_LEN(needle) == 0 ||
+            (RSTRING_LEN(needle) == 1 && RSTRING_PTR(needle)[0] == '.')
+        ) {
+            // Alphabetic order if search string is only "" or "."
+            // TODO: make those semantics fully apply to heap case as well
+            // (they don't because the heap itself calls cmp_score, which means
+            // that the items which stay in the top [limit] may (will) be
+            // different).
+            qsort(
+                use_heap ? heap_matches : matches,
+                use_heap ? heap_matches_count : path_count,
+                sizeof(match_t),
+                cmp_alpha
+            );
+        } else {
+            qsort(
+                use_heap ? heap_matches : matches,
+                use_heap ? heap_matches_count : path_count,
+                sizeof(match_t),
+                cmp_score
+            );
+        }
     }
 
     results = rb_ary_new();
-
-    limit = NIL_P(limit_option) ? 15 : NUM2LONG(limit_option);
     if (limit == 0)
-        limit = path_count;
-    for (i = 0; i < path_count && limit > 0; i++) {
-        if (matches[i].score > 0.0) {
-            rb_funcall(results, rb_intern("push"), 1, matches[i].path);
+        limit = /*use_heap ? heap_matches_count :*/ path_count;
+    for (
+        i = 0;
+        i < (use_heap ? heap_matches_count : path_count) && limit > 0;
+        i++
+    ) {
+        if ((use_heap ? heap_matches : matches)[i].score > 0.0) {
+            rb_funcall(
+                results,
+                rb_intern("push"),
+                1,
+                (use_heap ? heap_matches : matches)[i].path
+            );
             limit--;
         }
     }
 
+    if (use_heap) {
+        free(heap_matches);
+    }
     return results;
 }

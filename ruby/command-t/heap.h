@@ -14,7 +14,7 @@ typedef struct {
     heap_compare_entries comparator;
 } heap_t;
 
-#define HEAP_PEEK(heap) heap->entries[0]
+#define HEAP_PEEK(heap) (heap->entries[0])
 
 heap_t *heap_new(long capacity, heap_compare_entries comparator);
 void heap_free(heap_t *heap);
