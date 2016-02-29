@@ -104,7 +104,7 @@ void heap_heapify(heap_t *heap, long idx) {
         right_idx < heap->count ?
 
         // Right (and therefore left) child exists.
-        (heap_compare(heap, left_idx, right_idx > 0) ? left_idx : right_idx) :
+        (heap_compare(heap, left_idx, right_idx) > 0 ? left_idx : right_idx) :
 
         left_idx < heap->count ?
 
