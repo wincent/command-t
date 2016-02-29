@@ -1300,8 +1300,7 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
-- Version 3.1 (February 2016) sped up the matching algorithm by 21% by adding
-  a prescan step.
+- Version 3.1 (March 2016) sped up the matching algorithm by 17x.
 - Version 2.0 (December 2015) added the |g:CommandTRecursiveMatch| option.
 - Version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
   |g:CommandTSmartCase| options.
@@ -1470,8 +1469,7 @@ HISTORY                                         *command-t-history*
 
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
-- Matching algorithm sped up by about 21% thanks to a prescan step
-  (optimizations suggested by Hanson Wang).
+- Matching algorithm sped up by about 17x (with help from Hanson Wang).
 
 3.0.2 (9 February 2016)
 
