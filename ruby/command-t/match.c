@@ -42,7 +42,7 @@ float recursive_match(
             // Do we have a memoized result we can return?
             memoized = &m->memo[j * m->needle_len + i];
             if (*memoized != UNSET) {
-                return *memoized;
+                return *memoized > seen_score ? *memoized : seen_score;
             }
             char c = m->needle_p[i];
             char d = m->haystack_p[j];

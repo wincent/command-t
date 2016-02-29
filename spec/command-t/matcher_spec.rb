@@ -208,7 +208,7 @@ describe CommandT::Matcher do
       ])
     end
 
-    it 'provides intuitive results for "relquepath" search' do
+    it 'provides intuitive results for "relqpath" search' do
       # Another regression.
       expect(ordered_matches(%w[
         *l**/e*t*t*/atla*/patter**/E*tAtla***el****q*e*e***al**at***HelperTra*t.php
@@ -216,6 +216,17 @@ describe CommandT::Matcher do
       ], 'relqpath')).to eq(%w[
         static_upstream/relay/query/RelayQueryPath.js
         *l**/e*t*t*/atla*/patter**/E*tAtla***el****q*e*e***al**at***HelperTra*t.php
+      ])
+    end
+
+    it 'provides intuitive results for "controller" search' do
+      # Another regression.
+      expect(ordered_matches(%w[
+        spec/command-t/controller_spec.rb
+        ruby/command-t/controller.rb
+      ], 'controller')).to eq(%w[
+        ruby/command-t/controller.rb
+        spec/command-t/controller_spec.rb
       ])
     end
 
