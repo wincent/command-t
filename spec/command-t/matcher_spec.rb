@@ -255,5 +255,11 @@ describe CommandT::Matcher do
       matcher = matcher(*%w[this/.secret/stuff.txt something.else])
       expect(matcher.sorted_matches_for('t.sst')).to eq(%w[this/.secret/stuff.txt])
     end
+
+    it "doesn't show a dotfile just because there was a match at index 0" do
+      pending 'fix'
+      matcher = matcher(*%w[src/.flowconfig])
+      expect(matcher.sorted_matches_for('s')).to eq([])
+    end
   end
 end
