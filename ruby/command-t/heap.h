@@ -19,5 +19,4 @@ typedef struct {
 heap_t *heap_new(long capacity, heap_compare_entries comparator);
 void heap_free(heap_t *heap);
 void heap_insert(heap_t *heap, void *value);
-void heap_bulk_insert(heap_t *heap, long count, void **values);
 void *heap_extract(heap_t *heap);

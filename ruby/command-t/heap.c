@@ -125,26 +125,6 @@ void heap_heapify(heap_t *heap, long idx) {
 }
 
 /**
- * Bulk insert in O(n) time.
- */
-void heap_bulk_insert(heap_t *heap, long count, void **values) {
-    // Insert without concern for heap property.
-    // Ignore values in excess of capacity.
-    long i;
-    long available = heap->capacity - heap->count;
-    long limit = available > count ? count : available;
-    for (i = 0; i < limit; i++) {
-        heap->entries[heap->count] = values[i];
-        heap->count++;
-    }
-
-    // Re-establish heap property.
-    for (i = (heap->count - 1) / 2; i >= 0; i--) {
-        heap_heapify(heap, i);
-    }
-}
-
-/**
  * Extracts the minimum value from `heap`.
  */
 void *heap_extract(heap_t *heap) {
