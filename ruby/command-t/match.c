@@ -6,7 +6,7 @@
 #include "ext.h"
 #include "ruby_compat.h"
 
-#define UNSET DBL_MAX
+#define UNSET FLT_MAX
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
@@ -15,25 +15,25 @@ typedef struct {
     char    *needle_p;              // Pointer to search string (needle).
     long    needle_len;             // Length of same.
     long    *rightmost_match_p;     // Rightmost match for each char in needle.
-    double  max_score_per_char;
+    float   max_score_per_char;
     int     always_show_dot_files;  // Boolean.
     int     never_show_dot_files;   // Boolean.
     int     case_sensitive;         // Boolean.
     int     recurse;                // Boolean.
-    double  *memo;                  // Memoization.
+    float   *memo;                  // Memoization.
 } matchinfo_t;
 
-double recursive_match(
+float recursive_match(
     matchinfo_t *m,    // Sharable meta-data.
     long haystack_idx, // Where in the path string to start.
     long needle_idx,   // Where in the needle string to start.
     long last_idx,     // Location of last matched character.
-    double score       // Cumulative score so far.
+    float score        // Cumulative score so far.
 ) {
     long distance, i, j;
-    double *memoized;
-    double score_for_char;
-    double seen_score = 0;
+    float *memoized;
+    float score_for_char;
+    float seen_score = 0;
 
     // Iterate over needle.
     for (i = needle_idx; i < m->needle_len; i++) {
@@ -62,12 +62,12 @@ double recursive_match(
 
             if (c == d) {
                 // Calculate score.
-                double sub_score = 0;
+                float sub_score = 0;
                 score_for_char = m->max_score_per_char;
                 distance = j - last_idx;
 
                 if (distance > 1) {
-                    double factor = 1.0;
+                    float factor = 1.0;
                     char last = m->haystack_p[j - 1];
                     char curr = m->haystack_p[j]; // Case matters, so get again.
                     if (last == '/') {
@@ -115,7 +115,7 @@ double recursive_match(
     return *memoized = score;
 }
 
-double calculate_match(
+float calculate_match(
     VALUE haystack,
     VALUE needle,
     VALUE case_sensitive,
@@ -127,7 +127,7 @@ double calculate_match(
 ) {
     matchinfo_t m;
     long i;
-    double score            = 1.0;
+    float score             = 1.0;
     int compute_bitmasks    = *haystack_bitmask == 0;
     m.haystack_p            = RSTRING_PTR(haystack);
     m.haystack_len          = RSTRING_LEN(haystack);
@@ -198,7 +198,7 @@ double calculate_match(
         // Prepare for memoization.
         haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
         memo_size = m.needle_len * haystack_limit;
-        double memo[memo_size];
+        float memo[memo_size];
         for (i = 0; i < memo_size; i++) {
             memo[i] = UNSET;
         }

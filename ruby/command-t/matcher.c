@@ -16,8 +16,8 @@
 
 // Struct for representing an individual match.
 typedef struct {
-    VALUE   path;
-    double  score;
+    VALUE path;
+    float score;
 } match_t;
 
 // Comparison function for use with qsort.
@@ -106,7 +106,7 @@ typedef struct {
 void *match_thread(void *thread_args)
 {
     long i;
-    double score;
+    float score;
     heap_t *heap = NULL;
     thread_args_t *args = (thread_args_t *)thread_args;
 

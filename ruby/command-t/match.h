@@ -3,7 +3,7 @@
 
 #include <ruby.h>
 
-extern double calculate_match(
+extern float calculate_match(
     VALUE str,
     VALUE needle,
     VALUE case_sensitive,
