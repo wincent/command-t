@@ -1,7 +1,7 @@
 // Copyright 2016-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
-#include <stdlib.h>
+#include <stdlib.h> /* for free(), malloc(), NULL */
 
 #include "heap.h"
 
