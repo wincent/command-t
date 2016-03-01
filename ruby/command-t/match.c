@@ -108,8 +108,7 @@ float recursive_match(
                 *memoized = seen_score > score ? seen_score : score;
                 if (i == m->needle_len - 1) {
                     // Whole string matched.
-                    score = *memoized;
-                    break;
+                    return *memoized;
                 }
             }
         }
