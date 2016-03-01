@@ -73,18 +73,20 @@ void heap_swap(heap_t *heap, long a, long b) {
  * Inserts `value` into `heap`.
  */
 void heap_insert(heap_t *heap, void *value) {
+    long idx, parent_idx;
+
     // If at capacity, ignore.
     if (heap->count == heap->capacity) {
         return;
     }
 
     // Insert into first empty slot.
-    long idx = heap->count;
+    idx = heap->count;
     heap->entries[idx] = value;
     heap->count++;
 
     // Bubble upwards until heap property is restored.
-    long parent_idx = HEAP_PARENT(idx);
+    parent_idx = HEAP_PARENT(idx);
     while (idx && !heap_property(heap, parent_idx, idx)) {
         heap_swap(heap, idx, parent_idx);
         idx = parent_idx;

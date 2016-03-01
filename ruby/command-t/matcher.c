@@ -177,7 +177,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     int use_heap;
     int sort;
     match_t *matches;
-    match_t *heap_matches;
+    match_t *heap_matches = NULL;
     heap_t *heap;
     thread_args_t *thread_args;
     VALUE always_show_dot_files;

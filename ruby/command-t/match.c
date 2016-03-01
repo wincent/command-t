@@ -31,7 +31,7 @@ float recursive_match(
     float score        // Cumulative score so far.
 ) {
     long distance, i, j;
-    float *memoized;
+    float *memoized = NULL;
     float score_for_char;
     float seen_score = 0;
 
@@ -39,13 +39,15 @@ float recursive_match(
     for (i = needle_idx; i < m->needle_len; i++) {
         // Iterate over (valid range of) haystack.
         for (j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
+            char c, d;
+
             // Do we have a memoized result we can return?
             memoized = &m->memo[j * m->needle_len + i];
             if (*memoized != UNSET) {
                 return *memoized > seen_score ? *memoized : seen_score;
             }
-            char c = m->needle_p[i];
-            char d = m->haystack_p[j];
+            c = m->needle_p[i];
+            d = m->haystack_p[j];
             if (d == '.') {
                 if (j == 0 || m->haystack_p[j - 1] == '/') { // This is a dot-file.
                     int dot_search = c == '.'; // Searching for a dot.
@@ -156,6 +158,7 @@ float calculate_match(
         long memo_size;
         long needle_idx;
         long mask;
+        long rightmost_match_p[m.needle_len];
 
         if (*haystack_bitmask) {
             if ((needle_bitmask & *haystack_bitmask) != needle_bitmask) {
@@ -166,7 +169,6 @@ float calculate_match(
         // Pre-scan string to see if it matches at all (short-circuits).
         // Record rightmost math match for each character (used to prune search space).
         // Record bitmask for haystack to speed up future searches.
-        long rightmost_match_p[m.needle_len];
         m.rightmost_match_p = rightmost_match_p;
         needle_idx = m.needle_len - 1;
         mask = 0;
@@ -198,13 +200,14 @@ float calculate_match(
         // Prepare for memoization.
         haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
         memo_size = m.needle_len * haystack_limit;
-        float memo[memo_size];
-        for (i = 0; i < memo_size; i++) {
-            memo[i] = UNSET;
+        {
+            float memo[memo_size];
+            for (i = 0; i < memo_size; i++) {
+                memo[i] = UNSET;
+            }
+            m.memo = memo;
+            score = recursive_match(&m, 0, 0, 0, 0.0);
         }
-        m.memo = memo;
-
-        score = recursive_match(&m, 0, 0, 0, 0.0);
     }
     return score;
 }
