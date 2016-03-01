@@ -17,9 +17,9 @@ heap_t *heap_new(long capacity, heap_compare_entries comparator) {
     if (!heap) {
         return NULL;
     }
+    heap->capacity = capacity;
     heap->comparator = comparator;
     heap->count = 0;
-    heap->capacity = capacity;
 
     heap->entries = malloc(capacity * sizeof(void *));
     if (!heap->entries) {
