@@ -380,7 +380,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
     results = rb_ary_new();
     if (limit == 0)
-        limit = /*use_heap ? heap_matches_count :*/ path_count;
+        limit = path_count;
     for (
         i = 0;
         i < (use_heap ? heap_matches_count : path_count) && limit > 0;
