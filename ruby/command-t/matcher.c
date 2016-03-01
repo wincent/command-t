@@ -14,12 +14,6 @@
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #endif
 
-// Struct for representing an individual match.
-typedef struct {
-    VALUE path;
-    float score;
-} match_t;
-
 // Comparison function for use with qsort.
 int cmp_alpha(const void *a, const void *b)
 {
@@ -100,7 +94,6 @@ typedef struct {
     VALUE never_show_dot_files;
     VALUE recurse;
     long needle_bitmask;
-    long *haystack_bitmasks;
 } thread_args_t;
 
 void *match_thread(void *thread_args)
@@ -123,6 +116,9 @@ void *match_thread(void *thread_args)
         i += args->thread_count
     ) {
         args->matches[i].path = RARRAY_PTR(args->haystacks)[i];
+        if (args->needle_bitmask == UNSET_BITMASK) {
+            args->matches[i].bitmask = UNSET_BITMASK;
+        }
         args->matches[i].score = calculate_match(
             args->matches[i].path,
             args->needle,
@@ -131,7 +127,7 @@ void *match_thread(void *thread_args)
             args->never_show_dot_files,
             args->recurse,
             args->needle_bitmask,
-            &args->haystack_bitmasks[i]
+            &args->matches[i].bitmask
         );
         if (heap) {
             if (heap->count == args->limit) {
@@ -171,8 +167,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     long err;
     pthread_t *threads;
 #endif
-    long *bitmasks;
-    long needle_bitmask;
+    long needle_bitmask = UNSET_BITMASK;
     long heap_matches_count;
     int use_heap;
     int sort;
@@ -195,7 +190,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE scanner;
     VALUE sort_option;
     VALUE threads_option;
-    VALUE wrapped_bitmasks;
     VALUE wrapped_matches;
 
     // Process arguments: 1 mandatory, 1 optional.
@@ -203,8 +197,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         options = Qnil;
     if (NIL_P(needle))
         rb_raise(rb_eArgError, "nil needle");
-
-    needle_bitmask = calculate_bitmask(needle);
 
     // Check optional options hash for overrides.
     case_sensitive = CommandT_option_from_hash("case_sensitive", options);
@@ -254,29 +246,16 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
             matches
         );
         rb_ivar_set(self, rb_intern("matches"), wrapped_matches);
-        bitmasks = calloc(path_count, sizeof(long));
-        if (!bitmasks) {
-            rb_raise(rb_eNoMemError, "memory allocation failed");
-        }
-        wrapped_bitmasks = Data_Wrap_Struct(
-            rb_cObject,
-            0,
-            free,
-            bitmasks
-        );
-        rb_ivar_set(self, rb_intern("bitmasks"), wrapped_bitmasks);
     } else {
-        // Get existing arrays.
+        // Get existing array.
         Data_Get_Struct(
             rb_ivar_get(self, rb_intern("matches")),
             match_t,
             matches
         );
-        Data_Get_Struct(
-            rb_ivar_get(self, rb_intern("bitmasks")),
-            long,
-            bitmasks
-        );
+
+        // Will compare against previously computed haystack bitmasks.
+        needle_bitmask = calculate_bitmask(needle);
     }
 
     thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
@@ -313,7 +292,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].never_show_dot_files = never_show_dot_files;
         thread_args[i].recurse = recurse;
         thread_args[i].needle_bitmask = needle_bitmask;
-        thread_args[i].haystack_bitmasks = bitmasks;
 
 #ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {

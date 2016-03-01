@@ -3,6 +3,15 @@
 
 #include <ruby.h>
 
+#define UNSET_BITMASK (-1)
+
+// Struct for representing an individual match.
+typedef struct {
+    VALUE path;
+    long bitmask;
+    float score;
+} match_t;
+
 extern float calculate_match(
     VALUE str,
     VALUE needle,

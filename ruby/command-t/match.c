@@ -6,7 +6,7 @@
 #include "ext.h"
 #include "ruby_compat.h"
 
-#define UNSET FLT_MAX
+#define UNSET_SCORE FLT_MAX
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
@@ -43,7 +43,7 @@ float recursive_match(
 
             // Do we have a memoized result we can return?
             memoized = &m->memo[j * m->needle_len + i];
-            if (*memoized != UNSET) {
+            if (*memoized != UNSET_SCORE) {
                 return *memoized > seen_score ? *memoized : seen_score;
             }
             c = m->needle_p[i];
@@ -129,7 +129,7 @@ float calculate_match(
     matchinfo_t m;
     long i;
     float score             = 1.0;
-    int compute_bitmasks    = *haystack_bitmask == 0;
+    int compute_bitmasks    = *haystack_bitmask == UNSET_BITMASK;
     m.haystack_p            = RSTRING_PTR(haystack);
     m.haystack_len          = RSTRING_LEN(haystack);
     m.needle_p              = RSTRING_PTR(needle);
@@ -159,7 +159,7 @@ float calculate_match(
         long mask;
         long rightmost_match_p[m.needle_len];
 
-        if (*haystack_bitmask) {
+        if (*haystack_bitmask != UNSET_BITMASK) {
             if ((needle_bitmask & *haystack_bitmask) != needle_bitmask) {
                 return 0.0;
             }
@@ -202,7 +202,7 @@ float calculate_match(
         {
             float memo[memo_size];
             for (i = 0; i < memo_size; i++) {
-                memo[i] = UNSET;
+                memo[i] = UNSET_SCORE;
             }
             m.memo = memo;
             score = recursive_match(&m, 0, 0, 0, 0.0);
