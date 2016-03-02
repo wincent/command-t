@@ -23,8 +23,7 @@ threads = CommandT::Util.processor_count
 puts "Starting benchmark run (PID: #{Process.pid})"
 now = Time.now.to_s
 
-# Run the benchmarks 10 times so that we can report some variance numbers too.
-TIMES = 10
+TIMES = 20
 results = TIMES.times.map do
   Benchmark.bmbm do |b|
     data['tests'].each do |test|
@@ -57,6 +56,8 @@ SIGN = 2
 #
 # @see http://vassarstats.net/textbook/ch12a.html
 def significant?(last, current)
+  return 0.0 if last.length != current.length
+
   table = last.zip(current).map do |l, c|
     [
       l - c, # difference
