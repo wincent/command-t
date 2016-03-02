@@ -216,6 +216,10 @@ def float(x)
   '%.5f' % x
 end
 
+def trim(str)
+  str.sub(/0+\z/, '')
+end
+
 def maybe(value, default = '')
   if value
     yield value
@@ -246,12 +250,12 @@ rows = headers + results.map do |(label, data)|
     label,
     float(data['total (avg)']),
     maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
-    maybe(data['total (significant?)']) { |value| value > 0 ? '%f' % value : '' },
+    maybe(data['total (significant?)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['total (best)']),
     float(data['total (sd)']),
     float(data['real (avg)']),
     maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
-    maybe(data['real (significant?)']) { |value| value > 0 ? '%f' % value : '' },
+    maybe(data['real (significant?)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['real (best)']),
     float(data['real (sd)']),
   ]
