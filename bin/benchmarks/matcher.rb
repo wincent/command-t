@@ -48,12 +48,82 @@ results = 10.times.map do
   end
 end
 
-# https://en.wikipedia.org/wiki/Winsorising
-def winsor(items)
-  length = items.length
-  return items if length < 5
-  items = items.sort
-  [items[1]] + items[1..length - 2] + [items[length - 2]]
+DIFFERENCE = 0
+ABSOLUTE = 1
+SIGN = 2
+
+# Test for significance via Wilcoxon Signed Rank test.
+#
+# @see http://vassarstats.net/textbook/ch12a.html
+def significant?(last, current)
+  table = last.zip(current).map do |l, c|
+    [
+      l - c, # difference
+      (l - c).abs, # absolute difference
+      (l - c).zero? ? nil : (l - c) / (l - c).abs, # signedness (-1 or +1)
+    ]
+  end
+  table = table.select { |diff, abs, sig| !diff.zero? }
+  table = table.sort do |(a_diff, a_abs, a_sig), (b_diff, b_abs, b_sig)|
+    a_abs <=> b_abs
+  end
+
+  rank = 1
+  table = table.map.with_index do |row, i|
+    count = 0
+    rank = table.map.with_index do |(diff, abs, sig), i|
+      if abs == row[ABSOLUTE]
+        count += 1
+        i + 1
+      else
+        nil
+      end
+    end.compact.reduce(0) { |acc, val| acc + val } / count
+    row + [row[SIGN] * rank]
+  end
+
+  n = table.length
+  w = table.reduce(0) { |acc, (diff, abs, signed_rank)| acc + signed_rank }
+
+  if n < 10
+    significance = 0
+    thresholds = [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [[15, 0.05]],
+      [[17, 0.05], [21, 0.025]],
+      [[22, 0.05], [25, 0.025], [28, 0.01]],
+      [[26, 0.05], [30, 0.025], [34, 0.01], [36, 0.005]],
+      [[29, 0.05], [35, 0.025], [39, 0.01], [43, 0.005]],
+    ][n]
+    while limit = thresholds.pop do
+      if w > limit[0]
+        significance = limit[1]
+        break
+      end
+    end
+  else
+    sd = Math.sqrt(n * (n + 1) *  (2 * n + 1) / 6)
+    z = ((w - 0.5) / sd).abs
+    if z > 3.291
+      significance = 0.0005
+    elsif z > 2.576
+      significance = 0.005
+    elsif z > 2.326
+      significance = 0.01
+    elsif z > 1.960
+      significance = 0.025
+    elsif z > 1.645
+      significance = 0.05
+    else
+      significance = 0
+    end
+  end
+
+  significance > 0
 end
 
 results = results.reduce({}) do |acc, run|
@@ -75,15 +145,14 @@ results.keys.each do |label|
   test['real (best)'] = test['real'].min
   test['total (best)'] = test['total'].min
 
-  test['real'] = winsor(test['real'])
-  test['total'] = winsor(test['total'])
-
   test['real (avg)'] = test['real'].reduce(:+) / test['real'].length
   test['real (+/-)'] = previous &&
-    test['real (avg)'] - previous[label]['real (avg)']
+    test['real (avg)'] / (test['real (avg)'] - previous[label]['real (avg)']) * 100
+  test['real (significant?)'] = significant?(previous[label]['real'], test['real']) if previous
   test['total (avg)'] = test['total'].reduce(:+) / test['total'].length
   test['total (+/-)'] = previous &&
-    test['total (avg)'] - previous[label]['total (avg)']
+    test['total (avg)'] / (test['total (avg)'] - previous[label]['total (avg)']) * 100
+  test['total (significant?)'] = significant?(previous[label]['total'], test['total']) if previous
 
   test['real (variance)'] = test['real'].reduce(0) { |acc, value|
     acc + (test['real (avg)'] - value) ** 2
@@ -103,15 +172,15 @@ log_data.push({
 File.open(log, 'w') { |f| f.write(log_data.to_yaml) }
 
 puts '-' * 94
-puts "\n\nSummary:             cpu time                            (wall-clock time)\n"
+puts "\n\nSummary:             cpu time                             (wall-clock time)\n"
 width = results.keys.map(&:length).max
 print ' ' * (width + 2)
 print ' %8s ' % 'avg'
-print '  %3s   ' % '+/-'
+print '  %3s    ' % '+/-'
 print ' %8s ' % 'best'
 print ' %8s ' % 'sd'
 print ' %8s ' % '(avg)'
-print '  %3s   ' % '+/-'
+print '  %3s    ' % '+/-'
 print ' %8s ' % '(best)'
 print ' %8s ' % '(sd)'
 puts
@@ -120,10 +189,12 @@ results.each do |label, data|
   print "%#{width}s " % label
   print '   %.5f' % data['total (avg)']
   print data['total (+/-)'] ? ' [%+0.1f%%]' % data['total (+/-)'] : ' [-----]'
+  print data['total (significant?)'] ? '*' : ' '
   print '   %.5f' % data['total (best)']
   print '   %.5f' % data['total (sd)']
   print ' (%.5f)' % data['real (avg)']
   print data['total (+/-)'] ? ' [%+0.1f%%]' % data['real (+/-)'] : ' [-----]'
+  print data['real (significant?)'] ? '*' : ' '
   print ' (%.5f)' % data['real (best)']
   print ' (%.5f)' % data['real (sd)']
   puts
