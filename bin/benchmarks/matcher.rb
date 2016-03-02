@@ -171,34 +171,52 @@ log_data.push({
 })
 File.open(log, 'w') { |f| f.write(log_data.to_yaml) }
 
-puts '-' * 94
-puts "\n\nSummary:             cpu time                             (wall-clock time)\n"
-width = results.keys.map(&:length).max
-print ' ' * (width + 2)
-print ' %8s ' % 'avg'
-print '  %3s    ' % '+/-'
-print ' %8s ' % 'best'
-print ' %8s ' % 'sd'
-print ' %8s ' % '(avg)'
-print '  %3s    ' % '+/-'
-print ' %8s ' % '(best)'
-print ' %8s ' % '(sd)'
-puts
-
-results.each do |label, data|
-  print "%#{width}s " % label
-  print '   %.5f' % data['total (avg)']
-  print data['total (+/-)'] ? ' [%+0.1f%%]' % data['total (+/-)'] : ' [-----]'
-  print data['total (significant?)'] ? '*' : ' '
-  print '   %.5f' % data['total (best)']
-  print '   %.5f' % data['total (sd)']
-  print ' (%.5f)' % data['real (avg)']
-  print data['total (+/-)'] ? ' [%+0.1f%%]' % data['real (+/-)'] : ' [-----]'
-  print data['real (significant?)'] ? '*' : ' '
-  print ' (%.5f)' % data['real (best)']
-  print ' (%.5f)' % data['real (sd)']
-  puts
+def print_table(rows)
+  rows.each do |row|
+    row.each.with_index do |cell, i|
+      width = rows.reduce(0) { |acc, row| row[i].length > acc ? row[i].length : acc }
+      if i.zero?
+        print "%#{width}s" % cell
+      else
+        print " %#{width}s" % cell
+      end
+    end
+    puts
+  end
 end
+
+def float(x)
+  '%.5f' % x
+end
+
+def maybe(value, default = '')
+  if value
+    yield value
+  else
+    default
+  end
+end
+
+puts "\n\nSummary of cpu time and (wall-clock time):\n"
+
+headers = [
+  ['', 'avg', '+/-', '', 'best', 'sd', '(avg)', '+/-', ' ', '(best)', '(sd)']]
+rows = headers + results.map do |(label, data)|
+  [
+    label,
+    float(data['total (avg)']),
+    maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
+    maybe(data['total (significant?)']) { '*' },
+    float(data['total (best)']),
+    float(data['total (sd)']),
+    float(data['real (avg)']),
+    maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
+    maybe(data['real (significant?)']) { '*' },
+    float(data['real (best)']),
+    float(data['real (sd)']),
+  ]
+end
+print_table(rows)
 
 if previous
   puts
