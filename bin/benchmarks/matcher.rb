@@ -23,7 +23,7 @@ threads = CommandT::Util.processor_count
 puts "Starting benchmark run (PID: #{Process.pid})"
 now = Time.now.to_s
 
-TIMES = 20
+TIMES = ENV.fetch('TIMES', 20).to_i
 results = TIMES.times.map do
   Benchmark.bmbm do |b|
     data['tests'].each do |test|
