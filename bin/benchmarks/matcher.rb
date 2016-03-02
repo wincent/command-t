@@ -176,9 +176,9 @@ def print_table(rows)
     row.each.with_index do |cell, i|
       width = rows.reduce(0) { |acc, row| row[i].length > acc ? row[i].length : acc }
       if i.zero?
-        print '%*s' % [width, align(cell, width)]
+        print align(cell, width)
       else
-        print ' %*s' % [width, align(cell, width)]
+        print(' ' + align(cell, width))
       end
     end
     puts
@@ -190,21 +190,19 @@ def align(str, width)
     case str.justify
     when :center
       ('%*s%s%*s' % [
-        ((width - str.length) / 2).round,
+        ((width - str.length) / 2.0).round,
         '',
         str,
-        ((width - str.length) / 2).round,
+        ((width - str.length) / 2.0).round,
         '',
       ])[0...width]
     when :left
       '%-*s' % [width, str]
-    when :right
-      '%*s' % [width, str]
     else
-      str
+      '%*s' % [width, str]
     end
   else
-    str
+    '%*s' % [width, str]
   end
 end
 
