@@ -24,7 +24,8 @@ puts "Starting benchmark run (PID: #{Process.pid})"
 now = Time.now.to_s
 
 # Run the benchmarks 10 times so that we can report some variance numbers too.
-results = 10.times.map do
+TIMES = 10
+results = TIMES.times.map do
   Benchmark.bmbm do |b|
     data['tests'].each do |test|
       scanner = OpenStruct.new(:paths => test['paths'])
@@ -78,15 +79,15 @@ def significant?(last, current)
       else
         nil
       end
-    end.compact.reduce(0) { |acc, val| acc + val } / count
+    end.compact.reduce(0) { |acc, val| acc + val }.to_f / count
     row + [row[SIGN] * rank]
   end
 
   n = table.length
-  w = table.reduce(0) { |acc, (diff, abs, signed_rank)| acc + signed_rank }
+  w = table.reduce(0) { |acc, (diff, abs, sig, signed_rank)| acc + signed_rank }
 
   if n < 10
-    significance = 0
+    p_value = 0
     thresholds = [
       [],
       [],
@@ -100,30 +101,30 @@ def significant?(last, current)
       [[29, 0.05], [35, 0.025], [39, 0.01], [43, 0.005]],
     ][n]
     while limit = thresholds.pop do
-      if w > limit[0]
-        significance = limit[1]
+      if w.abs >= limit[0]
+        p_value = limit[1]
         break
       end
     end
   else
     sd = Math.sqrt(n * (n + 1) *  (2 * n + 1) / 6)
     z = ((w - 0.5) / sd).abs
-    if z > 3.291
-      significance = 0.0005
-    elsif z > 2.576
-      significance = 0.005
-    elsif z > 2.326
-      significance = 0.01
-    elsif z > 1.960
-      significance = 0.025
-    elsif z > 1.645
-      significance = 0.05
+    if z >= 3.291
+      p_value = 0.0005
+    elsif z >= 2.576
+      p_value = 0.005
+    elsif z >= 2.326
+      p_value = 0.01
+    elsif z >= 1.960
+      p_value = 0.025
+    elsif z >= 1.645
+      p_value = 0.05
     else
-      significance = 0
+      p_value = 0
     end
   end
 
-  significance > 0
+  p_value
 end
 
 results = results.reduce({}) do |acc, run|
@@ -148,11 +149,11 @@ results.keys.each do |label|
   test['real (avg)'] = test['real'].reduce(:+) / test['real'].length
   test['real (+/-)'] = previous &&
     (test['real (avg)'] - previous[label]['real (avg)']) / test['real (avg)'] * 100
-  test['real (significant?)'] = significant?(previous[label]['real'], test['real']) if previous
+  test['real (significant?)'] = significant?(previous[label]['real'], test['real']) > 0 if previous
   test['total (avg)'] = test['total'].reduce(:+) / test['total'].length
   test['total (+/-)'] = previous &&
     (test['total (avg)'] - previous[label]['total (avg)']) / test['total (avg)'] * 100
-  test['total (significant?)'] = significant?(previous[label]['total'], test['total']) if previous
+  test['total (significant?)'] = significant?(previous[label]['total'], test['total']) > 0 if previous
 
   test['real (variance)'] = test['real'].reduce(0) { |acc, value|
     acc + (test['real (avg)'] - value) ** 2
