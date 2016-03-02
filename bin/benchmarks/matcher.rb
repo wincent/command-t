@@ -176,13 +176,41 @@ def print_table(rows)
     row.each.with_index do |cell, i|
       width = rows.reduce(0) { |acc, row| row[i].length > acc ? row[i].length : acc }
       if i.zero?
-        print "%#{width}s" % cell
+        print '%*s' % [width, align(cell, width)]
       else
-        print " %#{width}s" % cell
+        print ' %*s' % [width, align(cell, width)]
       end
     end
     puts
   end
+end
+
+def align(str, width)
+  if str.respond_to?(:justify)
+    case str.justify
+    when :center
+      ('%*s%s%*s' % [
+        ((width - str.length) / 2).round,
+        '',
+        str,
+        ((width - str.length) / 2).round,
+        '',
+      ])[0...width]
+    when :left
+      '%-*s' % [width, str]
+    when :right
+      '%*s' % [width, str]
+    else
+      str
+    end
+  else
+    str
+  end
+end
+
+AnnotatedString = Struct.new(:length, :to_s, :justify)
+def center(str)
+  AnnotatedString.new(str.length, str, :center)
 end
 
 def float(x)
@@ -200,7 +228,20 @@ end
 puts "\n\nSummary of cpu time and (wall-clock time):\n"
 
 headers = [
-  ['', 'avg', '+/-', '', 'best', 'sd', '(avg)', '+/-', ' ', '(best)', '(sd)']]
+  [
+    '',
+    center('avg'),
+    center('+/-'),
+    '',
+    center('best'),
+    center('sd'),
+    center('(avg)'),
+    center('+/-'),
+    '',
+    center('(best)'),
+    center('(sd)'),
+  ]
+]
 rows = headers + results.map do |(label, data)|
   [
     label,
