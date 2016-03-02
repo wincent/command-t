@@ -147,11 +147,11 @@ results.keys.each do |label|
 
   test['real (avg)'] = test['real'].reduce(:+) / test['real'].length
   test['real (+/-)'] = previous &&
-    test['real (avg)'] / (test['real (avg)'] - previous[label]['real (avg)']) * 100
+    (test['real (avg)'] - previous[label]['real (avg)']) / test['real (avg)'] * 100
   test['real (significant?)'] = significant?(previous[label]['real'], test['real']) if previous
   test['total (avg)'] = test['total'].reduce(:+) / test['total'].length
   test['total (+/-)'] = previous &&
-    test['total (avg)'] / (test['total (avg)'] - previous[label]['total (avg)']) * 100
+    (test['total (avg)'] - previous[label]['total (avg)']) / test['total (avg)'] * 100
   test['total (significant?)'] = significant?(previous[label]['total'], test['total']) if previous
 
   test['real (variance)'] = test['real'].reduce(0) { |acc, value|
