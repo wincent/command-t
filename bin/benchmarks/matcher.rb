@@ -148,13 +148,13 @@ results.keys.each do |label|
   test['total (best)'] = test['total'].min
 
   test['real (avg)'] = test['real'].reduce(:+) / test['real'].length
-  test['real (+/-)'] = previous &&
+  test['real (+/-)'] = previous && previous[label] &&
     (test['real (avg)'] - previous[label]['real (avg)']) / test['real (avg)'] * 100
-  test['real (significance)'] = significance(previous[label]['real'], test['real']) if previous
+  test['real (significance)'] = significance(previous[label]['real'], test['real']) if previous && previous[label]
   test['total (avg)'] = test['total'].reduce(:+) / test['total'].length
-  test['total (+/-)'] = previous &&
+  test['total (+/-)'] = previous && previous[label] &&
     (test['total (avg)'] - previous[label]['total (avg)']) / test['total (avg)'] * 100
-  test['total (significance)'] = significance(previous[label]['total'], test['total']) if previous
+  test['total (significance)'] = significance(previous[label]['total'], test['total']) if previous && previous[label]
 
   test['real (variance)'] = test['real'].reduce(0) { |acc, value|
     acc + (test['real (avg)'] - value) ** 2
@@ -250,12 +250,12 @@ rows = headers + results.map do |(label, data)|
   [
     label,
     float(data['total (avg)']),
-    maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
+    maybe(data['total (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
     maybe(data['total (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['total (best)']),
     float(data['total (sd)']),
     float(data['real (avg)']),
-    maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
+    maybe(data['total (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
     maybe(data['real (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['real (best)']),
     float(data['real (sd)']),
