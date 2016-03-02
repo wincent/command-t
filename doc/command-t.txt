@@ -672,7 +672,7 @@ Following is a list of all available options:
       needed to show matching entries.
 
                                                *g:CommandTInputDebounce*
-  |g:CommandTInputDebounce|                      number (default: 50)
+  |g:CommandTInputDebounce|                      number (default: 0)
 
       The number of milliseconds to wait before updating the match listing
       following a key-press. This can be used to avoid wasteful recomputation
@@ -1218,9 +1218,9 @@ reasonable compromise.
 The default limit of 30,000 files prevents Command-T from "seeing" many of the
 files in a large directory hierarchy so you need to increase this limit.
 
-    let g:CommandTInputDebounce = 200
+    let g:CommandTInputDebounce = 50
 
-Wait for 200ms of keyboard inactivity before computing search results. For
+Wait for 50ms of keyboard inactivity before computing search results. For
 example, if you are enter "foobar" quickly (ie. within 1 second), there is
 little sense in fetching the results for "f", "fo", "foo", "foob", "fooba" and
 finally "foobar". Instead, we can just fetch the results for "foobar". This
@@ -1470,6 +1470,8 @@ HISTORY                                         *command-t-history*
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
 - Matching algorithm sped up by about 17x (with help from Hanson Wang).
+- |g:CommandTInputDebounce| now defaults to 0, as the recent optimizations
+  make debouncing largely unnecessary.
 
 3.0.2 (9 February 2016)
 

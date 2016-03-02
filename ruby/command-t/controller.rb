@@ -309,7 +309,7 @@ module CommandT
         :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
         :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse', true),
         :min_height           => min_height,
-        :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 50,
+        :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 0,
         :prompt               => prompt,
         :name                 => "Command-T [#{@active_finder.name}]"
       @focus            = prompt
