@@ -217,6 +217,10 @@ def float(x)
   '%.5f' % x
 end
 
+def parens(x)
+  "(#{x})"
+end
+
 def trim(str)
   str.sub(/0+\z/, '')
 end
@@ -254,11 +258,11 @@ rows = headers + results.map do |(label, data)|
     maybe(data['total (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['total (best)']),
     float(data['total (sd)']),
-    float(data['real (avg)']),
+    parens(float(data['real (avg)'])),
     maybe(data['total (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
     maybe(data['real (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
-    float(data['real (best)']),
-    float(data['real (sd)']),
+    parens(float(data['real (best)'])),
+    parens(float(data['real (sd)'])),
   ]
 end
 print_table(rows)
