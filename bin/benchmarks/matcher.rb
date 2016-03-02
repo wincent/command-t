@@ -55,7 +55,7 @@ SIGN = 2
 # Test for significance via Wilcoxon Signed Rank test.
 #
 # @see http://vassarstats.net/textbook/ch12a.html
-def significant?(last, current)
+def significance(last, current)
   return 0.0 if last.length != current.length
 
   table = last.zip(current).map do |l, c|
@@ -150,11 +150,11 @@ results.keys.each do |label|
   test['real (avg)'] = test['real'].reduce(:+) / test['real'].length
   test['real (+/-)'] = previous &&
     (test['real (avg)'] - previous[label]['real (avg)']) / test['real (avg)'] * 100
-  test['real (significant?)'] = significant?(previous[label]['real'], test['real']) if previous
+  test['real (significance)'] = significance(previous[label]['real'], test['real']) if previous
   test['total (avg)'] = test['total'].reduce(:+) / test['total'].length
   test['total (+/-)'] = previous &&
     (test['total (avg)'] - previous[label]['total (avg)']) / test['total (avg)'] * 100
-  test['total (significant?)'] = significant?(previous[label]['total'], test['total']) if previous
+  test['total (significance)'] = significance(previous[label]['total'], test['total']) if previous
 
   test['real (variance)'] = test['real'].reduce(0) { |acc, value|
     acc + (test['real (avg)'] - value) ** 2
@@ -251,12 +251,12 @@ rows = headers + results.map do |(label, data)|
     label,
     float(data['total (avg)']),
     maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
-    maybe(data['total (significant?)']) { |value| value > 0 ? trim(float(value)) : '' },
+    maybe(data['total (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['total (best)']),
     float(data['total (sd)']),
     float(data['real (avg)']),
     maybe(data['total (+/-)'], '[-----]') { |value| '[%+0.1f%%]' % value },
-    maybe(data['real (significant?)']) { |value| value > 0 ? trim(float(value)) : '' },
+    maybe(data['real (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
     float(data['real (best)']),
     float(data['real (sd)']),
   ]
