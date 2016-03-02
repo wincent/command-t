@@ -238,31 +238,31 @@ puts "\n\nSummary of cpu time and (wall-clock time):\n"
 headers = [
   [
     '',
-    center('avg'),
-    center('+/-'),
-    center('p'),
     center('best'),
+    center('avg'),
     center('sd'),
-    center('(avg)'),
     center('+/-'),
     center('p'),
     center('(best)'),
+    center('(avg)'),
     center('(sd)'),
+    center('+/-'),
+    center('p'),
   ]
 ]
 rows = headers + results.map do |(label, data)|
   [
     label,
+    float(data['total (best)']),
     float(data['total (avg)']),
+    float(data['total (sd)']),
     maybe(data['total (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
     maybe(data['total (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
-    float(data['total (best)']),
-    float(data['total (sd)']),
+    parens(float(data['real (best)'])),
     parens(float(data['real (avg)'])),
+    parens(float(data['real (sd)'])),
     maybe(data['total (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
     maybe(data['real (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
-    parens(float(data['real (best)'])),
-    parens(float(data['real (sd)'])),
   ]
 end
 print_table(rows)
