@@ -12,11 +12,16 @@ require 'benchmark'
 require 'ostruct'
 require 'yaml'
 
-yaml    = File.expand_path('../../data/benchmark.yml', File.dirname(__FILE__))
-data    = YAML.load_file(yaml)
+data = YAML.load_file(
+  File.expand_path('../../data/benchmark.yml', File.dirname(__FILE__))
+)
+log = File.expand_path('../../data/log.yml', File.dirname(__FILE__))
+log_data = File.exist?(log) ? YAML.load_file(log) : []
+
 threads = CommandT::Util.processor_count
 
 puts "Starting benchmark run (PID: #{Process.pid})"
+now = Time.now.to_s
 
 # Run the benchmarks 10 times so that we can report some variance numbers too.
 results = 10.times.map do
@@ -62,6 +67,8 @@ results = results.reduce({}) do |acc, run|
   acc
 end
 
+previous = YAML.load_file(log).last['results'] rescue nil
+
 results.keys.each do |label|
   test = results[label]
 
@@ -72,7 +79,11 @@ results.keys.each do |label|
   test['total'] = winsor(test['total'])
 
   test['real (avg)'] = test['real'].reduce(:+) / test['real'].length
+  test['real (+/-)'] = previous &&
+    test['real (avg)'] - previous[label]['real (avg)']
   test['total (avg)'] = test['total'].reduce(:+) / test['total'].length
+  test['total (+/-)'] = previous &&
+    test['total (avg)'] - previous[label]['total (avg)']
 
   test['real (variance)'] = test['real'].reduce(0) { |acc, value|
     acc + (test['real (avg)'] - value) ** 2
@@ -83,28 +94,42 @@ results.keys.each do |label|
 
   test['real (sd)'] = Math.sqrt(test['real (variance)'])
   test['total (sd)'] = Math.sqrt(test['total (variance)'])
-
-  test.delete('real')
-  test.delete('total')
 end
 
-puts "\n\nSummary:                                cpu time             (wall-clock time)\n"
+log_data.push({
+  'time' => now,
+  'results' => results,
+})
+File.open(log, 'w') { |f| f.write(log_data.to_yaml) }
+
+puts '-' * 94
+puts "\n\nSummary:             cpu time                            (wall-clock time)\n"
 width = results.keys.map(&:length).max
 print ' ' * (width + 2)
-print '%9s ' % 'avg'
-print '%9s ' % 'best'
-print '%9s ' % 'sd'
-print '%9s ' % '(avg)'
-print '%9s ' % '(best)'
-print '%9s ' % '(sd)'
+print ' %8s ' % 'avg'
+print '  %3s   ' % '+/-'
+print ' %8s ' % 'best'
+print ' %8s ' % 'sd'
+print ' %8s ' % '(avg)'
+print '  %3s   ' % '+/-'
+print ' %8s ' % '(best)'
+print ' %8s ' % '(sd)'
 puts
+
 results.each do |label, data|
   print "%#{width}s " % label
   print '   %.5f' % data['total (avg)']
+  print data['total (+/-)'] ? ' [%+0.1f%%]' % data['total (+/-)'] : ' [-----]'
   print '   %.5f' % data['total (best)']
   print '   %.5f' % data['total (sd)']
   print ' (%.5f)' % data['real (avg)']
+  print data['total (+/-)'] ? ' [%+0.1f%%]' % data['real (+/-)'] : ' [-----]'
   print ' (%.5f)' % data['real (best)']
   print ' (%.5f)' % data['real (sd)']
   puts
+end
+
+if previous
+  puts
+  puts '*Significant difference indicated with a star.'
 end
