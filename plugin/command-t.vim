@@ -42,4 +42,5 @@ endif
 nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
 nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
+nnoremap <silent> <Plug>(CommandTSearch) :CommandTSearch<CR>
 nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
