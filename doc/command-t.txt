@@ -628,12 +628,21 @@ binding of Command-T to "New Tab":
 
 Additional mappings are available to target, but are not set up by default:
 
-                                                *<Plug>(CommandTHelp)*
+    *<Plug>(CommandTHelp)*
 
-    Brings up the Command-T help search window. Set up a mapping for this
-    like so:
+      Brings up the Command-T help search window.
 
-      nnoremap <silent> <Leader>h <Plug>(CommandTHelp)
+    *<Plug>(CommandTMRU)*
+
+      Brings up the Command-T most-recently-used buffer window.
+
+    *<Plug>(CommandTTag)*
+
+      Brings up the Command-T tag search window.
+
+Set up a mapping for any of these like so:
+
+  nnoremap <silent> <Leader>h <Plug>(CommandTHelp)
 
 When the Command-T window is active a number of other additional mappings
 become available for doing things like moving between and selecting matches.
@@ -1489,6 +1498,7 @@ HISTORY                                         *command-t-history*
   make debouncing largely unnecessary.
 - Added |:CommandTHelp| for jumping to locations in the help, and an
   accompanying mapping, |<Plug>(CommandTHelp)|.
+- Added |<Plug>(CommandTMRU)| and |<Plug>(CommandTTag)| mappings.
 
 3.0.2 (9 February 2016)
 

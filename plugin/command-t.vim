@@ -33,3 +33,6 @@ if has('jumplist')
   endif
   nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
 endif
+
+nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
+nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
