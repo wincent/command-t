@@ -5,6 +5,12 @@ module CommandT
   class Scanner
     class LineScanner < Scanner
       def paths
+        @lines ||= paths!
+      end
+
+    private
+
+      def paths!
         # $curbuf is the Command-T match listing; we actually want the last
         # buffer, but passing `$`, `#`, `%` etc to `bufnr()` returns the wrong
         # value.
@@ -28,8 +34,6 @@ module CommandT
           end
         end.compact
       end
-
-    private
 
       def buffer_number(buffer)
         buffer && buffer.number

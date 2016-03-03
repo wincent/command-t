@@ -525,7 +525,7 @@ module CommandT
     end
 
     def line_finder
-      @line_finder ||= CommandT::Finder::LineFinder.new
+      @line_finder = CommandT::Finder::LineFinder.new
     end
 
     def tag_finder
