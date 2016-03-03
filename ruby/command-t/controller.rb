@@ -535,7 +535,7 @@ module CommandT
     end
 
     def history_finder
-      CommandT::Finder::HistoryFinder.new
+      CommandT::Finder::HistoryFinder.new(:history_type => ':')
     end
 
     def jump_finder
@@ -547,7 +547,7 @@ module CommandT
     end
 
     def search_finder
-      CommandT::Finder::SearchFinder.new
+      CommandT::Finder::HistoryFinder.new(:history_type => '/')
     end
 
     def tag_finder

@@ -5,7 +5,8 @@ module CommandT
   class Finder
     class HistoryFinder < Finder
       def initialize(options = {})
-        @scanner = Scanner::HistoryScanner.new
+        @history_type = options[:history_type] # / or :
+        @scanner = Scanner::HistoryScanner.new("silent history #{@history_type}")
         @matcher = Matcher.new @scanner, :always_show_dot_files => true
       end
 
@@ -13,13 +14,13 @@ module CommandT
         # Need to unescape to reverse the work done by `#sanitize_path_string`.
         unescaped = selection.gsub(/\\(.)/, '\1')
         escaped = VIM.escape_for_single_quotes unescaped
-        ::VIM::command "call feedkeys(':#{escaped}', 'nt')"
+        ::VIM::command "call feedkeys('#{@history_type}#{escaped}', 'nt')"
       end
 
       def flush; end
 
       def name
-        'History'
+        @history_type == ':' ? 'History' : 'Searches'
       end
     end # class HistoryFinder
   end # class Finder

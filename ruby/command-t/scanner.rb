@@ -10,7 +10,6 @@ module CommandT
     autoload :JumpScanner,      'command-t/scanner/jump_scanner'
     autoload :LineScanner,      'command-t/scanner/line_scanner'
     autoload :MRUBufferScanner, 'command-t/scanner/mru_buffer_scanner'
-    autoload :SearchScanner,    'command-t/scanner/search_scanner'
     autoload :TagScanner,       'command-t/scanner/tag_scanner'
 
     # Subclasses implement this method to return the list of paths that should
