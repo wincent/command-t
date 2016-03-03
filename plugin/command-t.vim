@@ -30,6 +30,7 @@ endif
 nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
 
 nnoremap <silent> <Plug>(CommandTHelp) :CommandTHelp<CR>
+nnoremap <silent> <Plug>(CommandTHistory) :CommandTHistory<CR>
 
 if has('jumplist')
   if !hasmapto('<Plug>(CommandTJump)') && maparg('<Leader>j', 'n') ==# ''
