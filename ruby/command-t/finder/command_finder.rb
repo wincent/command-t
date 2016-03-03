@@ -10,7 +10,7 @@ module CommandT
       end
 
       def open_selection(command, selection, options = {})
-        ::VIM::command "call feedkeys(':#{selection}', 'nt')"
+        ::VIM::command "call feedkeys(':#{selection} ', 'nt')"
       end
 
       def flush; end
