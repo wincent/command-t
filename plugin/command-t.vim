@@ -7,6 +7,7 @@ endif
 let g:command_t_loaded = 1
 
 command! CommandTBuffer call commandt#BufferFinder()
+command! CommandTCommand call commandt#CommandFinder()
 command! CommandTHelp call commandt#HelpFinder()
 command! CommandTHistory call commandt#HistoryFinder()
 command! CommandTJump call commandt#JumpFinder()
@@ -37,6 +38,7 @@ if has('jumplist')
   nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
 endif
 
+nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
 nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
 nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>

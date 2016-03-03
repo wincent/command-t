@@ -4,6 +4,7 @@
 module CommandT
   class Scanner
     autoload :BufferScanner,    'command-t/scanner/buffer_scanner'
+    autoload :CommandScanner,   'command-t/scanner/command_scanner'
     autoload :FileScanner,      'command-t/scanner/file_scanner'
     autoload :HelpScanner,      'command-t/scanner/help_scanner'
     autoload :HistoryScanner,   'command-t/scanner/history_scanner'

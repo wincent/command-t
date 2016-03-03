@@ -76,6 +76,14 @@ function! commandt#BufferFinder() abort
   endif
 endfunction
 
+function! commandt#CommandFinder() abort
+  if has('ruby')
+    ruby $command_t.show_command_finder
+  else
+    call s:RubyWarning()
+  endif
+endfunction
+
 function! commandt#FileFinder(arg) abort
   if has('ruby')
     ruby $command_t.show_file_finder

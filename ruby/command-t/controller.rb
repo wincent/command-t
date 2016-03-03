@@ -67,6 +67,13 @@ module CommandT
     end
     guard :show_buffer_finder
 
+    def show_command_finder
+      @path          = VIM::pwd
+      @active_finder = command_finder
+      show
+    end
+    guard :show_command_finder
+
     def show_help_finder
       @path          = VIM::pwd
       @active_finder = help_finder
@@ -511,6 +518,10 @@ module CommandT
 
     def buffer_finder
       @buffer_finder ||= CommandT::Finder::BufferFinder.new
+    end
+
+    def command_finder
+      @command_finder ||= CommandT::Finder::CommandFinder.new
     end
 
     def mru_finder
