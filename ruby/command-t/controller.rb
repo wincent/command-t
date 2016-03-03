@@ -67,6 +67,13 @@ module CommandT
     end
     guard :show_buffer_finder
 
+    def show_help_finder
+      @path          = VIM::pwd
+      @active_finder = help_finder
+      show
+    end
+    guard :show_help_finder
+
     def show_jump_finder
       @path          = VIM::pwd
       @active_finder = jump_finder
@@ -500,6 +507,10 @@ module CommandT
         :wild_ignore            => VIM::get_string('g:CommandTWildIgnore'),
         :scanner                => VIM::get_string('g:CommandTFileScanner'),
         :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules')
+    end
+
+    def help_finder
+      @jump_finder ||= CommandT::Finder::HelpFinder.new
     end
 
     def jump_finder

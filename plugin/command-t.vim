@@ -7,6 +7,7 @@ endif
 let g:command_t_loaded = 1
 
 command! CommandTBuffer call commandt#BufferFinder()
+command! CommandTHelp call commandt#HelpFinder()
 command! CommandTJump call commandt#JumpFinder()
 command! CommandTMRU call commandt#MRUFinder()
 command! CommandTTag call commandt#TagFinder()
@@ -23,6 +24,8 @@ if !hasmapto('<Plug>(CommandTBuffer)') && maparg('<Leader>b', 'n') ==# ''
   nmap <unique> <Leader>b <Plug>(CommandTBuffer)
 endif
 nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
+
+nnoremap <silent> <Plug>(CommandTHelp) :CommandTHelp<CR>
 
 if has('jumplist')
   if !hasmapto('<Plug>(CommandTJump)') && maparg('<Leader>j', 'n') ==# ''

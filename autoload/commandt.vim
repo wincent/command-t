@@ -100,6 +100,14 @@ function! commandt#MRUFinder() abort
   endif
 endfunction
 
+function! commandt#HelpFinder() abort
+  if has('ruby')
+    ruby $command_t.show_help_finder
+  else
+    call s:RubyWarning()
+  endif
+endfunction
+
 function! commandt#TagFinder() abort
   if has('ruby')
     ruby $command_t.show_tag_finder

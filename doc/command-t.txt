@@ -542,6 +542,12 @@ COMMANDS                                        *command-t-commands*
                 except that the selection is limited to files that
                 you already have open in buffers.
 
+                                                *:CommandTHelp*
+|:CommandTHelp|   Brings up the Command-T help search window. This works
+                exactly like the standard file window, except that it shows
+                help topics found in any documentation under Vim's
+                |'runtimepath'|.
+
                                                 *:CommandTMRU*
 |:CommandTMRU|    Brings up the Command-T buffer window, except that matches
                 are shown in MRU (most recently used) order. If you prefer to
@@ -619,6 +625,15 @@ binding of Command-T to "New Tab":
     macmenu &File.New\ Tab key=<nop>
     map <D-t> <Plug>(CommandT)
   endif
+
+Additional mappings are available to target, but are not set up by default:
+
+                                                *<Plug>(CommandTHelp)*
+
+    Brings up the Command-T help search window. Set up a mapping for this
+    like so:
+
+      nnoremap <silent> <Leader>h <Plug>(CommandTHelp)
 
 When the Command-T window is active a number of other additional mappings
 become available for doing things like moving between and selecting matches.
@@ -1472,6 +1487,8 @@ HISTORY                                         *command-t-history*
 - Matching algorithm sped up by about 17x (with help from Hanson Wang).
 - |g:CommandTInputDebounce| now defaults to 0, as the recent optimizations
   make debouncing largely unnecessary.
+- Added |:CommandTHelp| for jumping to locations in the help, and an
+  accompanying mapping, |<Plug>(CommandTHelp)|.
 
 3.0.2 (9 February 2016)
 
