@@ -9,6 +9,7 @@ let g:command_t_loaded = 1
 command! CommandTBuffer call commandt#BufferFinder()
 command! CommandTHelp call commandt#HelpFinder()
 command! CommandTJump call commandt#JumpFinder()
+command! CommandTLine call commandt#LineFinder()
 command! CommandTMRU call commandt#MRUFinder()
 command! CommandTTag call commandt#TagFinder()
 command! -nargs=? -complete=dir CommandT call commandt#FileFinder(<q-args>)
@@ -34,5 +35,6 @@ if has('jumplist')
   nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
 endif
 
+nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
 nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>

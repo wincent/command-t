@@ -81,6 +81,13 @@ module CommandT
     end
     guard :show_jump_finder
 
+    def show_line_finder
+      @path          = VIM::pwd
+      @active_finder = line_finder
+      show
+    end
+    guard :show_line_finder
+
     def show_mru_finder
       @path          = VIM::pwd
       @active_finder = mru_finder
@@ -515,6 +522,10 @@ module CommandT
 
     def jump_finder
       @jump_finder ||= CommandT::Finder::JumpFinder.new
+    end
+
+    def line_finder
+      @line_finder ||= CommandT::Finder::LineFinder.new
     end
 
     def tag_finder

@@ -548,6 +548,11 @@ COMMANDS                                        *command-t-commands*
                 help topics found in any documentation under Vim's
                 |'runtimepath'|.
 
+                                                *:CommandTLine*
+|:CommandTLine|   Brings up the Command-T line search window. This works
+                exactly like the standard file window, except that it shows
+                the lines in the current buffer.
+
                                                 *:CommandTMRU*
 |:CommandTMRU|    Brings up the Command-T buffer window, except that matches
                 are shown in MRU (most recently used) order. If you prefer to
@@ -631,6 +636,10 @@ Additional mappings are available to target, but are not set up by default:
     *<Plug>(CommandTHelp)*
 
       Brings up the Command-T help search window.
+
+    *<Plug>(CommandTLine)*
+
+      Brings up the Command-T line-finder window.
 
     *<Plug>(CommandTMRU)*
 
@@ -1498,6 +1507,8 @@ HISTORY                                         *command-t-history*
   make debouncing largely unnecessary.
 - Added |:CommandTHelp| for jumping to locations in the help, and an
   accompanying mapping, |<Plug>(CommandTHelp)|.
+- Added |:CommandTLine| for jumping to lines within the current buffer, and a
+  corresponding mapping, |<Plug>(CommandTLine)|.
 - Added |<Plug>(CommandTMRU)| and |<Plug>(CommandTTag)| mappings.
 
 3.0.2 (9 February 2016)
