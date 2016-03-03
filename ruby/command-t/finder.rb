@@ -14,9 +14,11 @@ module CommandT
     autoload :BufferFinder,    'command-t/finder/buffer_finder'
     autoload :FileFinder,      'command-t/finder/file_finder'
     autoload :HelpFinder,      'command-t/finder/help_finder'
+    autoload :HistoryFinder,   'command-t/finder/history_finder'
     autoload :JumpFinder,      'command-t/finder/jump_finder'
     autoload :LineFinder,      'command-t/finder/line_finder'
     autoload :MRUBufferFinder, 'command-t/finder/mru_buffer_finder'
+    autoload :SearchFinder,    'command-t/finder/search_finder'
     autoload :TagFinder,       'command-t/finder/tag_finder'
 
     include PathUtilities

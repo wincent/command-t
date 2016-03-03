@@ -108,10 +108,26 @@ function! commandt#HelpFinder() abort
   endif
 endfunction
 
+function! commandt#HistoryFinder() abort
+  if has('ruby')
+    ruby $command_t.show_history_finder
+  else
+    call s:RubyWarning()
+  endif
+endfunction
+
 function! commandt#LineFinder() abort
   if has('ruby')
     let g:CommandTCurrentBuffer=bufnr('%')
     ruby $command_t.show_line_finder
+  else
+    call s:RubyWarning()
+  endif
+endfunction
+
+function! commandt#SearchFinder() abort
+  if has('ruby')
+    ruby $command_t.show_search_finder
   else
     call s:RubyWarning()
   endif

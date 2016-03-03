@@ -8,9 +8,11 @@ let g:command_t_loaded = 1
 
 command! CommandTBuffer call commandt#BufferFinder()
 command! CommandTHelp call commandt#HelpFinder()
+command! CommandTHistory call commandt#HistoryFinder()
 command! CommandTJump call commandt#JumpFinder()
 command! CommandTLine call commandt#LineFinder()
 command! CommandTMRU call commandt#MRUFinder()
+command! CommandTSearch call commandt#SearchFinder()
 command! CommandTTag call commandt#TagFinder()
 command! -nargs=? -complete=dir CommandT call commandt#FileFinder(<q-args>)
 command! CommandTFlush call commandt#Flush()

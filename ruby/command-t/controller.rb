@@ -74,6 +74,13 @@ module CommandT
     end
     guard :show_help_finder
 
+    def show_history_finder
+      @path          = VIM::pwd
+      @active_finder = history_finder
+      show
+    end
+    guard :show_history_finder
+
     def show_jump_finder
       @path          = VIM::pwd
       @active_finder = jump_finder
@@ -94,6 +101,13 @@ module CommandT
       show
     end
     guard :show_mru_finder
+
+    def show_search_finder
+      @path          = VIM::pwd
+      @active_finder = search_finder
+      show
+    end
+    guard :show_search_finder
 
     def show_tag_finder
       @path          = VIM::pwd
@@ -520,12 +534,20 @@ module CommandT
       @jump_finder ||= CommandT::Finder::HelpFinder.new
     end
 
+    def history_finder
+      CommandT::Finder::HistoryFinder.new
+    end
+
     def jump_finder
       @jump_finder ||= CommandT::Finder::JumpFinder.new
     end
 
     def line_finder
-      @line_finder = CommandT::Finder::LineFinder.new
+      CommandT::Finder::LineFinder.new
+    end
+
+    def search_finder
+      CommandT::Finder::SearchFinder.new
     end
 
     def tag_finder

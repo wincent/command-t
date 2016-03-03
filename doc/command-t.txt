@@ -532,69 +532,80 @@ paths which begin with the same prefix.
 COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
-|:CommandT|       Brings up the Command-T file window, starting in the
-                current working directory as returned by the|:pwd|
-                command.
+|:CommandT|        Brings up the Command-T file window, starting in the current
+                 working directory as returned by the|:pwd|
+                 command.
 
-                                                *:CommandTBuffer*
-|:CommandTBuffer| Brings up the Command-T buffer window.
-                This works exactly like the standard file window,
-                except that the selection is limited to files that
-                you already have open in buffers.
+                                                 *:CommandTBuffer*
+|:CommandTBuffer|  Brings up the Command-T buffer window.
+                 This works exactly like the standard file window,
+                 except that the selection is limited to files that
+                 you already have open in buffers.
 
-                                                *:CommandTHelp*
-|:CommandTHelp|   Brings up the Command-T help search window. This works
-                exactly like the standard file window, except that it shows
-                help topics found in any documentation under Vim's
-                |'runtimepath'|.
+                                                 *:CommandTHelp*
+|:CommandTHelp|    Brings up the Command-T help search window. This works
+                 exactly like the standard file window, except that it shows
+                 help topics found in any documentation under Vim's
+                 |'runtimepath'|.
+
+                                                *:CommandTHistory*
+|:CommandTHistory| Brings up the Command-T history window. This works
+                 exactly like the standard file window, except that it shows
+                 the history of previously entered commands.
 
                                                 *:CommandTLine*
-|:CommandTLine|   Brings up the Command-T line search window. This works
-                exactly like the standard file window, except that it shows
-                the lines in the current buffer.
+|:CommandTLine|    Brings up the Command-T line search window. This works
+                 exactly like the standard file window, except that it shows
+                 the lines in the current buffer.
 
                                                 *:CommandTMRU*
-|:CommandTMRU|    Brings up the Command-T buffer window, except that matches
-                are shown in MRU (most recently used) order. If you prefer to
-                use this over the normal buffer finder, I suggest overwriting
-                the standard mapping with a command like:
+|:CommandTMRU|     Brings up the Command-T buffer window, except that matches
+                 are shown in MRU (most recently used) order. If you prefer to
+                 use this over the normal buffer finder, I suggest overwriting
+                 the standard mapping with a command like:
 
-                    :nnoremap <silent> <leader>b :CommandTMRU<CR>
+                     :nnoremap <silent> <leader>b :CommandTMRU<CR>
 
-                Note that Command-T only starts recording most recently used
-                buffers when you first use a Command-T command or mapping;
-                this is an optimization to improve startup time.
+                 Note that Command-T only starts recording most recently used
+                 buffers when you first use a Command-T command or mapping;
+                 this is an optimization to improve startup time, which you can
+                 override by using either |:CommandTLoad| or |commandt#Load|.
 
                                                 *:CommandTJumps*
-|:CommandTJump|   Brings up the Command-T jumplist window.
-                This works exactly like the standard file window,
-                except that the selection is limited to files that
-                you already have in the jumplist. Note that jumps
-                can persist across Vim sessions (see Vim's |jumplist|
-                documentation for more info).
+|:CommandTJump|    Brings up the Command-T jumplist window.
+                 This works exactly like the standard file window,
+                 except that the selection is limited to files that
+                 you already have in the jumplist. Note that jumps
+                 can persist across Vim sessions (see Vim's |jumplist|
+                 documentation for more info).
+
+                                                *:CommandTSearch*
+|:CommandTSearch|  Brings up the Command-T search window. This works
+                 exactly like the standard file window, except that it shows
+                 the history of previously used searches.
 
                                                 *:CommandTTag*
-|:CommandTTag|    Brings up the Command-T window tags window, which can
-                be used to select from the tags, if any, returned by
-                Vim's |taglist()| function. See Vim's |tag| documentation
-                for general info on tags.
+|:CommandTTag|     Brings up the Command-T window tags window, which can
+                 be used to select from the tags, if any, returned by
+                 Vim's |taglist()| function. See Vim's |tag| documentation
+                 for general info on tags.
 
                                                 *:CommandTFlush*
-|:CommandTFlush|  Instructs the plug-in to flush its path cache, causing
-                the directory to be rescanned for new or deleted paths
-                the next time the file window is shown (pressing <C-f> when
-                a match listing is visible flushes the cache immediately; this
-                mapping is configurable via the |g:CommandTRefreshMap|
-                setting). In addition, all configuration settings are
-                re-evaluated, causing any changes made to settings via the
-                |:let| command to be picked up.
+|:CommandTFlush|   Instructs the plug-in to flush its path cache, causing
+                 the directory to be rescanned for new or deleted paths
+                 the next time the file window is shown (pressing <C-f> when
+                 a match listing is visible flushes the cache immediately;
+                 this mapping is configurable via the |g:CommandTRefreshMap|
+                 setting). In addition, all configuration settings are
+                 re-evaluated, causing any changes made to settings via the
+                 |:let| command to be picked up.
 
                                                 *:CommandTLoad*
-|:CommandTLoad|   Immediately loads the plug-in files, if they haven't been
-                loaded already (normally, the files are loaded lazily the
-                first time you run a Command-T command or use a Command-T
-                mapping). This command may be useful for people wishing to
-                extend Command-T by "monkey patching" its functionality.
+|:CommandTLoad|    Immediately loads the plug-in files, if they haven't been
+                 loaded already (normally, the files are loaded lazily the
+                 first time you run a Command-T command or use a Command-T
+                 mapping). This command may be useful for people wishing to
+                 extend Command-T by "monkey patching" its functionality.
 
 
 MAPPINGS                                        *command-t-mappings*
@@ -637,6 +648,10 @@ Additional mappings are available to target, but are not set up by default:
 
       Brings up the Command-T help search window.
 
+    *<Plug>(CommandTHistory)*
+
+      Brings up the Command-T command history search window.
+
     *<Plug>(CommandTLine)*
 
       Brings up the Command-T line-finder window.
@@ -644,6 +659,10 @@ Additional mappings are available to target, but are not set up by default:
     *<Plug>(CommandTMRU)*
 
       Brings up the Command-T most-recently-used buffer window.
+
+    *<Plug>(CommandTSearch)*
+
+      Brings up the Command-T search history window.
 
     *<Plug>(CommandTTag)*
 
@@ -1509,6 +1528,10 @@ HISTORY                                         *command-t-history*
   accompanying mapping, |<Plug>(CommandTHelp)|.
 - Added |:CommandTLine| for jumping to lines within the current buffer, and a
   corresponding mapping, |<Plug>(CommandTLine)|.
+- Added |:CommandTHistory| for jumping to previously entered commands, and a
+  corresponding mapping, |<Plug>(CommandTHistory)|.
+- Added |:CommandTSearch| for jumping to previously entered searches, and a
+  corresponding mapping, |<Plug>(CommandTSearch)|.
 - Added |<Plug>(CommandTMRU)| and |<Plug>(CommandTTag)| mappings.
 
 3.0.2 (9 February 2016)
