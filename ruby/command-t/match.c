@@ -165,9 +165,10 @@ float calculate_match(
             }
         }
 
-        // Pre-scan string to see if it matches at all (short-circuits).
-        // Record rightmost math match for each character (used to prune search space).
-        // Record bitmask for haystack to speed up future searches.
+        // Pre-scan string:
+        // - Bail if it can't match at all.
+        // - Record rightmost match for each character (prune search space).
+        // - Record bitmask for haystack to speed up future searches.
         m.rightmost_match_p = rightmost_match_p;
         needle_idx = m.needle_len - 1;
         mask = 0;
