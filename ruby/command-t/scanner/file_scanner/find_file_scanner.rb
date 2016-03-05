@@ -12,7 +12,7 @@ module CommandT
 
         def paths!
           # temporarily set field separator to NUL byte; this setting is
-          # respected by both `readlines` and `chomp!` below, and makes it easier
+          # respected by both `each_line` and `chomp!` below, and makes it easier
           # to parse the output of `find -print0`
           separator = $/
           $/ = "\x00"
@@ -35,7 +35,7 @@ module CommandT
           ].flatten.compact)) do |stdin, stdout, stderr|
             counter = 1
             next_progress = report_progress(counter)
-            stdout.readlines.each do |line|
+            stdout.each_line do |line|
               next if path_excluded?(line.chomp!)
               paths << line[@prefix_len..-1]
               next_progress = report_progress(counter) if counter == next_progress
