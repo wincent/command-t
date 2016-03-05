@@ -261,7 +261,7 @@ rows = headers + results.map do |(label, data)|
     parens(float(data['real (best)'])),
     parens(float(data['real (avg)'])),
     parens(float(data['real (sd)'])),
-    maybe(data['total (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
+    maybe(data['real (+/-)'], center('?')) { |value| '[%+0.1f%%]' % value },
     maybe(data['real (significance)']) { |value| value > 0 ? trim(float(value)) : '' },
   ]
 end
