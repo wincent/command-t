@@ -68,6 +68,12 @@ describe CommandT::Matcher do
       expect(matches.map { |m| m.to_s }).to eq(['foo'])
     end
 
+    # Can't imagine this happening in practice, but want to handle it in case.
+    it 'gracefully handles empty haystacks' do
+      expect(matcher('', 'foo').sorted_matches_for('').map { |m| m.to_s }).to eq(['', 'foo'])
+      expect(matcher('', 'foo').sorted_matches_for('f').map { |m| m.to_s }).to eq(['foo'])
+    end
+
     it 'does not consider mere substrings of the query string to be a match' do
       expect(matcher('foo').sorted_matches_for('foo...')).to eq([])
     end

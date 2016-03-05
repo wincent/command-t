@@ -152,7 +152,7 @@ float calculate_match(
                 }
             }
         }
-    } else if (m.haystack_len > 0) { // Normal case.
+    } else {
         long haystack_limit;
         long memo_size;
         long needle_idx;
