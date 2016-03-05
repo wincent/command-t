@@ -144,7 +144,7 @@ float calculate_match(
     // Special case for zero-length search string.
     if (m.needle_len == 0) {
         // Filter out dot files.
-        if (!m.always_show_dot_files) {
+        if (m.never_show_dot_files || !m.always_show_dot_files) {
             for (i = 0; i < m.haystack_len; i++) {
                 char c = m.haystack_p[i];
                 if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
