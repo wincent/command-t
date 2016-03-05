@@ -301,6 +301,9 @@ module CommandT
       )
       @match_window.matches = @matches
 
+      # Scanner may have overwritten prompt to show progress.
+      prompt.redraw
+
       @needs_update = false
     end
     guard :list_matches

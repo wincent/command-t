@@ -112,8 +112,6 @@ module CommandT
       end
     end
 
-  private
-
     def redraw
       if @has_focus
         prompt_highlight = 'Comment'
@@ -132,6 +130,8 @@ module CommandT
       components += [cursor_highlight, ' '] if cursor.empty?
       set_status *components
     end
+
+  private
 
     # Returns the @abbrev string divided up into three sections, any of
     # which may actually be zero width, depending on the location of the

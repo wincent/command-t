@@ -12,6 +12,7 @@ module CommandT
           accumulator = []
           @depth = 0
           @files = 0
+          @next_progress = report_progress(@files)
           add_paths_for_directory(@path, accumulator)
           accumulator
         rescue FileLimitExceeded
@@ -34,6 +35,7 @@ module CommandT
             unless path_excluded?(path)
               if File.file?(path)
                 @files += 1
+                @next_progress = report_progress(@files) if @files == @next_progress
                 raise FileLimitExceeded if @files > @max_files
                 accumulator << path[@prefix_len..-1]
               elsif File.directory?(path)

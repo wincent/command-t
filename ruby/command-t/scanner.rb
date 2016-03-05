@@ -22,5 +22,13 @@ module CommandT
     def paths
       raise RuntimeError, 'Subclass responsibility'
     end
+
+  private
+
+    def report_progress(count)
+      ::VIM::command "echon '  #{count}'"
+      ::VIM::command 'redraw'
+      count + 10
+    end
   end # class Scanner
 end # module CommandT
