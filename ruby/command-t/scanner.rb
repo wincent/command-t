@@ -25,26 +25,8 @@ module CommandT
 
   private
 
-    SPINNER = %w[^ > v <]
-    def report_progress(count)
-      @spinner ||= SPINNER.first
-      @spinner = SPINNER[(SPINNER.index(@spinner) + 1) % SPINNER.length]
-
-      ::VIM::command "echon '#{@spinner}  #{count}'"
-      ::VIM::command 'redraw'
-
-      # Aim for 5 updates per second.
-      now = Time.now.to_f
-      if @last_time
-        time_diff = now - @last_time
-        count_diff = count - @last_count
-        next_count = count + ((0.2 / time_diff) * count_diff).to_i
-      else
-        next_count = count + 100
-      end
-      @last_time = now
-      @last_count = count
-      next_count
+    def progress_reporter
+      @progress_reporter ||= ProgressReporter.new
     end
   end # class Scanner
 end # module CommandT

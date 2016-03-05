@@ -34,11 +34,11 @@ module CommandT
             '-print0'                     # NUL-terminate results
           ].flatten.compact)) do |stdin, stdout, stderr|
             counter = 1
-            next_progress = report_progress(counter)
+            next_progress = progress_reporter.update(counter)
             stdout.each_line do |line|
               next if path_excluded?(line.chomp!)
               paths << line[@prefix_len..-1]
-              next_progress = report_progress(counter) if counter == next_progress
+              next_progress = progress_reporter.update(counter) if counter == next_progress
               break if (counter += 1) > @max_files
             end
           end
