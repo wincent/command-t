@@ -33,10 +33,18 @@ module CommandT
       ::VIM::command "echon '#{@spinner}  #{count}'"
       ::VIM::command 'redraw'
 
-      # Slow down updates as results set size increases to reduce overhead.
-      # Apply a random jitter to make things "interesting".
-      # But don't slow down too much.
-      count + [count / 100, 2_000].min + rand(10) + 1
+      # Aim for 5 updates per second.
+      now = Time.now.to_f
+      if @last_time
+        time_diff = now - @last_time
+        count_diff = count - @last_count
+        next_count = count + ((0.2 / time_diff) * count_diff).to_i
+      else
+        next_count = count + 100
+      end
+      @last_time = now
+      @last_count = count
+      next_count
     end
   end # class Scanner
 end # module CommandT
