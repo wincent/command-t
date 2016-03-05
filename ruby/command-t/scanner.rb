@@ -25,10 +25,18 @@ module CommandT
 
   private
 
+    SPINNER = %w[^ > v <]
     def report_progress(count)
-      ::VIM::command "echon '  #{count}'"
+      @spinner ||= SPINNER.first
+      @spinner = SPINNER[(SPINNER.index(@spinner) + 1) % SPINNER.length]
+
+      ::VIM::command "echon '#{@spinner}  #{count}'"
       ::VIM::command 'redraw'
-      count + 10
+
+      # Slow down updates as results set size increases to reduce overhead.
+      # Apply a random jitter to make things "interesting".
+      # But don't slow down too much.
+      count + [count / 100, 2_000].min + rand(10) + 1
     end
   end # class Scanner
 end # module CommandT
