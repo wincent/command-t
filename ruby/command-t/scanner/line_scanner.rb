@@ -40,6 +40,6 @@ module CommandT
       rescue Vim::DeletedBufferError
         # Beware of people manually deleting Command-T's hidden, unlisted buffer.
       end
-    end # class LineScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

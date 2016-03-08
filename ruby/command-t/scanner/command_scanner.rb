@@ -28,6 +28,6 @@ module CommandT
 
         commands.uniq
       end
-    end # class CommandScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

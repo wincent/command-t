@@ -95,5 +95,5 @@ module CommandT
       ::VIM::command "#{command} #{setting}=#{value}"
     end
     alias set_string set_number
-  end # class Settings
-end # module CommandT
+  end
+end

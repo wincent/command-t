@@ -21,4 +21,4 @@ module CommandT
   autoload :Stub, 'command-t/stub'
   autoload :Util, 'command-t/util'
   autoload :VIM, 'command-t/vim'
-end # module CommandT
+end

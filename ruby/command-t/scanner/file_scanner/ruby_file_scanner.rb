@@ -53,7 +53,7 @@ module CommandT
         rescue ArgumentError
           # skip over bad file names
         end
-      end # class RubyFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end

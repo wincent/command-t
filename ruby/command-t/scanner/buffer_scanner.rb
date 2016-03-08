@@ -15,6 +15,6 @@ module CommandT
           end
         end.compact
       end
-    end # class BufferScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

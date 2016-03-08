@@ -568,5 +568,5 @@ module CommandT
       @tag_finder ||= CommandT::Finder::TagFinder.new \
         :include_filenames => VIM::get_bool('g:CommandTTagIncludeFilenames')
     end
-  end # class Controller
-end # module CommandT
+  end
+end

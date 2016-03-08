@@ -35,5 +35,5 @@ module CommandT
       msg.each { |m| ::VIM::command "echo '#{m}'" }
       ::VIM::command 'echohl none'
     end
-  end # class Stub
-end # module CommandT
+  end
+end

@@ -28,6 +28,6 @@ module CommandT
       def name
         'Files'
       end
-    end # class FileFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

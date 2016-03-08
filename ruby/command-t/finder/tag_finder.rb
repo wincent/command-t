@@ -25,6 +25,6 @@ module CommandT
       def name
         'Tags'
       end
-    end # class TagFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

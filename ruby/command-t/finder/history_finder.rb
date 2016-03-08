@@ -22,6 +22,6 @@ module CommandT
       def name
         @history_type == ':' ? 'History' : 'Searches'
       end
-    end # class HistoryFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

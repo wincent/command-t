@@ -39,5 +39,5 @@ module CommandT
         stack.include?(buffer)
       end
     end
-  end # module MRU
-end # module CommandT
+  end
+end

@@ -28,5 +28,5 @@ module CommandT
       @last_count = count
       next_count
     end
-  end # class ProgressReporter
-end # module CommandT
+  end
+end

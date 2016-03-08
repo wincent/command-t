@@ -18,5 +18,5 @@ module CommandT
       end
       path
     end
-  end # module SCMUtilities
-end # module CommandT
+  end
+end

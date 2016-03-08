@@ -9,6 +9,6 @@ module CommandT
           ::VIM::evaluate('&lines').to_i
         end
       end
-    end # module Screen
-  end # module VIM
-end # module CommandT
+    end
+  end
+end

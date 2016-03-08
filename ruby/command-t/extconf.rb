@@ -60,7 +60,7 @@ basedir = Pathname.new(__FILE__).dirname
           defined?(RUBY_PATCHLEVEL) ? RUBY_PATCHLEVEL.inspect : nil.inspect
         }
         UNKNOWN = false
-      end # module Metadata
-    end # module CommandT
+      end
+    end
   END
 end

@@ -158,5 +158,5 @@ module CommandT
       end
       ::VIM::command 'echohl None'
     end
-  end # class Prompt
-end # module CommandT
+  end
+end

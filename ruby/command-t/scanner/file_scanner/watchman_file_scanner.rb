@@ -61,7 +61,7 @@ module CommandT
           raise WatchmanError, 'get-sockname failed' if !$?.exitstatus.zero?
           raw_sockname
         end
-      end # class WatchmanFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end

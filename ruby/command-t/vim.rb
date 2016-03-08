@@ -67,5 +67,5 @@ module CommandT
         str.gsub "'", "''"
       end
     end
-  end # module VIM
-end # module CommandT
+  end
+end

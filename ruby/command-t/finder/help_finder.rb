@@ -20,6 +20,6 @@ module CommandT
       def name
         'Help'
       end
-    end # class HelpFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

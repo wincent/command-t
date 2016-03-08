@@ -46,5 +46,5 @@ module CommandT
     def path=(path)
       @scanner.path = path
     end
-  end # class Finder
-end # CommandT
+  end
+end

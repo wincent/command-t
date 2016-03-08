@@ -13,5 +13,5 @@ module CommandT
       path.index(pwd) == 0 ? path[pwd.length..-1] : path
     end
 
-  end # module PathUtilities
-end # module CommandT
+  end
+end

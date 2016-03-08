@@ -48,7 +48,7 @@ module CommandT
           raise LsFilesError if stderr && stderr.gets
         end
 
-      end # class GitFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end

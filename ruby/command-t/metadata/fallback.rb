@@ -8,5 +8,5 @@ module CommandT
     EXPECTED_RUBY_VERSION = '[unknown]'
     EXPECTED_RUBY_PATCHLEVEL = '[unknown]'
     UNKNOWN = true
-  end # module Metadata
-end # module CommandT
+  end
+end

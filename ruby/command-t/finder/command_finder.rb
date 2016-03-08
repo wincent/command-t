@@ -18,6 +18,6 @@ module CommandT
       def name
         'Commands'
       end
-    end # class CommandFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

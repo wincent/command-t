@@ -28,6 +28,6 @@ module CommandT
       def taglist
         ::VIM::evaluate 'taglist(".")'
       end
-    end # class TagScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

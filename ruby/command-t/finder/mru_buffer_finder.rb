@@ -27,6 +27,6 @@ module CommandT
       def name
         'Recent'
       end
-    end # class MRUBufferFinder
-  end # class Finder
-end # CommandT
+    end
+  end
+end

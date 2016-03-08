@@ -36,6 +36,6 @@ module CommandT
 
         paths
       end
-    end # class HelpScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

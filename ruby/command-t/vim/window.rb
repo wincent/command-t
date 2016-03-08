@@ -15,6 +15,6 @@ module CommandT
           end
         end
       end
-    end # module Window
-  end # module VIM
-end # module CommandT
+    end
+  end
+end

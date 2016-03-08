@@ -12,6 +12,6 @@ module CommandT
       def name
         'Buffers'
       end
-    end # class BufferFinder
-  end # class Finder
-end # CommandT
+    end
+  end
+end

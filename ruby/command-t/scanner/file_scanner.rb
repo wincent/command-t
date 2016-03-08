@@ -86,6 +86,6 @@ module CommandT
       ensure
         ::VIM::command("set wildignore=#{@base_wild_ignore}") if has_custom_wild_ignore?
       end
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

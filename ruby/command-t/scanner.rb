@@ -28,5 +28,5 @@ module CommandT
     def progress_reporter
       @progress_reporter ||= ProgressReporter.new
     end
-  end # class Scanner
-end # module CommandT
+  end
+end

@@ -27,6 +27,6 @@ module CommandT
       def jumps
         VIM::capture 'silent jumps'
       end
-    end # class JumpScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

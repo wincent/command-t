@@ -22,6 +22,6 @@ module CommandT
           end
         end.compact.reverse
       end
-    end # class MRUBufferScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

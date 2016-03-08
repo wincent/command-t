@@ -19,6 +19,6 @@ module CommandT
           line.sub(/\A>?\s*\d+\s*(.+)/, '\1')
         end
       end
-    end # class HistoryScanner
-  end # class Scanner
-end # module CommandT
+    end
+  end
+end

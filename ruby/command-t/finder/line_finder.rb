@@ -18,6 +18,6 @@ module CommandT
       def name
         'Lines'
       end
-    end # class LineFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

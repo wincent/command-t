@@ -12,6 +12,6 @@ module CommandT
       def name
         'Jumps'
       end
-    end # class JumpFinder
-  end # class Finder
-end # module CommandT
+    end
+  end
+end

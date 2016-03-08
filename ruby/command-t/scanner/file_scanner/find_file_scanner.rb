@@ -46,7 +46,7 @@ module CommandT
         ensure
           $/ = separator
         end
-      end # class FindFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end
