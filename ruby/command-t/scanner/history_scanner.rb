@@ -16,8 +16,8 @@ module CommandT
 
       def paths!
         VIM.capture(@history_command).split("\n")[2..-1].map do |line|
-          line.sub(/\A>?\s*\d+\s*(.+)/, '\1')
-        end
+          line.sub(/\A>?\s*\d+\s*(.+)/, '\1').strip
+        end.uniq
       end
     end
   end
