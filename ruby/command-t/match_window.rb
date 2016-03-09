@@ -35,7 +35,10 @@ module CommandT
       set 'scrolloff', 0         # don't scroll near buffer edges
       set 'sidescroll', 0        # don't sidescroll in jumps
       set 'sidescrolloff', 0     # don't sidescroll automatically
-      set 'updatetime', options[:debounce_interval]
+
+      if options[:debounce_interval] > 0
+        set 'updatetime', options[:debounce_interval]
+      end
 
       # Save existing window views so we can restore them later.
       current_window = ::VIM::evaluate('winnr()')

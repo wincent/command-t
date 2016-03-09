@@ -196,7 +196,7 @@ module CommandT
       key = ::VIM::evaluate('a:arg').to_i.chr
       if @focus == prompt
         prompt.add! key
-        @needs_update = true
+        update
       else
         @match_window.find key
       end
@@ -206,7 +206,7 @@ module CommandT
     def backspace
       if @focus == prompt
         prompt.backspace!
-        @needs_update = true
+        update
       end
     end
     guard :backspace
@@ -214,7 +214,7 @@ module CommandT
     def delete
       if @focus == prompt
         prompt.delete!
-        @needs_update = true
+        update
       end
     end
     guard :delete
@@ -322,6 +322,14 @@ module CommandT
 
   private
 
+    def update
+      if @debounce_interval > 0
+        @needs_update = true
+      else
+        list_matches!
+      end
+    end
+
     def prompt
       @prompt ||= Prompt.new(
         :cursor_color => VIM::get_string('g:CommandTCursorColor')
@@ -340,14 +348,15 @@ module CommandT
     end
 
     def show
-      @initial_window   = $curwin
-      @initial_buffer   = $curbuf
-      @match_window     = MatchWindow.new \
+      @initial_window = $curwin
+      @initial_buffer = $curbuf
+      @debounce_interval = VIM::get_number('g:CommandTInputDebounce') || 0
+      @match_window = MatchWindow.new \
         :highlight_color      => VIM::get_string('g:CommandTHighlightColor'),
         :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
         :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse', true),
         :min_height           => min_height,
-        :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 0,
+        :debounce_interval    => @debounce_interval,
         :prompt               => prompt,
         :name                 => "Command-T [#{@active_finder.name}]"
       @focus            = prompt
@@ -501,10 +510,12 @@ module CommandT
     end
 
     def set_up_autocmds
-      ::VIM::command 'augroup CommandTController'
-      ::VIM::command 'autocmd!'
-      ::VIM::command 'autocmd CursorHold <buffer> :call commandt#private#ListMatches()'
-      ::VIM::command 'augroup END'
+      if @debounce_interval > 0
+        ::VIM::command 'augroup CommandTController'
+        ::VIM::command 'autocmd!'
+        ::VIM::command 'autocmd CursorHold <buffer> :call commandt#private#ListMatches()'
+        ::VIM::command 'augroup END'
+      end
     end
 
     # Returns the desired maximum number of matches, based on available vertical
