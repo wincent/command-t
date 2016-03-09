@@ -278,5 +278,26 @@ describe CommandT::Matcher do
       matcher = matcher(*%w[src/.flowconfig])
       expect(matcher.sorted_matches_for('s')).to eq([])
     end
+
+    it 'correctly computes non-recursive match score' do
+      # Non-recursive match was incorrectly inflating some scores.
+      # Related: https://github.com/wincent/command-t/issues/209
+      matcher = matcher(*%w[
+        app/assets/components/App/index.jsx
+        app/assets/components/PrivacyPage/index.jsx
+        app/views/api/docs/pagination/_index.md
+      ])
+
+      # You might want the second match here to come first, but in the
+      # non-recursive case we greedily match the "app" in "app", the "a" in
+      # "assets", the "p" in "components", and the first "p" in "App". This
+      # doesn't score as favorably as matching the "app" in "app", the "ap" in
+      # "api", and the "p" in "pagination".
+      expect(matcher.sorted_matches_for('appappind')).to eq(%w[
+        app/views/api/docs/pagination/_index.md
+        app/assets/components/App/index.jsx
+        app/assets/components/PrivacyPage/index.jsx
+      ])
+    end
   end
 end

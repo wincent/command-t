@@ -110,6 +110,9 @@ float recursive_match(
                     // Whole string matched.
                     return *memoized;
                 }
+                if (!m->recurse) {
+                    break;
+                }
             }
         }
     }
