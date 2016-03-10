@@ -2,3 +2,7 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 CFLAGS += -Wall -Wextra -Wno-unused-parameter
+
+ifdef DEBUG
+CFLAGS += -DDEBUG
+endif

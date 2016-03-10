@@ -210,6 +210,33 @@ float calculate_match(
             }
             m.memo = memo;
             score = recursive_match(&m, 0, 0, 0, 0.0);
+
+#ifdef DEBUG
+            fprintf(stdout, "   ");
+            for (i = 0; i < m.needle_len; i++) {
+                fprintf(stdout, "    %c   ", m.needle_p[i]);
+            }
+            fprintf(stdout, "\n");
+            for (i = 0; i < memo_size; i++) {
+                char formatted[8];
+                if (i % m.needle_len == 0) {
+                    long haystack_idx = i / m.needle_len;
+                    fprintf(stdout, "%c: ", m.haystack_p[haystack_idx]);
+                }
+                if (memo[i] == UNSET_SCORE) {
+                    snprintf(formatted, sizeof(formatted), "    -  ");
+                } else {
+                    snprintf(formatted, sizeof(formatted), " %-.4f", memo[i]);
+                }
+                fprintf(stdout, "%s", formatted);
+                if ((i + 1) % m.needle_len == 0) {
+                    fprintf(stdout, "\n");
+                } else {
+                    fprintf(stdout, " ");
+                }
+            }
+            fprintf(stdout, "Final score: %f\n\n", score);
+#endif
         }
     }
     return score;
