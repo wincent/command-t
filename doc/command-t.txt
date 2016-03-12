@@ -1526,7 +1526,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-3.1 (not yet released)
+4.0 (not yet released)
 
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
@@ -1546,6 +1546,7 @@ HISTORY                                         *command-t-history*
 - Added |<Plug>(CommandTMRU)| and |<Plug>(CommandTTag)| mappings.
 - The "ruby" and "find" scanners now show numerical progress in the prompt
   area during their scans.
+- Removed functionality that was previously deprecated in 2.0.
 
 3.0.2 (9 February 2016)
 

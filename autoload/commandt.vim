@@ -7,57 +7,6 @@ endif
 let g:command_t_autoloaded = 1
 
 "
-" Deprecated functions (to be removed in 3.0)
-"
-let s:deprecated = {
-  \    "commandt#CommandTFlush": "commandt#Flush",
-  \    "commandt#CommandTLoad": "commandt#Load",
-  \    "commandt#CommandTShowBufferFinder": "commandt#BufferFinder",
-  \    "commandt#CommandTShowFileFinder": "commandt#FileFinder",
-  \    "commandt#CommandTShowJumpFinder": "commandt#JumpFinder",
-  \    "commandt#CommandTShowMRUFinder": "commandt#MRUFinder",
-  \    "commandt#CommandTShowTagFinder": "commandt#TagFinder",
-  \    "CommandTAcceptSelection": "commandt#private#AcceptSelection",
-  \    "CommandTAcceptSelectionSplit": "commandt#private#AcceptSelectionSplit",
-  \    "CommandTAcceptSelectionTab": "commandt#private#AcceptSelectionTab",
-  \    "CommandTAcceptSelectionVSplit": "commandt#private#AcceptSelectionVSplit",
-  \    "CommandTBackspace": "commandt#private#Backspace",
-  \    "CommandTCancel": "commandt#private#Cancel",
-  \    "CommandTClear": "commandt#private#Clear",
-  \    "CommandTClearPrevWord": "commandt#private#ClearPrevWord",
-  \    "CommandTCursorEnd": "commandt#private#CursorEnd",
-  \    "CommandTCursorLeft": "commandt#private#CursorLeft",
-  \    "CommandTCursorRight": "commandt#private#CursorRight",
-  \    "CommandTCursorStart": "commandt#private#CursorStart",
-  \    "CommandTDelete": "commandt#private#Delete",
-  \    "CommandTHandleKey": "commandt#private#HandleKey",
-  \    "CommandTListMatches": "commandt#private#ListMatches",
-  \    "CommandTQuickfix": "commandt#private#Quickfix",
-  \    "CommandTRefresh": "commandt#private#Refresh",
-  \    "CommandTSelectNext": "commandt#private#SelectNext",
-  \    "CommandTSelectPrev": "commandt#private#SelectPrev",
-  \    "CommandTToggleFocus": "commandt#private#ToggleFocus",
-  \  }
-
-for [old, new] in items(s:deprecated)
-  execute
-    \  "function! " . old . "(...) abort \n" .
-    \  "  call inputsave()\n" .
-    \  "  echohl ErroMsg\n" .
-    \  "  let l:message = \"" . old . "() is deprecated: use " . new . "() instead\"\n" .
-    \  "  call input(l:message . ' [press ENTER to continue]')\n" .
-    \  "  echohl NONE\n" .
-    \  "  call inputrestore()\n" .
-    \  "  echo\n" .
-    \  "  if len(a:000) == 0\n" .
-    \  "    call " . new . "()\n" .
-    \  "  else\n" .
-    \  "    call call(\"" . new . "\", a:000)\n" .
-    \  "  endif\n" .
-    \  "endfunction"
-endfor
-
-"
 " Functions
 "
 
