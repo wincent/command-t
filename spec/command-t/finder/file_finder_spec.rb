@@ -20,6 +20,8 @@ describe CommandT::Finder::FileFinder do
 
   before do
     stub(::VIM).evaluate(/expand/) { 0 }
+    stub(::VIM).command(/echon/)
+    stub(::VIM).command('redraw')
   end
 
   describe 'sorted_matches_for method' do

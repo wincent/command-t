@@ -14,6 +14,7 @@ unless $LOAD_PATH.include? lib
 end
 
 require 'command-t'
+require 'command-t/ext'
 
 RSpec.configure do |config|
   config.mock_framework = :rr

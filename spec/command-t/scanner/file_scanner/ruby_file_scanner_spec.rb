@@ -14,6 +14,8 @@ describe CommandT::Scanner::FileScanner::RubyFileScanner do
     stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
     stub(::VIM).evaluate(/wildignore/) { '' }
+    stub(::VIM).command(/echon/)
+    stub(::VIM).command('redraw')
   end
 
   describe 'paths method' do

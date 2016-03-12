@@ -78,6 +78,7 @@ describe CommandT::Controller do
     stub(prompt).focus
     stub(prompt).unfocus
     stub(prompt).clear!
+    stub(prompt).redraw
     stub(prompt).abbrev.returns(abbrev)
     stub(CommandT::Prompt).new.returns(prompt)
   end

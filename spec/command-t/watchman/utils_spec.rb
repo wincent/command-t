@@ -2,7 +2,6 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
-require 'command-t/ext' # for CommandT::Watchman::Utils
 
 describe CommandT::Watchman::Utils do
   def binary(str)
