@@ -23,18 +23,17 @@ module CommandT
         #
         # So, we look for a "doc/tags" file at every location in the
         # `'runtimepath'` and try to manually parse it.
-        paths = []
+        tags = []
 
-        ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
-          tags = path + '/doc/tags'
-          if File.readable?(tags)
-            File.readlines(tags).each do |tag|
-              paths << tag.split.first if tag.split.first
+        ::VIM::evaluate('findfile("doc/tags", &runtimepath, -1)').each do |path|
+          if File.readable?(path)
+            File.readlines(path).each do |tag|
+              tags << tag.split.first if tag.split.first
             end
           end
         end
 
-        paths
+        tags
       end
     end
   end
