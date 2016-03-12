@@ -2,6 +2,12 @@
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
+  # Simple class for displaying scan progress to the user.
+  #
+  # The active scanner calls the `#update` method with a `count` to inform it of
+  # progress, the reporter updates the UI and then returns a suggested count at
+  # which to invoke `#update` again in the future (the suggested count is based
+  # on a heuristic that seeks to update the UI about 5 times per second).
   class ProgressReporter
     SPINNER = %w[^ > v <]
 
