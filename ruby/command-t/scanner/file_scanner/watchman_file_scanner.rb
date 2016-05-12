@@ -42,7 +42,13 @@ module CommandT
             paths = Watchman::Utils.query(query, socket)
 
             # could return error if watch is removed
-            extract_value(paths, 'files')
+            extracted = extract_value(paths, 'files')
+            if @filter_regex
+              regex = Regexp.new(@filter_regex)
+              extracted.select { |path| path !~ regex }
+            else
+              extracted
+            end
           end
         rescue Errno::ENOENT, WatchmanError
           # watchman executable not present, or unable to fulfil request

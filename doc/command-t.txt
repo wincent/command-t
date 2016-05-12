@@ -903,6 +903,25 @@ Following is a list of all available options:
 
       See also |command-t-wildignore|.
 
+                                                *g:CommandTFilterRegex*
+  |g:CommandTFilterRegex|                         string (default: none)
+
+      A Ruby regular expression to filter paths returned by the Watchman file
+      scanner (see |g:CommandTFileScanner|). For example, to ignore files
+      matching paths at:
+
+        - `**/.git/*`
+        - `**/.hg/*`
+        - `**/bower_components/*`
+        - `**/node_modules/*`
+        - `**/tmp/*`
+
+      Use a pattern like:
+>
+        let g:CommandTFilterRegex='/(.git|.hg|bower_components|node_modules|tmp)/'
+<
+      See also |command-t-wildignore|.
+
                                                 *g:CommandTIgnoreCase*
   |g:CommandTIgnoreCase|                          boolean (default: 1)
 
@@ -1120,7 +1139,8 @@ settings can be used to control behavior:
 
       - The "watchman" scanner is intended for use with massive hierarchies
         where speed is of the utmost import, so it doesn't consult
-        'wildignore' at all.
+        'wildignore' at all. Instead, |g:CommandTFilterRegex| can be used to
+        specify a Ruby regular expression pattern to filter the output.
 
 
 INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
@@ -1547,6 +1567,7 @@ HISTORY                                         *command-t-history*
 - The "ruby" and "find" scanners now show numerical progress in the prompt
   area during their scans.
 - Fix inability to type "^" and "|" at the prompt.
+- Added |g:CommandTFilterRegex| setting.
 
 3.0.2 (9 February 2016)
 
