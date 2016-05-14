@@ -899,7 +899,7 @@ Following is a list of all available options:
       searches. If you wish to supplement rather than replace the global
       setting, you can use a syntax like:
 
-        let g:CommandTWildIgnore=&wildignore . ",**/bower_components/*"
+        let g:CommandTWildIgnore=&wildignore . ",*/bower_components"
 
       See also |command-t-wildignore|.
 
@@ -908,17 +908,17 @@ Following is a list of all available options:
 
       A Ruby regular expression to filter paths returned by the Watchman file
       scanner (see |g:CommandTFileScanner|). For example, to ignore files
-      matching paths at:
+      matching paths under these directories:
 
-        - `**/.git/*`
-        - `**/.hg/*`
-        - `**/bower_components/*`
-        - `**/node_modules/*`
-        - `**/tmp/*`
+        - `*/.git`
+        - `*/.hg`
+        - `*/bower_components`
+        - `*/node_modules`
+        - `*/tmp`
 
       Use a pattern like:
 >
-        let g:CommandTFilterRegex='/(.git|.hg|bower_components|node_modules|tmp)/'
+        let g:CommandTFilterRegex='(^|/)(.git|.hg|bower_components|node_modules|tmp)/'
 <
       See also |command-t-wildignore|.
 
@@ -1101,14 +1101,13 @@ settings can be used to control behavior:
       Vim's |'wildignore'| setting is used to determine which files should be
       excluded from listings. This is a comma-separated list of glob patterns.
       It defaults to the empty string, but common settings include "*.o,*.obj"
-      (to exclude object files) or "**/.git/*,**/.svn/*" (to exclude SCM
+      (to exclude object files) or "*/.git,*/.svn" (to exclude SCM
       metadata directories). For example:
 
         :set wildignore+=*.o,*.obj
 
-      A pattern such as "vendor/rails/**" would exclude all files and
-      subdirectories inside the "vendor/rails" directory (relative to
-      directory Command-T starts in).
+      A pattern such as "*/vendor/rails" would exclude all files and
+      subdirectories inside the "vendor/rails" directory.
 
       See the |'wildignore'| documentation for more information.
 
@@ -1123,19 +1122,11 @@ settings can be used to control behavior:
       - The default "ruby" scanner explores the filesystem recursively using a
         depth-first search, and any directory (or subdirectory) which matches
         the 'wildignore' pattern is not explored. So, if your 'wildignore'
-        contains "node_modules" then that entire sub-hierarchy will be
-        ignored. Additionally, wildcard patterns like "node_modules/**" or
-        "**/node_modules/*" will cause the entire sub-hierarchy to be ignored.
+        contains "*/node_modules" then that entire sub-hierarchy will be
+        ignored.
 
       - The "git" and "find" scanners apply 'wildignore' filtering only after
-        completing their scans. Filtering only applies to files and not
-        directories. This means that in the "node_modules" example case, the
-        "node_modules" directory is not considered itself, and when we examine
-        a file like "node_modules/foo/bar" the "node_modules" pattern does
-        not match it (because "bar" does not match it). To exclude
-        any "node_modules" directory anywhere in the hierarchy and all of its
-        descendants we must use a pattern like "**/node_modules/*". To do this
-        only for a top-level "node_modules", use "node_modules/**".
+        completing their scans.
 
       - The "watchman" scanner is intended for use with massive hierarchies
         where speed is of the utmost import, so it doesn't consult
