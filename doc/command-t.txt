@@ -901,6 +901,10 @@ Following is a list of all available options:
 
         let g:CommandTWildIgnore=&wildignore . ",*/bower_components"
 
+      To disable all |'wildignore'|-based filtering, set to an empty string:
+
+        let g:CommandTWildIgnore=''
+
       See also |command-t-wildignore|.
 
                                                 *g:CommandTFilterRegex*
@@ -1559,6 +1563,8 @@ HISTORY                                         *command-t-history*
   area during their scans.
 - Fix inability to type "^" and "|" at the prompt.
 - Added |g:CommandTFilterRegex| setting.
+- Make it possible to completely disable |'wildignore'|-based filtering by
+  setting |g:CommandTWildIgnore| to an empty string.
 
 3.0.2 (9 February 2016)
 
