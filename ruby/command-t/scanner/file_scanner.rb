@@ -71,13 +71,17 @@ module CommandT
       end
 
       def has_custom_wild_ignore?
-        @wild_ignore && !@wild_ignore.empty?
+        !!@wild_ignore
       end
 
       # Used to skip expensive calls to `expand()` when there is no applicable
       # wildignore.
       def apply_wild_ignore?
-        has_custom_wild_ignore? || @base_wild_ignore
+        if has_custom_wild_ignore?
+          !@wild_ignore.empty?
+        else
+          !!@base_wild_ignore
+        end
       end
 
       def set_wild_ignore(&block)

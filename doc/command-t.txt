@@ -763,7 +763,7 @@ Following is a list of all available options:
         intended for use with very large hierarchies (hundreds of thousands of
         files) and so the task of deciding which files should be included is
         entirely delegated to Watchman; this means that settings which
-        Command-T would usually consult, such as 'wildignore' and
+        Command-T would usually consult, such as
         |g:CommandTScanDotDirectories| are ignored.
 
                                                *g:CommandTTraverseSCM*
@@ -899,7 +899,11 @@ Following is a list of all available options:
       searches. If you wish to supplement rather than replace the global
       setting, you can use a syntax like:
 
-        let g:CommandTWildIgnore=&wildignore . ",**/bower_components/*"
+        let g:CommandTWildIgnore=&wildignore . ",*/bower_components"
+
+      To disable all |'wildignore'|-based filtering, set to an empty string:
+
+        let g:CommandTWildIgnore=''
 
       See also |command-t-wildignore|.
 
@@ -1082,16 +1086,34 @@ settings can be used to control behavior:
       Vim's |'wildignore'| setting is used to determine which files should be
       excluded from listings. This is a comma-separated list of glob patterns.
       It defaults to the empty string, but common settings include "*.o,*.obj"
-      (to exclude object files) or "**/.git/*,**/.svn/*" (to exclude SCM
+      (to exclude object files) or "*/.git,*/.svn" (to exclude SCM
       metadata directories). For example:
 
         :set wildignore+=*.o,*.obj
 
-      A pattern such as "vendor/rails/**" would exclude all files and
-      subdirectories inside the "vendor/rails" directory (relative to
-      directory Command-T starts in).
+      A pattern such as "*/vendor/rails" would exclude all files and
+      subdirectories inside the "vendor/rails" directory.
 
-      See the |'wildignore'| documentation for more information.
+      See the |'wildignore'| documentation for more information. Here is an
+      overview of how different common patterns affect Vim and Command-T
+      behavior:
+
+      wildignore   File      File       Dir      Dir       Dir + File
+      Pattern      "foo"     "a/foo"    "foo"    "a/foo"   "a/foo/b"
+      ---------------------------------------------------------------
+      `foo`          match     match      miss     miss      miss
+      `foo/`         miss      miss       miss     miss      miss
+      `foo/*`        miss      miss       miss     miss      miss
+      `*/foo`        match     match      match    match     match
+      `*/foo/`       miss      miss       match    miss      miss
+      `*/foo/*`      miss      miss       match    match     match
+
+      In short, in general you want to use patterns like:
+
+      - `foo`: to match a file at any level.
+      - `*.foo`: to match a file with an extension at any level.
+      - `*/foo`: to match a file or directory at any level.
+      - `*/foo/*`: to match a directory at any level.
 
       If you want to influence Command-T's file exclusion behavior without
       changing your global |'wildignore'| setting, you can use the
@@ -1104,23 +1126,18 @@ settings can be used to control behavior:
       - The default "ruby" scanner explores the filesystem recursively using a
         depth-first search, and any directory (or subdirectory) which matches
         the 'wildignore' pattern is not explored. So, if your 'wildignore'
-        contains "node_modules" then that entire sub-hierarchy will be
-        ignored. Additionally, wildcard patterns like "node_modules/**" or
-        "**/node_modules/*" will cause the entire sub-hierarchy to be ignored.
+        contains "*/node_modules" then that entire sub-hierarchy will be
+        ignored.
 
       - The "git" and "find" scanners apply 'wildignore' filtering only after
-        completing their scans. Filtering only applies to files and not
-        directories. This means that in the "node_modules" example case, the
-        "node_modules" directory is not considered itself, and when we examine
-        a file like "node_modules/foo/bar" the "node_modules" pattern does
-        not match it (because "bar" does not match it). To exclude
-        any "node_modules" directory anywhere in the hierarchy and all of its
-        descendants we must use a pattern like "**/node_modules/*". To do this
-        only for a top-level "node_modules", use "node_modules/**".
+        completing their scans.
 
       - The "watchman" scanner is intended for use with massive hierarchies
-        where speed is of the utmost import, so it doesn't consult
-        'wildignore' at all.
+        where speed is of the utmost import, so it doesn't make use of Vim's
+        very slow 'wildignore' filtering at all. Instead, it constructs a
+        regular expression on the fly based on 'wildignore' and/or
+        |g:CommandTWildIgnore| and uses that. To suppress this behavior, set
+        |g:CommandTWildIgnore| to an empty string.
 
 
 INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
@@ -1547,6 +1564,11 @@ HISTORY                                         *command-t-history*
 - The "ruby" and "find" scanners now show numerical progress in the prompt
   area during their scans.
 - Fix inability to type "^" and "|" at the prompt.
+- Make it possible to completely disable |'wildignore'|-based filtering by
+  setting |g:CommandTWildIgnore| to an empty string.
+- The "watchman" file scanner now respects |'wildignore'| and
+  |g:CommandTWildIgnore| by construcing an equivalent regular expression and
+  using that for filtering.
 
 3.0.2 (9 February 2016)
 

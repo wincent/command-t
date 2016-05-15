@@ -66,6 +66,31 @@ module CommandT
       def escape_for_single_quotes(str)
         str.gsub "'", "''"
       end
+
+      # Conservatively convert wildignore patterns that we understand to a
+      # regex. Supported patterns noted in the inline comments below.
+      #
+      # If this ends up doing something wrong, set `g:CommandTWildIgnore` to ''
+      # to opt out or otherwise override to produce a conforming pattern.
+      def wildignore_to_regexp(str)
+        patterns = str.split(',')
+        regex = patterns.map do |pattern|
+          if pattern.match(%r{\A([^*/]+)\z})
+            # something (match file at any level)
+            '(\A|/)' + Regexp.escape($~[1]) + '\z'
+          elsif pattern.match(%r{\A\*\.([^*]+)\z})
+            # *.something (match file with extension at any level)
+            '\.' + Regexp.escape($~[1]) + '\z'
+          elsif pattern.match(%r{\A\*/(.+)\z})
+            # */something (match files or directories at any level)
+            '(\A|/)' + Regexp.escape($~[1]) + '(/|\z)'
+          elsif pattern.match(%r{\A\*/([^*]+)/*\z})
+            # */something/* (match directories at any level)
+            '(\A|/)' + Regexp.escape($~[1]) + '(/|\z)'
+          end
+        end.compact.join('|')
+        Regexp.new(regex) unless regex.empty?
+      end
     end
   end
 end
