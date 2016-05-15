@@ -763,7 +763,7 @@ Following is a list of all available options:
         intended for use with very large hierarchies (hundreds of thousands of
         files) and so the task of deciding which files should be included is
         entirely delegated to Watchman; this means that settings which
-        Command-T would usually consult, such as 'wildignore' and
+        Command-T would usually consult, such as
         |g:CommandTScanDotDirectories| are ignored.
 
                                                *g:CommandTTraverseSCM*
@@ -905,25 +905,6 @@ Following is a list of all available options:
 
         let g:CommandTWildIgnore=''
 
-      See also |command-t-wildignore|.
-
-                                                *g:CommandTFilterRegex*
-  |g:CommandTFilterRegex|                         string (default: none)
-
-      A Ruby regular expression to filter paths returned by the Watchman file
-      scanner (see |g:CommandTFileScanner|). For example, to ignore files
-      matching paths under these directories:
-
-        - `*/.git`
-        - `*/.hg`
-        - `*/bower_components`
-        - `*/node_modules`
-        - `*/tmp`
-
-      Use a pattern like:
->
-        let g:CommandTFilterRegex='(^|/)(.git|.hg|bower_components|node_modules|tmp)/'
-<
       See also |command-t-wildignore|.
 
                                                 *g:CommandTIgnoreCase*
@@ -1113,7 +1094,26 @@ settings can be used to control behavior:
       A pattern such as "*/vendor/rails" would exclude all files and
       subdirectories inside the "vendor/rails" directory.
 
-      See the |'wildignore'| documentation for more information.
+      See the |'wildignore'| documentation for more information. Here is an
+      overview of how different common patterns affect Vim and Command-T
+      behavior:
+
+      wildignore   File      File       Dir      Dir       Dir + File
+      Pattern      "foo"     "a/foo"    "foo"    "a/foo"   "a/foo/b"
+      ---------------------------------------------------------------
+      `foo`          match     match      miss     miss      miss
+      `foo/`         miss      miss       miss     miss      miss
+      `foo/*`        miss      miss       miss     miss      miss
+      `*/foo`        match     match      match    match     match
+      `*/foo/`       miss      miss       match    miss      miss
+      `*/foo/*`      miss      miss       match    match     match
+
+      In short, in general you want to use patterns like:
+
+      - `foo`: to match a file at any level.
+      - `*.foo`: to match a file with an extension at any level.
+      - `*/foo`: to match a file or directory at any level.
+      - `*/foo/*`: to match a directory at any level.
 
       If you want to influence Command-T's file exclusion behavior without
       changing your global |'wildignore'| setting, you can use the
@@ -1133,9 +1133,11 @@ settings can be used to control behavior:
         completing their scans.
 
       - The "watchman" scanner is intended for use with massive hierarchies
-        where speed is of the utmost import, so it doesn't consult
-        'wildignore' at all. Instead, |g:CommandTFilterRegex| can be used to
-        specify a Ruby regular expression pattern to filter the output.
+        where speed is of the utmost import, so it doesn't make use of Vim's
+        very slow 'wildignore' filtering at all. Instead, it constructs a
+        regular expression on the fly based on 'wildignore' and/or
+        |g:CommandTWildIgnore| and uses that. To suppress this behavior, set
+        |g:CommandTWildIgnore| to an empty string.
 
 
 INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
@@ -1562,9 +1564,11 @@ HISTORY                                         *command-t-history*
 - The "ruby" and "find" scanners now show numerical progress in the prompt
   area during their scans.
 - Fix inability to type "^" and "|" at the prompt.
-- Added |g:CommandTFilterRegex| setting.
 - Make it possible to completely disable |'wildignore'|-based filtering by
   setting |g:CommandTWildIgnore| to an empty string.
+- The "watchman" file scanner now respects |'wildignore'| and
+  |g:CommandTWildIgnore| by construcing an equivalent regular expression and
+  using that for filtering.
 
 3.0.2 (9 February 2016)
 

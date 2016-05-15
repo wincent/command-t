@@ -43,8 +43,10 @@ module CommandT
 
             # could return error if watch is removed
             extracted = extract_value(paths, 'files')
-            if @filter_regex
-              regex = Regexp.new(@filter_regex)
+            if (
+              @wild_ignore &&
+              (regex = VIM::wildignore_to_regexp(@wild_ignore))
+            )
               extracted.select { |path| path !~ regex }
             else
               extracted
