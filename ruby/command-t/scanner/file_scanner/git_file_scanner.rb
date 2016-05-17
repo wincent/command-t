@@ -26,11 +26,14 @@ module CommandT
               end
             end
 
-            all_files.
+            filtered = all_files.
               map { |path| path.chomp }.
-              reject { |path| path_excluded?(path, 0) }.
-              take(@max_files).
-              to_a
+              reject { |path| path_excluded?(path, 0) }
+            truncated = filtered.take(@max_files)
+            if truncated.count < filtered.count
+              show_max_files_warning
+            end
+            truncated.to_a
           end
         rescue LsFilesError
           super

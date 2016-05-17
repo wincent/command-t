@@ -352,6 +352,7 @@ module CommandT
       @initial_buffer = $curbuf
       @debounce_interval = VIM::get_number('g:CommandTInputDebounce') || 0
       @match_window = MatchWindow.new \
+        :encoding             => VIM::get_string('g:CommandTEncoding'),
         :highlight_color      => VIM::get_string('g:CommandTHighlightColor'),
         :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
         :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse', true),
@@ -469,8 +470,9 @@ module CommandT
       numbers     = ('0'..'9').to_a.join
       lowercase   = ('a'..'z').to_a.join
       uppercase   = lowercase.upcase
-      punctuation = '<>`@#~!"$%&/()=+*-_.,;:?\\\'{}[] ' # and space
-      (numbers + lowercase + uppercase + punctuation).each_byte do |b|
+      punctuation = '<>`@#~!"$%^&/()=+*-_.,;:?\\|\'{}[]'
+      space       = ' '
+      (numbers + lowercase + uppercase + punctuation + space).each_byte do |b|
         map "<Char-#{b}>", 'HandleKey', b
       end
 

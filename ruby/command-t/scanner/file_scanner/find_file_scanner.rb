@@ -39,7 +39,10 @@ module CommandT
               next if path_excluded?(line.chomp!)
               paths << line[@prefix_len..-1]
               next_progress = progress_reporter.update(counter) if counter == next_progress
-              break if (counter += 1) > @max_files
+              if (counter += 1) > @max_files
+                show_max_files_warning
+                break
+              end
             end
           end
           paths

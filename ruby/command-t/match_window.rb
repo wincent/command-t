@@ -15,6 +15,7 @@ module CommandT
     Highlight = Struct.new(:highlight, :bang)
 
     def initialize(options = {})
+      @encoding        = options[:encoding]
       @highlight_color = options[:highlight_color] || 'PmenuSel'
       @min_height      = options[:min_height]
       @prompt          = options[:prompt]
@@ -399,6 +400,11 @@ module CommandT
     #
     def match_with_syntax_highlight(match)
       highlight_chars = @prompt.abbrev.downcase.scan(/./mu)
+      if @encoding &&
+         match.respond_to?(:force_encoding) &&
+         match.encoding != @encoding
+        match = match.force_encoding(@encoding)
+      end
       match.scan(/./mu).inject([]) do |output, char|
         if char.downcase == highlight_chars.first
           highlight_chars.shift

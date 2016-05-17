@@ -42,7 +42,15 @@ module CommandT
             paths = Watchman::Utils.query(query, socket)
 
             # could return error if watch is removed
-            extract_value(paths, 'files')
+            extracted = extract_value(paths, 'files')
+            if (
+              apply_wild_ignore? &&
+              (regex = VIM::wildignore_to_regexp(@wild_ignore || @base_wild_ignore))
+            )
+              extracted.select { |path| path !~ regex }
+            else
+              extracted
+            end
           end
         rescue Errno::ENOENT, WatchmanError
           # watchman executable not present, or unable to fulfil request
