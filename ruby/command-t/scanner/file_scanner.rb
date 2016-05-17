@@ -54,7 +54,7 @@ module CommandT
             "Increase it by setting a higher value in $MYVIMRC; eg:\n" +
             "  let g:CommandTMaxFiles=#{@max_files * 2}\n" +
             "Or suppress this warning by setting:\n" +
-            "  let g:CommantTSuppressMaxFilesWarning=1\n" +
+            "  let g:CommandTSuppressMaxFilesWarning=1\n" +
             "For best performance, consider using a fast scanner; see:\n" +
             "  :help g:CommandTFileScanner\n" +
             "\n" +
