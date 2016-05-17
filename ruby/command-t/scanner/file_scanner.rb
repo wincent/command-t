@@ -22,7 +22,7 @@ module CommandT
         @paths_keys           = []
         @path                 = path
         @max_depth            = options[:max_depth] || 15
-        @max_files            = options[:max_files] || 30_000
+        @max_files            = options[:max_files] || 100_000
         @max_caches           = options[:max_caches] || 1
         @scan_dot_directories = options[:scan_dot_directories] || false
         @wild_ignore          = options[:wild_ignore]
