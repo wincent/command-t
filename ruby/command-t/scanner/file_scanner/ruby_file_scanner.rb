@@ -16,6 +16,7 @@ module CommandT
           add_paths_for_directory(@path, accumulator)
           accumulator
         rescue FileLimitExceeded
+          show_max_files_warning
           accumulator
         end
 

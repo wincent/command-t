@@ -44,6 +44,26 @@ module CommandT
 
     private
 
+      def show_max_files_warning
+        unless VIM::get_bool('g:CommandTSuppressMaxFilesWarning', false)
+          ::VIM::command('redraw!')
+          ::VIM::command('echohl ErrorMsg')
+          warning =
+            "Warning: maximum file limit reached\n" +
+            "\n" +
+            "Increase it by setting a higher value in $MYVIMRC; eg:\n" +
+            "  let g:CommandTMaxFiles=#{@max_files * 2}\n" +
+            "Or suppress this warning by setting:\n" +
+            "  let g:CommantTSuppressMaxFilesWarning=1\n" +
+            "For best performance, consider using a fast scanner; see:\n" +
+            "  :help g:CommandTFileScanner\n" +
+            "\n" +
+            "Press ENTER to continue."
+          ::VIM::evaluate(%{input("#{warning}")})
+          ::VIM::command('echohl None')
+        end
+      end
+
       def wild_ignore
         VIM::exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
       end

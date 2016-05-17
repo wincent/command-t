@@ -700,23 +700,29 @@ changes via |:let|.
 
 Following is a list of all available options:
 
-                                               *g:CommandTMaxFiles*
-  |g:CommandTMaxFiles|                          number (default 100000)
+                                            *g:CommandTMaxFiles*
+  |g:CommandTMaxFiles|                        number (default 100000)
 
       The maximum number of files that will be considered when scanning the
       current directory. Upon reaching this number scanning stops. This
       limit applies only to file listings and is ignored for buffer
       listings.
 
-                                               *g:CommandTMaxDepth*
-  |g:CommandTMaxDepth|                           number (default 15)
+                                            *g:CommandTSuppressMaxFilesWarning*
+  |g:CommandTSuppressMaxFilesWarning|         boolean (default 0)
+
+      Suppress the warning that Command-T shows when hitting the
+      |g:CommandTMaxFiles| limit during a scan.
+
+                                            *g:CommandTMaxDepth*
+  |g:CommandTMaxDepth|                        number (default 15)
 
       The maximum depth (levels of recursion) to be explored when scanning the
       current directory. Any directories at levels beyond this depth will be
       skipped.
 
-                                               *g:CommandTMaxCachedDirectories*
-  |g:CommandTMaxCachedDirectories|               number (default 1)
+                                            *g:CommandTMaxCachedDirectories*
+  |g:CommandTMaxCachedDirectories|            number (default 1)
 
       The maximum number of directories whose contents should be cached when
       recursively scanning. With the default value of 1, each time you change
@@ -725,23 +731,23 @@ Following is a list of all available options:
       cache, bringing performance at the cost of memory usage. If set to 0,
       there is no limit on the number of cached directories.
 
-                                               *g:CommandTMaxHeight*
-  |g:CommandTMaxHeight|                          number (default: 15)
+                                            *g:CommandTMaxHeight*
+  |g:CommandTMaxHeight|                       number (default: 15)
 
       The maximum height in lines the match window is allowed to expand to.
       If set to 0, the window will occupy as much of the available space as
       needed to show matching entries.
 
-                                               *g:CommandTInputDebounce*
-  |g:CommandTInputDebounce|                      number (default: 0)
+                                            *g:CommandTInputDebounce*
+  |g:CommandTInputDebounce|                   number (default: 0)
 
       The number of milliseconds to wait before updating the match listing
       following a key-press. This can be used to avoid wasteful recomputation
       when making a rapid series of key-presses in a directory with many tens
       (or hundreds) of thousands of files.
 
-                                               *g:CommandTFileScanner*
-  |g:CommandTFileScanner|                        string (default: 'ruby')
+                                            *g:CommandTFileScanner*
+  |g:CommandTFileScanner|                     string (default: 'ruby')
 
       The underlying scanner implementation that should be used to explore the
       filesystem. Possible values are:
@@ -766,8 +772,8 @@ Following is a list of all available options:
         Command-T would usually consult, such as
         |g:CommandTScanDotDirectories| are ignored.
 
-                                               *g:CommandTTraverseSCM*
-  |g:CommandTTraverseSCM|                        string (default: 'file')
+                                            *g:CommandTTraverseSCM*
+  |g:CommandTTraverseSCM|                     string (default: 'file')
 
       Instructs Command-T how to choose a root path when opening a file finder
       without an explicit path argument. Possible values are:
@@ -787,29 +793,29 @@ Following is a list of all available options:
       - "pwd": use Vim's present working directory as a root (ie. attempt no
         traversal).
 
-                                               *g:CommandTGitScanSubmodules*
-  |g:CommandTGitScanSubmodules|                  boolean (default: 0)
+                                            *g:CommandTGitScanSubmodules*
+  |g:CommandTGitScanSubmodules|               boolean (default: 0)
 
       If set to 1, Command-T will scan submodules (recursively) when using the
       "git" file scanner (see |g:CommandTFileScanner|).
 
 
-                                               *g:CommandTSCMDirectories*
+                                            *g:CommandTSCMDirectories*
   |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
 
       The marker directories that Command-T will use to identify SCM roots
       during traversal (see |g:CommandTTraverseSCM| above).
 
 
-                                               *g:CommandTMinHeight*
-  |g:CommandTMinHeight|                          number (default: 0)
+                                            *g:CommandTMinHeight*
+  |g:CommandTMinHeight|                       number (default: 0)
 
       The minimum height in lines the match window is allowed to shrink to.
       If set to 0, will default to a single line. If set above the max height,
       will default to |g:CommandTMaxHeight|.
 
-                                               *g:CommandTAlwaysShowDotFiles*
-  |g:CommandTAlwaysShowDotFiles|                 boolean (default: 0)
+                                            *g:CommandTAlwaysShowDotFiles*
+  |g:CommandTAlwaysShowDotFiles|              boolean (default: 0)
 
       When showing the file listing Command-T will by default show dot-files
       only if the entered search string contains a dot that could cause a
@@ -820,8 +826,8 @@ Following is a list of all available options:
       the file listing; the buffer listing treats dot-files like any other
       file.
 
-                                               *g:CommandTNeverShowDotFiles*
-  |g:CommandTNeverShowDotFiles|                  boolean (default: 0)
+                                            *g:CommandTNeverShowDotFiles*
+  |g:CommandTNeverShowDotFiles|               boolean (default: 0)
 
       In the file listing, Command-T will by default show dot-files if the
       entered search string contains a dot that could cause a dot-file to
@@ -833,8 +839,8 @@ Following is a list of all available options:
       has no effect in buffer listings, where dot files are treated like any
       other file.
 
-                                               *g:CommandTScanDotDirectories*
-  |g:CommandTScanDotDirectories|                 boolean (default: 0)
+                                            *g:CommandTScanDotDirectories*
+  |g:CommandTScanDotDirectories|              boolean (default: 0)
 
       Normally Command-T will not recurse into "dot-directories" (directories
       whose names begin with a dot) while performing its initial scan. Set
@@ -852,8 +858,8 @@ Following is a list of all available options:
         :cd ~/.vim
         :CommandT
 
-                                               *g:CommandTMatchWindowAtTop*
-  |g:CommandTMatchWindowAtTop|                   boolean (default: 0)
+                                            *g:CommandTMatchWindowAtTop*
+  |g:CommandTMatchWindowAtTop|                boolean (default: 0)
 
       When this setting is off (the default) the match window will appear at
       the bottom so as to keep it near to the prompt. Turning it on causes the
@@ -863,8 +869,8 @@ Following is a list of all available options:
       screen rather than moving as the number of matches changes during
       typing.
 
-                                                *g:CommandTMatchWindowReverse*
-  |g:CommandTMatchWindowReverse|                  boolean (default: 1)
+                                            *g:CommandTMatchWindowReverse*
+  |g:CommandTMatchWindowReverse|              boolean (default: 1)
 
       When this setting is on (the default), matches will be shown in reverse
       order, with the best match at the bottom (ie. closest to the prompt).
@@ -873,27 +879,27 @@ Following is a list of all available options:
       the screen (independently of the number of results). When set to 0,
       matches will appear from top to bottom with the topmost being selected.
 
-                                                *g:CommandTTagIncludeFilenames*
-  |g:CommandTTagIncludeFilenames|                 boolean (default: 0)
+                                             *g:CommandTTagIncludeFilenames*
+  |g:CommandTTagIncludeFilenames|              boolean (default: 0)
 
       When this setting is off (the default) the matches in the |:CommandTTag|
       listing do not include filenames.
 
-                                                *g:CommandTCursorColor*
-                                                string (default: 'Underlined')
+                                             *g:CommandTCursorColor*
+                                             string (default: 'Underlined')
   |g:CommandTCursorColor|
 
       Specifies the |:highlight| color that will be applied to the cursor in
       the Command-T prompt.
 
-                                                *g:CommandTHighlightColor*
-  |g:CommandTHighlightColor|                      string (default: 'PmenuSel')
+                                             *g:CommandTHighlightColor*
+  |g:CommandTHighlightColor|                   string (default: 'PmenuSel')
 
       Specifies the |:highlight| color that will be used to show the currently
       selected item in the match listing window.
 
-                                                *g:CommandTWildIgnore*
-  |g:CommandTWildIgnore|                          string (default: none)
+                                             *g:CommandTWildIgnore*
+  |g:CommandTWildIgnore|                       string (default: none)
 
       Optionally override Vim's global |'wildignore'| setting during Command-T
       searches. If you wish to supplement rather than replace the global
@@ -907,30 +913,30 @@ Following is a list of all available options:
 
       See also |command-t-wildignore|.
 
-                                                *g:CommandTIgnoreCase*
-  |g:CommandTIgnoreCase|                          boolean (default: 1)
+                                             *g:CommandTIgnoreCase*
+  |g:CommandTIgnoreCase|                       boolean (default: 1)
 
       Ignore case when searching. Defaults to on, which means that searching
       is case-insensitive by default. See also |g:CommandTSmartCase|.
 
-                                                *g:CommandTRecursiveMatch*
-  |g:CommandTRecursiveMatch|                      boolean (default: 1)
+                                             *g:CommandTRecursiveMatch*
+  |g:CommandTRecursiveMatch|                   boolean (default: 1)
 
       Use this to downgrade Command-T's match-scoring algorithm to its older,
       cruder, less expensive form. Doing so may improve the responsiveness of
       the match listing, but at the cost of slightly less precision in the
       ranking of results.
 
-                                                *g:CommandTSmartCase*
-  |g:CommandTSmartCase|                           boolean (default: none)
+                                             *g:CommandTSmartCase*
+  |g:CommandTSmartCase|                        boolean (default: none)
 
       Override the |g:CommandTIgnoreCase| setting if the search pattern
       contains uppercase characters, forcing the match to be case-sensitive.
       If unset (which is the default), the value of the Vim |'smartcase'|
       setting will be used instead.
 
-                                              *g:CommandTAcceptSelectionCommand*
-  |g:CommandTAcceptSelectionCommand|            string (default: 'e')
+                                             *g:CommandTAcceptSelectionCommand*
+  |g:CommandTAcceptSelectionCommand|           string (default: 'e')
 
       The Vim command that will be used to open a selection from the match
       listing (via |g:CommandTAcceptSelectionMap|).
@@ -985,8 +991,8 @@ Following is a list of all available options:
       For an example of how this can be used to apply arbitrarily complex
       logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
 
-                                              *g:CommandTEncoding*
-  |g:CommandTEncoding|                          string (default: none)
+                                             *g:CommandTEncoding*
+  |g:CommandTEncoding|                         string (default: none)
 
       In most environments Command-T will work just fine using the character
       encoding settings from your local environment. This setting can be used
@@ -994,8 +1000,8 @@ Following is a list of all available options:
       environment ends up defaulting to an undesired encoding, such as
       "ASCII-8BIT".
 
-                                              *g:CommandTIgnoreSpaces*
-  |g:CommandTIgnoreSpaces|                      boolean (default: 1)
+                                             *g:CommandTIgnoreSpaces*
+  |g:CommandTIgnoreSpaces|                     boolean (default: 1)
 
       When typing a search term into Command-T, ignore spaces. When set to 0,
       Command-T will search for literal spaces inside file names.
@@ -1569,6 +1575,8 @@ HISTORY                                         *command-t-history*
 - The "watchman" file scanner now respects |'wildignore'| and
   |g:CommandTWildIgnore| by construcing an equivalent regular expression and
   using that for filtering.
+- Show a warning when hitting |g:CommandTMaxFiles|, and add a corresponding
+  |g:CommandTSuppressMaxFilesWarning| setting to suppress the warning.
 
 3.0.2 (9 February 2016)
 
