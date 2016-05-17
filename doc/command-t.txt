@@ -1549,7 +1549,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-4.0 (not yet released)
+4.0 (16 May 2016)
 
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
