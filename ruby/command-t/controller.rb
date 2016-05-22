@@ -34,6 +34,7 @@ module CommandT
         rescue
         end
       end
+      @nowait = '<nowait>' if ::VIM::evaluate('v:version') >= 704
     end
 
     # For possible use in status lines.
@@ -457,7 +458,7 @@ module CommandT
     end
 
     def map(key, function, param = nil)
-      ::VIM::command "noremap <silent> <buffer> #{key} " \
+      ::VIM::command "noremap <silent> <buffer> #{@nowait} #{key} " \
         ":call commandt#private##{function}(#{param})<CR>"
     end
 

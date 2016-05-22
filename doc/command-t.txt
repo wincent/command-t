@@ -1549,6 +1549,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+next (not yet released)
+
+- Command-T now uses |:map-<nowait>|, when available, when setting up mappings.
+
 4.0 (16 May 2016)
 
 - A non-leading dot in the search query can now match against dot-files and
