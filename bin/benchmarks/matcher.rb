@@ -71,7 +71,7 @@ def significance(last, current)
   end
 
   rank = 1
-  table = table.map.with_index do |row, i|
+  table = table.map do |row|
     count = 0
     rank = table.map.with_index do |(diff, abs, sig), i|
       if abs == row[ABSOLUTE]
