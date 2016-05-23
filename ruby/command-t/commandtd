@@ -1,5 +1,11 @@
 #!/usr/bin/env ruby
 
+ERR_CHANNEL = STDERR.dup
+OUT_CHANNEL = STDOUT.dup
+
+STDERR.reopen('/dev/null', 'w')
+STDOUT.reopen('/dev/null', 'w')
+
 def log(msg)
   File.open('/tmp/slog', 'a') { |f| f.puts "#{Time.now}: #{msg}"}
 end
@@ -20,7 +26,7 @@ while true
   log 'loop'
   input = JSON[STDIN.readline]
   log "read: #{input.inspect}"
-  STDOUT.puts input.to_json
-  STDOUT.flush
+  OUT_CHANNEL.puts input.to_json
+  OUT_CHANNEL.flush
   log "wrote: #{input.to_json.inspect}"
 end
