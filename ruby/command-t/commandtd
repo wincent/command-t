@@ -1,9 +1,17 @@
 #!/usr/bin/env ruby
 
-require 'json'
-
 def log(msg)
   File.open('/tmp/slog', 'a') { |f| f.puts "#{Time.now}: #{msg}"}
+end
+
+log 'start'
+
+require 'json'
+begin
+  require_relative './ext'
+rescue LoadError => e
+  # TODO: decide what to do here
+  log e
 end
 
 log 'booted'
