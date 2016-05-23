@@ -21,7 +21,7 @@ require 'optparse'
 
 begin
   OptionParser.new do |opts|
-    opts.on('--vim-pid=PID') # ignore
+    opts.on('--vim-pid=PID') # Ignore: included only to make `ps` output more useful.
     opts.on('--logfile=NAME') do |logfile|
       OPTIONS.logfile = logfile
     end
