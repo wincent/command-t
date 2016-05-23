@@ -6,13 +6,30 @@ OUT_CHANNEL = STDOUT.dup
 STDERR.reopen('/dev/null', 'w')
 STDOUT.reopen('/dev/null', 'w')
 
+require 'ostruct'
+
+OPTIONS = OpenStruct.new
+
 def log(msg)
-  File.open('/tmp/slog', 'a') { |f| f.puts "#{Time.now}: #{msg}"}
+  if OPTIONS.logfile
+    File.open(OPTIONS.logfile, 'a') { |f| f.puts "#{Time.now}: #{msg}"}
+  end
 end
 
-log 'start'
-
 require 'json'
+require 'optparse'
+
+begin
+  OptionParser.new do |opts|
+    opts.on('--vim-pid=PID') # ignore
+    opts.on('--logfile=NAME') do |logfile|
+      OPTIONS.logfile = logfile
+    end
+  end.parse!
+rescue => e
+  log e
+end
+
 begin
   require_relative './ext'
 rescue LoadError => e

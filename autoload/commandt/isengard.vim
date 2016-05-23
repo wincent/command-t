@@ -12,7 +12,7 @@ function! commandt#isengard#init() abort
 
   " Include the PID of the parent (this Vim process) to make `ps` output more
   " useful.
-  let s:job=job_start([l:daemon_path, '--vim-pid=' . getpid()], {
+  let s:job=job_start([l:daemon_path, '--logfile=/tmp/slog', '--vim-pid=' . getpid()], {
         \ })
   let s:channel=job_getchannel(s:job)
 
