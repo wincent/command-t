@@ -6,8 +6,13 @@ if exists('g:command_t_loaded') || &compatible
 endif
 let g:command_t_loaded = 1
 
-if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'isengard') ==? 'isengard'
-  call commandt#isengard#init()
-else
-  call commandt#mirkwood#init()
-endif
+" HACK: use both old and new during early development
+call commandt#isengard#init()
+call commandt#mirkwood#init()
+finish
+
+" if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'isengard') ==? 'isengard'
+"   call commandt#isengard#init()
+" else
+"   call commandt#mirkwood#init()
+" endif

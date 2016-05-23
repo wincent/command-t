@@ -8,7 +8,25 @@ let s:script_directory=expand('<sfile>:p:h')
 function! commandt#isengard#init() abort
   let l:daemon_path=resolve(s:script_directory . '/../../ruby/command-t/commandtd')
 
+  call ch_logfile('/tmp/clog', 'w')
+
   " Include the PID of the parent (this Vim process) to make `ps` output more
   " useful.
-  let g:this=job_start([l:daemon_path, '--vim-pid=' . getpid()])
+  let s:job=job_start([l:daemon_path, '--vim-pid=' . getpid()], {
+        \ 'err_mode': 'nl',
+        \ 'in_mode': 'nl',
+        \ 'out_mode': 'nl',
+        \ })
+  let s:channel=job_getchannel(s:job)
+
+  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 1"}) . "\n")
+  echomsg "message <" . l:r . ">"
+  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 2"}) . "\n")
+  echomsg "message <" . l:r . ">"
+  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 3"}) . "\n")
+  echomsg "message <" . l:r . ">"
+  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 4"}) . "\n")
+  echomsg "message <" . l:r . ">"
+  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 5"}) . "\n")
+  echomsg "message <" . l:r . ">"
 endfunction
