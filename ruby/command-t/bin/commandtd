@@ -78,7 +78,11 @@ while true
     log "changed directory to #{input['cd']}"
     write({'cd' => input['cd']})
   elsif input['match']
-    write({'not' => 'yet implemented'})
+    threads = CommandT::Util.processor_count
+    scanner = OpenStruct.new(:paths => ['commandt/foo', 'commandt/bar'])
+    matcher = CommandT::Matcher.new(scanner)
+    results = matcher.sorted_matches_for(input['match'], :threads => threads)
+    write({'results' => results})
   else
     write({'echo' => input})
   end
