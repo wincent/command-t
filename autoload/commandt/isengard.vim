@@ -8,15 +8,8 @@ let s:script_directory=expand('<sfile>:p:h')
 function! commandt#isengard#init() abort
   let l:daemon_path=resolve(s:script_directory . '/../../ruby/command-t/bin/commandtd')
 
-  if exists('$TMPDIR')
-    let l:default_client_log_file=simplify($TMPDIR . '/clog')
-    let l:default_server_log_file=simplify($TMPDIR . '/slog')
-  else
-    let l:default_client_log_file='/tmp/clog'
-    let l:default_server_log_file='/tmp/clog'
-  endif
-  let l:client_log_file=get(g:, 'CommandTClientLog', l:default_client_log_file)
-  let l:server_log_file=get(g:, 'CommandTServerLog', l:default_server_log_file)
+  let l:client_log_file=get(g:, 'CommandTClientLog', '')
+  let l:server_log_file=get(g:, 'CommandTServerLog', '')
   if !empty(l:client_log_file)
     call ch_logfile(l:client_log_file, 'w')
   endif
