@@ -246,7 +246,7 @@ configuration like this:
   NeoBundle 'wincent/command-t', {
     \   'build_commands': ['make', 'ruby'],
     \   'build': {
-    \      'unix': 'cd ruby/command-t && { make clean; ruby extconf.rb && make }'
+    \      'unix': 'cd ruby/command-t/ext/command-t && { make clean; ruby extconf.rb && make }'
     \   }
     \ }
   call neobundle#end()
@@ -289,7 +289,7 @@ configuration like this:
 
   call plug#begin()
   Plug 'wincent/command-t', {
-    \   'do': 'cd ruby/command-t && ruby extconf.rb && make'
+    \   'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make'
     \ }
   call plug#end()
 
@@ -307,10 +307,10 @@ typical Pathogen, Vundle or NeoBundle set-up then the files were installed insid
 `~/.vim/plugged/Command-T/`.
 
 Wherever the Command-T files were installed, you can build the extension by
-changing to the `ruby/command-t` subdirectory and running a couple of commands
-as follows:
+changing to the `ruby/command-t/ext/command-t` subdirectory and running a
+couple of commands as follows:
 
-  cd ~/.vim/bundle/command-t/ruby/command-t
+  cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
   ruby extconf.rb
   make
 
@@ -347,7 +347,7 @@ Note: If you are on OS X Mavericks and compiling against MacVim, the default
 system Ruby is 2.0 but MacVim still links against the older 1.8.7 Ruby that is
 also bundled with the system; in this case the build command becomes:
 
-  cd ~/.vim/bundle/command-t/ruby/command-t
+  cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
   /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby extconf.rb
   make
 

@@ -72,7 +72,7 @@ end
 
 desc 'Clean compiled products'
 task :clean do
-  Dir.chdir 'ruby/command-t' do
+  Dir.chdir 'ruby/command-t/ext/command-t' do
     system 'make clean' if File.exists?('Makefile')
     system 'rm -f Makefile'
   end
@@ -80,7 +80,7 @@ end
 
 desc 'Compile extension'
 task :make do
-  Dir.chdir 'ruby/command-t' do
+  Dir.chdir 'ruby/command-t/ext/command-t' do
     ruby 'extconf.rb'
     system 'make clean'
     bail_on_failure
@@ -171,10 +171,14 @@ end
 
 desc 'Create the ruby gem package'
 task :gem => :check_tag do
-  sh "gem build command-t.gemspec"
+  Dir.chdir 'ruby/command-t' do
+    sh "gem build command-t.gemspec"
+  end
 end
 
 desc 'Push gem to Gemcutter ("gem push")'
 task :push => :gem do
-  sh "gem push command-t-#{rubygems_version}.gem"
+  Dir.chdir 'ruby/command-t' do
+    sh "gem push command-t-#{rubygems_version}.gem"
+  end
 end

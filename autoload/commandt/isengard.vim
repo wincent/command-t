@@ -6,7 +6,7 @@ let s:script_directory=expand('<sfile>:p:h')
 " Set up the new async implementation of the Command-T engine -- successor to
 " "mirkwood" -- codenamed "isengard".
 function! commandt#isengard#init() abort
-  let l:daemon_path=resolve(s:script_directory . '/../../ruby/command-t/commandtd')
+  let l:daemon_path=resolve(s:script_directory . '/../../ruby/command-t/bin/commandtd')
 
   if exists('$TMPDIR')
     let l:default_client_log_file=simplify($TMPDIR . '/clog')

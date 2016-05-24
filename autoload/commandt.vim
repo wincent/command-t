@@ -170,7 +170,12 @@ ruby << EOF
   rescue LoadError
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
-      lib = "#{path}/ruby"
+      ext = "#{path}/ruby/command-t/ext"
+      if !$LOAD_PATH.include?(ext) && File.exist?(ext)
+        $LOAD_PATH << ext
+        load_path_modified = true
+      end
+      lib = "#{path}/ruby/command-t/lib"
       if !$LOAD_PATH.include?(lib) && File.exist?(lib)
         $LOAD_PATH << lib
         load_path_modified = true

@@ -31,9 +31,22 @@ rescue => e
 end
 
 begin
-  require_relative './ext'
+  require 'command-t'
+  require 'command-t/ext'
 rescue LoadError => e
-  # TODO: decide what to do here
+  load_path_modified = false
+  [
+    File.expand_path('../ext', File.dirname(__FILE__)),
+    File.expand_path('../lib', File.dirname(__FILE__))
+  ].each do |path|
+    if !$LOAD_PATH.include?(path)
+      $LOAD_PATH << path
+      load_path_modified = true
+    end
+  end
+  retry if load_path_modified
+
+  # TODO: show error here instructing to run install script
   log e
 end
 
