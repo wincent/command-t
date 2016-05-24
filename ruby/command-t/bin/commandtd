@@ -14,6 +14,7 @@ def log(msg)
   if OPTIONS.logfile
     File.open(OPTIONS.logfile, 'a') { |f| f.puts "#{Time.now}: #{msg}"}
   end
+  nil
 end
 
 require 'json'
@@ -48,21 +49,37 @@ rescue LoadError => e
 
   # TODO: show error here instructing to run install script
   log e
+  exit 1
 end
 
-log 'booted'
+def read
+  line = STDIN.readline.chomp
+  input = JSON[line]
+  log "read: #{line}"
+  input
+rescue => e
+  log "read: #{e} reading line: #{line.inspect}"
+end
+
+def write(payload)
+  json = payload.to_json
+  OUT_CHANNEL.puts json
+  OUT_CHANNEL.flush
+  log "wrote: #{json}"
+end
+
+log "open for business running from #{__FILE__}"
 
 while true
   log 'loop'
-  line = STDIN.readline.chomp
-  begin
-    input = JSON[line]
-  rescue => e
-    log "read: #{e} reading line: #{line.inspect}"
-    next
+  next unless input = read
+  if input['cd']
+    Dir.chdir(input['cd'])
+    log "changed directory to #{input['cd']}"
+    write({'cd' => input['cd']})
+  elsif input['match']
+    write({'not' => 'yet implemented'})
+  else
+    write({'echo' => input})
   end
-  log "read: #{input.inspect}"
-  OUT_CHANNEL.puts input.to_json
-  OUT_CHANNEL.flush
-  log "wrote: #{input.to_json.inspect}"
 end

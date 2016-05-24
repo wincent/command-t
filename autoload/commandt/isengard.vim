@@ -20,14 +20,6 @@ function! commandt#isengard#init() abort
   endif
   let s:channel=job_getchannel(s:job)
 
-  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 1"}) . "\n")
-  echomsg "message <" . l:r . ">"
-  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 2"}) . "\n")
-  echomsg "message <" . l:r . ">"
-  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 3"}) . "\n")
-  echomsg "message <" . l:r . ">"
-  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 4"}) . "\n")
-  echomsg "message <" . l:r . ">"
-  let l:r=ch_evalraw(s:channel, json_encode({"this": "is a test 5"}) . "\n")
-  echomsg "message <" . l:r . ">"
+  call ch_evalraw(s:channel, json_encode({'cd': getcwd()}) . "\n")
+  let g:CommandTResult=ch_evalraw(s:channel, json_encode({'match': 'commandt'}) . "\n")
 endfunction
