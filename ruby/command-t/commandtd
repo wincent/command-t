@@ -41,7 +41,13 @@ log 'booted'
 
 while true
   log 'loop'
-  input = JSON[STDIN.readline]
+  line = STDIN.readline.chomp
+  begin
+    input = JSON[line]
+  rescue => e
+    log "read: #{e} reading line: #{line.inspect}"
+    next
+  end
   log "read: #{input.inspect}"
   OUT_CHANNEL.puts input.to_json
   OUT_CHANNEL.flush
