@@ -13,8 +13,8 @@ endif
 call commandt#mirkwood#init()
 finish
 
-" if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'isengard') ==? 'isengard'
-"   call commandt#isengard#init()
-" else
-"   call commandt#mirkwood#init()
-" endif
+if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'isengard') ==? 'isengard'
+  call commandt#isengard#init()
+else
+  call commandt#mirkwood#init()
+endif
