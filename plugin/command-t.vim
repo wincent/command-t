@@ -7,7 +7,9 @@ endif
 let g:command_t_loaded = 1
 
 " HACK: use both old and new during early development
-call commandt#isengard#init()
+if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'mirkwood') ==? 'isengard'
+  call commandt#isengard#init()
+endif
 call commandt#mirkwood#init()
 finish
 
