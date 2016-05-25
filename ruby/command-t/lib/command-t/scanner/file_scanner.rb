@@ -80,7 +80,6 @@ module CommandT
         if @wildignore
           # First strip common prefix (@path) from path to match VIM's behavior.
           path = path[prefix_len..-1]
-          path = VIM::escape_for_single_quotes path
           path =~ @wildignore
         end
       end
