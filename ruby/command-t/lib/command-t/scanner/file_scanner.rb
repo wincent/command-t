@@ -78,7 +78,7 @@ module CommandT
 
       def path_excluded?(path, prefix_len = @prefix_len)
         if @wildignore
-          # First strip common prefix (@path) from path to match VIM's behavior.
+          # First strip common prefix (@path) from path to match Vim's behavior.
           path = path[prefix_len..-1]
           path =~ @wildignore
         end
