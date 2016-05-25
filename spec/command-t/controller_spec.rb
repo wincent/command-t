@@ -95,5 +95,6 @@ describe CommandT::Controller do
     stub(::VIM).evaluate('&buflisted').returns('1')
     stub(::VIM).evaluate('&lines').returns('80')
     stub(::VIM).evaluate('&term').returns('vt100')
+    stub(::VIM).evaluate('v:version').returns(704)
   end
 end
