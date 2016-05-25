@@ -13,7 +13,6 @@ describe CommandT::Scanner::FileScanner::RubyFileScanner do
 
     stub(::VIM).evaluate(/exists/) { 1 }
     stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
-    stub(::VIM).evaluate(/wildignore/) { '' }
     stub(::VIM).command(/echon/)
     stub(::VIM).command('redraw')
   end
@@ -40,20 +39,18 @@ describe CommandT::Scanner::FileScanner::RubyFileScanner do
 
   describe "'wildignore' exclusion" do
     context "when there is a 'wildignore' setting in effect" do
-      it "calls on VIM's expand() function for pattern filtering" do
-        stub(::VIM).command(/set wildignore/)
+      it "filters out matching files" do
         scanner =
-          CommandT::Scanner::FileScanner::RubyFileScanner.new @dir, :wild_ignore => '*.o'
-        mock(::VIM).evaluate(/expand\(.+\)/).times(10)
-        scanner.paths
+          CommandT::Scanner::FileScanner::RubyFileScanner.new @dir,
+            :wildignore => CommandT::VIM::wildignore_to_regexp('xyz')
+        expect(scanner.paths.count).to eq(@all_fixtures.count - 1)
       end
     end
 
     context "when there is no 'wildignore' setting in effect" do
-      it "does not call VIM's expand() function" do
+      it "does nothing" do
         scanner = CommandT::Scanner::FileScanner::RubyFileScanner.new @dir
-        mock(::VIM).evaluate(/expand\(.+\)/).never
-        scanner.paths
+        expect(scanner.paths.count).to eq(@all_fixtures.count)
       end
     end
   end

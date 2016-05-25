@@ -545,6 +545,14 @@ module CommandT
       @mru_finder ||= CommandT::Finder::MRUBufferFinder.new
     end
 
+    def wildignore
+      ignore = VIM::get_string('g:CommandTWildIgnore')
+      if ignore.nil? && VIM::exists?('&wildignore')
+        ignore = ::VIM::evaluate('&wildignore').to_s
+      end
+      VIM::wildignore_to_regexp(ignore) unless ignore.nil?
+    end
+
     def file_finder
       @file_finder ||= CommandT::Finder::FileFinder.new nil,
         :max_depth              => VIM::get_number('g:CommandTMaxDepth'),
@@ -553,7 +561,7 @@ module CommandT
         :always_show_dot_files  => VIM::get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => VIM::get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => VIM::get_bool('g:CommandTScanDotDirectories'),
-        :wild_ignore            => VIM::get_string('g:CommandTWildIgnore'),
+        :wildignore             => wildignore,
         :scanner                => VIM::get_string('g:CommandTFileScanner'),
         :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules')
     end

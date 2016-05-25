@@ -37,9 +37,8 @@ describe CommandT::Finder::BufferFinder do
       expect(@finder.sorted_matches_for('i')).to include('.vim/notes')
     end
 
-    it "does not use the Vim expand() function to consult the 'wildignore' setting" do
-      do_not_allow(::VIM).evaluate
-      @finder.sorted_matches_for('i')
+    it "does not consult the 'wildignore' setting" do
+      expect(@finder.sorted_matches_for('').count).to eq(5)
     end
 
     it 'obeys the :limit option for empty search strings' do
