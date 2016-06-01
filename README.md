@@ -1,6 +1,9 @@
-# Command-T
+<p align="center">
+<img src="https://raw.githubusercontent.com/wincent/command-t/media/command-t-small.jpg" />
+<img src="https://raw.githubusercontent.com/wincent/command-t/media/command-t.gif" />
+</p>
 
-![](https://raw.githubusercontent.com/wincent/command-t/media/command-t.gif)
+# Command-T
 
 Command-T is a Vim plug-in that provides an extremely fast "fuzzy" mechanism for:
 
