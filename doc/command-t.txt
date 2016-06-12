@@ -1192,7 +1192,7 @@ you might do: >
    autocmd User CommandTWillShowMatchListing call CustomWillShow()
    autocmd! User CommandTDidHideMatchListing
    autocmd User CommandTDidHideMatchListing call CustomDidHide()
-
+<
 
 FAQ                                             *command-t-faq*
 
