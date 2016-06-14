@@ -1534,6 +1534,8 @@ next (not yet released)
 - 'wildignore' filtering is now always performed by producing an equivalent
   regular expression and applying that (previously this only happened with
   the "watchman" file scanner).
+- Fixed mis-memoization of |:CommandTHelp| and |:CommandTJump| finders
+  (whichever one you used first would be used for both).
 
 4.0 (16 May 2016)
 
