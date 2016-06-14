@@ -558,7 +558,7 @@ module CommandT
     end
 
     def help_finder
-      @jump_finder ||= CommandT::Finder::HelpFinder.new
+      @help_finder ||= CommandT::Finder::HelpFinder.new
     end
 
     def history_finder
