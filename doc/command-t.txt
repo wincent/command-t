@@ -279,7 +279,7 @@ Anywhere between the calls to `plug#begin` and `plug#end` in your
 Command-T:
 
   call plug#begin()
-  Plugin 'wincent/command-t'
+  Plug 'wincent/command-t'
   call plug#end()
 
 To actually install the plug-in run `:PlugInstall` from inside Vim. After
