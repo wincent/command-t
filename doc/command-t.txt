@@ -800,6 +800,11 @@ Following is a list of all available options:
       If set to 1, Command-T will scan submodules (recursively) when using the
       "git" file scanner (see |g:CommandTFileScanner|).
 
+                                            *g:CommandTGitIncludeUntracked*
+  |g:CommandTGitIncludeUntracked|             boolean (default: 0)
+
+      If set to 1, Command-T will include untracked files when using the "git"
+      file scanner (see: |g:CommandTFileScanner|).
 
                                             *g:CommandTSCMDirectories*
   |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
