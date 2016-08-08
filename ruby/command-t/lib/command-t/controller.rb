@@ -221,11 +221,15 @@ module CommandT
     guard :delete
 
     def remove_buffer
+      return unless @active_finder.class <= CommandT::Finder::BufferFinder
       selection = @match_window.selection
 
-      ::VIM::command "bd #{selection}"
+      if @initial_buffer.name != selection
+        ::VIM::command "bd #{selection}"
+      end
+      list_matches!
     end
-    :guard :remove_buffer
+    guard :remove_buffer
 
     def accept_selection(options = {})
       selection = @match_window.selection
