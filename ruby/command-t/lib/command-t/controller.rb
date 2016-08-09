@@ -220,6 +220,17 @@ module CommandT
     end
     guard :delete
 
+    def remove_buffer
+      return unless @active_finder.class <= CommandT::Finder::BufferFinder
+      selection = @match_window.selection
+
+      if @initial_buffer.name != selection
+        ::VIM::command "bd #{selection}"
+      end
+      list_matches!
+    end
+    guard :remove_buffer
+
     def accept_selection(options = {})
       selection = @match_window.selection
       hide
@@ -494,6 +505,7 @@ module CommandT
         'Delete'                => '<Del>',
         'Quickfix'              => '<C-q>',
         'Refresh'               => '<C-f>',
+        'RemoveBuffer'          => '<C-d>',
         'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
         'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
         'ToggleFocus'           => '<Tab>',
