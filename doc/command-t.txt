@@ -1410,10 +1410,11 @@ order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
   Marcus Brito                    Ton van den Heuvel
   Marian Schubert                 Victor Hugo Borja
   Matthew Todd                    Vlad Seghete
-  Mike Lundy                      Vít Ondruch
-  Nadav Samet                     Woody Peterson
-  Nate Kane                       Yan Pritzker
-  Nicholas T.                     Zak Johnson
+  Max Timkovich                   Vít Ondruch
+  Mike Lundy                      Woody Peterson
+  Nadav Samet                     Yan Pritzker
+  Nate Kane                       Zak Johnson
+  Nicholas T.
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
@@ -1537,6 +1538,8 @@ next (not yet released)
   the "watchman" file scanner).
 - Fixed mis-memoization of |:CommandTHelp| and |:CommandTJump| finders
   (whichever one you used first would be used for both).
+- Added mapping (<C-d>) to delete a buffer from the buffer list (patch from
+  Max Timkovich).
 
 4.0 (16 May 2016)
 
