@@ -1388,8 +1388,7 @@ fully benefit from the available performance enhancements:
 AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
-Other contributors that have submitted patches include (in alphabetical
-order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
+Other contributors that have submitted patches include, in alpabetical order:
 
   Abhinav Gupta                   Nicolas Alpi
   Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
@@ -1420,6 +1419,11 @@ order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
   Nadav Samet                     Woody Peterson
   Nate Kane                       Yan Pritzker
   Nicholas T.                     Zak Johnson
+
+
+This list produced with:
+
+    :read !git shortlog -s | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
