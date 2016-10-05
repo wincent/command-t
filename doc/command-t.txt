@@ -1410,16 +1410,16 @@ order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
   Joe Lencioni                    Shlomi Fish
   KJ Tsanaktsidis                 Stefan Schmidt
   Kevin Webster                   Steven Moazami
-  Kien Nguyen Duc                 Sung Pae
-  Lucas de Vries                  Thomas Pelletier
-  Marcus Brito                    Ton van den Heuvel
-  Marian Schubert                 Victor Hugo Borja
-  Matthew Todd                    Vlad Seghete
-  Max Timkovich                   Vít Ondruch
-  Mike Lundy                      Woody Peterson
-  Nadav Samet                     Yan Pritzker
-  Nate Kane                       Zak Johnson
-  Nicholas T.
+  Kien Nguyen Duc                 Steven Stallion
+  Lucas de Vries                  Sung Pae
+  Marcus Brito                    Thomas Pelletier
+  Marian Schubert                 Ton van den Heuvel
+  Matthew Todd                    Victor Hugo Borja
+  Max Timkovich                   Vlad Seghete
+  Mike Lundy                      Vít Ondruch
+  Nadav Samet                     Woody Peterson
+  Nate Kane                       Yan Pritzker
+  Nicholas T.                     Zak Johnson
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
