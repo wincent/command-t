@@ -27,6 +27,7 @@ module CommandT
         @scan_dot_directories = options[:scan_dot_directories] || false
         @wildignore           = options[:wildignore]
         @scan_submodules      = options[:git_scan_submodules] || false
+        @include_untracked    = options[:git_include_untracked] || false
       end
 
       def paths
