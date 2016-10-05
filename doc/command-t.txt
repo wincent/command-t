@@ -1545,6 +1545,7 @@ next (not yet released)
   (whichever one you used first would be used for both).
 - Added mapping (<C-d>) to delete a buffer from the buffer list (patch from
   Max Timkovich).
+- Added |g:CommandTGitIncludeUntracked| option (patch from Steven Stallion).
 
 4.0 (16 May 2016)
 
