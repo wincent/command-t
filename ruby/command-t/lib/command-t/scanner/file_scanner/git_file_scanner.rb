@@ -10,7 +10,7 @@ module CommandT
 
         def paths!
           Dir.chdir(@path) do
-            command = %w[git ls-files --exclude-standard -z]
+            command = %w[git ls-files --exclude-standard -cz]
             if @include_untracked
               command << %q(--others)
             end
