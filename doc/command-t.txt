@@ -1647,7 +1647,7 @@ next (not yet released)
   (patch from Jerome Castaneda)
 - add |g:CommandTCursorColor| option
 - expose mappings for |:CommandT| and |:CommandTBuffer| using `<Plug>`
-  mappings |<Plug>(CommandT)| and |<Plug>(CommandT)|
+  mappings |<Plug>(CommandT)| and |<Plug>(CommandTBuffer)|
 - add `<Leader>j` mapping to |:CommandTJump|, via |<Plug>(CommandTJump)|
   (defined only if no pre-existing mapping exists)
 
