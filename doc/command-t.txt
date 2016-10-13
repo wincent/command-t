@@ -632,9 +632,9 @@ By default Command-T comes with only three mappings:
 Note that Command-T won't overwrite a pre-existing mapping so if you prefer
 to define different mappings use lines like these in your |.vimrc|:
 
-  nnoremap <silent> <Leader>t <Plug>(CommandT)
-  nnoremap <silent> <Leader>b <Plug>(CommandTBuffer)
-  nnoremap <silent> <Leader>j <Plug>(CommandTJump)
+  nmap <silent> <Leader>t <Plug>(CommandT)
+  nmap <silent> <Leader>b <Plug>(CommandTBuffer)
+  nmap <silent> <Leader>j <Plug>(CommandTJump)
 
 Replacing "<Leader>t", "<Leader>b" or "<Leader>j" with your mapping of choice.
 
@@ -679,7 +679,7 @@ Additional mappings are available to target, but are not set up by default:
 
 Set up a mapping for any of these like so:
 
-  nnoremap <silent> <Leader>h <Plug>(CommandTHelp)
+  nmap <silent> <Leader>h <Plug>(CommandTHelp)
 
 When the Command-T window is active a number of other additional mappings
 become available for doing things like moving between and selecting matches.
