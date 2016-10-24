@@ -6,55 +6,47 @@ module CommandT
     class FileScanner
       # Uses git ls-files to scan for files
       class GitFileScanner < FindFileScanner
-        LsFilesError = Class.new(::RuntimeError)
 
         def paths!
-          Dir.chdir(@path) do
-            command = %w[git ls-files --exclude-standard -cz]
-            if @include_untracked
-              command << %q(--others)
-            end
-            all_files = list_files(command)
-
-            if @scan_submodules
-              base = nil
-              list_files(%w[
-                git submodule foreach --recursive
-                git ls-files --exclude-standard -z
-              ]).each do |path|
-                if path =~ /\AEntering '(.*)'\n(.*)\z/
-                  base = $~[1]
-                  path = $~[2]
-                end
-                all_files.push(base + File::SEPARATOR + path)
-              end
-            end
-
-            filtered = all_files.
-              map { |path| path.chomp }.
-              reject { |path| path_excluded?(path, 0) }
-            truncated = filtered.take(@max_files)
-            if truncated.count < filtered.count
-              show_max_files_warning
-            end
-            truncated.to_a
-          end
-        rescue LsFilesError
           super
         rescue Errno::ENOENT
-          # git executable not present and executable
+          @nogit = true
           super
         end
-
       private
 
-        def list_files(command)
-          stdin, stdout, stderr = Open3.popen3(*command)
-          stdout.read.split("\0")
-        ensure
-          raise LsFilesError if stderr && stderr.gets
+        def command
+          return super if @nogit
+
+          cmd = 'git ls-files --exclude-standard -cz'
+          if @include_untracked
+            cmd << ' --others'
+          end
+          if @scan_submodules
+            cmd << <<-END
+              # Same in submodules
+              git submodule --quiet foreach --recursive '
+                git ls-files --exclude-standard -z |
+                  # Add $path (dir of submodule) to the start of each path.
+                  awk "-vp=$path" "BEGIN{RS=\\"\\\\0\\";ORS =\\"\\\\0\\"}\\$0=p \\"#{File::SEPARATOR}\\" \\$0"
+              '
+            END
+          end
+          cmd
         end
 
+        def drop
+          return super if @nogit
+
+          0
+        end
+
+        def scanner_failed status, result
+          return super if @nogit
+
+          @nogit = true
+          paths!
+        end
       end
     end
   end

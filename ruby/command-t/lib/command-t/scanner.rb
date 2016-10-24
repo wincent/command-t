@@ -23,6 +23,15 @@ module CommandT
       raise RuntimeError, 'Subclass responsibility'
     end
 
+    def c_paths
+      p = paths
+      if p.is_a? Array
+        ::CommandT::Paths.from_array p
+      else
+        p
+      end
+    end
+
   private
 
     def progress_reporter

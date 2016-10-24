@@ -16,8 +16,12 @@ module CommandT
           original_#{method}(*args, &block)
         rescue Exception => e
           backtrace = e.backtrace
-          trimmed = backtrace.take(backtrace.length - 2)
-          text = VIM::escape_for_single_quotes trimmed.join("\n")
+          if backtrace
+            text = backtrace.take(backtrace.length - 2).join "\n"
+          else
+            text = e.inspect
+          end
+          text = VIM::escape_for_single_quotes text
           ::VIM::command "echo '\#{text}'"
           raise e
         end

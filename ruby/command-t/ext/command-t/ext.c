@@ -2,23 +2,20 @@
 // Licensed under the terms of the BSD 2-clause license.
 
 #include "matcher.h"
+#include "scanner.h"
 #include "watchman.h"
 
 VALUE mCommandT              = 0; // module CommandT
 VALUE cCommandTMatcher       = 0; // class CommandT::Matcher
+VALUE cCommandTPaths         = 0; // class CommandT::Paths
 VALUE mCommandTWatchman      = 0; // module CommandT::Watchman
 VALUE mCommandTWatchmanUtils = 0; // module CommandT::Watchman::Utils
 
 VALUE CommandT_option_from_hash(const char *option, VALUE hash)
 {
-    VALUE key;
     if (NIL_P(hash))
         return Qnil;
-    key = ID2SYM(rb_intern(option));
-    if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue)
-        return rb_hash_aref(hash, key);
-    else
-        return Qnil;
+    return rb_hash_aref(hash, ID2SYM(rb_intern(option)));
 }
 
 void Init_ext()
@@ -37,4 +34,10 @@ void Init_ext()
     rb_define_singleton_method(mCommandTWatchmanUtils, "load", CommandTWatchmanUtils_load, 1);
     rb_define_singleton_method(mCommandTWatchmanUtils, "dump", CommandTWatchmanUtils_dump, 1);
     rb_define_singleton_method(mCommandTWatchmanUtils, "query", CommandTWatchmanUtils_query, 2);
+
+    // class CommandT::Paths
+    cCommandTPaths = rb_define_class_under(mCommandT, "Paths", rb_cData);
+    rb_define_singleton_method(cCommandTPaths, "from_array", CommandTPaths_from_array, 1);
+    rb_define_singleton_method(cCommandTPaths, "from_fd", CommandTPaths_from_fd, 3);
+    rb_define_method(cCommandTPaths, "to_a", CommandTPaths_to_a, 0);
 }

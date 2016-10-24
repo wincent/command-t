@@ -6,7 +6,7 @@ require 'ostruct'
 
 describe CommandT::Matcher do
   def matcher(*paths)
-    scanner = OpenStruct.new(:paths => paths)
+    scanner = OpenStruct.new c_paths: CommandT::Paths.from_array(paths)
     CommandT::Matcher.new(scanner)
   end
 

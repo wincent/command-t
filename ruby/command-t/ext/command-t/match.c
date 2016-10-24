@@ -120,21 +120,20 @@ float recursive_match(
 }
 
 float calculate_match(
-    VALUE haystack,
     VALUE needle,
     VALUE case_sensitive,
     VALUE always_show_dot_files,
     VALUE never_show_dot_files,
     VALUE recurse,
     long needle_bitmask,
-    long *haystack_bitmask
+    match_t *haystack
 ) {
     matchinfo_t m;
     long i;
     float score             = 1.0;
-    int compute_bitmasks    = *haystack_bitmask == UNSET_BITMASK;
-    m.haystack_p            = RSTRING_PTR(haystack);
-    m.haystack_len          = RSTRING_LEN(haystack);
+    int compute_bitmasks    = haystack->bitmask == UNSET_BITMASK;
+    m.haystack_p            = haystack->path;
+    m.haystack_len          = haystack->path_len;
     m.needle_p              = RSTRING_PTR(needle);
     m.needle_len            = RSTRING_LEN(needle);
     m.rightmost_match_p     = NULL;
@@ -162,8 +161,8 @@ float calculate_match(
         long mask;
         long rightmost_match_p[m.needle_len];
 
-        if (*haystack_bitmask != UNSET_BITMASK) {
-            if ((needle_bitmask & *haystack_bitmask) != needle_bitmask) {
+        if (haystack->bitmask != UNSET_BITMASK) {
+            if ((needle_bitmask & haystack->bitmask) != needle_bitmask) {
                 return 0.0;
             }
         }
@@ -194,7 +193,7 @@ float calculate_match(
             }
         }
         if (compute_bitmasks) {
-            *haystack_bitmask = mask;
+            haystack->bitmask = mask;
         }
         if (needle_idx != -1) {
             return 0.0;

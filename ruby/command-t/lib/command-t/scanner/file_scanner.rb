@@ -10,10 +10,26 @@ module CommandT
     # RubyFileScanner and FindFileScanner subclasses).
     class FileScanner < Scanner
       # Subclasses
+      autoload :CommandFileScanner,  'command-t/scanner/file_scanner/command_file_scanner'
       autoload :FindFileScanner,     'command-t/scanner/file_scanner/find_file_scanner'
       autoload :GitFileScanner,      'command-t/scanner/file_scanner/git_file_scanner'
       autoload :RubyFileScanner,     'command-t/scanner/file_scanner/ruby_file_scanner'
       autoload :WatchmanFileScanner, 'command-t/scanner/file_scanner/watchman_file_scanner'
+
+      def self.for_scanner_type s
+        case s
+        when 'ruby', nil # ruby is the default
+          RubyFileScanner
+        when 'find'
+          FindFileScanner
+        when 'watchman'
+          WatchmanFileScanner
+        when 'git'
+          GitFileScanner
+        else
+          raise ArgumentError, "unknown scanner type #{s.inspect}"
+        end
+      end
 
       attr_accessor :path
 
@@ -77,10 +93,8 @@ module CommandT
         @paths_keys << @path
       end
 
-      def path_excluded?(path, prefix_len = @prefix_len)
+      def path_excluded?(path)
         if @wildignore
-          # First strip common prefix (@path) from path to match Vim's behavior.
-          path = path[prefix_len..-1]
           path =~ @wildignore
         end
       end
