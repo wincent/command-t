@@ -28,7 +28,7 @@ module CommandT
 
             filtered = all_files.
               map { |path| path.chomp }.
-              reject { |path| path_excluded?(path, 0) }
+              reject { |path| path_excluded? path }
             truncated = filtered.take(@max_files)
             if truncated.count < filtered.count
               show_max_files_warning

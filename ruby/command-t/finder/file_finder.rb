@@ -5,19 +5,7 @@ module CommandT
   class Finder
     class FileFinder < Finder
       def initialize(path = Dir.pwd, options = {})
-        case options.delete(:scanner)
-        when 'ruby', nil # ruby is the default
-          @scanner = Scanner::FileScanner::RubyFileScanner.new(path, options)
-        when 'find'
-          @scanner = Scanner::FileScanner::FindFileScanner.new(path, options)
-        when 'watchman'
-          @scanner = Scanner::FileScanner::WatchmanFileScanner.new(path, options)
-        when 'git'
-          @scanner = Scanner::FileScanner::GitFileScanner.new(path, options)
-        else
-          raise ArgumentError, "unknown scanner type '#{options[:scanner]}'"
-        end
-
+        @scanner = Scanner::FileScanner.for_string(options.delete(:scanner)).new(path, options)
         @matcher = Matcher.new @scanner, options
       end
 

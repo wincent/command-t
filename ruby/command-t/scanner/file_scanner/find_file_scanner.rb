@@ -36,8 +36,9 @@ module CommandT
             counter = 1
             next_progress = progress_reporter.update(counter)
             stdout.each_line do |line|
-              next if path_excluded?(line.chomp!)
-              paths << line[@prefix_len..-1]
+              line = line[@prefix_len..-2]
+              next if path_excluded? line
+              paths << line
               next_progress = progress_reporter.update(counter) if counter == next_progress
               if (counter += 1) > @max_files
                 show_max_files_warning
