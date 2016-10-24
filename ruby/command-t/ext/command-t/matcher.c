@@ -7,6 +7,7 @@
 #include "matcher.h"
 #include "heap.h"
 #include "ext.h"
+#include "scanner.h"
 #include "ruby_compat.h"
 
 // order matters; we want this to be evaluated only after ruby.h
@@ -18,12 +19,10 @@
 int cmp_alpha(const void *a, const void *b) {
     match_t a_match = *(match_t *)a;
     match_t b_match = *(match_t *)b;
-    VALUE   a_str   = a_match.path;
-    VALUE   b_str   = b_match.path;
-    char    *a_p    = RSTRING_PTR(a_str);
-    long    a_len   = RSTRING_LEN(a_str);
-    char    *b_p    = RSTRING_PTR(b_str);
-    long    b_len   = RSTRING_LEN(b_str);
+    char    *a_p    = a_match.path;
+    long    a_len   = a_match.path_len;
+    char    *b_p    = b_match.path;
+    long    b_len   = b_match.path_len;
     int     order   = 0;
 
     if (a_len > b_len) {
@@ -86,11 +85,8 @@ typedef struct {
     long thread_index;
     long case_sensitive;
     long limit;
-    match_t *matches;
-    long path_count;
-    VALUE haystacks;
+    matches_t *matches;
     VALUE needle;
-    VALUE last_needle;
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
     VALUE recurse;
@@ -112,40 +108,33 @@ void *match_thread(void *thread_args) {
 
     for (
         i = args->thread_index;
-        i < args->path_count;
+        i < args->matches->len;
         i += args->thread_count
     ) {
-        args->matches[i].path = RARRAY_PTR(args->haystacks)[i];
         if (args->needle_bitmask == UNSET_BITMASK) {
-            args->matches[i].bitmask = UNSET_BITMASK;
+            args->matches->matches[i].bitmask = UNSET_BITMASK;
         }
-        if (!NIL_P(args->last_needle) && args->matches[i].score == 0.0) {
-            // Skip over this candidate because it didn't match last
-            // time and it can't match this time either.
-            continue;
-        }
-        args->matches[i].score = calculate_match(
-            args->matches[i].path,
+        args->matches->matches[i].score = calculate_match(
             args->needle,
             args->case_sensitive,
             args->always_show_dot_files,
             args->never_show_dot_files,
             args->recurse,
             args->needle_bitmask,
-            &args->matches[i].bitmask
+            &args->matches->matches[i]
         );
-        if (args->matches[i].score == 0.0) {
+        if (args->matches->matches[i].score == 0.0) {
             continue;
         }
         if (heap) {
             if (heap->count == args->limit) {
                 score = ((match_t *)HEAP_PEEK(heap))->score;
-                if (args->matches[i].score >= score) {
-                    heap_insert(heap, &args->matches[i]);
+                if (args->matches->matches[i].score >= score) {
+                    heap_insert(heap, &args->matches->matches[i]);
                     (void)heap_extract(heap);
                 }
             } else {
-                heap_insert(heap, &args->matches[i]);
+                heap_insert(heap, &args->matches->matches[i]);
             }
         }
     }
@@ -170,17 +159,16 @@ long calculate_bitmask(VALUE string) {
 
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
-    long i, j, limit, path_count, thread_count;
+    long i, j, limit, thread_count;
 #ifdef HAVE_PTHREAD_H
     long err;
     pthread_t *threads;
 #endif
-    long needle_bitmask = UNSET_BITMASK;
-    long heap_matches_count;
+    long needle_bitmask;
     int use_heap;
     int sort;
-    match_t *matches;
-    match_t *heap_matches = NULL;
+    matches_t *matches;
+    matches_t *heap_matches;
     heap_t *heap;
     thread_args_t *thread_args;
     VALUE always_show_dot_files;
@@ -188,18 +176,14 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE recurse;
     VALUE ignore_spaces;
     VALUE limit_option;
-    VALUE last_needle;
     VALUE needle;
     VALUE never_show_dot_files;
-    VALUE new_paths_object_id;
     VALUE options;
-    VALUE paths;
-    VALUE paths_object_id;
+    VALUE paths_obj;
     VALUE results;
     VALUE scanner;
     VALUE sort_option;
     VALUE threads_option;
-    VALUE wrapped_matches;
 
     // Process arguments: 1 mandatory, 1 optional.
     if (rb_scan_args(argc, argv, "11", &needle, &options) == 1) {
@@ -222,7 +206,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     limit = NIL_P(limit_option) ? 15 : NUM2LONG(limit_option);
     sort = NIL_P(sort_option) || sort_option == Qtrue;
     use_heap = limit && sort;
-    heap_matches_count = 0;
 
     needle = StringValue(needle);
     if (case_sensitive != Qtrue) {
@@ -235,68 +218,35 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
     // Get unsorted matches.
     scanner = rb_iv_get(self, "@scanner");
-    paths = rb_funcall(scanner, rb_intern("paths"), 0);
-    path_count = RARRAY_LEN(paths);
-
-    // Cached C data, not visible to Ruby layer.
-    paths_object_id = rb_ivar_get(self, rb_intern("paths_object_id"));
-    new_paths_object_id = rb_funcall(paths, rb_intern("object_id"), 0);
-    rb_ivar_set(self, rb_intern("paths_object_id"), new_paths_object_id);
-    last_needle = rb_ivar_get(self, rb_intern("last_needle"));
-    if (
-        NIL_P(paths_object_id) ||
-        NUM2LONG(new_paths_object_id) != NUM2LONG(paths_object_id)
-    ) {
-        // `paths` changed, need to replace matches array.
-        paths_object_id = new_paths_object_id;
-        matches = malloc(path_count * sizeof(match_t));
-        if (!matches) {
-            rb_raise(rb_eNoMemError, "memory allocation failed");
-        }
-        wrapped_matches = Data_Wrap_Struct(
-            rb_cObject,
-            0,
-            free,
-            matches
-        );
-        rb_ivar_set(self, rb_intern("matches"), wrapped_matches);
-        last_needle = Qnil;
-    } else {
-        // Get existing array.
-        Data_Get_Struct(
-            rb_ivar_get(self, rb_intern("matches")),
-            match_t,
-            matches
-        );
-
-        // Will compare against previously computed haystack bitmasks.
-        needle_bitmask = calculate_bitmask(needle);
-
-        // Check whether current search extends previous search; if so, we can
-        // skip all the non-matches from last time without looking at them.
-        if (rb_funcall(needle, rb_intern("start_with?"), 1, last_needle) != Qtrue) {
-            last_needle = Qnil;
-        }
+    paths_obj = rb_funcall(scanner, rb_intern("c_paths"), 0);
+    matches = paths_get_matches(paths_obj);
+    if (matches == NULL) {
+        rb_raise(rb_eArgError, "null matches");
     }
+
+    needle_bitmask = calculate_bitmask(needle);
 
     thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
     if (use_heap) {
-        heap_matches = malloc(thread_count * limit * sizeof(match_t));
+        heap_matches = malloc(
+            sizeof(matches_t) + (thread_count * limit + 1) * sizeof(match_t));
         if (!heap_matches) {
             rb_raise(rb_eNoMemError, "memory allocation failed");
         }
+        heap_matches->len = 0;
+    } else {
+        heap_matches = matches;
     }
 
 #ifdef HAVE_PTHREAD_H
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
-    if (path_count < THREAD_THRESHOLD) {
+    if (matches->len < THREAD_THRESHOLD) {
         thread_count = 1;
     }
     threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
 #endif
-
     thread_args = malloc(sizeof(thread_args_t) * thread_count);
     if (!thread_args)
         rb_raise(rb_eNoMemError, "memory allocation failed");
@@ -306,10 +256,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].case_sensitive = case_sensitive == Qtrue;
         thread_args[i].matches = matches;
         thread_args[i].limit = use_heap ? limit : 0;
-        thread_args[i].path_count = path_count;
-        thread_args[i].haystacks = paths;
         thread_args[i].needle = needle;
-        thread_args[i].last_needle = last_needle;
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
         thread_args[i].recurse = recurse;
@@ -322,7 +269,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    heap_matches[heap_matches_count++] = *(match_t *)heap->entries[j];
+                    heap_matches->matches[heap_matches->len++] = *(match_t *)heap->entries[j];
                 }
                 heap_free(heap);
             }
@@ -344,7 +291,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                heap_matches[heap_matches_count++] = *(match_t *)heap->entries[j];
+                heap_matches->matches[heap_matches->len++] = *(match_t *)heap->entries[j];
             }
             heap_free(heap);
         }
@@ -362,38 +309,28 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
             // (they don't because the heap itself calls cmp_score, which means
             // that the items which stay in the top [limit] may (will) be
             // different).
-            qsort(
-                use_heap ? heap_matches : matches,
-                use_heap ? heap_matches_count : path_count,
-                sizeof(match_t),
-                cmp_alpha
-            );
+            qsort(heap_matches->matches, heap_matches->len, sizeof(match_t), cmp_alpha);
         } else {
-            qsort(
-                use_heap ? heap_matches : matches,
-                use_heap ? heap_matches_count : path_count,
-                sizeof(match_t),
-                cmp_score
-            );
+            qsort(heap_matches->matches, heap_matches->len, sizeof(match_t), cmp_score);
         }
     }
 
     results = rb_ary_new();
-    if (limit == 0) {
-        limit = path_count;
-    }
+    if (limit == 0)
+        limit = matches->len;
     for (
         i = 0;
-        i < (use_heap ? heap_matches_count : path_count) && limit > 0;
+        i < heap_matches->len && limit > 0;
         i++
     ) {
-        if ((use_heap ? heap_matches : matches)[i].score > 0.0) {
+        if (heap_matches->matches[i].score > 0.0) {
             rb_funcall(
                 results,
                 rb_intern("push"),
                 1,
-                (use_heap ? heap_matches : matches)[i].path
-            );
+                rb_str_new(
+                    heap_matches->matches[i].path,
+                    heap_matches->matches[i].path_len));
             limit--;
         }
     }
@@ -403,6 +340,5 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     }
 
     // Save this state to potentially speed subsequent searches.
-    rb_ivar_set(self, rb_intern("last_needle"), needle);
     return results;
 }

@@ -8,46 +8,62 @@ module CommandT
     class FileScanner
       # A FileScanner which shells out to the `find` executable in order to scan.
       class FindFileScanner < FileScanner
-        include PathUtilities
-
         def paths!
-          # temporarily set field separator to NUL byte; this setting is
-          # respected by both `each_line` and `chomp!` below, and makes it easier
-          # to parse the output of `find -print0`
-          separator = $/
-          $/ = "\x00"
-
-          unless @scan_dot_directories
-            dot_directory_filter = [
-              '-not', '-path', "#{@path}/.*/*",           # top-level dot dir
-              '-and', '-not', '-path', "#{@path}/*/.*/*"  # lower-level dot dir
-            ]
-          end
-
-          paths = []
-          Open3.popen3(*([
-            'find', '-L',                 # follow symlinks
-            @path,                        # anchor search here
-            '-maxdepth', @max_depth.to_s, # limit depth of DFS
-            '-type', 'f',                 # only show regular files (not dirs etc)
-            dot_directory_filter,         # possibly skip out dot directories
-            '-print0'                     # NUL-terminate results
-          ].flatten.compact)) do |stdin, stdout, stderr|
-            counter = 1
-            next_progress = progress_reporter.update(counter)
-            stdout.each_line do |line|
-              next if path_excluded?(line.chomp!)
-              paths << line[@prefix_len..-1]
-              next_progress = progress_reporter.update(counter) if counter == next_progress
-              if (counter += 1) > @max_files
-                show_max_files_warning
-                break
+          Dir.chdir @path do
+            Open3.popen2 command do |stdin, stdout, waitthread|
+              stdin.close
+              r = CommandT::Paths.from_fd stdout.fileno, terminator,
+                drop: drop,
+                limit: @max_files,
+                update: update,
+                where: filter
+              stdout.close
+              status = waitthread.value
+              if status.success?
+                r
+              else
+                scanner_failed status, r
               end
             end
           end
-          paths
-        ensure
-          $/ = separator
+        end
+
+      private
+
+        def command
+          # -L: follow symlinks
+          "find -L . -maxdepth #{@max_depth + 1} #{dot_directory_filter} -type f -print0"
+        end
+
+        def drop
+          2 # Drop leading ./
+        end
+
+        def terminator
+          "\0"
+        end
+
+        def dot_directory_filter
+          if @scan_dot_directories
+            ''
+          else
+            # The ? is to prevent matching '.'
+            '-name ".?*" -prune -o'
+          end
+        end
+
+        def filter
+          if @wildignore
+            lambda { |p| !path_excluded? p }
+          end
+        end
+
+        def update
+           lambda { |count| progress_reporter.update count }
+        end
+
+        def scanner_failed status, result
+          result # Return what we have by default
         end
       end
     end
