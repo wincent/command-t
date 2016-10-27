@@ -1139,11 +1139,9 @@ settings can be used to control behavior:
         completing their scans.
 
       - The "watchman" scanner is intended for use with massive hierarchies
-        where speed is of the utmost import, so it doesn't make use of Vim's
-        very slow 'wildignore' filtering at all. Instead, it constructs a
-        regular expression on the fly based on 'wildignore' and/or
-        |g:CommandTWildIgnore| and uses that. To suppress this behavior, set
-        |g:CommandTWildIgnore| to an empty string.
+        where speed is of the utmost import, so you may wish to avoid
+        performing any 'wildignore' filtering at all. To suppress the
+        filtering, set |g:CommandTWildIgnore| to an empty string.
 
 
 INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
