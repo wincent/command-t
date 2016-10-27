@@ -1577,7 +1577,7 @@ master (not yet released)
 - Make it possible to completely disable |'wildignore'|-based filtering by
   setting |g:CommandTWildIgnore| to an empty string.
 - The "watchman" file scanner now respects |'wildignore'| and
-  |g:CommandTWildIgnore| by construcing an equivalent regular expression and
+  |g:CommandTWildIgnore| by constructing an equivalent regular expression and
   using that for filtering.
 - Show a warning when hitting |g:CommandTMaxFiles|, and add a corresponding
   |g:CommandTSuppressMaxFilesWarning| setting to suppress the warning.
