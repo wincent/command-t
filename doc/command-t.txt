@@ -1388,7 +1388,7 @@ fully benefit from the available performance enhancements:
 AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
-Other contributors that have submitted patches include, in alpabetical order:
+Other contributors that have submitted patches include, in alphabetical order:
 
   Abhinav Gupta                   Nicolas Alpi
   Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
