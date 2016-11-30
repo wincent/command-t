@@ -613,6 +613,19 @@ COMMANDS                                        *command-t-commands*
                   mapping). This command may be useful for people wishing to
                   extend Command-T by "monkey patching" its functionality.
 
+                                                *:CommandTOpen*
+|:CommandTOpen|     The default command used by the various "AcceptSelection"
+                  settings (|g:CommandTAcceptSelectionCommand|,
+                  |g:CommandTAcceptSelectionTabCommand|,
+                  |g:CommandTAcceptSelectionSplitCommand|, and
+                  |g:CommandTAcceptSelectionVSplitCommand|) to open the
+                  selected item. Implements smart "goto or open" logic that
+                  will try to focus an existing, previously opened instance of
+                  the selected item if possible, and only open a new tab or
+                  split as a last resort. To work most usefully, should be
+                  used with Vim's |'switchbuf'| setting set to "usetab".
+
+
 
 MAPPINGS                                        *command-t-mappings*
 
@@ -941,61 +954,38 @@ Following is a list of all available options:
       If unset (which is the default), the value of the Vim |'smartcase'|
       setting will be used instead.
 
-                                             *g:CommandTAcceptSelectionCommand*
-  |g:CommandTAcceptSelectionCommand|           string (default: 'e')
+                                           *g:CommandTAcceptSelectionCommand*
+  |g:CommandTAcceptSelectionCommand|         string (default: 'CommandTOpen e')
 
       The Vim command that will be used to open a selection from the match
       listing (via |g:CommandTAcceptSelectionMap|).
 
-      For an example of how this can be used to apply arbitrarily complex
-      logic, see the example in |g:CommandTAcceptSelectionTabCommand| below.
+      See also, |:CommandTOpen|.
 
-                                           *g:CommandTAcceptSelectionTabCommand*
-  |g:CommandTAcceptSelectionTabCommand|      string (default: 'tabe')
+                                        *g:CommandTAcceptSelectionTabCommand*
+  |g:CommandTAcceptSelectionTabCommand|   string (default: 'CommandTOpen tabe')
 
       The Vim command that will be used to open a selection from the match
       listing in a new tab (via |g:CommandTAcceptSelectionSplitMap|).
 
-      For example, this can be used to switch to an existing buffer (rather
-      than opening a duplicate buffer with the selection in a new tab) with
-      configuration such as the following:
-
-          set switchbuf=usetab
-
-          function! GotoOrOpen(...)
-            for file in a:000
-              if bufwinnr(file) != -1
-                exec "sb " . file
-              else
-                exec "tabe " . file
-              endif
-            endfor
-          endfunction
-
-          command! -nargs=+ GotoOrOpen call GotoOrOpen("<args>")
-
-          let g:CommandTAcceptSelectionTabCommand = 'GotoOrOpen'
-
-      For a slightly more comprehensive example, see: https://wt.pe/e
+      See also, |:CommandTOpen|.
 
                                         *g:CommandTAcceptSelectionSplitCommand*
-  |g:CommandTAcceptSelectionSplitCommand| string (default: 'sp')
+  |g:CommandTAcceptSelectionSplitCommand| string (default: 'CommandTOpen sp')
 
       The Vim command that will be used to open a selection from the match
       listing in a split (via |g:CommandTAcceptSelectionVSplitMap|).
 
-      For an example of how this can be used to apply arbitrarily complex
-      logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
+      See also, |:CommandTOpen|.
 
-                                        *g:CommandTAcceptSelectionVsplitCommand*
-                                        string (default: 'vs')
+                                    *g:CommandTAcceptSelectionVsplitCommand*
+                                    string (default: 'CommandTOpen vs')
   |g:CommandTAcceptSelectionVSplitCommand|
 
       The Vim command that will be used to open a selection from the match
       listing in a vertical split (via |g:CommandTAcceptSelectionVSplitMap|).
 
-      For an example of how this can be used to apply arbitrarily complex
-      logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
+      See also, |:CommandTOpen|.
 
                                              *g:CommandTEncoding*
   |g:CommandTEncoding|                         string (default: none)
@@ -1550,6 +1540,14 @@ next (not yet released)
 - Added mapping (<C-d>) to delete a buffer from the buffer list (patch from
   Max Timkovich).
 - Added |g:CommandTGitIncludeUntracked| option (patch from Steven Stallion).
+- Added |:CommandTOpen|, which implements smart "goto or open" functionality,
+  and adjust |g:CommandTAcceptSelectionCommand|,
+  |g:CommandTAcceptSelectionTabCommand|,
+  |g:CommandTAcceptSelectionSplitCommand|, and
+  |g:CommandTAcceptSelectionVSplitCommand| to use it by default. Their default
+  values have been changed from "e", "tabe", "sp" and "vs" to "CommandTOpen
+  e", "CommandTOpen tabe", "CommandTOpen sp" and "CommandTOpen vs",
+  respectively. Use with |'switchbuf'| set to "usetab" for maximum effect.
 
 4.0 (16 May 2016)
 

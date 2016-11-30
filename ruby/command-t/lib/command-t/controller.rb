@@ -321,15 +321,15 @@ module CommandT
     guard :list_matches
 
     def tab_command
-      VIM::get_string('g:CommandTAcceptSelectionTabCommand') || 'tabe'
+      VIM::get_string('g:CommandTAcceptSelectionTabCommand') || 'CommandTOpen tabe'
     end
 
     def split_command
-      VIM::get_string('g:CommandTAcceptSelectionSplitCommand') || 'sp'
+      VIM::get_string('g:CommandTAcceptSelectionSplitCommand') || 'CommandTOpen sp'
     end
 
     def vsplit_command
-      VIM::get_string('g:CommandTAcceptSelectionVSplitCommand') || 'vs'
+      VIM::get_string('g:CommandTAcceptSelectionVSplitCommand') || 'CommandTOpen vs'
     end
 
   private
@@ -431,7 +431,7 @@ module CommandT
         VIM::get_bool('&hidden') ||
         VIM::get_bool('&autowriteall') && !VIM::get_bool('&readonly') ||
         current_buffer_visible_in_other_window
-        VIM::get_string('g:CommandTAcceptSelectionCommand') || 'e'
+        VIM::get_string('g:CommandTAcceptSelectionCommand') || 'CommandTOpen e'
       else
         'sp'
       end

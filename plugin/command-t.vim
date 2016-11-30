@@ -6,6 +6,8 @@ if exists('g:command_t_loaded') || &compatible
 endif
 let g:command_t_loaded = 1
 
+command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)
+
 " HACK: use both old and new during early development
 if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'mirkwood') ==? 'isengard'
   call commandt#isengard#init()

@@ -139,6 +139,38 @@ function! commandt#CheckBuffer(buffer_number) abort
   endif
 endfunction
 
+function! s:BufHidden(buffer)
+  let bufno = bufnr(a:buffer)
+  let listed_buffers = ''
+
+  redir => listed_buffers
+  silent ls
+  redir END
+
+  for line in split(listed_buffers, "\n")
+    let components = split(line)
+    if components[0] == bufno
+      return match(components[1], 'h') != -1
+    endif
+  endfor
+  return 0
+endfunction
+
+function! commandt#GotoOrOpen(command_and_args) abort
+  let l:command_and_args = split(a:command_and_args, '\v^\w+ \zs')
+  let l:command = l:command_and_args[0]
+  let l:file = l:command_and_args[1]
+
+  " bufwinnr() doesn't see windows in other tabs, meaning we open them again
+  " instead of switching to the other tab; but bufexists() sees hidden
+  " buffers, and if we try to open one of those, we get an unwanted split.
+  if bufwinnr(l:file) != -1 || (bufexists(l:file) && !s:BufHidden(l:file))
+    execute 'sbuffer ' . l:file
+  else
+    execute l:command . l:file
+  endif
+endfunction
+
 if !has('ruby')
   finish
 endif
