@@ -5,10 +5,17 @@ module CommandT
   class Scanner
     class HelpScanner < Scanner
       def paths
-        paths!
+        runtimepath = ::VIM::evaluate('&runtimepath')
+        if runtimepath != @runtimepath
+          @cached_tags = nil
+          @runtimepath = runtimepath
+        end
+        @cached_tags ||= paths!
       end
 
-      def flush; end
+      def flush
+        @cached_tags = nil
+      end
 
     private
 
