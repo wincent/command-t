@@ -5,12 +5,10 @@ module CommandT
   class Scanner
     class HelpScanner < Scanner
       def paths
-        @cached_tags ||= paths!
+        paths!
       end
 
-      def flush
-        @cached_tags = nil
-      end
+      def flush; end
 
     private
 
