@@ -1380,19 +1380,18 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicolas Alpi
-  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Andy Waite                      Nilo César Teixeira
-  Anthony Panozzo                 Noon Silk
-  Artem Nezvigin                  Ole Petter Bang
-  Ben Boeckel                     Patrick Hayes
-  Daniel Burgess                  Paul Jolly
-  Daniel Hahler                   Pavel Sergeev
-  David Szotten                   Rainux Luo
-  Emily Strickland                Richard Feldman
-  Felix Tjandrawibawa             Roland Puntaier
-  Gary Bernhardt                  Ross Lagerwall
-  Greg Hurrell                    Sam Morris
+  Abhinav Gupta                   Nikolai Aleksandrovich Pavlov
+  Aleksandrs Ļedovskis            Nilo César Teixeira
+  Andy Waite                      Noon Silk
+  Anthony Panozzo                 Ole Petter Bang
+  Artem Nezvigin                  Patrick Hayes
+  Ben Boeckel                     Paul Jolly
+  Daniel Burgess                  Pavel Sergeev
+  Daniel Hahler                   Rainux Luo
+  David Szotten                   Richard Feldman
+  Emily Strickland                Roland Puntaier
+  Felix Tjandrawibawa             Ross Lagerwall
+  Gary Bernhardt                  Sam Morris
   Ivan Ukhov                      Scott Bronson
   Jeff Kreeftmeijer               Seth Fowler
   Jerome Castaneda                Sherzod Gapirov
@@ -1409,11 +1408,11 @@ Other contributors that have submitted patches include, in alphabetical order:
   Nadav Samet                     Woody Peterson
   Nate Kane                       Yan Pritzker
   Nicholas T.                     Zak Johnson
-
+  Nicolas Alpi
 
 This list produced with:
 
-    :read !git shortlog -s | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
+    :read !git shortlog -s | grep -v 'Greg Hurrell' | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
