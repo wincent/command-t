@@ -10,7 +10,7 @@ module CommandT
     # RubyFileScanner and FindFileScanner subclasses).
     class FileScanner < Scanner
       # Subclasses
-      autoload :CommandFileScanner,  'command-t/scanner/file_scanner/command_file_scanner'
+      autoload :CmdFileScanner,      'command-t/scanner/file_scanner/cmd_file_scanner'
       autoload :FindFileScanner,     'command-t/scanner/file_scanner/find_file_scanner'
       autoload :GitFileScanner,      'command-t/scanner/file_scanner/git_file_scanner'
       autoload :RubyFileScanner,     'command-t/scanner/file_scanner/ruby_file_scanner'
@@ -26,6 +26,8 @@ module CommandT
           WatchmanFileScanner
         when 'git'
           GitFileScanner
+        when 'cmd'
+          CmdFileScanner
         else
           raise ArgumentError, "unknown scanner type #{s.inspect}"
         end

@@ -581,7 +581,9 @@ module CommandT
         :wildignore             => wildignore,
         :scanner                => VIM::get_string('g:CommandTFileScanner'),
         :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules'),
-        :git_include_untracked  => VIM::get_bool('g:CommandTGitIncludeUntracked')
+        :git_include_untracked  => VIM::get_bool('g:CommandTGitIncludeUntracked'),
+        :custom_cmd             => VIM::get_string('g:CommandTFileScannerCommand'),
+        :custom_cmd_terminator  => VIM::get_string('g:CommandTFileScannerCommandTerminator')
     end
 
     def help_finder

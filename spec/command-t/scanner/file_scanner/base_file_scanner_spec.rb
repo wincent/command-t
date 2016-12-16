@@ -4,6 +4,7 @@
 require 'spec_helper'
 
 [
+  CommandT::Scanner::FileScanner::CmdFileScanner,
   CommandT::Scanner::FileScanner::FindFileScanner,
   CommandT::Scanner::FileScanner::GitFileScanner,
   CommandT::Scanner::FileScanner::RubyFileScanner,
@@ -11,17 +12,31 @@ require 'spec_helper'
 ].each do |klass|
   describe klass do
     before do
+      @klass = klass
       @dir = File.join(File.dirname(__FILE__), '..', '..', '..', '..', 'fixtures')
+      @options = {}
       @all_fixtures = %w(
         bar/abc bar/xyz baz bing foo/alpha/t1 foo/alpha/t2 foo/beta
       )
-      @all_fixtures << ".hidden/file" if klass == CommandT::Scanner::FileScanner::GitFileScanner
-      @scanner = klass.new(@dir)
+
+      case
+      when klass == CommandT::Scanner::FileScanner::GitFileScanner
+        @all_fixtures << ".hidden/file"
+      when klass == CommandT::Scanner::FileScanner::CmdFileScanner
+        # Just echo paths and test that we are in the right directory.
+        @options[:custom_cmd] = "echo '#{@all_fixtures.join "\n"}'"
+      end
+
+      @scanner = make_scanner
 
       stub(::VIM).evaluate(/exists/) { 1 }
       stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
       stub(::VIM).command(/echon/)
       stub(::VIM).command('redraw')
+    end
+
+    def make_scanner extra_opts={}
+      @klass.new @dir, @options.merge(extra_opts)
     end
 
     describe 'paths method' do
@@ -31,6 +46,10 @@ require 'spec_helper'
     end
 
     describe 'path= method' do
+      # CmdScanner supports this but testing it in the base spec is hard.
+      # Instead it is tested in cmd_file_scanner.rb
+      next if klass == CommandT::Scanner::FileScanner::CmdFileScanner
+
       it 'allows repeated applications of scanner at different paths' do
         expect(@scanner.paths.to_a).to match_array(@all_fixtures)
 
@@ -47,22 +66,20 @@ require 'spec_helper'
     describe "'wildignore' exclusion" do
       context "when there is a 'wildignore' setting in effect" do
         it "filters out matching files" do
-          scanner =
-            klass.new @dir,
-              :wildignore => CommandT::VIM::wildignore_to_regexp('xyz')
+          scanner = make_scanner wildignore: CommandT::VIM::wildignore_to_regexp('xyz')
           expect(scanner.paths.to_a.count).to eq(@all_fixtures.count - 1)
         end
       end
 
       context "when there is no 'wildignore' setting in effect" do
         it "does nothing" do
-          scanner = klass.new @dir
-          expect(scanner.paths.to_a.count).to eq(@all_fixtures.count)
+          expect(@scanner.paths.to_a).to match_array(@all_fixtures)
         end
       end
     end
 
     describe "hidden file exclusion" do
+      next if klass == CommandT::Scanner::FileScanner::CmdFileScanner
       next if klass == CommandT::Scanner::FileScanner::GitFileScanner
 
       it "excludes hidden files by default" do
@@ -76,6 +93,7 @@ require 'spec_helper'
     end
 
     describe ':max_depth option' do
+      next if klass == CommandT::Scanner::FileScanner::CmdFileScanner
       next if klass == CommandT::Scanner::FileScanner::GitFileScanner
 
       it 'does not descend below "max_depth" levels' do

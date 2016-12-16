@@ -786,6 +786,9 @@ Following is a list of all available options:
         Command-T would usually consult, such as
         |g:CommandTScanDotDirectories| are ignored.
 
+      - "cmd": Uses a command of your choosing. See
+        |g:CommandTFileScannerCommand| for how to configure the custom command.
+
                                             *g:CommandTTraverseSCM*
   |g:CommandTTraverseSCM|                     string (default: 'file')
 
@@ -818,6 +821,30 @@ Following is a list of all available options:
 
       If set to 1, Command-T will include untracked files when using the "git"
       file scanner (see: |g:CommandTFileScanner|).
+
+                                            *g:CommandTFileScannerCommand*
+  |g:CommandTFileScannerCommand|              string (default: 'false')
+
+      This command will be executed to generate a file listing when using the
+      "cmd" file scanner (see: |g:CommandTFileScanner|). This command will be
+      run using the shell in the root directory of the scan.
+
+      See also: |g:CommandTFileScannerCommandTerminator|
+
+      Example using locate:
+
+        " Use locate for scanning. cut is used to remove prefix
+        let g:CommandTFileScanner = 'cmd'
+        let g:CommandTFileScannerCommand = 'locate "$PWD/*" | cut -b$((${#PWD} + 2)-'
+        let g:CommandTFileScannerCommandTerminator = "\n"
+
+                                            *g:CommandTFileScannerCommand*
+  |g:CommandTFileScannerCommandTerminator|    string (default: '\n')
+
+      When using the "cmd" file scanner (see |g:CommandTFileScanner|) the
+      entries must be terminated by this character. This string must be one
+      character long unless it is empty, in which case the null byte will be
+      used as the terminator.
 
                                             *g:CommandTSCMDirectories*
   |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
