@@ -1397,18 +1397,18 @@ Other contributors that have submitted patches include, in alphabetical order:
   Jerome Castaneda                Sherzod Gapirov
   Joe Lencioni                    Shlomi Fish
   KJ Tsanaktsidis                 Stefan Schmidt
-  Kevin Webster                   Steven Moazami
-  Kien Nguyen Duc                 Steven Stallion
-  Lucas de Vries                  Sung Pae
-  Marcus Brito                    Thomas Pelletier
-  Marian Schubert                 Ton van den Heuvel
-  Matthew Todd                    Victor Hugo Borja
-  Max Timkovich                   Vlad Seghete
-  Mike Lundy                      Vít Ondruch
-  Nadav Samet                     Woody Peterson
-  Nate Kane                       Yan Pritzker
-  Nicholas T.                     Zak Johnson
-  Nicolas Alpi
+  Kevin Webster                   Stephen Gelman
+  Kien Nguyen Duc                 Steven Moazami
+  Lucas de Vries                  Steven Stallion
+  Marcus Brito                    Sung Pae
+  Marian Schubert                 Thomas Pelletier
+  Matthew Todd                    Ton van den Heuvel
+  Max Timkovich                   Victor Hugo Borja
+  Mike Lundy                      Vlad Seghete
+  Nadav Samet                     Vít Ondruch
+  Nate Kane                       Woody Peterson
+  Nicholas T.                     Yan Pritzker
+  Nicolas Alpi                    Zak Johnson
 
 This list produced with:
 
