@@ -152,6 +152,13 @@ augroup END
 
 ruby << EOF
   # require Ruby files
+  EXCEPTIONS = [LoadError]
+  begin
+    require 'rubygems/ext'
+    EXCEPTIONS << Gem::Ext::BuildError if defined?(Gem::Ext::BuildError)
+  rescue LoadError
+  end
+
   begin
     require 'command-t'
 
@@ -167,7 +174,7 @@ ruby << EOF
     else
       $command_t = CommandT::Stub.new
     end
-  rescue LoadError, Gem::Ext::BuildError
+  rescue *EXCEPTIONS
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
       lib = "#{path}/ruby"
