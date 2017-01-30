@@ -384,6 +384,14 @@ You can find more about AppStream specification at:
 
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
 
+In OSX with a special Ruby Version. If you installed a new ruby version on your Mac than you cannot compile Command-T with this version. Her is an easy workaround. 
+ 
+- Switch to the command-t directory 
+- Open Vim in this directory with vim 
+- Execute this command in vim :! rake make 
+ 
+With this workaround Command-T compiled with the same version that Vim will use.
+
 Most installation problems are caused by a mismatch between the version of
 Ruby on the host operating system, and the version of Ruby that Vim itself
 linked against at compile time. For example, if one is 32-bit and the other is
