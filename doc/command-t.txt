@@ -72,7 +72,7 @@ was first released, did not support Ruby in the system Vim, but the current
 version of OS X at the time of writing, Mavericks, does). All recent versions
 of MacVim come with Ruby support; it is available from:
 
-  http://github.com/b4winckler/macvim/downloads
+  http://macvim-dev.github.io/macvim/
 
 For Windows users, the Vim 7.2 executable available from www.vim.org does
 include Ruby support, and is recommended over version 7.3 (which links against
