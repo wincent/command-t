@@ -506,6 +506,7 @@ has focus:
     <C-s>       open the selected file in a new split window
     <C-v>       open the selected file in a new vertical split window
     <C-t>       open the selected file in a new tab
+    <C-d>       delete the selected buffer
     <C-j>       select next file in the file listing
     <C-n>       select next file in the file listing
     <Down>      select next file in the file listing

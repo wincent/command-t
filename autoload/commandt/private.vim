@@ -41,6 +41,10 @@ function! commandt#private#Refresh() abort
   ruby $command_t.refresh
 endfunction
 
+function! commandt#private#RemoveBuffer() abort
+  ruby $command_t.remove_buffer
+endfunction
+
 function! commandt#private#ToggleFocus() abort
   ruby $command_t.toggle_focus
 endfunction
