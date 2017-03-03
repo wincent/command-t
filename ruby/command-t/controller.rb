@@ -554,7 +554,8 @@ module CommandT
         :scan_dot_directories   => VIM::get_bool('g:CommandTScanDotDirectories'),
         :wild_ignore            => VIM::get_string('g:CommandTWildIgnore'),
         :scanner                => VIM::get_string('g:CommandTFileScanner'),
-        :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules')
+        :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules'),
+        :git_include_untracked  => VIM::get_bool('g:CommandTGitIncludeUntracked')
     end
 
     def help_finder

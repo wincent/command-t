@@ -27,6 +27,7 @@ module CommandT
         @scan_dot_directories = options[:scan_dot_directories] || false
         @wild_ignore          = options[:wild_ignore]
         @scan_submodules      = options[:git_scan_submodules] || false
+        @include_untracked    = options[:git_include_untracked] || false
         @base_wild_ignore     = wild_ignore
       end
 
