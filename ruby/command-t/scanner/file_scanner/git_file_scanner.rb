@@ -12,6 +12,12 @@ module CommandT
           Dir.chdir(@path) do
             all_files = list_files(%w[git ls-files --exclude-standard -z])
 
+            list_files('git status -u --porcelain -z').each do |result|
+              # git status "??" means file not yet added to the index
+              match = /^\?{2} (.+)/.freeze.match result
+              all_files << match[1] if match
+            end
+
             if @scan_submodules
               base = nil
               list_files(%w[
