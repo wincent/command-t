@@ -159,8 +159,7 @@ ruby << EOF
     # compiled with.
     patchlevel = defined?(RUBY_PATCHLEVEL) ? RUBY_PATCHLEVEL : nil
     if CommandT::Metadata::UNKNOWN == true || (
-      CommandT::Metadata::EXPECTED_RUBY_VERSION == RUBY_VERSION &&
-      CommandT::Metadata::EXPECTED_RUBY_PATCHLEVEL == patchlevel
+      CommandT::Metadata::EXPECTED_RUBY_LIB_VERSION == RbConfig::CONFIG['RUBY_LIB_VERSION']
     )
       require 'command-t/ext' # eager load, to catch compilation problems early
       $command_t = CommandT::Controller.new
