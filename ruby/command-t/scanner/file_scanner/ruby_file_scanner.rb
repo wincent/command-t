@@ -33,12 +33,13 @@ module CommandT
           Dir.foreach(dir) do |entry|
             next if ['.', '..'].include?(entry)
             path = File.join(dir, entry)
-            unless path_excluded?(path)
+            rel_path = path[@prefix_len..-1]
+            unless path_excluded?(rel_path)
               if File.file?(path)
                 @files += 1
                 @next_progress = progress_reporter.update(@files) if @files == @next_progress
                 raise FileLimitExceeded if @files > @max_files
-                accumulator << path[@prefix_len..-1]
+                accumulator << rel_path
               elsif File.directory?(path)
                 next if @depth >= @max_depth
                 next if (entry.match(/\A\./) && !@scan_dot_directories)

@@ -15,6 +15,21 @@ module CommandT
       autoload :RubyFileScanner,     'command-t/scanner/file_scanner/ruby_file_scanner'
       autoload :WatchmanFileScanner, 'command-t/scanner/file_scanner/watchman_file_scanner'
 
+      def self.for_string s
+        case s
+        when 'ruby', nil # ruby is the default
+          RubyFileScanner
+        when 'find'
+          FindFileScanner
+        when 'watchman'
+          WatchmanFileScanner
+        when 'git'
+          GitFileScanner
+        else
+          raise ArgumentError, "unknown scanner type #{s.inspect}"
+        end
+      end
+
       attr_accessor :path
 
       def initialize(path = Dir.pwd, options = {})
@@ -27,14 +42,14 @@ module CommandT
         @scan_dot_directories = options[:scan_dot_directories] || false
         @wild_ignore          = options[:wild_ignore]
         @scan_submodules      = options[:git_scan_submodules] || false
-        @base_wild_ignore     = wild_ignore
       end
 
       def paths
         @paths[@path] ||= begin
           ensure_cache_under_limit
           @prefix_len = @path.chomp('/').length + 1
-          set_wild_ignore { paths! }
+          @wild_ignore_setting = effective_wild_ignore
+          paths!
         end
       end
 
@@ -65,7 +80,13 @@ module CommandT
       end
 
       def wild_ignore
-        VIM::exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
+        ::VIM::evaluate('&wildignore').to_s
+      ensure
+        return ''.freeze
+      end
+
+      def effective_wild_ignore
+         (@wild_ignore || wild_ignore).split ','
       end
 
       def paths!
@@ -81,34 +102,10 @@ module CommandT
         @paths_keys << @path
       end
 
-      def path_excluded?(path, prefix_len = @prefix_len)
-        if apply_wild_ignore?
-          # first strip common prefix (@path) from path to match VIM's behavior
-          path = path[prefix_len..-1]
-          path = VIM::escape_for_single_quotes path
-          ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+      def path_excluded?(path)
+        @wild_ignore_setting.any? do |pattern|
+          File::fnmatch? pattern, path
         end
-      end
-
-      def has_custom_wild_ignore?
-        !!@wild_ignore
-      end
-
-      # Used to skip expensive calls to `expand()` when there is no applicable
-      # wildignore.
-      def apply_wild_ignore?
-        if has_custom_wild_ignore?
-          !@wild_ignore.empty?
-        else
-          !!@base_wild_ignore
-        end
-      end
-
-      def set_wild_ignore(&block)
-        ::VIM::command("set wildignore=#{@wild_ignore}") if has_custom_wild_ignore?
-        yield
-      ensure
-        ::VIM::command("set wildignore=#{@base_wild_ignore}") if has_custom_wild_ignore?
       end
     end
   end
