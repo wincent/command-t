@@ -159,6 +159,7 @@ module CommandT
           ::VIM::command "silent b #{@initial_buffer.name}"
         else
           ::VIM::command "silent b #{@initial_buffer.number}"
+          ::VIM::command "doautocmd WinEnter *"
         end
       end
     end
