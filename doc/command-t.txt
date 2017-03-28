@@ -1,3 +1,6 @@
+ATTENTION: This repository is no longer being updated. See the official repository at
+ [http://git.wincent.com/command-t.git](http://git.wincent.com/command-t.git).
+
 *command-t.txt* Command-T plug-in for Vim         *command-t*
 
 CONTENTS                                        *command-t-contents*
