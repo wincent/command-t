@@ -105,6 +105,12 @@ module CommandT
         # don't show relative line numbers
         set 'relativenumber', false if VIM::exists?('+relativenumber')
 
+        # don't show the color column
+        ::VIM::command 'setlocal colorcolumn=0' if exists('+colorcolumn')
+
+        # don't show relative line numbers
+        ::VIM::command 'setlocal norelativenumber' if exists('relativenumber')
+
         # sanity check: make sure the buffer really was created
         if File.basename($curbuf.name) != options[:name]
           raise "Can't find Command-T match listing buffer"
