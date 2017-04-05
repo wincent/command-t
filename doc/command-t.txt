@@ -987,6 +987,23 @@ Following is a list of all available options:
 
       See also, |:CommandTOpen|.
 
+                        *g:CommandTWindowFilter*
+                        string (default: '!&buflisted && &buftype == "nofile"')
+  |g:CommandTWindowFilter|
+
+      An expression that will be used to filter out windows that Command-T
+      should avoid using to open the selected file. The expression should
+      evaluate to a boolean (0 or 1).
+
+      The default expression skips windows containing unlisted buffers that are
+      not backed by files (examples of such files include NERDTree windows). As
+      an example of the kind of custom expression you may wish to supply, if
+      you are using NERDTree to hijack |netrw| windows ('NERDTreeHijackNetrw')
+      and you want to make sure that Command-T does *not* skip over those, you
+      could use:
+>
+      let g:CommandTWindowFilter='!&buflisted && &buftype == "nofile" && !exists("w:netrw_liststyle")"
+<
                                              *g:CommandTEncoding*
   |g:CommandTEncoding|                         string (default: none)
 
@@ -1547,6 +1564,9 @@ next (not yet released)
   values have been changed from "e", "tabe", "sp" and "vs" to "CommandTOpen
   e", "CommandTOpen tabe", "CommandTOpen sp" and "CommandTOpen vs",
   respectively. Use with |'switchbuf'| set to "usetab" for maximum effect.
+- Added |g:CommandTWindowFilter| for customizing the filtering expression that
+  is used to determine which windows Command-T should not open selected
+  files in.
 
 4.0 (16 May 2016)
 

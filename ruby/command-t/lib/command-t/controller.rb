@@ -438,10 +438,10 @@ module CommandT
     end
 
     def ensure_appropriate_window_selection
-      # normally we try to open the selection in the current window, but there
+      # Normally we try to open the selection in the current window, but there
       # is one exception:
       #
-      # - we don't touch any "unlisted" buffer with buftype "nofile" (such as
+      # - We don't touch any "unlisted" buffer with buftype "nofile" (such as
       #   NERDTree or MiniBufExplorer); this is to avoid things like the "Not
       #   enough room" error which occurs when trying to open in a split in a
       #   shallow (potentially 1-line) buffer like MiniBufExplorer is current
@@ -450,8 +450,9 @@ module CommandT
       # normally.
       initial = $curwin
       while true do
-        break unless ::VIM::evaluate('&buflisted').to_i == 0 &&
-          ::VIM::evaluate('&buftype').to_s == 'nofile'
+        check_expression = VIM::get_string('g:CommandTWindowFilter') ||
+          '!&buflisted && &buftype == "nofile"'
+        break unless ::VIM::evaluate(check_expression).to_i == 1
         ::VIM::command 'wincmd w'     # try next window
         break if $curwin == initial # have already tried all
       end
