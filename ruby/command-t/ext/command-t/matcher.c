@@ -129,6 +129,9 @@ void *match_thread(void *thread_args)
             args->needle_bitmask,
             &args->matches[i].bitmask
         );
+        if (args->matches[i].score == 0.0) {
+            continue;
+        }
         if (heap) {
             if (heap->count == args->limit) {
                 score = ((match_t *)HEAP_PEEK(heap))->score;
