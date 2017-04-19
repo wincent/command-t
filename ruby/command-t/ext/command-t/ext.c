@@ -9,20 +9,20 @@ VALUE cCommandTMatcher       = 0; // class CommandT::Matcher
 VALUE mCommandTWatchman      = 0; // module CommandT::Watchman
 VALUE mCommandTWatchmanUtils = 0; // module CommandT::Watchman::Utils
 
-VALUE CommandT_option_from_hash(const char *option, VALUE hash)
-{
+VALUE CommandT_option_from_hash(const char *option, VALUE hash) {
     VALUE key;
-    if (NIL_P(hash))
+    if (NIL_P(hash)) {
         return Qnil;
+    }
     key = ID2SYM(rb_intern(option));
-    if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue)
+    if (rb_funcall(hash, rb_intern("has_key?"), 1, key) == Qtrue) {
         return rb_hash_aref(hash, key);
-    else
+    } else {
         return Qnil;
+    }
 }
 
-void Init_ext()
-{
+void Init_ext() {
     // module CommandT
     mCommandT = rb_define_module("CommandT");
 
