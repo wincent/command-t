@@ -3,8 +3,10 @@
 # Copyright 2013-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
-lib  = File.expand_path('../../ruby', File.dirname(__FILE__))
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+%w[ext lib].each do |dir|
+  path  = File.expand_path("../../ruby/command-t/#{dir}", File.dirname(__FILE__))
+  $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
+end
 
 require 'command-t/ext'
 require 'command-t/util'
