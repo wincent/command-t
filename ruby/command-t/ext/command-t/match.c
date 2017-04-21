@@ -151,7 +151,7 @@ float calculate_match(
             for (i = 0; i < m.haystack_len; i++) {
                 char c = m.haystack_p[i];
                 if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
-                    return 0.0;
+                    return -1.0;
                 }
             }
         }
