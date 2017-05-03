@@ -11,4 +11,12 @@ describe CommandT::VIM do
       expect(CommandT::VIM.escape_for_single_quotes(input)).to eq(expected)
     end
   end
+
+  describe '.wildignore_to_regexp' do
+    it 'properly matches directories at any level' do
+      regexp = Regexp.new(CommandT::VIM.wildignore_to_regexp('*/foo/*'))
+      expect(regexp).to match('some/path/to/foo/file.js')
+      expect(regexp).to_not match('some/path/to/foo')
+    end
+  end
 end
