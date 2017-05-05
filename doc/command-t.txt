@@ -1409,23 +1409,24 @@ Other contributors that have submitted patches include, in alphabetical order:
   Emily Strickland                Roland Puntaier
   Felix Tjandrawibawa             Ross Lagerwall
   Gary Bernhardt                  Sam Morris
-  Ivan Ukhov                      Scott Bronson
-  Jeff Kreeftmeijer               Seth Fowler
-  Jerome Castaneda                Sherzod Gapirov
-  Joe Lencioni                    Shlomi Fish
-  KJ Tsanaktsidis                 Stefan Schmidt
-  Kevin Webster                   Stephen Gelman
-  Kien Nguyen Duc                 Steven Moazami
-  Lucas de Vries                  Steven Stallion
-  Marcus Brito                    Sung Pae
-  Marian Schubert                 Thomas Pelletier
-  Matthew Todd                    Ton van den Heuvel
-  Max Timkovich                   Victor Hugo Borja
-  Mike Lundy                      Vlad Seghete
-  Nadav Samet                     Vít Ondruch
-  Nate Kane                       Woody Peterson
-  Nicholas T.                     Yan Pritzker
-  Nicolas Alpi                    Zak Johnson
+  Henric Trotzig                  Scott Bronson
+  Ivan Ukhov                      Seth Fowler
+  Jeff Kreeftmeijer               Sherzod Gapirov
+  Jerome Castaneda                Shlomi Fish
+  Joe Lencioni                    Stefan Schmidt
+  KJ Tsanaktsidis                 Stephen Gelman
+  Kevin Webster                   Steven Moazami
+  Kien Nguyen Duc                 Steven Stallion
+  Lucas de Vries                  Sung Pae
+  Marcus Brito                    Thomas Pelletier
+  Marian Schubert                 Ton van den Heuvel
+  Matthew Todd                    Victor Hugo Borja
+  Max Timkovich                   Vlad Seghete
+  Mike Lundy                      Vít Ondruch
+  Nadav Samet                     Woody Peterson
+  Nate Kane                       Yan Pritzker
+  Nicholas T.                     Zak Johnson
+  Nicolas Alpi
 
 This list produced with:
 
@@ -1549,8 +1550,8 @@ next (not yet released)
 
 - Command-T now uses |:map-<nowait>|, when available, when setting up mappings.
 - 'wildignore' filtering is now always performed by producing an equivalent
-  regular expression and applying that (previously this only happened with
-  the "watchman" file scanner).
+  regular expression and applying that; previously this only happened with
+  the "watchman" file scanner (includes a bug fix from Henric Trotzig).
 - Fixed mis-memoization of |:CommandTHelp| and |:CommandTJump| finders
   (whichever one you used first would be used for both).
 - Added mapping (<C-d>) to delete a buffer from the buffer list (patch from
