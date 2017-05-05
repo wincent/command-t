@@ -83,7 +83,7 @@ module CommandT
             '\.' + Regexp.escape($~[1]) + '\z'
           elsif pattern.match(%r{\A\*/([^/]+)/\*\z})
             # */something/* (match directories at any level)
-            '(\A|/)' + Regexp.escape($~[1]) + '/.*(/|\z)'
+            '(\A|/)' + Regexp.escape($~[1]) + '/.+'
           elsif pattern.match(%r{\A\*/(.+)\z})
             # */something (match files or directories at any level)
             '(\A|/)' + Regexp.escape($~[1]) + '(/|\z)'
