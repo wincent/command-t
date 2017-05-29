@@ -3,6 +3,8 @@
 
 require 'rbconfig'
 
+require 'rbconfig'
+
 module CommandT
   module Util
     class << self
