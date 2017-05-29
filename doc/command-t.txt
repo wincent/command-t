@@ -396,6 +396,9 @@ specific versions. If you wish to use custom builds of Ruby or of MacVim then
 you will have to take extra care to ensure that the exact same Ruby
 environment is in effect when building Ruby, Vim and the Command-T extension.
 
+NOTE: In OS X 10.9 Mavericks, the default Ruby version is now 2.0, but 1.8.7
+is still present. See http://jesperrasmussen.com/2013/11/04/setting-up-command-t-for-macvim-on-os-x-mavericks/
+
 For Windows, the following combination is known to work:
 
   - Vim 7.2 from http://www.vim.org/download.php:
