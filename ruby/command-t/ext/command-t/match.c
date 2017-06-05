@@ -1,7 +1,7 @@
 // Copyright 2010-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
-#include <float.h> /* for DBL_MAX */
+#include <float.h> /* for FLT_MAX */
 #include "match.h"
 #include "ext.h"
 #include "ruby_compat.h"
