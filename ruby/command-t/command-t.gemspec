@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.license = 'BSD'
   s.require_paths = ['lib', 'ruby']
-  s.extensions = '/extconf.rb'
+  s.extensions = 'ext/command-t/extconf.rb'
 
   s.executables = ['commandtd']
 
