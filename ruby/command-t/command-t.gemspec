@@ -9,14 +9,14 @@ Gem::Specification.new do |s|
   s.email = 'greg@hurrell.net'
 
   s.files =
-    ['README.md', 'LICENSE', 'Gemfile', 'Rakefile'] +
-    `git ls-files -z ruby doc`.split("\x0")
+    ['../../README.md', '../../LICENSE', '../../Gemfile', '../../Rakefile'] +
+    `git ls-files -z ./bin ./ext ./lib ../../doc`.split("\x0")
 
   s.license = 'BSD'
-  s.require_path = 'ruby'
-  s.extensions = 'ruby/command-t/extconf.rb'
+  s.require_paths = ['lib', 'ruby']
+  s.extensions = '/extconf.rb'
 
-  s.executables = []
+  s.executables = ['commandtd']
 
   s.has_rdoc = false
   s.homepage = 'https://github.com/wincent/command-t'

@@ -34,6 +34,7 @@ module CommandT
         rescue
         end
       end
+      @nowait = '<nowait>' if ::VIM::evaluate('v:version') >= 704
     end
 
     # For possible use in status lines.
@@ -219,6 +220,17 @@ module CommandT
     end
     guard :delete
 
+    def remove_buffer
+      return unless @active_finder.class <= CommandT::Finder::BufferFinder
+      selection = @match_window.selection
+
+      if @initial_buffer.name != selection
+        ::VIM::command "bd #{selection}"
+      end
+      list_matches!
+    end
+    guard :remove_buffer
+
     def accept_selection(options = {})
       selection = @match_window.selection
       hide
@@ -309,15 +321,15 @@ module CommandT
     guard :list_matches
 
     def tab_command
-      VIM::get_string('g:CommandTAcceptSelectionTabCommand') || 'tabe'
+      VIM::get_string('g:CommandTAcceptSelectionTabCommand') || 'CommandTOpen tabe'
     end
 
     def split_command
-      VIM::get_string('g:CommandTAcceptSelectionSplitCommand') || 'sp'
+      VIM::get_string('g:CommandTAcceptSelectionSplitCommand') || 'CommandTOpen sp'
     end
 
     def vsplit_command
-      VIM::get_string('g:CommandTAcceptSelectionVSplitCommand') || 'vs'
+      VIM::get_string('g:CommandTAcceptSelectionVSplitCommand') || 'CommandTOpen vs'
     end
 
   private
@@ -419,17 +431,17 @@ module CommandT
         VIM::get_bool('&hidden') ||
         VIM::get_bool('&autowriteall') && !VIM::get_bool('&readonly') ||
         current_buffer_visible_in_other_window
-        VIM::get_string('g:CommandTAcceptSelectionCommand') || 'e'
+        VIM::get_string('g:CommandTAcceptSelectionCommand') || 'CommandTOpen e'
       else
         'sp'
       end
     end
 
     def ensure_appropriate_window_selection
-      # normally we try to open the selection in the current window, but there
+      # Normally we try to open the selection in the current window, but there
       # is one exception:
       #
-      # - we don't touch any "unlisted" buffer with buftype "nofile" (such as
+      # - We don't touch any "unlisted" buffer with buftype "nofile" (such as
       #   NERDTree or MiniBufExplorer); this is to avoid things like the "Not
       #   enough room" error which occurs when trying to open in a split in a
       #   shallow (potentially 1-line) buffer like MiniBufExplorer is current
@@ -438,8 +450,9 @@ module CommandT
       # normally.
       initial = $curwin
       while true do
-        break unless ::VIM::evaluate('&buflisted').to_i == 0 &&
-          ::VIM::evaluate('&buftype').to_s == 'nofile'
+        check_expression = VIM::get_string('g:CommandTWindowFilter') ||
+          '!&buflisted && &buftype == "nofile"'
+        break unless ::VIM::evaluate(check_expression).to_i == 1
         ::VIM::command 'wincmd w'     # try next window
         break if $curwin == initial # have already tried all
       end
@@ -457,7 +470,7 @@ module CommandT
     end
 
     def map(key, function, param = nil)
-      ::VIM::command "noremap <silent> <buffer> #{key} " \
+      ::VIM::command "noremap <silent> <buffer> #{@nowait} #{key} " \
         ":call commandt#private##{function}(#{param})<CR>"
     end
 
@@ -493,6 +506,7 @@ module CommandT
         'Delete'                => '<Del>',
         'Quickfix'              => '<C-q>',
         'Refresh'               => '<C-f>',
+        'RemoveBuffer'          => '<C-d>',
         'SelectNext'            => ['<C-n>', '<C-j>', '<Down>'],
         'SelectPrev'            => ['<C-p>', '<C-k>', '<Up>'],
         'ToggleFocus'           => '<Tab>',
@@ -544,6 +558,14 @@ module CommandT
       @mru_finder ||= CommandT::Finder::MRUBufferFinder.new
     end
 
+    def wildignore
+      ignore = VIM::get_string('g:CommandTWildIgnore')
+      if ignore.nil? && VIM::exists?('&wildignore')
+        ignore = ::VIM::evaluate('&wildignore').to_s
+      end
+      VIM::wildignore_to_regexp(ignore) unless ignore.nil?
+    end
+
     def file_finder
       @file_finder ||= CommandT::Finder::FileFinder.new nil,
         :max_depth              => VIM::get_number('g:CommandTMaxDepth'),
@@ -552,9 +574,10 @@ module CommandT
         :always_show_dot_files  => VIM::get_bool('g:CommandTAlwaysShowDotFiles'),
         :never_show_dot_files   => VIM::get_bool('g:CommandTNeverShowDotFiles'),
         :scan_dot_directories   => VIM::get_bool('g:CommandTScanDotDirectories'),
-        :wild_ignore            => VIM::get_string('g:CommandTWildIgnore'),
+        :wildignore             => wildignore,
         :scanner                => VIM::get_string('g:CommandTFileScanner'),
-        :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules')
+        :git_scan_submodules    => VIM::get_bool('g:CommandTGitScanSubmodules'),
+        :git_include_untracked  => VIM::get_bool('g:CommandTGitIncludeUntracked')
     end
 
     def help_finder

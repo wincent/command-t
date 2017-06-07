@@ -246,7 +246,7 @@ configuration like this:
   NeoBundle 'wincent/command-t', {
     \   'build_commands': ['make', 'ruby'],
     \   'build': {
-    \      'unix': 'cd ruby/command-t && { make clean; ruby extconf.rb && make }'
+    \      'unix': 'cd ruby/command-t/ext/command-t && { make clean; ruby extconf.rb && make }'
     \   }
     \ }
   call neobundle#end()
@@ -279,7 +279,7 @@ Anywhere between the calls to `plug#begin` and `plug#end` in your
 Command-T:
 
   call plug#begin()
-  Plugin 'wincent/command-t'
+  Plug 'wincent/command-t'
   call plug#end()
 
 To actually install the plug-in run `:PlugInstall` from inside Vim. After
@@ -289,7 +289,7 @@ configuration like this:
 
   call plug#begin()
   Plug 'wincent/command-t', {
-    \   'do': 'cd ruby/command-t && ruby extconf.rb && make'
+    \   'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make'
     \ }
   call plug#end()
 
@@ -307,10 +307,10 @@ typical Pathogen, Vundle or NeoBundle set-up then the files were installed insid
 `~/.vim/plugged/Command-T/`.
 
 Wherever the Command-T files were installed, you can build the extension by
-changing to the `ruby/command-t` subdirectory and running a couple of commands
-as follows:
+changing to the `ruby/command-t/ext/command-t` subdirectory and running a
+couple of commands as follows:
 
-  cd ~/.vim/bundle/command-t/ruby/command-t
+  cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
   ruby extconf.rb
   make
 
@@ -347,7 +347,7 @@ Note: If you are on OS X Mavericks and compiling against MacVim, the default
 system Ruby is 2.0 but MacVim still links against the older 1.8.7 Ruby that is
 also bundled with the system; in this case the build command becomes:
 
-  cd ~/.vim/bundle/command-t/ruby/command-t
+  cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
   /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby extconf.rb
   make
 
@@ -506,6 +506,7 @@ has focus:
     <C-s>       open the selected file in a new split window
     <C-v>       open the selected file in a new vertical split window
     <C-t>       open the selected file in a new tab
+    <C-d>       delete the selected buffer
     <C-j>       select next file in the file listing
     <C-n>       select next file in the file listing
     <Down>      select next file in the file listing
@@ -611,6 +612,19 @@ COMMANDS                                        *command-t-commands*
                   first time you run a Command-T command or use a Command-T
                   mapping). This command may be useful for people wishing to
                   extend Command-T by "monkey patching" its functionality.
+
+                                                *:CommandTOpen*
+|:CommandTOpen|     The default command used by the various "AcceptSelection"
+                  settings (|g:CommandTAcceptSelectionCommand|,
+                  |g:CommandTAcceptSelectionTabCommand|,
+                  |g:CommandTAcceptSelectionSplitCommand|, and
+                  |g:CommandTAcceptSelectionVSplitCommand|) to open the
+                  selected item. Implements smart "goto or open" logic that
+                  will try to focus an existing, previously opened instance of
+                  the selected item if possible, and only open a new tab or
+                  split as a last resort. To work most usefully, should be
+                  used with Vim's |'switchbuf'| setting set to "usetab".
+
 
 
 MAPPINGS                                        *command-t-mappings*
@@ -799,6 +813,11 @@ Following is a list of all available options:
       If set to 1, Command-T will scan submodules (recursively) when using the
       "git" file scanner (see |g:CommandTFileScanner|).
 
+                                            *g:CommandTGitIncludeUntracked*
+  |g:CommandTGitIncludeUntracked|             boolean (default: 0)
+
+      If set to 1, Command-T will include untracked files when using the "git"
+      file scanner (see: |g:CommandTFileScanner|).
 
                                             *g:CommandTSCMDirectories*
   |g:CommandTSCMDirectories|    string (default: '.git,.hg,.svn,.bzr,_darcs')
@@ -935,62 +954,56 @@ Following is a list of all available options:
       If unset (which is the default), the value of the Vim |'smartcase'|
       setting will be used instead.
 
-                                             *g:CommandTAcceptSelectionCommand*
-  |g:CommandTAcceptSelectionCommand|           string (default: 'e')
+                                           *g:CommandTAcceptSelectionCommand*
+  |g:CommandTAcceptSelectionCommand|         string (default: 'CommandTOpen e')
 
       The Vim command that will be used to open a selection from the match
       listing (via |g:CommandTAcceptSelectionMap|).
 
-      For an example of how this can be used to apply arbitrarily complex
-      logic, see the example in |g:CommandTAcceptSelectionTabCommand| below.
+      See also, |:CommandTOpen|.
 
-                                           *g:CommandTAcceptSelectionTabCommand*
-  |g:CommandTAcceptSelectionTabCommand|      string (default: 'tabe')
+                                        *g:CommandTAcceptSelectionTabCommand*
+  |g:CommandTAcceptSelectionTabCommand|   string (default: 'CommandTOpen tabe')
 
       The Vim command that will be used to open a selection from the match
       listing in a new tab (via |g:CommandTAcceptSelectionSplitMap|).
 
-      For example, this can be used to switch to an existing buffer (rather
-      than opening a duplicate buffer with the selection in a new tab) with
-      configuration such as the following:
-
-          set switchbuf=usetab
-
-          function! GotoOrOpen(...)
-            for file in a:000
-              if bufwinnr(file) != -1
-                exec "sb " . file
-              else
-                exec "tabe " . file
-              endif
-            endfor
-          endfunction
-
-          command! -nargs=+ GotoOrOpen call GotoOrOpen("<args>")
-
-          let g:CommandTAcceptSelectionTabCommand = 'GotoOrOpen'
-
-      For a slightly more comprehensive example, see: https://wt.pe/e
+      See also, |:CommandTOpen|.
 
                                         *g:CommandTAcceptSelectionSplitCommand*
-  |g:CommandTAcceptSelectionSplitCommand| string (default: 'sp')
+  |g:CommandTAcceptSelectionSplitCommand| string (default: 'CommandTOpen sp')
 
       The Vim command that will be used to open a selection from the match
       listing in a split (via |g:CommandTAcceptSelectionVSplitMap|).
 
-      For an example of how this can be used to apply arbitrarily complex
-      logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
+      See also, |:CommandTOpen|.
 
-                                        *g:CommandTAcceptSelectionVsplitCommand*
-                                        string (default: 'vs')
+                                    *g:CommandTAcceptSelectionVsplitCommand*
+                                    string (default: 'CommandTOpen vs')
   |g:CommandTAcceptSelectionVSplitCommand|
 
       The Vim command that will be used to open a selection from the match
       listing in a vertical split (via |g:CommandTAcceptSelectionVSplitMap|).
 
-      For an example of how this can be used to apply arbitrarily complex
-      logic, see the example in |g:CommandTAcceptSelectionTabCommand| above.
+      See also, |:CommandTOpen|.
 
+                        *g:CommandTWindowFilter*
+                        string (default: '!&buflisted && &buftype == "nofile"')
+  |g:CommandTWindowFilter|
+
+      An expression that will be used to filter out windows that Command-T
+      should avoid using to open the selected file. The expression should
+      evaluate to a boolean (0 or 1).
+
+      The default expression skips windows containing unlisted buffers that are
+      not backed by files (examples of such files include NERDTree windows). As
+      an example of the kind of custom expression you may wish to supply, if
+      you are using NERDTree to hijack |netrw| windows ('NERDTreeHijackNetrw')
+      and you want to make sure that Command-T does *not* skip over those, you
+      could use:
+>
+      let g:CommandTWindowFilter='!&buflisted && &buftype == "nofile" && !exists("w:netrw_liststyle")"
+<
                                              *g:CommandTEncoding*
   |g:CommandTEncoding|                         string (default: none)
 
@@ -1126,23 +1139,6 @@ settings can be used to control behavior:
       |g:CommandTWildIgnore| setting to apply an override that takes effect
       only during Command-T searches.
 
-      Note that there are some differences among file scanners
-      (see |g:CommandTFileScanner|) with respect to 'wildignore' handling:
-
-      - The default "ruby" scanner explores the filesystem recursively using a
-        depth-first search, and any directory (or subdirectory) which matches
-        the 'wildignore' pattern is not explored. So, if your 'wildignore'
-        contains "*/node_modules" then that entire sub-hierarchy will be
-        ignored.
-
-      - The "git" and "find" scanners apply 'wildignore' filtering only after
-        completing their scans.
-
-      - The "watchman" scanner is intended for use with massive hierarchies
-        where speed is of the utmost import, so you may wish to avoid
-        performing any 'wildignore' filtering at all. To suppress the
-        filtering, set |g:CommandTWildIgnore| to an empty string.
-
 
 INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
 
@@ -1161,7 +1157,7 @@ filetype of  `command-t`. This can be used in |ftplugins| or elsewhere to set up
 an |autocommand| or apply custom configuration.
 
 For example of an |ftplugin| that sets a custom 'statusline' for the
-Command-T match listing buffer, see: https://wt.pe/f
+Command-T match listing buffer, see: https://rfr.to/f
 
                                                 *command-t-load*
                                                 *commandt#Load*
@@ -1209,7 +1205,7 @@ you might do: >
    autocmd User CommandTWillShowMatchListing call CustomWillShow()
    autocmd! User CommandTDidHideMatchListing
    autocmd User CommandTDidHideMatchListing call CustomDidHide()
-
+<
 
 FAQ                                             *command-t-faq*
 
@@ -1316,9 +1312,7 @@ On a large hierarchy with of the order of 500,000 files, scanning a directory
 tree with a tool like the `find` executable may take literally minutes with a
 cold cache. Once the cache is warm, the same `find` run may take only a second
 or two. Command-T provides a "find" scanner to leverage this performance, but
-there is still massive overhead in passing the results through Vim internal
-functions that apply 'wildignore' settings and such, so for truly immense
-repos the "watchman" scanner is the tool of choice.
+for truly immense repos the "watchman" scanner is the tool of choice.
 
 This scanner delegates the task of finding files to Facebook's `watchman` tool
 (https://github.com/facebook/watchman), which can return results for a 500,000
@@ -1401,37 +1395,42 @@ fully benefit from the available performance enhancements:
 AUTHORS                                         *command-t-authors*
 
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
-Other contributors that have submitted patches include (in alphabetical
-order, via `git shortlog -s | cut -f 2-3 | column -c 72`):
+Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicolas Alpi
-  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Andy Waite                      Nilo César Teixeira
-  Anthony Panozzo                 Noon Silk
-  Artem Nezvigin                  Ole Petter Bang
-  Ben Boeckel                     Patrick Hayes
-  Daniel Burgess                  Paul Jolly
-  Daniel Hahler                   Pavel Sergeev
-  David Szotten                   Rainux Luo
-  Emily Strickland                Richard Feldman
-  Felix Tjandrawibawa             Roland Puntaier
-  Gary Bernhardt                  Ross Lagerwall
-  Greg Hurrell                    Sam Morris
-  Ivan Ukhov                      Scott Bronson
-  Jeff Kreeftmeijer               Seth Fowler
-  Jerome Castaneda                Sherzod Gapirov
-  Joe Lencioni                    Shlomi Fish
+  Abhinav Gupta                   Nikolai Aleksandrovich Pavlov
+  Aleksandrs Ļedovskis            Nilo César Teixeira
+  Andy Waite                      Noon Silk
+  Anthony Panozzo                 Ole Petter Bang
+  Artem Nezvigin                  Patrick Hayes
+  Ben Boeckel                     Paul Jolly
+  Daniel Burgess                  Pavel Sergeev
+  Daniel Hahler                   Rainux Luo
+  David Szotten                   Richard Feldman
+  Emily Strickland                Roland Puntaier
+  Felix Tjandrawibawa             Ross Lagerwall
+  Gary Bernhardt                  Sam Morris
+  Henric Trotzig                  Scott Bronson
+  Ivan Ukhov                      Seth Fowler
+  Jeff Kreeftmeijer               Sherzod Gapirov
+  Jerome Castaneda                Shlomi Fish
+  Joe Lencioni                    Stefan Schmidt
   KJ Tsanaktsidis                 Stephen Gelman
   Kevin Webster                   Steven Moazami
-  Kien Nguyen Duc                 Sung Pae
-  Lucas de Vries                  Thomas Pelletier
-  Marcus Brito                    Ton van den Heuvel
-  Marian Schubert                 Victor Hugo Borja
-  Matthew Todd                    Vlad Seghete
+  Kien Nguyen Duc                 Steven Stallion
+  Lucas de Vries                  Sung Pae
+  Marcus Brito                    Thomas Pelletier
+  Marian Schubert                 Ton van den Heuvel
+  Matthew Todd                    Victor Hugo Borja
+  Max Timkovich                   Vlad Seghete
   Mike Lundy                      Vít Ondruch
   Nadav Samet                     Woody Peterson
   Nate Kane                       Yan Pritzker
   Nicholas T.                     Zak Johnson
+  Nicolas Alpi
+
+This list produced with:
+
+    :read !git shortlog -s | grep -v 'Greg Hurrell' | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
@@ -1547,10 +1546,28 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-master (not yet released)
+next (not yet released)
 
+- Command-T now uses |:map-<nowait>|, when available, when setting up mappings.
+- 'wildignore' filtering is now always performed by producing an equivalent
+  regular expression and applying that; previously this only happened with
+  the "watchman" file scanner (includes a bug fix from Henric Trotzig).
 - Fixed mis-memoization of |:CommandTHelp| and |:CommandTJump| finders
   (whichever one you used first would be used for both).
+- Added mapping (<C-d>) to delete a buffer from the buffer list (patch from
+  Max Timkovich).
+- Added |g:CommandTGitIncludeUntracked| option (patch from Steven Stallion).
+- Added |:CommandTOpen|, which implements smart "goto or open" functionality,
+  and adjust |g:CommandTAcceptSelectionCommand|,
+  |g:CommandTAcceptSelectionTabCommand|,
+  |g:CommandTAcceptSelectionSplitCommand|, and
+  |g:CommandTAcceptSelectionVSplitCommand| to use it by default. Their default
+  values have been changed from "e", "tabe", "sp" and "vs" to "CommandTOpen
+  e", "CommandTOpen tabe", "CommandTOpen sp" and "CommandTOpen vs",
+  respectively. Use with |'switchbuf'| set to "usetab" for maximum effect.
+- Added |g:CommandTWindowFilter| for customizing the filtering expression that
+  is used to determine which windows Command-T should not open selected
+  files in.
 
 4.0 (16 May 2016)
 
@@ -1648,7 +1665,7 @@ master (not yet released)
   (patch from Jerome Castaneda)
 - add |g:CommandTCursorColor| option
 - expose mappings for |:CommandT| and |:CommandTBuffer| using `<Plug>`
-  mappings |<Plug>(CommandT)| and |<Plug>(CommandT)|
+  mappings |<Plug>(CommandT)| and |<Plug>(CommandTBuffer)|
 - add `<Leader>j` mapping to |:CommandTJump|, via |<Plug>(CommandTJump)|
   (defined only if no pre-existing mapping exists)
 

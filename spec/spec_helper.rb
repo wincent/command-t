@@ -8,10 +8,10 @@ if !Object.const_defined?('Bundler')
 end
 require 'rspec'
 
-lib = File.expand_path('../ruby', File.dirname(__FILE__))
-unless $LOAD_PATH.include? lib
-  $LOAD_PATH.unshift lib
-end
+ext = File.expand_path('../ruby/command-t/lib', File.dirname(__FILE__))
+lib = File.expand_path('../ruby/command-t/ext', File.dirname(__FILE__))
+$LOAD_PATH.unshift(ext) unless $LOAD_PATH.include?(ext)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'command-t'
 require 'command-t/ext'

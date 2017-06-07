@@ -25,16 +25,16 @@ module CommandT
         @max_files            = options[:max_files] || 100_000
         @max_caches           = options[:max_caches] || 1
         @scan_dot_directories = options[:scan_dot_directories] || false
-        @wild_ignore          = options[:wild_ignore]
+        @wildignore           = options[:wildignore]
         @scan_submodules      = options[:git_scan_submodules] || false
-        @base_wild_ignore     = wild_ignore
+        @include_untracked    = options[:git_include_untracked] || false
       end
 
       def paths
         @paths[@path] ||= begin
           ensure_cache_under_limit
           @prefix_len = @path.chomp('/').length + 1
-          set_wild_ignore { paths! }
+          paths!
         end
       end
 
@@ -64,10 +64,6 @@ module CommandT
         end
       end
 
-      def wild_ignore
-        VIM::exists?('&wildignore') && ::VIM::evaluate('&wildignore').to_s
-      end
-
       def paths!
         raise RuntimeError, 'Subclass responsibility'
       end
@@ -82,33 +78,11 @@ module CommandT
       end
 
       def path_excluded?(path, prefix_len = @prefix_len)
-        if apply_wild_ignore?
-          # first strip common prefix (@path) from path to match VIM's behavior
+        if @wildignore
+          # First strip common prefix (@path) from path to match Vim's behavior.
           path = path[prefix_len..-1]
-          path = VIM::escape_for_single_quotes path
-          ::VIM::evaluate("empty(expand(fnameescape('#{path}')))").to_i == 1
+          path =~ @wildignore
         end
-      end
-
-      def has_custom_wild_ignore?
-        !!@wild_ignore
-      end
-
-      # Used to skip expensive calls to `expand()` when there is no applicable
-      # wildignore.
-      def apply_wild_ignore?
-        if has_custom_wild_ignore?
-          !@wild_ignore.empty?
-        else
-          !!@base_wild_ignore
-        end
-      end
-
-      def set_wild_ignore(&block)
-        ::VIM::command("set wildignore=#{@wild_ignore}") if has_custom_wild_ignore?
-        yield
-      ensure
-        ::VIM::command("set wildignore=#{@base_wild_ignore}") if has_custom_wild_ignore?
       end
     end
   end

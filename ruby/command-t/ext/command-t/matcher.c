@@ -15,8 +15,7 @@
 #endif
 
 // Comparison function for use with qsort.
-int cmp_alpha(const void *a, const void *b)
-{
+int cmp_alpha(const void *a, const void *b) {
     match_t a_match = *(match_t *)a;
     match_t b_match = *(match_t *)b;
     VALUE   a_str   = a_match.path;
@@ -43,31 +42,32 @@ int cmp_alpha(const void *a, const void *b)
 }
 
 // Comparison function for use with qsort.
-int cmp_score(const void *a, const void *b)
-{
+int cmp_score(const void *a, const void *b) {
     match_t a_match = *(match_t *)a;
     match_t b_match = *(match_t *)b;
 
-    if (a_match.score > b_match.score)
+    if (a_match.score > b_match.score) {
         return -1; // a scores higher, a should appear sooner.
-    else if (a_match.score < b_match.score)
+    } else if (a_match.score < b_match.score) {
         return 1;  // b scores higher, a should appear later.
-    else
+    } else {
         return cmp_alpha(a, b);
+    }
 }
 
-VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self)
-{
+VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self) {
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
     VALUE options;
     VALUE scanner;
 
     // Process arguments: 1 mandatory, 1 optional.
-    if (rb_scan_args(argc, argv, "11", &scanner, &options) == 1)
+    if (rb_scan_args(argc, argv, "11", &scanner, &options) == 1) {
         options = Qnil;
-    if (NIL_P(scanner))
+    }
+    if (NIL_P(scanner)) {
         rb_raise(rb_eArgError, "nil scanner");
+    }
 
     rb_iv_set(self, "@scanner", scanner);
 
@@ -90,14 +90,14 @@ typedef struct {
     long path_count;
     VALUE haystacks;
     VALUE needle;
+    VALUE last_needle;
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
     VALUE recurse;
     long needle_bitmask;
 } thread_args_t;
 
-void *match_thread(void *thread_args)
-{
+void *match_thread(void *thread_args) {
     long i;
     float score;
     heap_t *heap = NULL;
@@ -119,6 +119,11 @@ void *match_thread(void *thread_args)
         if (args->needle_bitmask == UNSET_BITMASK) {
             args->matches[i].bitmask = UNSET_BITMASK;
         }
+        if (!NIL_P(args->last_needle) && args->matches[i].score == 0.0) {
+            // Skip over this candidate because it didn't match last
+            // time and it can't match this time either.
+            continue;
+        }
         args->matches[i].score = calculate_match(
             args->matches[i].path,
             args->needle,
@@ -129,6 +134,9 @@ void *match_thread(void *thread_args)
             args->needle_bitmask,
             &args->matches[i].bitmask
         );
+        if (args->matches[i].score == 0.0) {
+            continue;
+        }
         if (heap) {
             if (heap->count == args->limit) {
                 score = ((match_t *)HEAP_PEEK(heap))->score;
@@ -180,6 +188,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE recurse;
     VALUE ignore_spaces;
     VALUE limit_option;
+    VALUE last_needle;
     VALUE needle;
     VALUE never_show_dot_files;
     VALUE new_paths_object_id;
@@ -193,10 +202,12 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     VALUE wrapped_matches;
 
     // Process arguments: 1 mandatory, 1 optional.
-    if (rb_scan_args(argc, argv, "11", &needle, &options) == 1)
+    if (rb_scan_args(argc, argv, "11", &needle, &options) == 1) {
         options = Qnil;
-    if (NIL_P(needle))
+    }
+    if (NIL_P(needle)) {
         rb_raise(rb_eArgError, "nil needle");
+    }
 
     // Check optional options hash for overrides.
     case_sensitive = CommandT_option_from_hash("case_sensitive", options);
@@ -214,11 +225,13 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     heap_matches_count = 0;
 
     needle = StringValue(needle);
-    if (case_sensitive != Qtrue)
+    if (case_sensitive != Qtrue) {
         needle = rb_funcall(needle, rb_intern("downcase"), 0);
+    }
 
-    if (ignore_spaces == Qtrue)
+    if (ignore_spaces == Qtrue) {
         needle = rb_funcall(needle, rb_intern("delete"), 1, rb_str_new2(" "));
+    }
 
     // Get unsorted matches.
     scanner = rb_iv_get(self, "@scanner");
@@ -229,6 +242,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     paths_object_id = rb_ivar_get(self, rb_intern("paths_object_id"));
     new_paths_object_id = rb_funcall(paths, rb_intern("object_id"), 0);
     rb_ivar_set(self, rb_intern("paths_object_id"), new_paths_object_id);
+    last_needle = rb_ivar_get(self, rb_intern("last_needle"));
     if (
         NIL_P(paths_object_id) ||
         NUM2LONG(new_paths_object_id) != NUM2LONG(paths_object_id)
@@ -246,6 +260,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
             matches
         );
         rb_ivar_set(self, rb_intern("matches"), wrapped_matches);
+        last_needle = Qnil;
     } else {
         // Get existing array.
         Data_Get_Struct(
@@ -256,6 +271,12 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 
         // Will compare against previously computed haystack bitmasks.
         needle_bitmask = calculate_bitmask(needle);
+
+        // Check whether current search extends previous search; if so, we can
+        // skip all the non-matches from last time without looking at them.
+        if (rb_funcall(needle, rb_intern("start_with?"), 1, last_needle) != Qtrue) {
+            last_needle = Qnil;
+        }
     }
 
     thread_count = NIL_P(threads_option) ? 1 : NUM2LONG(threads_option);
@@ -288,6 +309,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].path_count = path_count;
         thread_args[i].haystacks = paths;
         thread_args[i].needle = needle;
+        thread_args[i].last_needle = last_needle;
         thread_args[i].always_show_dot_files = always_show_dot_files;
         thread_args[i].never_show_dot_files = never_show_dot_files;
         thread_args[i].recurse = recurse;
@@ -357,8 +379,9 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     }
 
     results = rb_ary_new();
-    if (limit == 0)
+    if (limit == 0) {
         limit = path_count;
+    }
     for (
         i = 0;
         i < (use_heap ? heap_matches_count : path_count) && limit > 0;
@@ -378,5 +401,8 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     if (use_heap) {
         free(heap_matches);
     }
+
+    // Save this state to potentially speed subsequent searches.
+    rb_ivar_set(self, rb_intern("last_needle"), needle);
     return results;
 }

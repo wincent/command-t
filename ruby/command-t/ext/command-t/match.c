@@ -1,7 +1,7 @@
 // Copyright 2010-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
-#include <float.h> /* for DBL_MAX */
+#include <float.h> /* for FLT_MAX */
 #include "match.h"
 #include "ext.h"
 #include "ruby_compat.h"
@@ -151,7 +151,7 @@ float calculate_match(
             for (i = 0; i < m.haystack_len; i++) {
                 char c = m.haystack_p[i];
                 if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
-                    return 0.0;
+                    return -1.0;
                 }
             }
         }

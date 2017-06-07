@@ -6,41 +6,17 @@ if exists('g:command_t_loaded') || &compatible
 endif
 let g:command_t_loaded = 1
 
-command! CommandTBuffer call commandt#BufferFinder()
-command! CommandTCommand call commandt#CommandFinder()
-command! CommandTHelp call commandt#HelpFinder()
-command! CommandTHistory call commandt#HistoryFinder()
-command! CommandTJump call commandt#JumpFinder()
-command! CommandTLine call commandt#LineFinder()
-command! CommandTMRU call commandt#MRUFinder()
-command! CommandTSearch call commandt#SearchFinder()
-command! CommandTTag call commandt#TagFinder()
-command! -nargs=? -complete=dir CommandT call commandt#FileFinder(<q-args>)
-command! CommandTFlush call commandt#Flush()
-command! CommandTLoad call commandt#Load()
+command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)
 
-if !hasmapto('<Plug>(CommandT)') && maparg('<Leader>t', 'n') ==# ''
-  nmap <unique> <Leader>t <Plug>(CommandT)
+" HACK: use both old and new during early development
+if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'mirkwood') ==? 'isengard'
+  call commandt#isengard#init()
 endif
-nnoremap <silent> <Plug>(CommandT) :CommandT<CR>
+call commandt#mirkwood#init()
+finish
 
-if !hasmapto('<Plug>(CommandTBuffer)') && maparg('<Leader>b', 'n') ==# ''
-  nmap <unique> <Leader>b <Plug>(CommandTBuffer)
+if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'isengard') ==? 'isengard'
+  call commandt#isengard#init()
+else
+  call commandt#mirkwood#init()
 endif
-nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
-
-nnoremap <silent> <Plug>(CommandTHelp) :CommandTHelp<CR>
-nnoremap <silent> <Plug>(CommandTHistory) :CommandTHistory<CR>
-
-if has('jumplist')
-  if !hasmapto('<Plug>(CommandTJump)') && maparg('<Leader>j', 'n') ==# ''
-    nmap <unique> <Leader>j <Plug>(CommandTJump)
-  endif
-  nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
-endif
-
-nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
-nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
-nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
-nnoremap <silent> <Plug>(CommandTSearch) :CommandTSearch<CR>
-nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
