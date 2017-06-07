@@ -24,21 +24,21 @@ describe CommandT::Controller do
       stub(::VIM).evaluate('a:arg').returns('')
       set_string('g:CommandTTraverseSCM', 'pwd')
       controller.show_file_finder
-      mock(::VIM).command('silent e path/to/selection')
+      mock(::VIM).command('silent CommandTOpen e path/to/selection')
       controller.accept_selection
     end
 
     it 'opens absolute paths outside the working directory' do
       stub(::VIM).evaluate('a:arg').returns('../outside')
       controller.show_file_finder
-      mock(::VIM).command('silent e /working/outside/path/to/selection')
+      mock(::VIM).command('silent CommandTOpen e /working/outside/path/to/selection')
       controller.accept_selection
     end
 
     it 'does not get confused by common directory prefixes' do
       stub(::VIM).evaluate('a:arg').returns('../directory-oops')
       controller.show_file_finder
-      mock(::VIM).command('silent e /working/directory-oops/path/to/selection')
+      mock(::VIM).command('silent CommandTOpen e /working/directory-oops/path/to/selection')
       controller.accept_selection
     end
 
@@ -96,5 +96,6 @@ describe CommandT::Controller do
     stub(::VIM).evaluate('&lines').returns('80')
     stub(::VIM).evaluate('&term').returns('vt100')
     stub(::VIM).evaluate('v:version').returns(704)
+    stub(::VIM).evaluate('!&buflisted && &buftype == "nofile"')
   end
 end
