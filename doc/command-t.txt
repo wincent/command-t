@@ -1546,7 +1546,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-next (not yet released)
+5.0 (6 June 2017)
 
 - Command-T now uses |:map-<nowait>|, when available, when setting up mappings.
 - 'wildignore' filtering is now always performed by producing an equivalent
