@@ -17,7 +17,7 @@ Files are selected by typing characters that appear in their paths, and are rank
 
 Files can be opened in the current window, or in splits or tabs. Many configuration options are provided.
 
-Speed is the primary design goal, along with providing high-quality, intuitive match ordering. The hand-crafted matching algorithm, implemented in low-level C and combined with parallelized search, input debouncing, integration with Watchman and many other optimizations, mean that Command-T is the fastest fuzzy file finder bar none.
+Speed is the primary design goal, along with providing high-quality, intuitive match ordering. The hand-crafted matching algorithm, implemented in low-level C and combined with parallelized search, input debouncing, integration with Watchman and many other optimizations, mean that Command-T is the fastest fuzzy file finder bar known.
 
 ---
 
