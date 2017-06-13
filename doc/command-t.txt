@@ -999,7 +999,7 @@ Following is a list of all available options:
       not backed by files (examples of such files include NERDTree windows). As
       an example of the kind of custom expression you may wish to supply, if
       you are using NERDTree to hijack |netrw| windows ('NERDTreeHijackNetrw')
-      and you want to make sure that Command-T does *not* skip over those, you
+      and you want to make sure that Command-T does not skip over those, you
       could use:
 >
       let g:CommandTWindowFilter='!&buflisted && &buftype == "nofile" && !exists("w:netrw_liststyle")"
