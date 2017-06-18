@@ -273,7 +273,6 @@ describe CommandT::Matcher do
     end
 
     it "doesn't show a dotfile just because there was a match at index 0" do
-      pending 'fix'
       matcher = matcher(*%w[src/.flowconfig])
       expect(matcher.sorted_matches_for('s')).to eq([])
     end
@@ -297,6 +296,17 @@ describe CommandT::Matcher do
         app/assets/components/App/index.jsx
         app/assets/components/PrivacyPage/index.jsx
       ])
+    end
+    
+    it 'correctly matches when added in reverse order' do
+      matcher = matcher(*%w[
+        ruby/command-t/ext/command-t/scanner.c
+        ruby/command-t/ext/command-t/depend
+        ruby/command-t/command-t.gemspec
+      ])
+      expect(matcher.sorted_matches_for('scanner')).to match_array %w[
+        ruby/command-t/ext/command-t/scanner.c
+      ]
     end
   end
 end

@@ -10,20 +10,18 @@
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
-    char    *haystack_p;            // Pointer to the path string to be searched.
-    long    haystack_len;           // Length of same.
-    char    *needle_p;              // Pointer to search string (needle).
-    long    needle_len;             // Length of same.
-    long    *rightmost_match_p;     // Rightmost match for each char in needle.
-    float   max_score_per_char;
-    int     always_show_dot_files;  // Boolean.
-    int     never_show_dot_files;   // Boolean.
-    int     case_sensitive;         // Boolean.
-    int     recurse;                // Boolean.
-    float   *memo;                  // Memoization.
+    const char *haystack_p;            // Pointer to the path string to be searched.
+    long       haystack_len;           // Length of same.
+    const char *needle_p;              // Pointer to search string (needle).
+    long       needle_len;             // Length of same.
+    long       *rightmost_match_p;     // Rightmost match for each char in needle.
+    float      max_score_per_char;
+    int        case_sensitive;         // Boolean.
+    int        recurse;                // Boolean.
+    float      *memo;                  // Memoization.
 } matchinfo_t;
 
-float recursive_match(
+static float recursive_match(
     matchinfo_t *m,    // Sharable meta-data.
     long haystack_idx, // Where in the path string to start.
     long needle_idx,   // Where in the needle string to start.
@@ -48,17 +46,7 @@ float recursive_match(
             }
             c = m->needle_p[i];
             d = m->haystack_p[j];
-            if (d == '.') {
-                if (j == 0 || m->haystack_p[j - 1] == '/') { // This is a dot-file.
-                    int dot_search = c == '.'; // Searching for a dot.
-                    if (
-                        m->never_show_dot_files ||
-                        (!dot_search && !m->always_show_dot_files)
-                    ) {
-                        return *memoized = 0.0;
-                    }
-                }
-            } else if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
+            if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
                 d += 'a' - 'A'; // Add 32 to downcase.
             }
 
@@ -120,123 +108,94 @@ float recursive_match(
 }
 
 float calculate_match(
+    const char *haystack,
+    size_t haystack_len,
     VALUE needle,
     VALUE case_sensitive,
-    VALUE always_show_dot_files,
-    VALUE never_show_dot_files,
-    VALUE recurse,
-    long needle_bitmask,
-    match_t *haystack
+    VALUE recurse
 ) {
     matchinfo_t m;
     long i;
     float score             = 1.0;
-    int compute_bitmasks    = haystack->bitmask == UNSET_BITMASK;
-    m.haystack_p            = haystack->path;
-    m.haystack_len          = haystack->path_len;
+    m.haystack_p            = haystack;
+    m.haystack_len          = haystack_len;
     m.needle_p              = RSTRING_PTR(needle);
     m.needle_len            = RSTRING_LEN(needle);
     m.rightmost_match_p     = NULL;
     m.max_score_per_char    = (1.0 / m.haystack_len + 1.0 / m.needle_len) / 2;
-    m.always_show_dot_files = always_show_dot_files == Qtrue;
-    m.never_show_dot_files  = never_show_dot_files == Qtrue;
     m.case_sensitive        = (int)case_sensitive;
     m.recurse               = recurse == Qtrue;
 
     // Special case for zero-length search string.
-    if (m.needle_len == 0) {
-        // Filter out dot files.
-        if (m.never_show_dot_files || !m.always_show_dot_files) {
-            for (i = 0; i < m.haystack_len; i++) {
-                char c = m.haystack_p[i];
-                if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
-                    return -1.0;
-                }
-            }
-        }
-    } else {
-        long haystack_limit;
-        long memo_size;
-        long needle_idx;
-        long mask;
-        long rightmost_match_p[m.needle_len];
+    if (m.needle_len == 0) return score;
 
-        if (haystack->bitmask != UNSET_BITMASK) {
-            if ((needle_bitmask & haystack->bitmask) != needle_bitmask) {
-                return 0.0;
-            }
+    long haystack_limit;
+    long memo_size;
+    long needle_idx;
+    long rightmost_match_p[m.needle_len];
+
+    // Pre-scan string:
+    // - Bail if it can't match at all.
+    // - Record rightmost match for each character (prune search space).
+    m.rightmost_match_p = rightmost_match_p;
+    needle_idx = m.needle_len - 1;
+    for (i = m.haystack_len - 1; i >= 0; i--) {
+        char c = m.haystack_p[i];
+        char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
+        if (!m.case_sensitive) {
+            c = lower;
         }
 
-        // Pre-scan string:
-        // - Bail if it can't match at all.
-        // - Record rightmost match for each character (prune search space).
-        // - Record bitmask for haystack to speed up future searches.
-        m.rightmost_match_p = rightmost_match_p;
-        needle_idx = m.needle_len - 1;
-        mask = 0;
-        for (i = m.haystack_len - 1; i >= 0; i--) {
-            char c = m.haystack_p[i];
-            char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
-            if (!m.case_sensitive) {
-                c = lower;
+        if (needle_idx >= 0) {
+            char d = m.needle_p[needle_idx];
+            if (c == d) {
+                rightmost_match_p[needle_idx] = i;
+                needle_idx--;
             }
-            if (compute_bitmasks) {
-                mask |= (1 << (lower - 'a'));
-            }
-
-            if (needle_idx >= 0) {
-                char d = m.needle_p[needle_idx];
-                if (c == d) {
-                    rightmost_match_p[needle_idx] = i;
-                    needle_idx--;
-                }
-            }
-        }
-        if (compute_bitmasks) {
-            haystack->bitmask = mask;
-        }
-        if (needle_idx != -1) {
-            return 0.0;
-        }
-
-        // Prepare for memoization.
-        haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
-        memo_size = m.needle_len * haystack_limit;
-        {
-            float memo[memo_size];
-            for (i = 0; i < memo_size; i++) {
-                memo[i] = UNSET_SCORE;
-            }
-            m.memo = memo;
-            score = recursive_match(&m, 0, 0, 0, 0.0);
-
-#ifdef DEBUG
-            fprintf(stdout, "   ");
-            for (i = 0; i < m.needle_len; i++) {
-                fprintf(stdout, "    %c   ", m.needle_p[i]);
-            }
-            fprintf(stdout, "\n");
-            for (i = 0; i < memo_size; i++) {
-                char formatted[8];
-                if (i % m.needle_len == 0) {
-                    long haystack_idx = i / m.needle_len;
-                    fprintf(stdout, "%c: ", m.haystack_p[haystack_idx]);
-                }
-                if (memo[i] == UNSET_SCORE) {
-                    snprintf(formatted, sizeof(formatted), "    -  ");
-                } else {
-                    snprintf(formatted, sizeof(formatted), " %-.4f", memo[i]);
-                }
-                fprintf(stdout, "%s", formatted);
-                if ((i + 1) % m.needle_len == 0) {
-                    fprintf(stdout, "\n");
-                } else {
-                    fprintf(stdout, " ");
-                }
-            }
-            fprintf(stdout, "Final score: %f\n\n", score);
-#endif
         }
     }
+    if (needle_idx != -1) {
+        return 0.0;
+    }
+
+    // Prepare for memoization.
+    haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
+    memo_size = m.needle_len * haystack_limit;
+    {
+        float memo[memo_size];
+        for (i = 0; i < memo_size; i++) {
+            memo[i] = UNSET_SCORE;
+        }
+        m.memo = memo;
+        score = recursive_match(&m, 0, 0, 0, 0.0);
+
+#ifdef DEBUG
+        fprintf(stderr, "   ");
+        for (i = 0; i < m.needle_len; i++) {
+            fprintf(stderr, "    %c   ", m.needle_p[i]);
+        }
+        fprintf(stderr, "\n");
+        for (i = 0; i < memo_size; i++) {
+            char formatted[8];
+            if (i % m.needle_len == 0) {
+                long haystack_idx = i / m.needle_len;
+                fprintf(stderr, "%c: ", m.haystack_p[haystack_idx]);
+            }
+            if (memo[i] == UNSET_SCORE) {
+                snprintf(formatted, sizeof(formatted), "    -  ");
+            } else {
+                snprintf(formatted, sizeof(formatted), " %-.4f", memo[i]);
+            }
+            fprintf(stderr, "%s", formatted);
+            if ((i + 1) % m.needle_len == 0) {
+                fprintf(stderr, "\n");
+            } else {
+                fprintf(stderr, " ");
+            }
+        }
+        fprintf(stderr, "Final score: %f\n\n", score);
+#endif
+    }
+
     return score;
 }
