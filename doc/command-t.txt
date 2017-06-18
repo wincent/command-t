@@ -966,7 +966,7 @@ Following is a list of all available options:
   |g:CommandTAcceptSelectionTabCommand|   string (default: 'CommandTOpen tabe')
 
       The Vim command that will be used to open a selection from the match
-      listing in a new tab (via |g:CommandTAcceptSelectionSplitMap|).
+      listing in a new tab (via |g:CommandTAcceptSelectionTabMap|).
 
       See also, |:CommandTOpen|.
 
@@ -974,7 +974,7 @@ Following is a list of all available options:
   |g:CommandTAcceptSelectionSplitCommand| string (default: 'CommandTOpen sp')
 
       The Vim command that will be used to open a selection from the match
-      listing in a split (via |g:CommandTAcceptSelectionVSplitMap|).
+      listing in a split (via |g:CommandTAcceptSelectionSplitMap|).
 
       See also, |:CommandTOpen|.
 
