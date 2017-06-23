@@ -1547,6 +1547,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+master (not yet released)
+
+- Fixed inability to open a top-level file with a name matching a previously
+  opened file (#295).
+
 5.0 (6 June 2017)
 
 - Command-T now uses |:map-<nowait>|, when available, when setting up mappings.
