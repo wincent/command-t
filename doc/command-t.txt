@@ -1555,7 +1555,7 @@ HISTORY                                         *command-t-history*
 
 master (not yet released)
 
-5.0.1 (18 August 2017)
+5.0.1 (18 August 2017) ~
 
 - Fixed inability to open a top-level file with a name matching a previously
   opened file (#295).
@@ -1565,7 +1565,7 @@ master (not yet released)
   implementations do, especially with respect to moving past punctuation
   (#301).
 
-5.0 (6 June 2017)
+5.0 (6 June 2017) ~
 
 - Command-T now uses |:map-<nowait>|, when available, when setting up mappings.
 - 'wildignore' filtering is now always performed by producing an equivalent
@@ -1588,7 +1588,7 @@ master (not yet released)
   is used to determine which windows Command-T should not open selected
   files in.
 
-4.0 (16 May 2016)
+4.0 (16 May 2016) ~
 
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
@@ -1618,17 +1618,17 @@ master (not yet released)
 - Show a warning when hitting |g:CommandTMaxFiles|, and add a corresponding
   |g:CommandTSuppressMaxFilesWarning| setting to suppress the warning.
 
-3.0.2 (9 February 2016)
+3.0.2 (9 February 2016) ~
 
 - Minimize flicker on opening and closing the match listing in MacVim.
 - Add |CommandTWillShowMatchListing| and |CommandTDidHideMatchListing| "User"
   autocommands.
 
-3.0.1 (25 January 2016)
+3.0.1 (25 January 2016) ~
 
 - restore compatibility with Ruby 1.8.7.
 
-3.0 (19 January 2016)
+3.0 (19 January 2016) ~
 
 - change |g:CommandTIgnoreSpaces| default value to 1.
 - change |g:CommandTMatchWindowReverse| default value to 1.
@@ -1636,7 +1636,7 @@ master (not yet released)
 - try harder to avoid scrolling other buffer when showing or hiding the match
   listing
 
-2.0 (28 December 2015)
+2.0 (28 December 2015) ~
 
 - add |:CommandTIgnoreSpaces| option (patch from KJ Tsanaktsidis)
 - make Command-T resilient to people deleting its hidden, unlisted buffer
@@ -1688,13 +1688,13 @@ master (not yet released)
 - add `<Leader>j` mapping to |:CommandTJump|, via |<Plug>(CommandTJump)|
   (defined only if no pre-existing mapping exists)
 
-1.13 (29 April 2015)
+1.13 (29 April 2015) ~
 
 - avoid "W10: Warning: Changing a readonly file" when starting Vim in
   read-only mode (ie. as `view` or with the `-R` option)
 - fix infinite loop on |<Tab>| (regression introduced in 1.12)
 
-1.12 (9 April 2015)
+1.12 (9 April 2015) ~
 
 - add |:CommandTLoad| command
 - fix rare failure to restore cursor color after closing Command-T (patch from
@@ -1713,25 +1713,25 @@ master (not yet released)
 - fix for not falling back to "find"-based scanner when a Watchman-related
   error occurs
 
-1.11.4 (4 November 2014)
+1.11.4 (4 November 2014) ~
 
 - fix infinite loop on Windows when |g:CommandTTraverseSCM| is set to a value
   other than "pwd" (bug present since 1.11)
 - handle unwanted split edgecase when |'hidden'| is set, the current buffer is
   modified, and it is visible in more than one window
 
-1.11.3 (10 October 2014)
+1.11.3 (10 October 2014) ~
 
 - ignore impromperly encoded filenames (patch from Sherzod Gapirov)
 - fix failure to update path when using |:cd| in conjunction with
   |g:CommandTTraverseSCM| set to "pwd" (bug present since 1.11.2)
 
-1.11.2 (2 September 2014)
+1.11.2 (2 September 2014) ~
 
 - fix error while using Command-T outside of an SCM repo (bug present since
   1.11.1)
 
-1.11.1 (29 August 2014)
+1.11.1 (29 August 2014) ~
 
 - compatibility fixes with Ruby 1.8.6 (patch from Emily Strickland)
 - compatibility fixes with Ruby 1.8.5
@@ -1740,7 +1740,7 @@ master (not yet released)
   set to "pwd" (bug present since 1.11)
 - performance improvements
 
-1.11 (15 August 2014)
+1.11 (15 August 2014) ~
 
 - improve edge-case handling in match results window code (patches from
   Richard Feldman)
@@ -1751,7 +1751,7 @@ master (not yet released)
   Osheroff)
 - add AppStream metadata (patch from Vít Ondruch)
 
-1.10 (15 July 2014)
+1.10 (15 July 2014) ~
 
 - improve tag finder performance by caching tag lists (patch from Artem
   Nezvigin)
@@ -1767,12 +1767,12 @@ master (not yet released)
 - add |g:CommandTIgnoreCase| and |g:CommandTSmartCase| options, providing
   support for case-sensitive matching (based on patch from Jacek Wysocki)
 
-1.9.1 (30 May 2014)
+1.9.1 (30 May 2014) ~
 
 - include the file in the release archive that was missing from the
   1.9 release
 
-1.9 (25 May 2014)
+1.9 (25 May 2014) ~
 
 - improved startup time using Vim's autload mechanism (patch from Ross
   Lagerwall)
@@ -1784,13 +1784,13 @@ master (not yet released)
 - tune memoization in match scoring algorithm, yielding a more than 10% speed
   boost
 
-1.8 (31 March 2014)
+1.8 (31 March 2014) ~
 
 - taught Watchman file scanner to use the binary protocol instead of JSON,
   roughly doubling its speed
 - build changes to accommodate MinGW (patch from Roland Puntaier)
 
-1.7 (9 March 2014)
+1.7 (9 March 2014) ~
 
 - added |g:CommandTInputDebounce|, which can be used to improve responsiveness
   in large file hierarchies (based on patch from Yiding Jia)
@@ -1801,23 +1801,23 @@ master (not yet released)
 - added |g:CommandTFileScanner|, which can be used to switch file scanners
 - fix processor count detection on some platforms (patch from Pavel Sergeev)
 
-1.6.1 (22 December 2013)
+1.6.1 (22 December 2013) ~
 
 - defer processor count detection until runtime (makes it possible to sensibly
   build Command-T on one machine and use it on another)
 
-1.6 (16 December 2013)
+1.6 (16 December 2013) ~
 
 - on systems with POSIX threads (such as OS X and Linux), Command-T will use
   threads to compute match results in parallel, resulting in a large speed
   boost that is especially noticeable when navigating large projects
 
-1.5.1 (23 September 2013)
+1.5.1 (23 September 2013) ~
 
 - exclude large benchmark fixture file from source exports (patch from Vít
   Ondruch)
 
-1.5 (18 September 2013)
+1.5 (18 September 2013) ~
 
 - don't scan "pathological" filesystem structures (ie. circular or
   self-referential symlinks; patch from Marcus Brito)
@@ -1831,7 +1831,7 @@ master (not yet released)
   hierarchies
 - added |g:CommandTWildIgnore| setting (patch from Paul Jolly)
 
-1.4 (20 June 2012)
+1.4 (20 June 2012) ~
 
 - added |:CommandTTag| command (patches from Noon Silk)
 - turn off |'colorcolumn'| and |'relativenumber'| in the match window (patch
@@ -1844,50 +1844,50 @@ master (not yet released)
 - added the ability to flush the cache while the match window is open using
   <C-f>
 
-1.3.1 (18 December 2011)
+1.3.1 (18 December 2011) ~
 
 - fix jumplist navigation under Ruby 1.9.x (patch from Woody Peterson)
 
-1.3 (27 November 2011)
+1.3 (27 November 2011) ~
 
 - added the option to maintain multiple caches when changing among
   directories; see the accompanying |g:CommandTMaxCachedDirectories| setting
 - added the ability to navigate using the Vim jumplist (patch from Marian
   Schubert)
 
-1.2.1 (30 April 2011)
+1.2.1 (30 April 2011) ~
 
 - Remove duplicate copy of the documentation that was causing "Duplicate tag"
   errors
 - Mitigate issue with distracting blinking cursor in non-GUI versions of Vim
   (patch from Steven Moazami)
 
-1.2 (30 April 2011)
+1.2 (30 April 2011) ~
 
 - added |g:CommandTMatchWindowReverse| option, to reverse the order of items
   in the match listing (patch from Steven Moazami)
 
-1.1b2 (26 March 2011)
+1.1b2 (26 March 2011) ~
 
 - fix a glitch in the release process; the plugin itself is unchanged since
   1.1b
 
-1.1b (26 March 2011)
+1.1b (26 March 2011) ~
 
 - add |:CommandTBuffer| command for quickly selecting among open buffers
 
-1.0.1 (5 January 2011)
+1.0.1 (5 January 2011) ~
 
 - work around bug when mapping |:CommandTFlush|, wherein the default mapping
   for |:CommandT| would not be set up
 - clean up when leaving the Command-T buffer via unexpected means (such as
   with <C-W k> or similar)
 
-1.0 (26 November 2010)
+1.0 (26 November 2010) ~
 
 - make relative path simplification work on Windows
 
-1.0b (5 November 2010)
+1.0b (5 November 2010) ~
 
 - work around platform-specific Vim 7.3 bug seen by some users (wherein
   Vim always falsely reports to Ruby that the buffer numbers is 0)
@@ -1895,18 +1895,18 @@ master (not yet released)
   throwing it away and recreating it each time Command-T is shown; this
   stops the buffer numbers from creeping up needlessly
 
-0.9 (8 October 2010)
+0.9 (8 October 2010) ~
 
 - use relative paths when opening files inside the current working directory
   in order to keep buffer listings as brief as possible (patch from Matthew
   Todd)
 
-0.8.1 (14 September 2010)
+0.8.1 (14 September 2010) ~
 
 - fix mapping issues for users who have set |'notimeout'| (patch from Sung
   Pae)
 
-0.8 (19 August 2010)
+0.8 (19 August 2010) ~
 
 - overrides for the default mappings can now be lists of strings, allowing
   multiple mappings to be defined for any given action
@@ -1920,13 +1920,13 @@ master (not yet released)
 - move all Ruby files under the "command-t" subdirectory and avoid polluting
   the "Vim" module namespace
 
-0.8b (11 July 2010)
+0.8b (11 July 2010) ~
 
 - large overhaul of the scoring algorithm to make the ordering of returned
   results more intuitive; given the scope of the changes and room for
   optimization of the new algorithm, this release is labelled as "beta"
 
-0.7 (10 June 2010)
+0.7 (10 June 2010) ~
 
 - handle more |'wildignore'| patterns by delegating to Vim's own |expand()|
   function; with this change it is now viable to exclude patterns such as
@@ -1935,18 +1935,18 @@ master (not yet released)
 - always sort results alphabetically for empty search strings; this eliminates
   filesystem-specific variations (patch from Mike Lundy)
 
-0.6 (28 April 2010)
+0.6 (28 April 2010) ~
 
 - |:CommandT| now accepts an optional parameter to specify the starting
   directory, temporarily overriding the usual default of Vim's |:pwd|
 - fix truncated paths when operating from root directory
 
-0.5.1 (11 April 2010)
+0.5.1 (11 April 2010) ~
 
 - fix for Ruby 1.9 compatibility regression introduced in 0.5
 - documentation enhancements, specifically targetted at Windows users
 
-0.5 (3 April 2010)
+0.5 (3 April 2010) ~
 
 - |:CommandTFlush| now re-evaluates settings, allowing changes made via |let|
   to be picked up without having to restart Vim
@@ -1955,13 +1955,13 @@ master (not yet released)
 - provide settings for overriding default mappings
 - minor performance optimization
 
-0.4 (27 March 2010)
+0.4 (27 March 2010) ~
 
 - add |g:CommandTMatchWindowAtTop| setting (patch from Zak Johnson)
 - documentation fixes and enhancements
 - internal refactoring and simplification
 
-0.3 (24 March 2010)
+0.3 (24 March 2010) ~
 
 - add |g:CommandTMaxHeight| setting for controlling the maximum height of the
   match window (patch from Lucas de Vries)
@@ -1973,7 +1973,7 @@ master (not yet released)
 - open in split when opening normally would fail due to |'hidden'| and
   |'modified'| values
 
-0.2 (23 March 2010)
+0.2 (23 March 2010) ~
 
 - compatibility fixes for compilation under Ruby 1.9 series
 - compatibility fixes for compilation under Ruby 1.8.5
@@ -1983,7 +1983,7 @@ master (not yet released)
 - exclude paths based on |'wildignore'| setting rather than a hardcoded
   regular expression
 
-0.1 (22 March 2010)
+0.1 (22 March 2010) ~
 
 - initial public release
 
