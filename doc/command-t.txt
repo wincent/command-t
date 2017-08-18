@@ -1547,12 +1547,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-master (not yet released)
+5.0.1 (18 August 2017)
 
 - Fixed inability to open a top-level file with a name matching a previously
   opened file (#295).
 - Fixed a related issue where previously opened file would cause a file to be
   opened directly rather than in the desired split/tab (#298).
+- Tweaked <c-w> mapping behavior to better match what other readline-ish
+  implementations do, especially with respect to moving past punctuation
+  (#301).
 
 5.0 (6 June 2017)
 
