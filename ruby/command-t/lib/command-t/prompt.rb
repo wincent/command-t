@@ -30,17 +30,18 @@ module CommandT
     # Remove word before cursor
     def clear_prev_word!
       suffix_length = @abbrev.length - @col
-      @abbrev.match(
+      if @abbrev.match(
         %r{
-          (.*?)                 # prefix
-          \w*\s*                # word to clear
+          (.*)                  # prefix
+          \b\w.*                # "word" to clear
           (.{#{suffix_length}}) # suffix
           \z
         }x
       )
-      @abbrev = $~[1] + $~[2]
-      @col = @abbrev.length - suffix_length
-      redraw
+        @abbrev = $~[1] + $~[2]
+        @col = @abbrev.length - suffix_length
+        redraw
+      end
     end
 
     # Insert a character at (before) the current cursor position.
