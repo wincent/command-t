@@ -11,7 +11,7 @@
 from setuptools import setup, Extension
 
 setup (name = 'commandt.score',
-       version = '0.1.1',
+       version = '0.1.2',
        description = 'Command-T fuzzy match scoring algorithm',
        author = 'Greg Hurrell',
        author_email = 'greg@hurrell.net',
