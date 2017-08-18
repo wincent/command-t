@@ -1519,6 +1519,12 @@ the CtrlP Vim plug-in:
 
   https://github.com/JazzCore/ctrlp-cmatcher
 
+commandt.score ~
+
+Command-T's match-scoring algorithm wrapped in a Python extension:
+
+  https://pypi.python.org/pypi/commandt.score
+
 
 LICENSE                                         *command-t-license*
 
