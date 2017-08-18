@@ -15,7 +15,7 @@ setup (name = 'commandt.score',
        description = 'Command-T fuzzy match scoring algorithm',
        author = 'Greg Hurrell',
        author_email = 'greg@hurrell.net',
-       url = 'https://github.com/wincent/command-t/tree/python/commandt/score',
+       url = 'https://github.com/wincent/command-t/tree/python/score',
        packages = ['commandt.score'],
        long_description = '''
 This is the fuzzy match scoring algorithm, extracted from the Command-T (vim
