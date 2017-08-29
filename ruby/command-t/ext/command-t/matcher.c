@@ -245,7 +245,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     last_needle = rb_ivar_get(self, rb_intern("last_needle"));
     if (
         NIL_P(paths_object_id) ||
-        NUM2LONG(new_paths_object_id) != NUM2LONG(paths_object_id)
+        rb_equal(new_paths_object_id, paths_object_id) != Qtrue
     ) {
         // `paths` changed, need to replace matches array.
         paths_object_id = new_paths_object_id;
