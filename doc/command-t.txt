@@ -1397,7 +1397,8 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicolas Alpi
+  Abhinav Gupta                   Nicholas T.
+  Adrian Keet                     Nicolas Alpi
   Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
   Andy Waite                      Nilo César Teixeira
   Anthony Panozzo                 Noon Silk
@@ -1427,7 +1428,6 @@ Other contributors that have submitted patches include, in alphabetical order:
   Mike Lundy                      Woody Peterson
   Nadav Samet                     Yan Pritzker
   Nate Kane                       Zak Johnson
-  Nicholas T.
 
 This list produced with:
 
@@ -1554,6 +1554,8 @@ POSSIBILITY OF SUCH DAMAGE.
 HISTORY                                         *command-t-history*
 
 master (not yet released)
+
+- Fix a RangeError on 64-bit Windows (#304, patch from Adrian Keet).
 
 5.0.1 (18 August 2017) ~
 
