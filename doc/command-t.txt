@@ -1556,6 +1556,7 @@ HISTORY                                         *command-t-history*
 master (not yet released)
 
 - Fix a RangeError on 64-bit Windows (#304, patch from Adrian Keet).
+- Fix issue switching back to previously opened file in another tab (#306).
 
 5.0.1 (18 August 2017) ~
 

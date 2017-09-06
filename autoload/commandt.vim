@@ -161,11 +161,11 @@ function! commandt#GotoOrOpen(command_and_args) abort
   let l:command = l:command_and_args[0]
   let l:file = l:command_and_args[1]
 
-  " bufwinnr() doesn't see windows in other tabs, meaning we open them again
-  " instead of switching to the other tab; but bufexists() sees hidden
+  " `bufwinnr()` doesn't see windows in other tabs, meaning we open them again
+  " instead of switching to the other tab; but `bufname()` sees hidden
   " buffers, and if we try to open one of those, we get an unwanted split.
   if bufwinnr('^' . l:file . '$') != -1 ||
-        \ (bufexists('^' . l:file . '$') && !s:BufHidden(l:file))
+        \ (bufname('^' . l:file . '$') !=# '' && !s:BufHidden(l:file))
     execute 'sbuffer ' . l:file
   else
     execute l:command . l:file
