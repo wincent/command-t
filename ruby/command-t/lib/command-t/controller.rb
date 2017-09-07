@@ -460,10 +460,14 @@ module CommandT
 
     def open_selection(selection, options = {})
       command = options[:command] || default_open_command
-      selection = File.expand_path selection, @path
-      selection = relative_path_under_working_directory selection
-      selection = sanitize_path_string selection
-      selection = File.join('.', selection) if selection =~ /^\+/
+      if @active_finder.respond_to?(:prepare_selection)
+        selection = @active_finder.prepare_selection(selection)
+      else
+        selection = File.expand_path selection, @path
+        selection = relative_path_under_working_directory selection
+        selection = sanitize_path_string selection
+        selection = File.join('.', selection) if selection =~ /^\+/
+      end
       ensure_appropriate_window_selection
 
       @active_finder.open_selection command, selection, options

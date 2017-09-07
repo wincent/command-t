@@ -1557,6 +1557,7 @@ master (not yet released)
 
 - Fix a RangeError on 64-bit Windows (#304, patch from Adrian Keet).
 - Fix issue switching back to previously opened file in another tab (#306).
+- Fix inability to open some help targets with |:CommandTHelp| (#307).
 
 5.0.1 (18 August 2017) ~
 

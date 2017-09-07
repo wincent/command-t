@@ -13,6 +13,13 @@ module CommandT
         ::VIM::command "help #{selection}"
       end
 
+      def prepare_selection(selection)
+        # Pass selection through as-is, bypassing path-based stuff that the
+        # controller would otherwise do, like `expand_path`,
+        # `sanitize_path_string` and `relative_path_under_working_directory`.
+        selection
+      end
+
       def flush
         @scanner.flush
       end
