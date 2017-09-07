@@ -11,10 +11,15 @@ module CommandT
       end
 
       def open_selection(command, selection, options = {})
-        # Need to unescape to reverse the work done by `#sanitize_path_string`.
-        unescaped = selection.gsub(/\\(.)/, '\1')
-        escaped = VIM.escape_for_single_quotes unescaped
+        escaped = VIM.escape_for_single_quotes(selection)
         ::VIM::command "call feedkeys('#{@history_type}#{escaped} ', 'nt')"
+      end
+
+      def prepare_selection(selection)
+        # Pass selection through as-is, bypassing path-based stuff that the
+        # controller would otherwise do, like `expand_path`,
+        # `sanitize_path_string` and `relative_path_under_working_directory`.
+        selection
       end
 
       def flush; end

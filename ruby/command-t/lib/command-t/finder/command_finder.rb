@@ -10,7 +10,15 @@ module CommandT
       end
 
       def open_selection(command, selection, options = {})
+        escaped = VIM.escape_for_single_quotes selection
         ::VIM::command "call feedkeys(':#{selection} ', 'nt')"
+      end
+
+      def prepare_selection(selection)
+        # Pass selection through as-is, bypassing path-based stuff that the
+        # controller would otherwise do, like `expand_path`,
+        # `sanitize_path_string` and `relative_path_under_working_directory`.
+        selection
       end
 
       def flush; end
