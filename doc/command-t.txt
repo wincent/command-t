@@ -1553,7 +1553,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-master (not yet released)
+5.0.2 (7 September 2017) ~
 
 - Fix a RangeError on 64-bit Windows (#304, patch from Adrian Keet).
 - Fix issue switching back to previously opened file in another tab (#306).
