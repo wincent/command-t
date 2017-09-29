@@ -1555,6 +1555,8 @@ HISTORY                                         *command-t-history*
 
 master (not yet released) ~
 
+- Fix unlisted buffers showing up in |:CommandTBuffer| listing on Neovim.
+
 5.0.2 (7 September 2017) ~
 
 - Fix a RangeError on 64-bit Windows (#304, patch from Adrian Keet).

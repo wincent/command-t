@@ -10,7 +10,10 @@ module CommandT
       def paths
         (0..(::VIM::Buffer.count - 1)).map do |n|
           buffer = ::VIM::Buffer[n]
-          if buffer.name # beware, may be nil
+          # Beware, name may be nil, and on Neovim unlisted buffers (like
+          # Command-T's match listing itself) will be returned and must be
+          # skipped.
+          if buffer.name && ::VIM::evaluate("buflisted(#{buffer.number})") != 0
             relative_path_under_working_directory buffer.name
           end
         end.compact
