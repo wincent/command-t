@@ -12,6 +12,7 @@ module CommandT
       # Subclasses
       autoload :FindFileScanner,     'command-t/scanner/file_scanner/find_file_scanner'
       autoload :GitFileScanner,      'command-t/scanner/file_scanner/git_file_scanner'
+      autoload :RipgrepFileScanner,  'command-t/scanner/file_scanner/rg_file_scanner'
       autoload :RubyFileScanner,     'command-t/scanner/file_scanner/ruby_file_scanner'
       autoload :WatchmanFileScanner, 'command-t/scanner/file_scanner/watchman_file_scanner'
 

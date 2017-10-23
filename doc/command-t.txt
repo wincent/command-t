@@ -774,6 +774,11 @@ Following is a list of all available options:
         work on systems without the tool or with an incompatible version of
         the tool.
 
+      - "rg": uses the command-line tool of the same name, also known as
+        "ripgrep", which respects gitignore rules and can be very fast on
+        large projects because it is written in Rust, but may not work on
+        systems without the tool or with an incompatible version of the tool.
+
       - "git": uses `git ls-files` to quickly produce a list of files; when
         Git isn't available or the path being searched is not inside a Git
         repository falls back to "find".

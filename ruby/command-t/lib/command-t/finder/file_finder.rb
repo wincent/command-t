@@ -14,6 +14,8 @@ module CommandT
           @scanner = Scanner::FileScanner::WatchmanFileScanner.new(path, options)
         when 'git'
           @scanner = Scanner::FileScanner::GitFileScanner.new(path, options)
+        when 'rg'
+          @scanner = Scanner::FileScanner::RipgrepFileScanner.new(path, options)
         else
           raise ArgumentError, "unknown scanner type '#{options[:scanner]}'"
         end
