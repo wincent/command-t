@@ -139,21 +139,34 @@ function! commandt#CheckBuffer(buffer_number) abort
   endif
 endfunction
 
-function! s:BufHidden(buffer)
-  let bufno = bufnr(a:buffer)
-  let listed_buffers = ''
+" visible == exists, loaded, listed and not hidden
+" (buffer is opened in a window - in current or another tab)
+function! s:BufVisible(buffer)
+  " buffer is opened in current tab (quick check for current tab)
+  if bufwinnr('^' . a:buffer . '$') != -1 | return 1 | end
+  " buffer exists if it has been opened at least once (unless wiped)
+  if !bufexists(a:buffer) | return 0 | end
+  " buffer is not loaded when its last window is closed (`set nohidden` only)
+  if !bufloaded(a:buffer) | return 0 | end
+  " buffer is not listed when it's deleted
+  if !buflisted(a:buffer) | return 0 | end
 
-  redir => listed_buffers
+  let bufno = bufnr(a:buffer)
+  let ls_buffers = ''
+
+  redir => ls_buffers
   silent ls
   redir END
 
-  for line in split(listed_buffers, "\n")
+  " buffer is hidden when its last window is closed (`set hidden` only)
+  for line in split(ls_buffers, "\n")
     let components = split(line)
     if components[0] == bufno
-      return match(components[1], 'h') != -1
+      return match(components[1], 'h') == -1
     endif
   endfor
-  return 0
+
+  return 1
 endfunction
 
 function! commandt#GotoOrOpen(command_and_args) abort
@@ -164,8 +177,7 @@ function! commandt#GotoOrOpen(command_and_args) abort
   " `bufwinnr()` doesn't see windows in other tabs, meaning we open them again
   " instead of switching to the other tab; but `bufname()` sees hidden
   " buffers, and if we try to open one of those, we get an unwanted split.
-  if bufwinnr('^' . l:file . '$') != -1 ||
-        \ (bufname('^' . l:file . '$') !=# '' && !s:BufHidden(l:file))
+  if s:BufVisible(l:file)
     execute 'sbuffer ' . l:file
   else
     execute l:command . l:file
