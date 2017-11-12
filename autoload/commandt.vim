@@ -140,7 +140,7 @@ function! commandt#CheckBuffer(buffer_number) abort
 endfunction
 
 " visible == exists, loaded, listed and not hidden
-" (buffer is opened in window - in current or another tab)
+" (buffer is opened in a window - in current or another tab)
 function! s:BufVisible(buffer)
   " buffer is opened in current tab (quick check for current tab)
   if bufwinnr('^' . a:buffer . '$') != -1 | return 1 | end
