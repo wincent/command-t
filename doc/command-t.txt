@@ -1400,34 +1400,35 @@ Other contributors that have submitted patches include, in alphabetical order:
   Abhinav Gupta                   Nicholas T.
   Adrian Keet                     Nicolas Alpi
   Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Andy Waite                      Nilo César Teixeira
-  Anthony Panozzo                 Noon Silk
-  Artem Nezvigin                  Ole Petter Bang
-  Ben Boeckel                     Patrick Hayes
-  Daniel Burgess                  Paul Jolly
-  Daniel Hahler                   Pavel Sergeev
-  David Szotten                   Rainux Luo
-  Douglas Drumond                 Richard Feldman
-  Emily Strickland                Roland Puntaier
-  Felix Tjandrawibawa             Ross Lagerwall
-  Gary Bernhardt                  Sam Morris
-  Henric Trotzig                  Scott Bronson
-  Ivan Ukhov                      Seth Fowler
-  Jakob Pfender                   Sherzod Gapirov
-  Jeff Kreeftmeijer               Shlomi Fish
-  Jerome Castaneda                Stefan Schmidt
-  Joe Lencioni                    Stephen Gelman
-  KJ Tsanaktsidis                 Steven Moazami
-  Kevin Webster                   Steven Stallion
-  Kien Nguyen Duc                 Sung Pae
-  Lucas de Vries                  Thomas Pelletier
-  Marcus Brito                    Ton van den Heuvel
-  Marian Schubert                 Victor Hugo Borja
-  Matthew Todd                    Vlad Seghete
-  Max Timkovich                   Vít Ondruch
-  Mike Lundy                      Woody Peterson
-  Nadav Samet                     Yan Pritzker
-  Nate Kane                       Zak Johnson
+  Alexey Terekhov                 Nilo César Teixeira
+  Andy Waite                      Noon Silk
+  Anthony Panozzo                 Ole Petter Bang
+  Artem Nezvigin                  Patrick Hayes
+  Ben Boeckel                     Paul Jolly
+  Daniel Burgess                  Pavel Sergeev
+  Daniel Hahler                   Rainux Luo
+  David Szotten                   Richard Feldman
+  Douglas Drumond                 Roland Puntaier
+  Emily Strickland                Ross Lagerwall
+  Felix Tjandrawibawa             Sam Morris
+  Gary Bernhardt                  Scott Bronson
+  Henric Trotzig                  Seth Fowler
+  Ivan Ukhov                      Sherzod Gapirov
+  Jakob Pfender                   Shlomi Fish
+  Jeff Kreeftmeijer               Stefan Schmidt
+  Jerome Castaneda                Stephen Gelman
+  Joe Lencioni                    Steven Moazami
+  KJ Tsanaktsidis                 Steven Stallion
+  Kevin Webster                   Sung Pae
+  Kien Nguyen Duc                 Thomas Pelletier
+  Lucas de Vries                  Ton van den Heuvel
+  Marcus Brito                    Victor Hugo Borja
+  Marian Schubert                 Vlad Seghete
+  Matthew Todd                    Vít Ondruch
+  Max Timkovich                   Woody Peterson
+  Mike Lundy                      Yan Pritzker
+  Nadav Samet                     Zak Johnson
+  Nate Kane
 
 This list produced with:
 
@@ -1556,6 +1557,7 @@ HISTORY                                         *command-t-history*
 master (not yet released) ~
 
 - Fix unlisted buffers showing up in |:CommandTBuffer| listing on Neovim.
+- Fix edge cases with opening selections in tabs (#315).
 
 5.0.2 (7 September 2017) ~
 
