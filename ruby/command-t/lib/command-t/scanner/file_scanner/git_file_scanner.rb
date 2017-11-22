@@ -39,11 +39,6 @@ module CommandT
             end
             truncated.to_a
           end
-        rescue LsFilesError
-          super
-        rescue Errno::ENOENT
-          # git executable not present and executable
-          super
         end
 
       private

@@ -9,10 +9,7 @@ module CommandT
     class FileScanner
       # A FileScanner which delegates the heavy lifting to Watchman
       # (https://github.com/facebook/watchman); useful for very large hierarchies.
-      #
-      # Inherits from FindFileScanner so that it can fall back to it in the event
-      # that Watchman isn't available or able to fulfil the request.
-      class WatchmanFileScanner < FindFileScanner
+      class WatchmanFileScanner < FileScanner
         # Exception raised when Watchman is unavailable or unable to process the
         # requested path.
         WatchmanError = Class.new(::RuntimeError)
@@ -49,9 +46,6 @@ module CommandT
               extracted
             end
           end
-        rescue Errno::ENOENT, WatchmanError
-          # watchman executable not present, or unable to fulfil request
-          super
         end
 
       private
