@@ -19,8 +19,8 @@ module CommandT
 
     private
 
-      def scanner(name, path, options)
-        case name
+      def scanner(which, path, options)
+        case which
         when 'ruby', nil # ruby is the default
           Scanner::FileScanner::RubyFileScanner.new(path, options)
         when 'find'
@@ -29,6 +29,9 @@ module CommandT
           Scanner::FileScanner::WatchmanFileScanner.new(path, options)
         when 'git'
           Scanner::FileScanner::GitFileScanner.new(path, options)
+        when Enumerable
+          scanners = which.map { |name| scanner(name, path, options) }
+          Scanner::FileScanner::CompositeFileScanner.new(scanners)
         else
           raise ArgumentError, "unknown scanner type '#{which}'"
         end
