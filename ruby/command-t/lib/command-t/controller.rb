@@ -551,7 +551,7 @@ module CommandT
     end
 
     def buffer_finder
-      @buffer_finder ||= CommandT::Finder::BufferFinder.new
+      CommandT::Finder::BufferFinder.new
     end
 
     def command_finder

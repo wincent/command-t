@@ -8,6 +8,12 @@ module CommandT
       include PathUtilities
 
       def paths
+        @paths ||= paths!
+      end
+
+    private
+
+      def paths!
         VIM.capture('silent ls').scan(/\n\s*(\d+)[^\n]+/).map do |n|
           number = n[0].to_i
           name = ::VIM.evaluate("bufname(#{number})")
