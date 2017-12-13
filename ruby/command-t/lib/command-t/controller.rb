@@ -559,7 +559,7 @@ module CommandT
     end
 
     def mru_finder
-      @mru_finder ||= CommandT::Finder::MRUBufferFinder.new
+      CommandT::Finder::MRUBufferFinder.new
     end
 
     def wildignore

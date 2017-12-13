@@ -8,6 +8,12 @@ module CommandT
       include PathUtilities
 
       def paths
+        @paths ||= paths!
+      end
+
+    private
+
+      def paths!
         # Collect all buffers that have not been used yet.
         unused_buffers = (0..(::VIM::Buffer.count - 1)).map do |n|
           buffer = ::VIM::Buffer[n]
