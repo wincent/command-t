@@ -14,10 +14,12 @@ module CommandT
       def sorted_matches_for(str, options = {})
         matches = super(str, options.merge(:sort => false))
 
-        # take current buffer (by definition, the most recently used) and move it
-        # to the end of the results
+        # Take current buffer (by definition, the most recently used) and move it
+        # to the end of the results.
         if MRU.last &&
-          relative_path_under_working_directory(MRU.last.name) == matches.first
+          relative_path_under_working_directory(
+            ::VIM.evaluate("bufname(#{MRU.last})")
+          ) == matches.first
           matches[1..-1] + [matches.first]
         else
           matches
