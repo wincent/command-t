@@ -8,14 +8,10 @@ module CommandT
       include PathUtilities
 
       def paths
-        (0..(::VIM::Buffer.count - 1)).map do |n|
-          buffer = ::VIM::Buffer[n]
-          # Beware, name may be nil, and on Neovim unlisted buffers (like
-          # Command-T's match listing itself) will be returned and must be
-          # skipped.
-          if buffer.name && ::VIM::evaluate("buflisted(#{buffer.number})") != 0
-            relative_path_under_working_directory buffer.name
-          end
+        VIM.capture('silent ls').scan(/\n\s*(\d+)[^\n]+/).map do |n|
+          number = n[0].to_i
+          name = ::VIM.evaluate("bufname(#{number})")
+          relative_path_under_working_directory(name) unless name == ''
         end.compact
       end
     end
