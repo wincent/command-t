@@ -555,7 +555,7 @@ module CommandT
     end
 
     def command_finder
-      @command_finder ||= CommandT::Finder::CommandFinder.new
+      CommandT::Finder::CommandFinder.new
     end
 
     def mru_finder
