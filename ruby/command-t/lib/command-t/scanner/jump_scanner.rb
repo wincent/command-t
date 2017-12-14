@@ -8,6 +8,12 @@ module CommandT
       include PathUtilities
 
       def paths
+        @paths ||= paths!
+      end
+
+    private
+
+      def paths!
         jumps_with_filename = jumps.lines.select do |line|
           line_contains_filename?(line)
         end
@@ -17,8 +23,6 @@ module CommandT
 
         filenames.sort.uniq
       end
-
-    private
 
       def line_contains_filename?(line)
         line.split.count > 3

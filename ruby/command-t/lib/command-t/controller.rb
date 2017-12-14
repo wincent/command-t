@@ -593,7 +593,7 @@ module CommandT
     end
 
     def jump_finder
-      @jump_finder ||= CommandT::Finder::JumpFinder.new
+      CommandT::Finder::JumpFinder.new
     end
 
     def line_finder
