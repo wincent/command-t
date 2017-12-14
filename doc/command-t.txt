@@ -1554,10 +1554,12 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-master (not yet released) ~
+next (not yet released) ~
 
 - Fix unlisted buffers showing up in |:CommandTBuffer| listing on Neovim.
 - Fix edge cases with opening selections in tabs (#315).
+- Fix possible degenerate performance of |:CommandTBuffer| and
+  |:CommandTMRU| on Neovim.
 
 5.0.2 (7 September 2017) ~
 
