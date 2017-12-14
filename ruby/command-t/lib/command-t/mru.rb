@@ -1,6 +1,8 @@
 # Copyright 2014-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
+require 'set'
+
 module CommandT
   # Maintains a stack of seen buffer numbers in MRU (most recently used) order.
   module MRU
@@ -8,6 +10,12 @@ module CommandT
       # The stack of used buffer numbers in MRU order.
       def stack
         @stack ||= []
+      end
+
+      # All buffer numbers in the stack, returned as a set for fast membership
+      # lookup.
+      def buffers
+        Set.new(@stack)
       end
 
       # The (last) most recent buffer number in the stack, if any.
@@ -33,12 +41,6 @@ module CommandT
         # we need to use Vim's <abuf> for the correct buffer number.
         current = ::VIM::evaluate('expand("<abuf>")').to_i
         stack.delete_if { |number| number == current }
-      end
-
-      # Returns `true` if buffer identified by `number` has been used (ie. is
-      # present in the stack).
-      def used?(number)
-        stack.include?(number)
       end
     end
   end

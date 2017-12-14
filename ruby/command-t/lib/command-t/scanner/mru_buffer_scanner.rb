@@ -15,9 +15,10 @@ module CommandT
 
       def paths!
         # Collect all buffers that have not been used yet.
+        used_buffers = MRU.buffers
         unused_buffers = VIM.capture('silent ls').scan(/\n\s*(\d+)[^\n]+/).map do |n|
           number = n[0].to_i
-        end.select { |n| !MRU.used?(n) }
+        end.select { |n| !used_buffers.member?(n) }
 
         # Combine all most recently used buffers and all unused buffers, and
         # return all listed buffer paths.
