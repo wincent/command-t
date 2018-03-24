@@ -364,14 +364,15 @@ module CommandT
       @initial_buffer = $curbuf
       @debounce_interval = VIM::get_number('g:CommandTInputDebounce') || 0
       @match_window = MatchWindow.new \
-        :encoding             => VIM::get_string('g:CommandTEncoding'),
-        :highlight_color      => VIM::get_string('g:CommandTHighlightColor'),
-        :match_window_at_top  => VIM::get_bool('g:CommandTMatchWindowAtTop'),
-        :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse', true),
-        :min_height           => min_height,
-        :debounce_interval    => @debounce_interval,
-        :prompt               => prompt,
-        :name                 => "Command-T [#{@active_finder.name}]"
+        :encoding                => VIM::get_string('g:CommandTEncoding'),
+        :highlight_color         => VIM::get_string('g:CommandTHighlightColor'),
+        :char_matched_color      => VIM::get_string('g:CommandTCharMatchedColor'),
+        :match_window_at_top     => VIM::get_bool('g:CommandTMatchWindowAtTop'),
+        :match_window_reverse    => VIM::get_bool('g:CommandTMatchWindowReverse', true),
+        :min_height              => min_height,
+        :debounce_interval       => @debounce_interval,
+        :prompt                  => prompt,
+        :name                    => "Command-T [#{@active_finder.name}]"
       @focus            = prompt
       prompt.focus
       register_for_key_presses

@@ -917,6 +917,12 @@ Following is a list of all available options:
       Specifies the |:highlight| color that will be used to show the currently
       selected item in the match listing window.
 
+                                             *g:CommandTCharMatchedColor*
+  |g:CommandTCharMatchedColor|                   string (default: 'TabLine')
+
+      Specifies the |:char_matched_color| color that will be used to show the
+      characters that match your search.
+
                                              *g:CommandTWildIgnore*
   |g:CommandTWildIgnore|                       string (default: none)
 

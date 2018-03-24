@@ -15,11 +15,13 @@ module CommandT
     Highlight = Struct.new(:highlight, :bang)
 
     def initialize(options = {})
-      @encoding        = options[:encoding]
-      @highlight_color = options[:highlight_color] || 'PmenuSel'
-      @min_height      = options[:min_height]
-      @prompt          = options[:prompt]
-      @reverse_list    = options[:match_window_reverse]
+      @encoding            = options[:encoding]
+      @highlight_color     = options[:highlight_color] || 'PmenuSel'
+      @char_matched_color  = options[:char_matched_color] || 'TabLine'
+
+      @min_height          = options[:min_height]
+      @prompt              = options[:prompt]
+      @reverse_list        = options[:match_window_reverse]
 
       quoted_name = VIM::escape_for_single_quotes(options[:name])
       escaped_name = ::VIM::evaluate("fnameescape('#{quoted_name}')")
@@ -125,9 +127,7 @@ module CommandT
           ::VIM::command 'syntax region CommandTCharMatched ' \
                          "matchgroup=CommandTCharMatched start=+#{MH_START}+ " \
                          "matchgroup=CommandTCharMatchedEnd end=+#{MH_END}+ concealends"
-          ::VIM::command 'highlight def CommandTCharMatched ' \
-                         'term=bold,underline cterm=bold,underline ' \
-                         'gui=bold,underline'
+          ::VIM::command "highlight link CommandTCharMatched #{@char_matched_color}"
         end
 
         ::VIM::command "highlight link CommandTSelection #{@highlight_color}"
