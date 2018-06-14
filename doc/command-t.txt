@@ -348,7 +348,8 @@ system Ruby is 2.0 but MacVim still links against the older 1.8.7 Ruby that is
 also bundled with the system; in this case the build command becomes:
 
   cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
-  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby extconf.rb
+  /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby 
+  extconf.rb
   make
 
 Note: Make sure you compile targeting the same architecture Vim was built for.
