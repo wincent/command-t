@@ -1554,6 +1554,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+master (not yet released) ~
+
+- ...
+
 5.0.3 (19 September 2018) ~
 
 - Fix unlisted buffers showing up in |:CommandTBuffer| listing on Neovim.
