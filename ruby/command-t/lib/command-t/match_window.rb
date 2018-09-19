@@ -154,9 +154,16 @@ module CommandT
 
     def buffer_number
       @@buffer && @@buffer.number
-    rescue Vim::DeletedBufferError
-      # Beware of people manually deleting Command-T's hidden, unlisted buffer.
-      @@buffer = nil
+    rescue StandardError => e
+      if (
+        defined?(Vim::DeletedBufferError) && e.instance_of?(Vim::DeletedBufferError) ||
+        e.message =~ /Invalid buffer/
+      )
+        # Something/someone deleted Command-T's hidden, unlisted buffer.
+        @@buffer = nil
+      else
+        raise
+      end
     end
 
     def close

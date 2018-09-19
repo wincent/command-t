@@ -1560,6 +1560,7 @@ next (not yet released) ~
 - Fix edge cases with opening selections in tabs (#315).
 - Fix possible degenerate performance of |:CommandTBuffer| and
   |:CommandTMRU| on Neovim.
+- Handle missing match listing buffer in Neovim (#342).
 
 5.0.2 (7 September 2017) ~
 
