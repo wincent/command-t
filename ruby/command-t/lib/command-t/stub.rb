@@ -29,6 +29,18 @@ module CommandT
       define_method(method) { warn *@@load_error }
     end
 
+    def active_finder
+      ''
+    end
+
+    def path
+      ''
+    end
+
+    def return_is_own_buffer
+      0
+    end
+
   private
 
     def warn(*msg)
