@@ -133,7 +133,7 @@ endfunction
 " For possible use in status lines.
 function! commandt#CheckBuffer(buffer_number) abort
   if has('ruby')
-    execute 'ruby $command_t.return_is_own_buffer' a:buffer_number
+    execute 'ruby $command_t.return_is_own_buffer ' a:buffer_number
   else
     return 0
   endif
