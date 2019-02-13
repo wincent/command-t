@@ -1556,7 +1556,7 @@ HISTORY                                         *command-t-history*
 
 next (not yet released) ~
 
-- ...
+- Fix possible |E434| when trying to jump to some help targets.
 
 5.0.3 (19 September 2018) ~
 
