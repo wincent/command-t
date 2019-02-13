@@ -10,7 +10,21 @@ module CommandT
       end
 
       def open_selection(command, selection, options = {})
-        ::VIM::command "help #{selection}"
+        # E434 "Can't find tag pattern" is innocuous, caused by tags like
+        #
+        #     LanguageClient.txt      LanguageClient.txt      /*LanguageClient.txt*
+        #
+        # From:
+        #
+        #     https://github.com/autozimu/LanguageClient-neovim
+        #
+        # Which has no corresponding target inside the help file.
+        #
+        # Related:
+        #
+        #     https://github.com/autozimu/LanguageClient-neovim/pull/731
+        #
+        ::VIM::command "try | help #{selection} | catch /E434/ | endtry"
       end
 
       def prepare_selection(selection)
