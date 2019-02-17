@@ -446,6 +446,13 @@ during the build:
   ruby extconf.rb
   make
 
+If you are using the Dein plugin manager, you may run into a Ruby version
+mismatch even if the Command-T and Vim Ruby versions ostensibly match. This
+may be because Dein is running a cached version of the plugin. You can force
+it to run the current version using:
+
+  :call dein#recache_runtimepath()
+
 
 USAGE                                           *command-t-usage*
 
