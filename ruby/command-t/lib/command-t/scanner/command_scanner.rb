@@ -12,7 +12,7 @@ module CommandT
 
       def paths!
         # Get user commands.
-        commands = VIM.capture('silent command').split("\n")[2..-1].map do |line|
+        commands = VIM.capture('command').split("\n")[2..-1].map do |line|
           line.sub(/\A.{4}(\S+).+/, '\1')
         end
 

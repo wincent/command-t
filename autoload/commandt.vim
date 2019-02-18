@@ -152,11 +152,7 @@ function! s:BufVisible(buffer)
   if !buflisted(a:buffer) | return 0 | end
 
   let bufno = bufnr(a:buffer)
-  let ls_buffers = ''
-
-  redir => ls_buffers
-  silent ls
-  redir END
+  let ls_buffers = commandt#private#capture('ls')
 
   " buffer is hidden when its last window is closed (`set hidden` only)
   for line in split(ls_buffers, "\n")
