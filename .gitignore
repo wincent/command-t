@@ -2,4 +2,5 @@
 .ruby-version
 /.bundle
 /data/log.yml
+/media
 vendor/bundle
