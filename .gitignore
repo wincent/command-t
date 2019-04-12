@@ -4,3 +4,6 @@
 /data/log.yml
 /media
 vendor/bundle
+*swp
+.un~
+*~
