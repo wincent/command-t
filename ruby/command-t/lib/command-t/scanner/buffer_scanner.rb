@@ -14,7 +14,7 @@ module CommandT
     private
 
       def paths!
-        VIM.capture('silent ls').scan(/\n\s*(\d+)[^\n]+/).map do |n|
+        VIM.capture('ls').scan(/\n\s*(\d+)[^\n]+/).map do |n|
           number = n[0].to_i
           name = ::VIM.evaluate("bufname(#{number})")
           relative_path_under_working_directory(name) unless name == ''

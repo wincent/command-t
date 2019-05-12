@@ -92,3 +92,14 @@ function! commandt#private#RunAutocmd(cmd) abort
     execute 'silent doautocmd User ' . a:cmd
   endif
 endfunction
+
+function! commandt#private#capture(cmd) abort
+  if exists('*execute')
+    return execute(a:cmd)
+  else
+    redir => l:capture
+    silent execute a:cmd
+    redir END
+    return l:capture
+  endif
+endfunction

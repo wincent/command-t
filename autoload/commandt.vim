@@ -133,7 +133,7 @@ endfunction
 " For possible use in status lines.
 function! commandt#CheckBuffer(buffer_number) abort
   if has('ruby')
-    execute 'ruby $command_t.return_is_own_buffer' a:buffer_number
+    execute 'ruby $command_t.return_is_own_buffer ' a:buffer_number
   else
     return 0
   endif
@@ -152,11 +152,7 @@ function! s:BufVisible(buffer)
   if !buflisted(a:buffer) | return 0 | end
 
   let bufno = bufnr(a:buffer)
-  let ls_buffers = ''
-
-  redir => ls_buffers
-  silent ls
-  redir END
+  let ls_buffers = commandt#private#capture('ls')
 
   " buffer is hidden when its last window is closed (`set hidden` only)
   for line in split(ls_buffers, "\n")
@@ -215,6 +211,7 @@ ruby << EOF
   rescue LoadError
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
+      path.gsub(%r{\\}, '/')
       ext = "#{path}/ruby/command-t/ext"
       if !$LOAD_PATH.include?(ext) && File.exist?(ext)
         $LOAD_PATH << ext

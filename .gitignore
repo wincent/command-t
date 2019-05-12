@@ -1,5 +1,9 @@
+*swp
+*~
 .release-notes.txt
 .ruby-version
+.un~
 /.bundle
 /data/log.yml
+/media
 vendor/bundle

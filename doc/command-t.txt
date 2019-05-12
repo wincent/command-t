@@ -1428,11 +1428,11 @@ Other contributors that have submitted patches include, in alphabetical order:
   Max Timkovich                   Woody Peterson
   Mike Lundy                      Yan Pritzker
   Nadav Samet                     Zak Johnson
-  Nate Kane
+  Nate Kane                       xiaodezhang
 
 This list produced with:
 
-    :read !git shortlog -s | grep -v 'Greg Hurrell' | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
+    :read !git shortlog -s HEAD | grep -v 'Greg Hurrell' | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
 
 Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
 were not directly included but which served as a model for changes that did
@@ -1556,7 +1556,9 @@ HISTORY                                         *command-t-history*
 
 master (not yet released) ~
 
-- ...
+- Fix possible |E434| when trying to jump to some help targets.
+- Use |execute()| when available to avoid possible issues with
+  potentially nested calls to |:redir|.
 
 5.0.3 (19 September 2018) ~
 
