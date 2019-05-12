@@ -211,7 +211,7 @@ ruby << EOF
   rescue LoadError
     load_path_modified = false
     ::VIM::evaluate('&runtimepath').to_s.split(',').each do |path|
-      path.gsub(%r{\\},'/')
+      path.gsub(%r{\\}, '/')
       ext = "#{path}/ruby/command-t/ext"
       if !$LOAD_PATH.include?(ext) && File.exist?(ext)
         $LOAD_PATH << ext
