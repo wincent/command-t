@@ -1566,6 +1566,7 @@ next (not yet released) ~
 - Fix possible |E434| when trying to jump to some help targets.
 - Use |execute()| when available to avoid possible issues with
   potentially nested calls to |:redir|.
+- Fix conflict with vim-cool plugin (#354).
 
 5.0.3 (19 September 2018) ~
 
