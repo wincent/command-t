@@ -1164,7 +1164,7 @@ filetype of  `command-t`. This can be used in |ftplugins| or elsewhere to set up
 an |autocommand| or apply custom configuration.
 
 For example of an |ftplugin| that sets a custom 'statusline' for the
-Command-T match listing buffer, see: https://rfr.to/f
+Command-T match listing buffer, see: https://wincent.com/f
 
                                                 *command-t-load*
                                                 *commandt#Load*
