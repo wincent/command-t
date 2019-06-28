@@ -446,6 +446,13 @@ during the build:
   ruby extconf.rb
   make
 
+If you are using the Dein plugin manager, you may run into a Ruby version
+mismatch even if the Command-T and Vim Ruby versions ostensibly match. This
+may be because Dein is running a cached version of the plugin. You can force
+it to run the current version using:
+
+  :call dein#recache_runtimepath()
+
 
 USAGE                                           *command-t-usage*
 
@@ -1157,7 +1164,7 @@ filetype of  `command-t`. This can be used in |ftplugins| or elsewhere to set up
 an |autocommand| or apply custom configuration.
 
 For example of an |ftplugin| that sets a custom 'statusline' for the
-Command-T match listing buffer, see: https://rfr.to/f
+Command-T match listing buffer, see: https://wincent.com/f
 
                                                 *command-t-load*
                                                 *commandt#Load*
@@ -1407,28 +1414,29 @@ Other contributors that have submitted patches include, in alphabetical order:
   Ben Boeckel                     Paul Jolly
   Daniel Burgess                  Pavel Sergeev
   Daniel Hahler                   Rainux Luo
-  David Szotten                   Richard Feldman
-  Douglas Drumond                 Roland Puntaier
-  Emily Strickland                Ross Lagerwall
-  Felix Tjandrawibawa             Sam Morris
-  Gary Bernhardt                  Scott Bronson
-  Henric Trotzig                  Seth Fowler
-  Ivan Ukhov                      Sherzod Gapirov
-  Jakob Pfender                   Shlomi Fish
-  Jeff Kreeftmeijer               Stefan Schmidt
-  Jerome Castaneda                Stephen Gelman
-  Joe Lencioni                    Steven Moazami
-  KJ Tsanaktsidis                 Steven Stallion
-  Kevin Webster                   Sung Pae
-  Kien Nguyen Duc                 Thomas Pelletier
-  Lucas de Vries                  Ton van den Heuvel
-  Marcus Brito                    Victor Hugo Borja
-  Marian Schubert                 Vlad Seghete
-  Matthew Todd                    Vít Ondruch
-  Max Timkovich                   Woody Peterson
-  Mike Lundy                      Yan Pritzker
-  Nadav Samet                     Zak Johnson
-  Nate Kane                       xiaodezhang
+  David Emett                     Richard Feldman
+  David Szotten                   Roland Puntaier
+  Douglas Drumond                 Ross Lagerwall
+  Emily Strickland                Sam Morris
+  Felix Tjandrawibawa             Scott Bronson
+  Gary Bernhardt                  Seth Fowler
+  Henric Trotzig                  Sherzod Gapirov
+  Ivan Ukhov                      Shlomi Fish
+  Jakob Pfender                   Stefan Schmidt
+  Jeff Kreeftmeijer               Stephen Gelman
+  Jerome Castaneda                Steven Moazami
+  Joe Lencioni                    Steven Stallion
+  KJ Tsanaktsidis                 Sung Pae
+  Kevin Webster                   Thomas Pelletier
+  Kien Nguyen Duc                 Ton van den Heuvel
+  Lucas de Vries                  Victor Hugo Borja
+  Marcus Brito                    Vlad Seghete
+  Marian Schubert                 Vít Ondruch
+  Matthew Todd                    Woody Peterson
+  Max Timkovich                   Yan Pritzker
+  Mike Lundy                      Zak Johnson
+  Nadav Samet                     xiaodezhang
+  Nate Kane
 
 This list produced with:
 
@@ -1559,6 +1567,7 @@ master (not yet released) ~
 - Fix possible |E434| when trying to jump to some help targets.
 - Use |execute()| when available to avoid possible issues with
   potentially nested calls to |:redir|.
+- Fix conflict with vim-cool plugin (#354).
 
 5.0.3 (19 September 2018) ~
 

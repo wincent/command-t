@@ -87,12 +87,12 @@ module CommandT
     def set_bool(setting, value)
       command = global?(setting) ? 'set' : 'setlocal'
       setting = value ? setting : "no#{setting}"
-      ::VIM::command "#{command} #{setting}"
+      ::VIM::command "noautocmd #{command} #{setting}"
     end
 
     def set_number(setting, value)
       command = global?(setting) ? 'set' : 'setlocal'
-      ::VIM::command "#{command} #{setting}=#{value}"
+      ::VIM::command "noautocmd #{command} #{setting}=#{value}"
     end
     alias set_string set_number
   end
