@@ -19,8 +19,7 @@ module CommandT
 
           unless @scan_dot_directories
             dot_directory_filter = [
-              '-not', '-path', "#{@path}/.*/*",           # top-level dot dir
-              '-and', '-not', '-path', "#{@path}/*/.*/*"  # lower-level dot dir
+              '-o', '-name', '.*', '-prune'
             ]
           end
 
@@ -28,10 +27,11 @@ module CommandT
           Open3.popen3(*([
             'find', '-L',                 # follow symlinks
             @path,                        # anchor search here
+            '-mindepth', '1',             # prevent dot dir filter applying to root
             '-maxdepth', @max_depth.to_s, # limit depth of DFS
             '-type', 'f',                 # only show regular files (not dirs etc)
-            dot_directory_filter,         # possibly skip out dot directories
-            '-print0'                     # NUL-terminate results
+            '-print0',                    # NUL-terminate results
+            dot_directory_filter          # possibly skip out dot directories
           ].flatten.compact)) do |stdin, stdout, stderr|
             counter = 1
             next_progress = progress_reporter.update(counter)

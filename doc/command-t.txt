@@ -1414,28 +1414,29 @@ Other contributors that have submitted patches include, in alphabetical order:
   Ben Boeckel                     Paul Jolly
   Daniel Burgess                  Pavel Sergeev
   Daniel Hahler                   Rainux Luo
-  David Szotten                   Richard Feldman
-  Douglas Drumond                 Roland Puntaier
-  Emily Strickland                Ross Lagerwall
-  Felix Tjandrawibawa             Sam Morris
-  Gary Bernhardt                  Scott Bronson
-  Henric Trotzig                  Seth Fowler
-  Ivan Ukhov                      Sherzod Gapirov
-  Jakob Pfender                   Shlomi Fish
-  Jeff Kreeftmeijer               Stefan Schmidt
-  Jerome Castaneda                Stephen Gelman
-  Joe Lencioni                    Steven Moazami
-  KJ Tsanaktsidis                 Steven Stallion
-  Kevin Webster                   Sung Pae
-  Kien Nguyen Duc                 Thomas Pelletier
-  Lucas de Vries                  Ton van den Heuvel
-  Marcus Brito                    Victor Hugo Borja
-  Marian Schubert                 Vlad Seghete
-  Matthew Todd                    Vít Ondruch
-  Max Timkovich                   Woody Peterson
-  Mike Lundy                      Yan Pritzker
-  Nadav Samet                     Zak Johnson
-  Nate Kane                       xiaodezhang
+  David Emett                     Richard Feldman
+  David Szotten                   Roland Puntaier
+  Douglas Drumond                 Ross Lagerwall
+  Emily Strickland                Sam Morris
+  Felix Tjandrawibawa             Scott Bronson
+  Gary Bernhardt                  Seth Fowler
+  Henric Trotzig                  Sherzod Gapirov
+  Ivan Ukhov                      Shlomi Fish
+  Jakob Pfender                   Stefan Schmidt
+  Jeff Kreeftmeijer               Stephen Gelman
+  Jerome Castaneda                Steven Moazami
+  Joe Lencioni                    Steven Stallion
+  KJ Tsanaktsidis                 Sung Pae
+  Kevin Webster                   Thomas Pelletier
+  Kien Nguyen Duc                 Ton van den Heuvel
+  Lucas de Vries                  Victor Hugo Borja
+  Marcus Brito                    Vlad Seghete
+  Marian Schubert                 Vít Ondruch
+  Matthew Todd                    Woody Peterson
+  Max Timkovich                   Yan Pritzker
+  Mike Lundy                      Zak Johnson
+  Nadav Samet                     xiaodezhang
+  Nate Kane
 
 This list produced with:
 
