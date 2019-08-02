@@ -1404,10 +1404,11 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicholas T.
-  Adrian Keet                     Nicolas Alpi
-  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Alexey Terekhov                 Nilo César Teixeira
+  Abhinav Gupta                   Nate Kane
+  Adrian Keet                     Nicholas T.
+  Aleksandrs Ļedovskis            Nicolas Alpi
+  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
+  Andrius Grabauskas              Nilo César Teixeira
   Andy Waite                      Noon Silk
   Anthony Panozzo                 Ole Petter Bang
   Artem Nezvigin                  Patrick Hayes
@@ -1436,7 +1437,6 @@ Other contributors that have submitted patches include, in alphabetical order:
   Max Timkovich                   Yan Pritzker
   Mike Lundy                      Zak Johnson
   Nadav Samet                     xiaodezhang
-  Nate Kane
 
 This list produced with:
 
@@ -1568,6 +1568,8 @@ master (not yet released) ~
 - Use |execute()| when available to avoid possible issues with
   potentially nested calls to |:redir|.
 - Fix conflict with vim-cool plugin (#354).
+- Close match listing after buffer deletion to avoid likely errors on
+  subsequent interactions (#357, patch from Andrius Grabauskas).
 
 5.0.3 (19 September 2018) ~
 
