@@ -228,6 +228,7 @@ module CommandT
         ::VIM::command "bd #{selection}"
       end
       list_matches!
+      hide
     end
     guard :remove_buffer
 
