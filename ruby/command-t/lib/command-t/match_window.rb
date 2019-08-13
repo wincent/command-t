@@ -353,8 +353,8 @@ module CommandT
       @windows.each do |w|
         # beware: window may be nil
         if window = ::VIM::Window[w.index]
-          window.height = w.height
-          window.width  = w.width
+          (window.height = w.height) rescue nil # Beware E315
+          (window.width  = w.width) rescue nil # Beware E315
           focus_window(w.index + 1)
           ::VIM::evaluate("winrestview({" +
             "'lnum': #{w.lnum}," +
