@@ -326,6 +326,14 @@ Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
 
 You can either set your version of Ruby to the output of the above command and
 then build Command-T, or re-build Vim with a version of Ruby you prefer.
+However, if you are installing vim or macvim via homebrew, you must compile
+command-t with the same ruby binary that homebrew installs as a dependency;
+using the same ruby version & patch version is not sufficient. In this case,
+use the following commands:
+
+  cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
+  /usr/local/opt/ruby/bin/ruby extconf.rb
+  make
 
 To set the version of Ruby, issue one of the following commands before
 the `make` command:
