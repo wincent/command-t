@@ -412,11 +412,9 @@ module CommandT
       false
     end
 
-    # Backslash-escape space, \, |, %, #, "
+    # Backslash-escape space, \, |, %, #, " etc.
     def sanitize_path_string(str)
-      # for details on escaping command-line mode arguments see: :h :
-      # (that is, help on ":") in the Vim documentation.
-      str.gsub(/[ \\|%#"]/, '\\\\\0')
+      ::VIM::evaluate("fnameescape('#{str}')")
     end
 
     def current_buffer_visible_in_other_window
