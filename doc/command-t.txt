@@ -1564,6 +1564,8 @@ HISTORY                                         *command-t-history*
 
 master (not yet released) ~
 
+- Support opening files which contain newlines (#365).
+- Guard against possible |E315| on accepting a selection.
 - Fix possible |E434| when trying to jump to some help targets.
 - Use |execute()| when available to avoid possible issues with
   potentially nested calls to |:redir|.
