@@ -1572,6 +1572,7 @@ master (not yet released) ~
 - Fix conflict with vim-cool plugin (#354).
 - Close match listing after buffer deletion to avoid likely errors on
   subsequent interactions (#357, patch from Andrius Grabauskas).
+- Fix |E116| error opening filenames containing single quotes.
 
 5.0.3 (19 September 2018) ~
 

@@ -414,7 +414,8 @@ module CommandT
 
     # Backslash-escape space, \, |, %, #, " etc.
     def sanitize_path_string(str)
-      ::VIM::evaluate("fnameescape('#{str}')")
+      quoted_name = VIM::escape_for_single_quotes(str)
+      ::VIM::evaluate("fnameescape('#{quoted_name}')")
     end
 
     def current_buffer_visible_in_other_window
