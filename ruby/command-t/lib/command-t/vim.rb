@@ -79,9 +79,9 @@ module CommandT
           elsif pattern.match(%r{\A\*\.([^*]+)\z})
             # *.something (match file with extension at any level)
             '\.' + Regexp.escape($~[1]) + '\z'
-          elsif pattern.match(%r{\A\*([^/*.][^/*]*)\z})
-            # *something (match file with extension without front dot at any level)
-            '[^/]+' +  Regexp.escape($~[1]) + '\z'
+          elsif pattern.match(%r{\A\*([^*/.]+)\z})
+            # *something (match suffix at any level)
+            Regexp.escape($~[1]) + '\z'
           elsif pattern.match(%r{\A\*/([^/]+)/\*\z})
             # */something/* (match directories at any level)
             '(\A|/)' + Regexp.escape($~[1]) + '/.+'
