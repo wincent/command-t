@@ -1,5 +1,3 @@
-require 'yaml'
-
 def bail_on_failure
   exitstatus = $?.exitstatus
   if exitstatus != 0
@@ -49,7 +47,6 @@ The general release sequence is:
   rake prerelease
   rake gem
   rake push
-  rake upload:all
 
 For a full list of available tasks:
 
@@ -96,78 +93,8 @@ task :check_tag do
   end
 end
 
-desc 'Verify that required dependencies are installed'
-task :check_deps do
-  begin
-    require 'rubygems'
-    require 'mechanize'
-  rescue LoadError
-    warn 'mechanize not installed (`gem install mechanize` in order to upload)'
-  end
-end
-
 desc 'Run checks prior to release'
-task :prerelease => [:make, :spec, :archive, :check_tag, :check_deps]
-
-desc 'Prepare release notes from HISTORY'
-task :notes do
-  File.open('.release-notes.txt', 'w') do |out|
-    lines = File.readlines('doc/command-t.txt').each(&:chomp!)
-    while line = lines.shift do
-      next unless line =~ /^HISTORY +\*command-t-history\*$/
-      break unless lines.shift == '' &&
-                  (line = lines.shift) && line =~ /^\d\.\d/ &&
-                  lines.shift == ''
-      while (line = lines.shift) && line != ''
-        out.puts line
-      end
-      break
-    end
-    out.puts ''
-    out.puts '# Please edit the release notes to taste.'
-    out.puts '# Blank lines and lines beginning with a hash will be removed.'
-    out.puts '# To abort, exit your editor with a non-zero exit status (:cquit in Vim).'
-  end
-
-  unless system "$EDITOR .release-notes.txt"
-    err "editor exited with non-zero exit status; aborting"
-    exit 1
-  end
-
-  filtered = File.readlines('.release-notes.txt').reject do |line|
-    line =~ /^(#.*|\s*)$/ # filter comment lines and blank lines
-  end.join
-
-  File.open('.release-notes.txt', 'w') do |out|
-    out.print filtered
-  end
-end
-
-namespace :upload do
-  desc 'Upload current archive to Amazon S3'
-  task :s3 => :archive do
-    sh 'aws --curl-options=--insecure put ' +
-      "s3.wincent.com/command-t/releases/command-t-#{version}.zip " +
-      "command-t-#{version}.zip"
-    sh 'aws --curl-options=--insecure put ' +
-      "s3.wincent.com/command-t/releases/command-t-#{version}.zip?acl " +
-      '--public'
-  end
-
-  desc 'Upload current archive to www.vim.org'
-  task :vim => [:archive, :notes] do
-    sh "vendor/vimscriptuploader/vimscriptuploader.rb \
-            --id 3025 \
-            --file command-t-#{version}.zip \
-            --message-file .release-notes.txt \
-            --version #{version} \
-            --config ~/.vim_org.yml \
-            .vim_org.yml"
-  end
-
-  desc 'Upload current archive everywhere'
-  task :all => [:s3, :vim]
-end
+task :prerelease => [:make, :spec, :archive, :check_tag]
 
 desc 'Create the ruby gem package'
 task :gem => :check_tag do
