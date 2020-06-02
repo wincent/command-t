@@ -324,8 +324,17 @@ Or, for very old versions of Ruby which don't define `RUBY_PATCHLEVEL`:
 
   :ruby puts RUBY_VERSION
 
-You can either set your version of Ruby to the output of the above command and
-then build Command-T, or re-build Vim with a version of Ruby you prefer.
+You can either set your version of Ruby to the output of the above
+command and then build Command-T, or re-build Vim with a version of Ruby
+you prefer.  Note that, if you installed Vim or MacVim via Homebrew, you
+should compile Command-T with the same Ruby binary that Homebrew installs
+as a dependency; using the same Ruby version and patch version may not
+be sufficient. In this case, use the following commands (adjusting the `cd`
+target to match the actual install location on your system):
+
+  cd ~/.vim/bundle/command-t/ruby/command-t/ext/command-t
+  /usr/local/opt/ruby/bin/ruby extconf.rb
+  make
 
 To set the version of Ruby, issue one of the following commands before
 the `make` command:
@@ -1404,15 +1413,16 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicholas T.
-  Adrian Keet                     Nicolas Alpi
-  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Alexey Terekhov                 Nilo César Teixeira
-  Andrius Grabauskas              Noon Silk
-  Andy Waite                      Ole Petter Bang
-  Anthony Panozzo                 Patrick Hayes
-  Artem Nezvigin                  Paul Jolly
-  Ben Boeckel                     Pavel Sergeev
+  Abhinav Gupta                   Nate Kane
+  Adrian Keet                     Nicholas T.
+  Aleksandrs Ļedovskis            Nicolas Alpi
+  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
+  Andrius Grabauskas              Nilo César Teixeira
+  Andy Waite                      Noon Silk
+  Anthony Panozzo                 Ole Petter Bang
+  Artem Nezvigin                  Patrick Hayes
+  Ben Boeckel                     Paul Jolly
+  Brendan Mulholland              Pavel Sergeev
   Daniel Burgess                  Rainux Luo
   Daniel Hahler                   Richard Feldman
   David Emett                     Roland Puntaier
@@ -1437,7 +1447,6 @@ Other contributors that have submitted patches include, in alphabetical order:
   Max Timkovich                   Yan Pritzker
   Mike Lundy                      Zak Johnson
   Nadav Samet                     xiaodezhang
-  Nate Kane
 
 This list produced with:
 
