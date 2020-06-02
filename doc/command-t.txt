@@ -1413,15 +1413,16 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicholas T.
-  Adrian Keet                     Nicolas Alpi
-  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Alexey Terekhov                 Nilo César Teixeira
-  Andrius Grabauskas              Noon Silk
-  Andy Waite                      Ole Petter Bang
-  Anthony Panozzo                 Patrick Hayes
-  Artem Nezvigin                  Paul Jolly
-  Ben Boeckel                     Pavel Sergeev
+  Abhinav Gupta                   Nate Kane
+  Adrian Keet                     Nicholas T.
+  Aleksandrs Ļedovskis            Nicolas Alpi
+  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
+  Andrius Grabauskas              Nilo César Teixeira
+  Andy Waite                      Noon Silk
+  Anthony Panozzo                 Ole Petter Bang
+  Artem Nezvigin                  Patrick Hayes
+  Ben Boeckel                     Paul Jolly
+  Brendan Mulholland              Pavel Sergeev
   Daniel Burgess                  Rainux Luo
   Daniel Hahler                   Richard Feldman
   David Emett                     Roland Puntaier
@@ -1446,7 +1447,6 @@ Other contributors that have submitted patches include, in alphabetical order:
   Max Timkovich                   Yan Pritzker
   Mike Lundy                      Zak Johnson
   Nadav Samet                     xiaodezhang
-  Nate Kane
 
 This list produced with:
 
