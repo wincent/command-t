@@ -12,15 +12,4 @@ if empty(&switchbuf)
   set switchbuf=usetab
 endif
 
-" HACK: use both old and new during early development
-if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'mirkwood') ==? 'isengard'
-  call commandt#isengard#init()
-endif
 call commandt#mirkwood#init()
-finish
-
-if has('patch-7-4-1829') && get(g:, 'CommandTEngine', 'isengard') ==? 'isengard'
-  call commandt#isengard#init()
-else
-  call commandt#mirkwood#init()
-endif

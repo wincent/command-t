@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib', 'ruby']
   s.extensions = 'ext/command-t/extconf.rb'
 
-  s.executables = ['commandtd']
+  s.executables = []
 
   s.homepage = 'https://github.com/wincent/command-t'
 
