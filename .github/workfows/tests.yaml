@@ -1,0 +1,22 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install libraries
+        run: |
+          set -x
+          sudo apt-get update -q || :
+          sudo apt-get install --no-install-recommends -q -y build-essential ruby-dev ruby-
+      - name: Build extension
+        run: |
+          pushd ./ruby/command-t/ext/command-t
+          ruby extconf.rb --vendor
+          make
+          popd
+      - name: Install dependencies
+        run: bundle install
+      - name: Run tests
+        run: bundle exec rake
