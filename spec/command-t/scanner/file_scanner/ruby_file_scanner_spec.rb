@@ -11,10 +11,10 @@ describe CommandT::Scanner::FileScanner::RubyFileScanner do
     )
     @scanner = CommandT::Scanner::FileScanner::RubyFileScanner.new(@dir)
 
-    stub(::VIM).evaluate(/exists/) { 1 }
-    stub(::VIM).evaluate(/expand\(.+\)/) { '0' }
-    stub(::VIM).command(/echon/)
-    stub(::VIM).command('redraw')
+    allow(::VIM).to receive(:evaluate).with(/exists/) { 1 }
+    allow(::VIM).to receive(:evaluate).with(/expand\(.+\)/) { '0' }
+    allow(::VIM).to receive(:command).with(/echon/)
+    allow(::VIM).to receive(:command).with('redraw')
   end
 
   describe 'paths method' do
