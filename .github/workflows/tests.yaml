@@ -9,7 +9,7 @@ jobs:
         run: |
           set -x
           sudo apt-get update -q || :
-          sudo apt-get install --no-install-recommends -q -y build-essential ruby-dev ruby-
+          sudo apt-get install --no-install-recommends -q -y build-essential ruby-dev
       - name: Build extension
         run: |
           pushd ./ruby/command-t/ext/command-t
@@ -19,4 +19,4 @@ jobs:
       - name: Install dependencies
         run: bundle install
       - name: Run tests
-        run: bundle exec rake
+        run: bundle exec rspec -Iruby
