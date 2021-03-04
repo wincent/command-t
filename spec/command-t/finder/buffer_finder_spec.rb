@@ -6,7 +6,7 @@ require 'spec_helper'
 describe CommandT::Finder::BufferFinder do
   before do
     @paths = %w(.git/config .vim/notes .vimrc baz foo/beta)
-    any_instance_of(CommandT::Scanner::BufferScanner, :paths => @paths)
+    allow_any_instance_of(CommandT::Scanner::BufferScanner).to receive(:paths).and_return(@paths)
     @finder = CommandT::Finder::BufferFinder.new
   end
 

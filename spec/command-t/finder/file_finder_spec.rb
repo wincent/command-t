@@ -19,9 +19,9 @@ describe CommandT::Finder::FileFinder do
   end
 
   before do
-    stub(::VIM).evaluate(/expand/) { 0 }
-    stub(::VIM).command(/echon/)
-    stub(::VIM).command('redraw')
+    allow(::VIM).to receive(:evaluate).with(/expand/) { 0 }
+    allow(::VIM).to receive(:command).with(/echon/)
+    allow(::VIM).to receive(:command).with('redraw')
   end
 
   describe 'sorted_matches_for method' do

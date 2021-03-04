@@ -16,35 +16,35 @@ describe CommandT::Controller do
     end
 
     def set_string(name, value)
-      stub(::VIM).evaluate(%{exists("#{name}")}).returns(1)
-      stub(::VIM).evaluate(name).returns(value)
+      allow(::VIM).to receive(:evaluate).with(%{exists("#{name}")}).and_return(1)
+      allow(::VIM).to receive(:evaluate).with(name).and_return(value)
     end
 
     it 'opens relative paths inside the working directory' do
-      stub(::VIM).evaluate('a:arg').returns('')
+      allow(::VIM).to receive(:evaluate).with('a:arg').and_return('')
       set_string('g:CommandTTraverseSCM', 'pwd')
       controller.show_file_finder
-      mock(::VIM).command('silent CommandTOpen edit path/to/selection')
+      expect(::VIM).to receive(:command).with('silent CommandTOpen edit path/to/selection')
       controller.accept_selection
     end
 
     it 'opens absolute paths outside the working directory' do
-      stub(::VIM).evaluate('a:arg').returns('../outside')
+      allow(::VIM).to receive(:evaluate).with('a:arg').and_return('../outside')
       controller.show_file_finder
-      mock(::VIM).command('silent CommandTOpen edit /working/outside/path/to/selection')
+      expect(::VIM).to receive(:command).with('silent CommandTOpen edit /working/outside/path/to/selection')
       controller.accept_selection
     end
 
     it 'does not get confused by common directory prefixes' do
-      stub(::VIM).evaluate('a:arg').returns('../directory-oops')
+      allow(::VIM).to receive(:evaluate).with('a:arg').and_return('../directory-oops')
       controller.show_file_finder
-      mock(::VIM).command('silent CommandTOpen edit /working/directory-oops/path/to/selection')
+      expect(::VIM).to receive(:command).with('silent CommandTOpen edit /working/directory-oops/path/to/selection')
       controller.accept_selection
     end
 
     it 'does not enter an infinite loop when toggling focus' do
       # https://github.com/wincent/command-t/issues/157
-      stub(::VIM).evaluate('a:arg').returns('')
+      allow(::VIM).to receive(:evaluate).with('a:arg').and_return('')
       set_string('g:CommandTTraverseSCM', 'pwd')
       controller.show_file_finder
       expect { controller.toggle_focus }.to_not raise_error
@@ -59,43 +59,43 @@ describe CommandT::Controller do
 
   def stub_finder(sorted_matches=[])
     finder = CommandT::Finder::FileFinder.new
-    stub(finder).path = anything
-    stub(finder).sorted_matches_for(anything, anything).returns(sorted_matches)
-    stub(CommandT::Finder::FileFinder).new.returns(finder)
+    allow(finder).to receive(:"path=").with(anything)
+    allow(finder).to receive(:sorted_matches_for).with(anything, anything).and_return(sorted_matches)
+    allow(CommandT::Finder::FileFinder).to receive(:new).and_return(finder)
   end
 
   def stub_match_window(selection)
     match_window = Object.new
-    stub(match_window).matches = anything
-    stub(match_window).leave
-    stub(match_window).focus
-    stub(match_window).selection.returns(selection)
-    stub(CommandT::MatchWindow).new.returns(match_window)
+    allow(match_window).to receive(:"matches=").with(anything)
+    allow(match_window).to receive(:leave)
+    allow(match_window).to receive(:focus)
+    allow(match_window).to receive(:selection).and_return(selection)
+    allow(CommandT::MatchWindow).to receive(:new).and_return(match_window)
   end
 
   def stub_prompt(abbrev='')
     prompt = Object.new
-    stub(prompt).focus
-    stub(prompt).unfocus
-    stub(prompt).clear!
-    stub(prompt).redraw
-    stub(prompt).abbrev.returns(abbrev)
-    stub(CommandT::Prompt).new.returns(prompt)
+    allow(prompt).to receive(:focus)
+    allow(prompt).to receive(:unfocus)
+    allow(prompt).to receive(:clear!)
+    allow(prompt).to receive(:redraw)
+    allow(prompt).to receive(:abbrev).and_return(abbrev)
+    allow(CommandT::Prompt).to receive(:new).and_return(prompt)
   end
 
   def stub_vim(working_directory)
-    stub($curbuf).number.returns('0')
-    stub(::VIM).command(/noremap/)
-    stub(::VIM).command('silent b 0')
-    stub(::VIM).command(/augroup/)
-    stub(::VIM).command('au!')
-    stub(::VIM).command(/autocmd/)
-    stub(::VIM).evaluate(/exists\(.+\)/).returns('0')
-    stub(::VIM).evaluate('getcwd()').returns(working_directory)
-    stub(::VIM).evaluate('&buflisted').returns('1')
-    stub(::VIM).evaluate('&lines').returns('80')
-    stub(::VIM).evaluate('&term').returns('vt100')
-    stub(::VIM).evaluate('v:version').returns(704)
-    stub(::VIM).evaluate('!&buflisted && &buftype == "nofile"')
+    allow($curbuf).to receive(:number).and_return('0')
+    allow(::VIM).to receive(:command).with(/noremap/)
+    allow(::VIM).to receive(:command).with('silent b 0')
+    allow(::VIM).to receive(:command).with(/augroup/)
+    allow(::VIM).to receive(:command).with('au!')
+    allow(::VIM).to receive(:command).with(/autocmd/)
+    allow(::VIM).to receive(:evaluate).with(/exists\(.+\)/).and_return('0')
+    allow(::VIM).to receive(:evaluate).with('getcwd()').and_return(working_directory)
+    allow(::VIM).to receive(:evaluate).with('&buflisted').and_return('1')
+    allow(::VIM).to receive(:evaluate).with('&lines').and_return('80')
+    allow(::VIM).to receive(:evaluate).with('&term').and_return('vt100')
+    allow(::VIM).to receive(:evaluate).with('v:version').and_return(704)
+    allow(::VIM).to receive(:evaluate).with('!&buflisted && &buftype == "nofile"')
   end
 end
