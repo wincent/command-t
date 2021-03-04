@@ -16,10 +16,6 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'command-t'
 require 'command-t/ext'
 
-RSpec.configure do |config|
-  config.mock_framework = :rr
-end
-
 # Fake top-level VIM implementation, for stubbing.
 module VIM
   class << self
