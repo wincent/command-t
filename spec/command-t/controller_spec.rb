@@ -95,6 +95,9 @@ describe CommandT::Controller do
     allow(::VIM).to receive(:evaluate).with('&buflisted').and_return('1')
     allow(::VIM).to receive(:evaluate).with('&lines').and_return('80')
     allow(::VIM).to receive(:evaluate).with('&term').and_return('vt100')
+    allow(::VIM).to receive(:evaluate).with("fnameescape('#{working_directory}-oops/path/to/selection')").and_return("#{working_directory}-oops/path/to/selection")
+    allow(::VIM).to receive(:evaluate).with("fnameescape('path/to/selection')").and_return('path/to/selection')
+    allow(::VIM).to receive(:evaluate).with("fnameescape('/working/outside/path/to/selection')").and_return('/working/outside/path/to/selection')
     allow(::VIM).to receive(:evaluate).with('v:version').and_return(704)
     allow(::VIM).to receive(:evaluate).with('!&buflisted && &buftype == "nofile"')
   end
