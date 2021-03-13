@@ -36,6 +36,7 @@ module CommandT
       number
       readonly
       relativenumber
+      signcolumn
       spell
       swapfile
       synmaxcol
