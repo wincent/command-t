@@ -1586,6 +1586,7 @@ master (not yet released) ~
 - Deal with |'wildignore'| (and |g:CommandTWildIgnore|) patterns of the form
   "*pattern" (eg. "*~", which would ignore files created with Vim's default
   |'backupext'|) (#369, patch from Steve Herrell).
+- Turn off |'signcolumn'| in the match listing (#376).
 
 5.0.3 (19 September 2018) ~
 
