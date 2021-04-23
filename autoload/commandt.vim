@@ -173,7 +173,7 @@ function! commandt#GotoOrOpen(command_and_args) abort
   " `bufwinnr()` doesn't see windows in other tabs, meaning we open them again
   " instead of switching to the other tab; but `bufname()` sees hidden
   " buffers, and if we try to open one of those, we get an unwanted split.
-  if s:BufVisible(l:file)
+  if (!exists("g:CommandTDontGoto") || g:CommandTDontGoto == 0) && s:BufVisible(l:file)
     execute 'sbuffer ' . l:file
   else
     execute l:command . l:file

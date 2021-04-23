@@ -1035,6 +1035,14 @@ Following is a list of all available options:
       When typing a search term into Command-T, ignore spaces. When set to 0,
       Command-T will search for literal spaces inside file names.
 
+
+                                             *g:CommandTDontGoto*
+  |g:CommandTDontGoto|                       boolean (default: 0)
+
+      When this setting is off (the default) the default behaviour of
+      CommandTGotoOrOpen is applied. If on, always open buffer, don't goto.
+
+
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
 example, to set <C-x> as the mapping for cancelling (dismissing) the Command-T
