@@ -23,15 +23,39 @@ const char *foo = "foo";
 const char *bar = "bar";
 const char *baz = "baz";
 
-void commandt_example_func_that_takes_a_table_of_strings(const char **candidates) {
-    int i = 0;
-    while (1) {
-        if (candidates[i] == 0) {
-            // This shows that Lua NUL-terminates the array for us.
-            break;
-        }
-        i++;
+/*void*/int commandt_example_func_that_takes_a_table_of_strings(int count, const char **candidates) {
+    // TODO: see if we get called with the same ptr if we call with the same
+    // table... - nope... different... let's try again
+    // with same ffi.new object, they are the same...
+    /* static const char **ptr = NULL; */
+    /*  */
+    /* if (ptr == candidates) { */
+    /*     ptr = candidates; */
+    /*     return 111; */
+    /* } else { */
+    /*     ptr = candidates; */
+    /*     return 222; */
+    /* } */
+
+    // next step will be to see if string pointers stay the same (i think they
+    // will) - yes, they are
+    static const char *ptr = NULL;
+    if (ptr != candidates[0]) {
+        ptr = candidates[0];
+        return 333;
+    } else {
+        ptr = candidates[0];
+        return 444;
     }
+
+    /* int i = 0; */
+    /* while (1) { */
+    /*     if (candidates[i] == 0) { */
+    /*         // This shows that Lua NUL-terminates the array for us. */
+    /*         break; */
+    /*     } */
+    /*     i++; */
+    /* } */
 }
 
 // We can't NUL-terminate this array because 0 is a valid index position;
@@ -40,6 +64,12 @@ const int indices[] = {32, 10, 900, -1, 12};
 
 const int *commandt_example_func_that_returns_table_of_ints() {
     return indices;
+}
+
+// TODO
+void commandt_buffer_finder() {
+    // TODO provide a way to update this
+    static const char **candidates[] = {};
 }
 
 matches_t commandt_sorted_matches_for(const char *needle) {

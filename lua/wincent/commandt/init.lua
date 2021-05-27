@@ -43,7 +43,8 @@ library = {
       const char *commandt_example_func_that_returns_str();
 
 
-      void commandt_example_func_that_takes_a_table_of_strings(
+      int commandt_example_func_that_takes_a_table_of_strings(
+        int count,
         const char **candidates
       );
 
@@ -87,13 +88,27 @@ commandt.buffer_finder = function()
 
   print(ffi.string(library.commandt_example_func_that_returns_str()))
 
+  local t = {
+      "one",
+      "two",
+      "three",
+    }
+    local ffi_t = ffi.new("const char *[4]", t);
+  local flag = library.commandt_example_func_that_takes_a_table_of_strings(
+    ffi.new("int", 3),
+    -- 3 items + 1 NUL terminator
+    ffi_t)
 
-  -- 3 items + 1 NUL terminator
-  library.commandt_example_func_that_takes_a_table_of_strings(ffi.new("const char *[4]", {
-    "one",
-    "two",
-    "three",
-  }))
+  print(tonumber(flag))
+
+  local flag2 = library.commandt_example_func_that_takes_a_table_of_strings(
+    ffi.new("int", 3),
+    -- 3 items + 1 NUL terminator
+    --ffi_t
+    ffi.new("const char *[4]", t)
+    )
+
+  print(tonumber(flag2))
 
   local indices = library.commandt_example_func_that_returns_table_of_ints()
 
