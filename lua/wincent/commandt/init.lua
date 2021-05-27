@@ -11,6 +11,7 @@ local chooser_window = nil
 
 local library = nil
 
+-- require('wincent.commandt.finder')
 library = {
   commandt_example_func_that_returns_int = function()
     library = library.load()
@@ -22,6 +23,9 @@ library = {
     library = library.load()
 
     return library.commandt_example_func_that_returns_str()
+  end,
+
+  commandt_example_func_that_takes_a_table_of_strings = function()
   end,
 
   load = function ()
@@ -37,8 +41,20 @@ library = {
 
       int commandt_example_func_that_returns_int();
       const char *commandt_example_func_that_returns_str();
+
+
+      void commandt_example_func_that_takes_a_table_of_strings(
+        const char **candidates
+      );
+
+      const int *commandt_example_func_that_returns_table_of_ints();
+
       matches_t commandt_sorted_matches_for(const char *needle);
+
     ]]
+    -- TODO: avoid this; prefer to call destructor instead with ffi.gc and let
+    -- C-side code do the freeing...
+    -- void free(void *ptr);
 
     return loaded
   end,
@@ -71,7 +87,37 @@ commandt.buffer_finder = function()
 
   print(ffi.string(library.commandt_example_func_that_returns_str()))
 
-  local sorted = library.commandt_sorted_matches_for('some query')
+
+  -- 3 items + 1 NUL terminator
+  library.commandt_example_func_that_takes_a_table_of_strings(ffi.new("const char *[4]", {
+    "one",
+    "two",
+    "three",
+  }))
+
+  local indices = library.commandt_example_func_that_returns_table_of_ints()
+
+  -- TODO copy this kind somewhere useful (ie. a cheatsheet)
+  -- we can look up the size of the pointer to the array, but not
+  -- the length of the array itself; it is terminated with a -1.
+  -- print(ffi.sizeof(indices)) -- 8
+  -- print(tostring(ffi.typeof(indices))) -- ctype<const int *>
+
+  local i = 0
+  while true do
+    local index = tonumber(indices[i])
+    if index == -1 then
+      break
+    end
+    print(index)
+    i = i + 1
+  end
+
+  local sorted = --ffi.gc(
+    library.commandt_sorted_matches_for('some query')--,
+    -- ffi.C.free
+  --)
+  -- (Note: don't free here, better to tell matcher/scanner to destruct and do its own free-ing)
 
   -- tonumber() needed here because ULL (boxed)
   for i = 1, tonumber(sorted.count) do
