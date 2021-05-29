@@ -4,6 +4,8 @@
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for malloc() */
 
+#include "heap.h"
+
 typedef struct {
     size_t count;
     const char **matches;
@@ -23,7 +25,17 @@ const char *foo = "foo";
 const char *bar = "bar";
 const char *baz = "baz";
 
+static const char **buffers = NULL;
+
+static int cmp_score(const void *a, const void *b) {
+    return 1;
+}
+
 /*void*/int commandt_example_func_that_takes_a_table_of_strings(int count, const char **candidates) {
+    // just showing that we can use a function declared in another translation
+    // unit.
+    heap_t *heap = heap_new(20, cmp_score);
+
     // TODO: see if we get called with the same ptr if we call with the same
     // table... - nope... different... let's try again
     // with same ffi.new object, they are the same...
@@ -39,13 +51,25 @@ const char *baz = "baz";
 
     // next step will be to see if string pointers stay the same (i think they
     // will) - yes, they are
-    static const char *ptr = NULL;
-    if (ptr != candidates[0]) {
-        ptr = candidates[0];
-        return 333;
+    /* static const char *ptr = NULL; */
+    /* if (ptr != candidates[0]) { */
+    /*     ptr = candidates[0]; */
+    /*     return 333; */
+    /* } else { */
+    /*     ptr = candidates[0]; */
+    /*     return 444; */
+    /* } */
+
+    // similar, but with static
+    if (candidates == NULL) {
+        return 999;
+    } else
+    if (buffers != candidates) {
+        buffers = candidates;
+        return 555;
     } else {
-        ptr = candidates[0];
-        return 444;
+        buffers = candidates;
+        return 666;
     }
 
     /* int i = 0; */

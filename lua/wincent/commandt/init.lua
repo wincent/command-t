@@ -11,7 +11,12 @@ local chooser_window = nil
 
 local library = nil
 
--- require('wincent.commandt.finder')
+-- require('wincent.commandt.finder') -- TODO: decide whether we need this, or
+-- only scanners
+local scanner = require('wincent.commandt.scanner')
+
+-- print('scanner ' .. vim.inspect(scanner.buffer.get()))
+
 library = {
   commandt_example_func_that_returns_int = function()
     library = library.load()
@@ -99,16 +104,24 @@ commandt.buffer_finder = function()
     -- 3 items + 1 NUL terminator
     ffi_t)
 
-  print(tonumber(flag))
+  print('flag '..tonumber(flag))
 
   local flag2 = library.commandt_example_func_that_takes_a_table_of_strings(
     ffi.new("int", 3),
     -- 3 items + 1 NUL terminator
-    --ffi_t
-    ffi.new("const char *[4]", t)
+    ffi_t -- this produces the same pointer
+    -- ffi.new("const char *[4]", t) -- this is a diff value, producing a diff
+    -- pointer
     )
 
-  print(tonumber(flag2))
+  print('flag2 '..tonumber(flag2))
+
+  -- and nil
+  local flag3 = library.commandt_example_func_that_takes_a_table_of_strings(
+  ffi.new("int", 0),
+  ffi.new("const char *[1]", nil) -- does not wind up as NULL over there
+  )
+  print('flag3 '..tonumber(flag3))
 
   local indices = library.commandt_example_func_that_returns_table_of_ints()
 
@@ -150,7 +163,6 @@ commandt.cmdline_changed = function(char)
         local height = math.floor(vim.o.lines / 2) -- TODO make height somewhat dynamic
         local width = vim.o.columns
         if chooser_window == nil then
-          print('opn')
           chooser_buffer = vim.api.nvim_create_buf(false, true)
           chooser_window = vim.api.nvim_open_win(chooser_buffer, false, {
             col = 0,
