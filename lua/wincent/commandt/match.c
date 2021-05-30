@@ -2,33 +2,33 @@
 // Licensed under the terms of the BSD 2-clause license.
 
 #include <float.h> /* for FLT_MAX */
+#include <stdlib.h> /* for NULL */
+#include <string.h> /* for strlen() */
 #include "match.h"
-#include "ext.h"
-#include "ruby_compat.h"
 
 #define UNSET_SCORE FLT_MAX
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
-    char    *haystack_p;            // Pointer to the path string to be searched.
-    long    haystack_len;           // Length of same.
-    char    *needle_p;              // Pointer to search string (needle).
-    long    needle_len;             // Length of same.
-    long    *rightmost_match_p;     // Rightmost match for each char in needle.
-    float   max_score_per_char;
-    int     always_show_dot_files;  // Boolean.
-    int     never_show_dot_files;   // Boolean.
-    int     case_sensitive;         // Boolean.
-    int     recurse;                // Boolean.
-    float   *memo;                  // Memoization.
+    const char *haystack_p;
+    long haystack_len;
+    const char *needle_p;
+    long needle_len;
+    long *rightmost_match_p; // Rightmost match for each char in needle.
+    float max_score_per_char;
+    bool always_show_dot_files;
+    bool never_show_dot_files;
+    bool case_sensitive;
+    bool recurse;
+    float *memo; // Memoization.
 } matchinfo_t;
 
 float recursive_match(
-    matchinfo_t *m,    // Sharable meta-data.
+    matchinfo_t *m, // Sharable meta-data.
     long haystack_idx, // Where in the path string to start.
-    long needle_idx,   // Where in the needle string to start.
-    long last_idx,     // Location of last matched character.
-    float score        // Cumulative score so far.
+    long needle_idx, // Where in the needle string to start.
+    long last_idx, // Location of last matched character.
+    float score // Cumulative score so far.
 ) {
     long distance, i, j;
     float *memoized = NULL;
@@ -120,12 +120,14 @@ float recursive_match(
 }
 
 float calculate_match(
-    VALUE haystack,
-    VALUE needle,
-    VALUE case_sensitive,
-    VALUE always_show_dot_files,
-    VALUE never_show_dot_files,
-    VALUE recurse,
+    // TODO: all of these were VALUE; refactor usage/call sites
+    const char *haystack,
+    const char *needle,
+    bool case_sensitive,
+    bool always_show_dot_files,
+    bool never_show_dot_files,
+    bool recurse,
+
     long needle_bitmask,
     long *haystack_bitmask
 ) {
@@ -133,16 +135,18 @@ float calculate_match(
     long i;
     float score             = 1.0;
     int compute_bitmasks    = *haystack_bitmask == UNSET_BITMASK;
-    m.haystack_p            = RSTRING_PTR(haystack);
-    m.haystack_len          = RSTRING_LEN(haystack);
-    m.needle_p              = RSTRING_PTR(needle);
-    m.needle_len            = RSTRING_LEN(needle);
+    m.haystack_p            = haystack;
+    // TODO: avoid strlen here
+    m.haystack_len          = strlen(haystack);
+    m.needle_p              = needle;
+    // TODO: avoid strlen here
+    m.needle_len            = strlen(needle);
     m.rightmost_match_p     = NULL;
     m.max_score_per_char    = (1.0 / m.haystack_len + 1.0 / m.needle_len) / 2;
-    m.always_show_dot_files = always_show_dot_files == Qtrue;
-    m.never_show_dot_files  = never_show_dot_files == Qtrue;
-    m.case_sensitive        = (int)case_sensitive;
-    m.recurse               = recurse == Qtrue;
+    m.always_show_dot_files = always_show_dot_files;
+    m.never_show_dot_files  = never_show_dot_files;
+    m.case_sensitive        = case_sensitive;
+    m.recurse               = recurse;
 
     // Special case for zero-length search string.
     if (m.needle_len == 0) {
