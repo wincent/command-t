@@ -9,10 +9,7 @@
 #include "ext.h"
 #include "ruby_compat.h"
 
-// order matters; we want this to be evaluated only after ruby.h
-#ifdef HAVE_PTHREAD_H
 #include <pthread.h> /* for pthread_create, pthread_join etc */
-#endif
 
 // Comparison function for use with qsort.
 int cmp_alpha(const void *a, const void *b) {
@@ -171,10 +168,8 @@ long calculate_bitmask(VALUE string) {
 VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
 {
     long i, j, limit, path_count, thread_count;
-#ifdef HAVE_PTHREAD_H
     long err;
     pthread_t *threads;
-#endif
     long needle_bitmask = UNSET_BITMASK;
     long heap_matches_count;
     int use_heap;
@@ -287,7 +282,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         }
     }
 
-#ifdef HAVE_PTHREAD_H
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
     if (path_count < THREAD_THRESHOLD) {
         thread_count = 1;
@@ -295,7 +289,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     threads = malloc(sizeof(pthread_t) * thread_count);
     if (!threads)
         rb_raise(rb_eNoMemError, "memory allocation failed");
-#endif
 
     thread_args = malloc(sizeof(thread_args_t) * thread_count);
     if (!thread_args)
@@ -315,9 +308,7 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         thread_args[i].recurse = recurse;
         thread_args[i].needle_bitmask = needle_bitmask;
 
-#ifdef HAVE_PTHREAD_H
         if (i == thread_count - 1) {
-#endif
             // For the last "worker", we'll just use the main thread.
             heap = match_thread(&thread_args[i]);
             if (heap) {
@@ -326,17 +317,14 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
                 }
                 heap_free(heap);
             }
-#ifdef HAVE_PTHREAD_H
         } else {
             err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
             if (err != 0) {
                 rb_raise(rb_eSystemCallError, "pthread_create() failure (%d)", (int)err);
             }
         }
-#endif
     }
 
-#ifdef HAVE_PTHREAD_H
     for (i = 0; i < thread_count - 1; i++) {
         err = pthread_join(threads[i], (void **)&heap);
         if (err != 0) {
@@ -350,7 +338,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         }
     }
     free(threads);
-#endif
 
     if (sort) {
         if (
