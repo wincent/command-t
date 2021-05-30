@@ -52,7 +52,7 @@ int cmp_score(const void *a, const void *b) {
     }
 }
 
-VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self) {
+void CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self) {
     VALUE always_show_dot_files;
     VALUE never_show_dot_files;
     VALUE options;
@@ -74,8 +74,6 @@ VALUE CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self) {
 
     rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
     rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
-
-    return Qnil;
 }
 
 typedef struct {
