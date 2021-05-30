@@ -133,20 +133,20 @@ float calculate_match(
 ) {
     matchinfo_t m;
     long i;
-    float score             = 1.0;
-    int compute_bitmasks    = *haystack_bitmask == UNSET_BITMASK;
-    m.haystack_p            = haystack;
+    float score = 1.0;
+    int compute_bitmasks = *haystack_bitmask == UNSET_BITMASK;
+    m.haystack_p = haystack;
     // TODO: avoid strlen here
-    m.haystack_len          = strlen(haystack);
-    m.needle_p              = needle;
+    m.haystack_len = strlen(haystack);
+    m.needle_p = needle;
     // TODO: avoid strlen here
-    m.needle_len            = strlen(needle);
-    m.rightmost_match_p     = NULL;
-    m.max_score_per_char    = (1.0 / m.haystack_len + 1.0 / m.needle_len) / 2;
+    m.needle_len = strlen(needle);
+    m.rightmost_match_p = NULL;
+    m.max_score_per_char = (1.0 / m.haystack_len + 1.0 / m.needle_len) / 2;
     m.always_show_dot_files = always_show_dot_files;
-    m.never_show_dot_files  = never_show_dot_files;
-    m.case_sensitive        = case_sensitive;
-    m.recurse               = recurse;
+    m.never_show_dot_files = never_show_dot_files;
+    m.case_sensitive = case_sensitive;
+    m.recurse = recurse;
 
     // Special case for zero-length search string.
     if (m.needle_len == 0) {
