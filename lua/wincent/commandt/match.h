@@ -5,22 +5,16 @@
 
 #define UNSET_BITMASK (-1)
 
-// Struct for representing an individual match.
-typedef struct {
-    // TODO rename this because match doesn't always correspond to a "path"
-    const char *path;
-    long bitmask;
-    float score;
-} match_t;
-
-// TODO maybe namespace globally visible symbols like calculate_match
-float calculate_match(
+float commandt_calculate_match(
+    // TODO: rename "str"; it is actually a haystack
     const char *str,
     const char *needle,
     bool case_sensitive,
     bool always_show_dot_files,
     bool never_show_dot_files,
+    // TODO: think about getting rid of this setting?
+    // probably not though... it almost zero complexity
     bool recurse,
-    long needle_bitmask,
-    long *haystack_bitmask
+    long needle_bitmask/*,
+    long *haystack_bitmask*/
 );

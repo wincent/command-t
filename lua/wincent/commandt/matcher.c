@@ -1,16 +1,20 @@
 // Copyright 2010-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
-#include <stdlib.h>  /* for qsort() */
-#include <string.h>  /* for strncmp() */
+#include <stdlib.h> /* for malloc(), qsort(), NULL */
+#include <string.h> /* for strncmp() */
+
 #include "match.h"
 #include "matcher.h"
 #include "heap.h"
-#include "ext.h"
-#include "ruby_compat.h"
+//#include "ext.h"
+//#include "ruby_compat.h"
 
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 
+#define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
+
+#if 0
 // Comparison function for use with qsort.
 int cmp_alpha(const void *a, const void *b) {
     match_t a_match = *(match_t *)a;
@@ -52,28 +56,26 @@ int cmp_score(const void *a, const void *b) {
     }
 }
 
-void CommandTMatcher_initialize(int argc, VALUE *argv, VALUE self) {
-    VALUE always_show_dot_files;
-    VALUE never_show_dot_files;
-    VALUE options;
-    VALUE scanner;
+/**
+ * Returns a new matcher, or NULL on failure.
+ */
+matcher_t *CommandTMatcher_initialize(
+    bool always_show_dot_files,
+    bool never_show_dot_files
+) {
+    // TODO: sets scanner as an instance variable; not sure what scanner is
+    // going to look like in this version
 
-    // Process arguments: 1 mandatory, 1 optional.
-    if (rb_scan_args(argc, argv, "11", &scanner, &options) == 1) {
-        options = Qnil;
+    matcher_t *matcher = malloc(sizeof(matcher_t));
+
+    if (!matcher) {
+        return NULL;
     }
-    if (NIL_P(scanner)) {
-        rb_raise(rb_eArgError, "nil scanner");
-    }
 
-    rb_iv_set(self, "@scanner", scanner);
+    matcher->always_show_dot_files = always_show_dot_files;
+    matcher->never_show_dot_files = never_show_dot_files;
 
-    // Check optional options hash for overrides.
-    always_show_dot_files = CommandT_option_from_hash("always_show_dot_files", options);
-    never_show_dot_files = CommandT_option_from_hash("never_show_dot_files", options);
-
-    rb_iv_set(self, "@always_show_dot_files", always_show_dot_files);
-    rb_iv_set(self, "@never_show_dot_files", never_show_dot_files);
+    return matcher;
 }
 
 typedef struct {
@@ -83,12 +85,12 @@ typedef struct {
     long limit;
     match_t *matches;
     long path_count;
-    VALUE haystacks;
-    VALUE needle;
-    VALUE last_needle;
-    VALUE always_show_dot_files;
-    VALUE never_show_dot_files;
-    VALUE recurse;
+    VALUE haystacks; // ruby array
+    const char *needle;
+    const char *last_needle;
+    bool always_show_dot_files;
+    bool never_show_dot_files;
+    bool recurse;
     long needle_bitmask;
 } thread_args_t;
 
@@ -105,6 +107,9 @@ void *match_thread(void *thread_args) {
         heap = heap_new(args->limit + 1, cmp_score);
     }
 
+    // TODO benchmark different thread partitioning method
+    // (intead of every nth item to a thread, break into blocks)
+    // to see if cache characteristics improve the speed)
     for (
         i = args->thread_index;
         i < args->path_count;
@@ -119,7 +124,7 @@ void *match_thread(void *thread_args) {
             // time and it can't match this time either.
             continue;
         }
-        args->matches[i].score = calculate_match(
+        args->matches[i].score = commandt_calculate_match(
             args->matches[i].path,
             args->needle,
             args->case_sensitive,
@@ -170,20 +175,21 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     pthread_t *threads;
     long needle_bitmask = UNSET_BITMASK;
     long heap_matches_count;
-    int use_heap;
-    int sort;
+    bool use_heap;
+    bool sort;
     match_t *matches;
     match_t *heap_matches = NULL;
     heap_t *heap;
     thread_args_t *thread_args;
-    VALUE always_show_dot_files;
+    // TODO: change types... many bools etc
+    bool always_show_dot_files;
     VALUE case_sensitive;
     VALUE recurse;
     VALUE ignore_spaces;
     VALUE limit_option;
     VALUE last_needle;
     VALUE needle;
-    VALUE never_show_dot_files;
+    bool never_show_dot_files;
     VALUE new_paths_object_id;
     VALUE options;
     VALUE paths;
@@ -203,12 +209,17 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     }
 
     // Check optional options hash for overrides.
+    // TODO: make these explicit params instead
     case_sensitive = CommandT_option_from_hash("case_sensitive", options);
     limit_option = CommandT_option_from_hash("limit", options);
     threads_option = CommandT_option_from_hash("threads", options);
     sort_option = CommandT_option_from_hash("sort", options);
     ignore_spaces = CommandT_option_from_hash("ignore_spaces", options);
+
+    // TODO: figure out this... i think we need a struct to pass this state
+    // around
     always_show_dot_files = rb_iv_get(self, "@always_show_dot_files");
+
     never_show_dot_files = rb_iv_get(self, "@never_show_dot_files");
     recurse = CommandT_option_from_hash("recurse", options);
 
@@ -280,7 +291,6 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
         }
     }
 
-#define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
     if (path_count < THREAD_THRESHOLD) {
         thread_count = 1;
     }
@@ -391,3 +401,4 @@ VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self)
     rb_ivar_set(self, rb_intern("last_needle"), needle);
     return results;
 }
+#endif

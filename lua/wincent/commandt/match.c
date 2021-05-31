@@ -23,7 +23,7 @@ typedef struct {
     float *memo; // Memoization.
 } matchinfo_t;
 
-float recursive_match(
+static float recursive_match(
     matchinfo_t *m, // Sharable meta-data.
     long haystack_idx, // Where in the path string to start.
     long needle_idx, // Where in the needle string to start.
@@ -119,7 +119,7 @@ float recursive_match(
     return *memoized = score;
 }
 
-float calculate_match(
+float commandt_calculate_match(
     // TODO: all of these were VALUE; refactor usage/call sites
     const char *haystack,
     const char *needle,
@@ -128,9 +128,11 @@ float calculate_match(
     bool never_show_dot_files,
     bool recurse,
 
-    long needle_bitmask,
-    long *haystack_bitmask
+    long needle_bitmask/*,
+    long *haystack_bitmask */
 ) {
+    long random;
+    long *haystack_bitmask = &random;
     matchinfo_t m;
     long i;
     float score = 1.0;

@@ -18,51 +18,59 @@ local scanner = require('wincent.commandt.scanner')
 -- print('scanner ' .. vim.inspect(scanner.buffer.get()))
 
 library = {
-  commandt_example_func_that_returns_int = function()
-    library = library.load()
+  -- commandt_example_func_that_returns_int = function()
+  --   if not loaded then
+  --     library = library.load()
+  --   end
+  --
+  --   return library.commandt_example_func_that_returns_int()
+  -- end,
+  --
+  -- commandt_example_func_that_returns_str = function()
+  --   if not loaded then
+  --     library = library.load()
+  --   end
+  --
+  --   return library.commandt_example_func_that_returns_str()
+  -- end,
 
-    return library.commandt_example_func_that_returns_int()
-  end,
-
-  commandt_example_func_that_returns_str = function()
-    library = library.load()
-
-    return library.commandt_example_func_that_returns_str()
-  end,
-
-  commandt_example_func_that_takes_a_table_of_strings = function()
+  -- TODO: just a demo; we might not end up exposing this function, as only
+  -- matcher.c needs it (and anyway, it has a pointer-based out param, so we
+  -- can't do that...
+  commandt_calculate_match = function(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask)--, haystack_bitmask)
+    return library.load().commandt_calculate_match(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask)--, haystack_bitmask)
   end,
 
   load = function ()
     local dirname = debug.getinfo(1).source:match('@?(.*/)')
+    -- TODO: confirm that .so is auto-appended
     local extension = '.so' -- TODO: handle Windows .dll extension
-    local loaded = ffi.load(dirname .. 'commandt' .. extension)
+    -- TODO: rename loaded (sounds like a boolean but it is the library
+    library = ffi.load(dirname .. 'commandt' .. extension)
 
     ffi.cdef[[
+      float commandt_calculate_match(
+          const char *str,
+          const char *needle,
+          bool case_sensitive,
+          bool always_show_dot_files,
+          bool never_show_dot_files,
+          bool recurse,
+          long needle_bitmask
+      );
+
       typedef struct {
           size_t count;
           const char **matches;
       } matches_t;
 
-      int commandt_example_func_that_returns_int();
-      const char *commandt_example_func_that_returns_str();
-
-
-      int commandt_example_func_that_takes_a_table_of_strings(
-        int count,
-        const char **candidates
-      );
-
-      const int *commandt_example_func_that_returns_table_of_ints();
-
       matches_t commandt_sorted_matches_for(const char *needle);
-
     ]]
     -- TODO: avoid this; prefer to call destructor instead with ffi.gc and let
     -- C-side code do the freeing...
     -- void free(void *ptr);
 
-    return loaded
+    return library
   end,
 }
 
@@ -89,68 +97,74 @@ local tear_down_mappings = function()
 end
 
 commandt.buffer_finder = function()
-  print(library.commandt_example_func_that_returns_int())
+  print(library.commandt_calculate_match('string', 'str', true, true, false, true, 0, nil))
 
-  print(ffi.string(library.commandt_example_func_that_returns_str()))
-
-  local t = {
-      "one",
-      "two",
-      "three",
-    }
-    local ffi_t = ffi.new("const char *[4]", t);
-  local flag = library.commandt_example_func_that_takes_a_table_of_strings(
-    ffi.new("int", 3),
-    -- 3 items + 1 NUL terminator
-    ffi_t)
-
-  print('flag '..tonumber(flag))
-
-  local flag2 = library.commandt_example_func_that_takes_a_table_of_strings(
-    ffi.new("int", 3),
-    -- 3 items + 1 NUL terminator
-    ffi_t -- this produces the same pointer
-    -- ffi.new("const char *[4]", t) -- this is a diff value, producing a diff
-    -- pointer
-    )
-
-  print('flag2 '..tonumber(flag2))
-
-  -- and nil
-  local flag3 = library.commandt_example_func_that_takes_a_table_of_strings(
-  ffi.new("int", 0),
-  ffi.new("const char *[1]", nil) -- does not wind up as NULL over there
-  )
-  print('flag3 '..tonumber(flag3))
-
-  local indices = library.commandt_example_func_that_returns_table_of_ints()
-
-  -- TODO copy this kind somewhere useful (ie. a cheatsheet)
-  -- we can look up the size of the pointer to the array, but not
-  -- the length of the array itself; it is terminated with a -1.
-  -- print(ffi.sizeof(indices)) -- 8
-  -- print(tostring(ffi.typeof(indices))) -- ctype<const int *>
-
-  local i = 0
-  while true do
-    local index = tonumber(indices[i])
-    if index == -1 then
-      break
-    end
-    print(index)
-    i = i + 1
+  if true then
+    return
   end
 
-  local sorted = --ffi.gc(
-    library.commandt_sorted_matches_for('some query')--,
-    -- ffi.C.free
-  --)
-  -- (Note: don't free here, better to tell matcher/scanner to destruct and do its own free-ing)
-
-  -- tonumber() needed here because ULL (boxed)
-  for i = 1, tonumber(sorted.count) do
-    print(ffi.string(sorted.matches[i - 1]))
-  end
+  -- print(library.commandt_example_func_that_returns_int())
+  --
+  -- print(ffi.string(library.commandt_example_func_that_returns_str()))
+  --
+  -- local t = {
+  --     "one",
+  --     "two",
+  --     "three",
+  --   }
+  --   local ffi_t = ffi.new("const char *[4]", t);
+  -- local flag = library.commandt_example_func_that_takes_a_table_of_strings(
+  --   ffi.new("int", 3),
+  --   -- 3 items + 1 NUL terminator
+  --   ffi_t)
+  --
+  -- print('flag '..tonumber(flag))
+  --
+  -- local flag2 = library.commandt_example_func_that_takes_a_table_of_strings(
+  --   ffi.new("int", 3),
+  --   -- 3 items + 1 NUL terminator
+  --   ffi_t -- this produces the same pointer
+  --   -- ffi.new("const char *[4]", t) -- this is a diff value, producing a diff
+  --   -- pointer
+  --   )
+  --
+  -- print('flag2 '..tonumber(flag2))
+  --
+  -- -- and nil
+  -- local flag3 = library.commandt_example_func_that_takes_a_table_of_strings(
+  -- ffi.new("int", 0),
+  -- ffi.new("const char *[1]", nil) -- does not wind up as NULL over there
+  -- )
+  -- print('flag3 '..tonumber(flag3))
+  --
+  -- local indices = library.commandt_example_func_that_returns_table_of_ints()
+  --
+  -- -- TODO copy this kind somewhere useful (ie. a cheatsheet)
+  -- -- we can look up the size of the pointer to the array, but not
+  -- -- the length of the array itself; it is terminated with a -1.
+  -- -- print(ffi.sizeof(indices)) -- 8
+  -- -- print(tostring(ffi.typeof(indices))) -- ctype<const int *>
+  --
+  -- local i = 0
+  -- while true do
+  --   local index = tonumber(indices[i])
+  --   if index == -1 then
+  --     break
+  --   end
+  --   print(index)
+  --   i = i + 1
+  -- end
+  --
+  -- local sorted = --ffi.gc(
+  --   library.commandt_sorted_matches_for('some query')--,
+  --   -- ffi.C.free
+  -- --)
+  -- -- (Note: don't free here, better to tell matcher/scanner to destruct and do its own free-ing)
+  --
+  -- -- tonumber() needed here because ULL (boxed)
+  -- for i = 1, tonumber(sorted.count) do
+  --   print(ffi.string(sorted.matches[i - 1]))
+  -- end
 end
 
 commandt.cmdline_changed = function(char)
