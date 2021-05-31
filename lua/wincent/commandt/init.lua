@@ -37,8 +37,11 @@ library = {
   -- TODO: just a demo; we might not end up exposing this function, as only
   -- matcher.c needs it (and anyway, it has a pointer-based out param, so we
   -- can't do that...
-  commandt_calculate_match = function(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask)--, haystack_bitmask)
-    return library.load().commandt_calculate_match(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask)--, haystack_bitmask)
+  commandt_calculate_match = function(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask, haystack_bitmask)
+    -- on first call, fake haystack_bitmask
+    local haystack_bitmask = ffi.new('long[1]')
+
+    return library.load().commandt_calculate_match(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask, haystack_bitmask)
   end,
 
   load = function ()
@@ -56,7 +59,8 @@ library = {
           bool always_show_dot_files,
           bool never_show_dot_files,
           bool recurse,
-          long needle_bitmask
+          long needle_bitmask,
+          long *haystack_bitmask
       );
 
       typedef struct {
@@ -96,8 +100,23 @@ local tear_down_mappings = function()
   end
 end
 
+local function numberToBinStr(x)
+	ret=""
+	while x~=1 and x~=0 do
+		ret=tostring(x%2)..ret
+		x=math.modf(x/2)
+	end
+	ret=tostring(x)..ret
+	return ret
+end
+
 commandt.buffer_finder = function()
-  print(library.commandt_calculate_match('string', 'str', true, true, false, true, 0, nil))
+  local bitmask = ffi.new('long[1]', {-1}) -- initializer here doesn't work
+  print('unset mask '..numberToBinStr(tonumber(bitmask[0]))) -- always get the same value out
+  print(library.commandt_calculate_match('string xyz', 'str', true, true, false, true, 0, bitmask))
+  print(numberToBinStr(tonumber(bitmask[0])))
+  print(library.commandt_calculate_match('string xyz', 's', true, true, false, true, 0, bitmask))
+  print(numberToBinStr(tonumber(bitmask[0])))
 
   if true then
     return

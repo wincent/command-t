@@ -128,11 +128,9 @@ float commandt_calculate_match(
     bool never_show_dot_files,
     bool recurse,
 
-    long needle_bitmask/*,
-    long *haystack_bitmask */
+    long needle_bitmask,
+    long *haystack_bitmask
 ) {
-    long random;
-    long *haystack_bitmask = &random;
     matchinfo_t m;
     long i;
     float score = 1.0;

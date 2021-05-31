@@ -15,6 +15,6 @@ float commandt_calculate_match(
     // TODO: think about getting rid of this setting?
     // probably not though... it almost zero complexity
     bool recurse,
-    long needle_bitmask/*,
-    long *haystack_bitmask*/
+    long needle_bitmask,
+    long *haystack_bitmask
 );
