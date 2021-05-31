@@ -27,9 +27,8 @@ else
 endif
 
 LIBS = -lpthread
-SRCDIR = .
-HDRS = $(SRCDIR)/heap.h $(SRCDIR)/match.h $(SRCDIR)/matcher.h
-SRCS = commandt.c heap.c match.c matcher.c
+HDRS = $(wildcard *.h)
+SRCS = $(wildcard *.c)
 
 commandt.$(DLLEXT): $(HDRS) $(SRCS) Makefile
 	$(CC) $(CCFLAGS) -shared -fPIC -o commandt.$(DLLEXT) $(SRCS)

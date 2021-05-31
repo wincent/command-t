@@ -43,22 +43,19 @@ library = {
     always_show_dot_files,
     never_show_dot_files,
     recurse,
-    needle_bitmask,
-    haystack_bitmask
+    needle_bitmask
   )
-    if not haystack_bitmask then
-      haystack_bitmask = ffi.new('long[1]', {-1})
-    end
-
+    -- TODO: make this callable more than once
+    -- (ie. on first time we accept a string, on second etc times we need called
+    -- to do ffi.new thing)
     return library.load().commandt_calculate_match(
-      haystack,
+      ffi.new('struct haystack_t', {haystack, string.len(haystack), -1, 0}),
       needle,
       case_sensitive,
       always_show_dot_files,
       never_show_dot_files,
       recurse,
-      needle_bitmask,
-      haystack_bitmask
+      needle_bitmask
     )
   end,
 
@@ -70,15 +67,21 @@ library = {
     library = ffi.load(dirname .. 'commandt' .. extension)
 
     ffi.cdef[[
+      typedef struct {
+          const char *candidate;
+          long length;
+          long bitmask;
+          float score;
+      } haystack_t;
+
       float commandt_calculate_match(
-          const char *haystack,
+          haystack_t *haystack,
           const char *needle,
           bool case_sensitive,
           bool always_show_dot_files,
           bool never_show_dot_files,
           bool recurse,
-          long needle_bitmask,
-          long *haystack_bitmask
+          long needle_bitmask
       );
 
       typedef struct {

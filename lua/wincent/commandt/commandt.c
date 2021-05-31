@@ -2,9 +2,9 @@
 // Licensed under the terms of the BSD 2-clause license.
 
 #include <stddef.h> /* for size_t */
-#include <stdlib.h> /* for malloc() */
 
-#include "heap.h"
+/* #include "heap.h" */
+#include "xmalloc.h"
 
 typedef struct {
     size_t count;
@@ -27,14 +27,14 @@ const char *baz = "baz";
 
 static const char **buffers = NULL;
 
-static int cmp_score(const void *a, const void *b) {
-    return 1;
-}
+/* static int cmp_score(const void *a, const void *b) { */
+/*     return 1; */
+/* } */
 
 /*void*/int commandt_example_func_that_takes_a_table_of_strings(int count, const char **candidates) {
     // just showing that we can use a function declared in another translation
     // unit.
-    heap_t *heap = heap_new(20, cmp_score);
+    /* heap_t *heap = heap_new(20, cmp_score); */
 
     // TODO: see if we get called with the same ptr if we call with the same
     // table... - nope... different... let's try again
@@ -93,14 +93,14 @@ const int *commandt_example_func_that_returns_table_of_ints() {
 // TODO
 void commandt_buffer_finder() {
     // TODO provide a way to update this
-    static const char **candidates[] = {};
+    /* static const char **candidates[] = {}; */
 }
 
 matches_t commandt_sorted_matches_for(const char *needle) {
     matches_t result;
 
     result.count = 3;
-    result.matches = malloc((sizeof (char *)) * result.count);
+    result.matches = xmalloc((sizeof (char *)) * result.count);
 
     // TODO: show this works with dynamically allocated strings too...
     // although, really, i think we don't want to be allocating anything...

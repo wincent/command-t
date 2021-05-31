@@ -1,9 +1,10 @@
 // Copyright 2016-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
-#include <stdlib.h> /* for free(), malloc(), NULL */
+#include <stdlib.h> /* for free(), NULL */
 
 #include "heap.h"
+#include "xmalloc.h"
 
 #define HEAP_PARENT(index) ((index - 1) / 2)
 #define HEAP_LEFT(index) (2 * index + 1)
@@ -12,20 +13,14 @@
 /**
  * Returns a new heap, or NULL on failure.
  */
-heap_t *heap_new(long capacity, heap_compare_entries comparator) {
-    heap_t *heap = malloc(sizeof(heap_t));
-    if (!heap) {
-        return NULL;
-    }
+heap_t *heap_new(unsigned capacity, heap_compare_entries comparator) {
+    heap_t *heap = xmalloc(sizeof(heap_t));
+
     heap->capacity = capacity;
     heap->comparator = comparator;
     heap->count = 0;
+    heap->entries = xmalloc(capacity * sizeof(void *));
 
-    heap->entries = malloc(capacity * sizeof(void *));
-    if (!heap->entries) {
-        free(heap);
-        return NULL;
-    }
     return heap;
 }
 
@@ -38,32 +33,26 @@ void heap_free(heap_t *heap) {
 }
 
 /**
- * @internal
- *
  * Compare values at indices `a_idx` and `b_idx` using the heap's comparator
  * function.
  */
-int heap_compare(heap_t *heap, long a_idx, long b_idx) {
+static int heap_compare(heap_t *heap, unsigned a_idx, unsigned b_idx) {
     const void *a = heap->entries[a_idx];
     const void *b = heap->entries[b_idx];
     return heap->comparator(a, b);
 }
 
 /**
- * @internal
- *
  * Returns 1 if the heap property holds (ie. parent < child).
  */
-int heap_property(heap_t *heap, long parent_idx, long child_idx) {
+static int heap_property(heap_t *heap, unsigned parent_idx, unsigned child_idx) {
     return heap_compare(heap, parent_idx, child_idx) > 0;
 }
 
 /**
- * @internal
- *
  * Swaps the values at indexes `a` and `b` within `heap`.
  */
-void heap_swap(heap_t *heap, long a, long b) {
+static void heap_swap(heap_t *heap, unsigned a, unsigned b) {
     void *tmp = heap->entries[a];
     heap->entries[a] = heap->entries[b];
     heap->entries[b] = tmp;
@@ -73,7 +62,7 @@ void heap_swap(heap_t *heap, long a, long b) {
  * Inserts `value` into `heap`.
  */
 void heap_insert(heap_t *heap, void *value) {
-    long idx, parent_idx;
+    unsigned idx, parent_idx;
 
     // If at capacity, ignore.
     if (heap->count == heap->capacity) {
@@ -95,14 +84,12 @@ void heap_insert(heap_t *heap, void *value) {
 }
 
 /**
- * @internal
- *
  * Restores the heap property starting at `idx`.
  */
-void heap_heapify(heap_t *heap, long idx) {
-    long left_idx = HEAP_LEFT(idx);
-    long right_idx = HEAP_RIGHT(idx);
-    long smallest_idx =
+static void heap_heapify(heap_t *heap, unsigned idx) {
+    unsigned left_idx = HEAP_LEFT(idx);
+    unsigned right_idx = HEAP_RIGHT(idx);
+    unsigned smallest_idx =
         right_idx < heap->count ?
 
         // Right (and therefore left) child exists.
@@ -144,3 +131,5 @@ void *heap_extract(heap_t *heap) {
     }
     return extracted;
 }
+// TODO: sort this file... static methods at the bottom, public API at the top
+// (may need some forward declarations).

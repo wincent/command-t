@@ -1,31 +1,54 @@
 // Copyright 2010-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
+#ifndef MATCHER_H
+#define MATCHER_H
+
 #include <stdbool.h> /* for bool */
+
+#include "scanner.h" /* for scanner_t */
 
 // TODO flesh this out; basically make it a container for instance variables
 typedef struct {
+    scanner_t *scanner;
+
     bool always_show_dot_files;
+    bool case_sensitive;
+    bool ignore_spaces;
     bool never_show_dot_files;
+    bool recurse;
+    bool sort;
+
+    /**
+     * Limit the number of returned results (0 implies no limit).
+     */
+    unsigned limit;
+    int threads;
+
+
+    const char *last_needle;
+    unsigned long last_needle_length;
     // etc
 } matcher_t;
 
-// TODO: maybe move this somewhere else
-// Struct for representing an individual match.
 typedef struct {
-    // TODO rename this because match doesn't always correspond to a "path"
-    const char *path;
-    long bitmask;
-    float score;
-} match_t;
+    long count;
+    long *indices;
+} result_t;
 
-#if 0
-// TODO: maybe rename this and make it follow pattern of heap_new()
-matcher_t *CommandTMatcher_initialize(
+// TODO: make commandt_matcher_free() and use it
+matcher_t *commandt_matcher_new(
+    scanner_t *scanner,
     bool always_show_dot_files,
     bool never_show_dot_files
 );
 
-// TODO figure out what the hell these signatures should look like
-VALUE CommandTMatcher_sorted_matches_for(int argc, VALUE *argv, VALUE self);
+/**
+ * It is the responsibility of the caller to free the results struct by calling
+ * `commandt_result_free()`.
+ */
+result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
+
+void commandt_result_free(result_t *results);
+
 #endif
