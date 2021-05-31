@@ -36,15 +36,30 @@ library = {
 
   -- TODO: decide whether to leave this around or not (probably will keep it as
   -- it may be useful)
-  commandt_calculate_match = function(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask, haystack_bitmask)
+  commandt_calculate_match = function(
+    str,
+    needle,
+    case_sensitive,
+    always_show_dot_files,
+    never_show_dot_files,
+    recurse,
+    needle_bitmask,
+    haystack_bitmask
+  )
     if not haystack_bitmask then
-      print('providing default bitmask')
       haystack_bitmask = ffi.new('long[1]', {-1})
-    else
-      print('using passed bitmask')
     end
 
-    return library.load().commandt_calculate_match(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask, haystack_bitmask)
+    return library.load().commandt_calculate_match(
+      str,
+      needle,
+      case_sensitive,
+      always_show_dot_files,
+      never_show_dot_files,
+      recurse,
+      needle_bitmask,
+      haystack_bitmask
+    )
   end,
 
   load = function ()
@@ -103,32 +118,7 @@ local tear_down_mappings = function()
   end
 end
 
-local function numberToBinStr(x)
-	ret=""
-	while x~=1 and x~=0 do
-		ret=tostring(x%2)..ret
-		x=math.modf(x/2)
-	end
-	ret=tostring(x)..ret
-	return ret
-end
-
 commandt.buffer_finder = function()
-  local bitmask = ffi.new('long[1]', {-1})
-  print('unset mask '..numberToBinStr(tonumber(bitmask[0])))
-  print(library.commandt_calculate_match('string xyz', 'str', true, true, false, true, 0, bitmask))
-  print(numberToBinStr(tonumber(bitmask[0]))) -- -1, not sure why
-  print(library.commandt_calculate_match('string xyz', 's', true, true, false, true, 0, bitmask))
-  print(numberToBinStr(tonumber(bitmask[0])))
-
-  bitmask = ffi.new('long[1]', {-1})
-  print(library.commandt_calculate_match('string', 's', true, true, false, true, 0, bitmask))
-  print(numberToBinStr(tonumber(bitmask[0])))
-
-  bitmask = ffi.new('long[1]', {-1})
-  print(library.commandt_calculate_match('abcdefhijklmnop string', 's', true, true, false, true, 0, bitmask))
-  print(numberToBinStr(tonumber(bitmask[0])))
-
   if true then
     return
   end
