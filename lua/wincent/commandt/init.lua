@@ -34,12 +34,15 @@ library = {
   --   return library.commandt_example_func_that_returns_str()
   -- end,
 
-  -- TODO: just a demo; we might not end up exposing this function, as only
-  -- matcher.c needs it (and anyway, it has a pointer-based out param, so we
-  -- can't do that...
+  -- TODO: decide whether to leave this around or not (probably will keep it as
+  -- it may be useful)
   commandt_calculate_match = function(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask, haystack_bitmask)
-    -- on first call, fake haystack_bitmask
-    local haystack_bitmask = ffi.new('long[1]')
+    if not haystack_bitmask then
+      print('providing default bitmask')
+      haystack_bitmask = ffi.new('long[1]', {-1})
+    else
+      print('using passed bitmask')
+    end
 
     return library.load().commandt_calculate_match(str, needle, case_sensitive, always_show_dot_files, never_show_dot_files, recurse, needle_bitmask, haystack_bitmask)
   end,
@@ -111,11 +114,19 @@ local function numberToBinStr(x)
 end
 
 commandt.buffer_finder = function()
-  local bitmask = ffi.new('long[1]', {-1}) -- initializer here doesn't work
-  print('unset mask '..numberToBinStr(tonumber(bitmask[0]))) -- always get the same value out
+  local bitmask = ffi.new('long[1]', {-1})
+  print('unset mask '..numberToBinStr(tonumber(bitmask[0])))
   print(library.commandt_calculate_match('string xyz', 'str', true, true, false, true, 0, bitmask))
-  print(numberToBinStr(tonumber(bitmask[0])))
+  print(numberToBinStr(tonumber(bitmask[0]))) -- -1, not sure why
   print(library.commandt_calculate_match('string xyz', 's', true, true, false, true, 0, bitmask))
+  print(numberToBinStr(tonumber(bitmask[0])))
+
+  bitmask = ffi.new('long[1]', {-1})
+  print(library.commandt_calculate_match('string', 's', true, true, false, true, 0, bitmask))
+  print(numberToBinStr(tonumber(bitmask[0])))
+
+  bitmask = ffi.new('long[1]', {-1})
+  print(library.commandt_calculate_match('abcdefhijklmnop string', 's', true, true, false, true, 0, bitmask))
   print(numberToBinStr(tonumber(bitmask[0])))
 
   if true then
