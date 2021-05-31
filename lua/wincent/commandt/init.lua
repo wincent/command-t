@@ -37,7 +37,7 @@ library = {
   -- TODO: decide whether to leave this around or not (probably will keep it as
   -- it may be useful)
   commandt_calculate_match = function(
-    str,
+    haystack,
     needle,
     case_sensitive,
     always_show_dot_files,
@@ -51,7 +51,7 @@ library = {
     end
 
     return library.load().commandt_calculate_match(
-      str,
+      haystack,
       needle,
       case_sensitive,
       always_show_dot_files,
@@ -71,7 +71,7 @@ library = {
 
     ffi.cdef[[
       float commandt_calculate_match(
-          const char *str,
+          const char *haystack,
           const char *needle,
           bool case_sensitive,
           bool always_show_dot_files,
