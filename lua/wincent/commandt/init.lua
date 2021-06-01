@@ -27,6 +27,7 @@ local load = function ()
     typedef struct {
         const char *candidate;
         long length;
+        long index;
         long bitmask;
         float score;
     } haystack_t;
@@ -181,7 +182,7 @@ commandt.calculate_match = function(
   local l = load()
 
   local result = l.commandt_calculate_match(
-    ffi.new('haystack_t', {haystack, string.len(haystack), -1, 0}),
+    ffi.new('haystack_t', {haystack, string.len(haystack), 0, -1, 0}),
     needle,
     case_sensitive or true,
     always_show_dot_files or false,

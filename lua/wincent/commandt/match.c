@@ -134,6 +134,7 @@ float commandt_calculate_match(
     float score = 1.0;
     int compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
+    m.needle_p = needle;
     // TODO: avoid strlen here
     m.needle_len = strlen(needle);
     m.rightmost_match_p = NULL;
