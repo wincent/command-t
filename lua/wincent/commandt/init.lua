@@ -9,6 +9,7 @@ local chooser_buffer = nil
 local chooser_selected_index = nil
 local chooser_window = nil
 
+-- Lazy loaded.
 local library = nil
 
 -- require('wincent.commandt.finder') -- TODO: decide whether we need this, or
@@ -17,7 +18,44 @@ local scanner = require('wincent.commandt.scanner')
 
 -- print('scanner ' .. vim.inspect(scanner.buffer.get()))
 
-library = {
+local load = function ()
+  local dirname = debug.getinfo(1).source:match('@?(.*/)')
+  local extension = '.so' -- TODO: handle Windows .dll extension
+  library = ffi.load(dirname .. 'commandt' .. extension)
+
+  ffi.cdef[[
+    typedef struct {
+        const char *candidate;
+        long length;
+        long bitmask;
+        float score;
+    } haystack_t;
+
+    float commandt_calculate_match(
+        haystack_t *haystack,
+        const char *needle,
+        bool case_sensitive,
+        bool always_show_dot_files,
+        bool never_show_dot_files,
+        bool recurse,
+        long needle_bitmask
+    );
+
+    typedef struct {
+        size_t count;
+        const char **matches;
+    } matches_t;
+
+    matches_t commandt_sorted_matches_for(const char *needle);
+  ]]
+  -- TODO: avoid this; prefer to call destructor instead with ffi.gc and let
+  -- C-side code do the freeing...
+  -- void free(void *ptr);
+
+  return library
+end
+
+-- library = {
   -- commandt_example_func_that_returns_int = function()
   --   if not loaded then
   --     library = library.load()
@@ -33,71 +71,7 @@ library = {
   --
   --   return library.commandt_example_func_that_returns_str()
   -- end,
-
-  -- TODO: decide whether to leave this around or not (probably will keep it as
-  -- it may be useful)
-  commandt_calculate_match = function(
-    haystack,
-    needle,
-    case_sensitive,
-    always_show_dot_files,
-    never_show_dot_files,
-    recurse,
-    needle_bitmask
-  )
-    -- TODO: make this callable more than once
-    -- (ie. on first time we accept a string, on second etc times we need called
-    -- to do ffi.new thing)
-    return library.load().commandt_calculate_match(
-      ffi.new('struct haystack_t', {haystack, string.len(haystack), -1, 0}),
-      needle,
-      case_sensitive,
-      always_show_dot_files,
-      never_show_dot_files,
-      recurse,
-      needle_bitmask
-    )
-  end,
-
-  load = function ()
-    local dirname = debug.getinfo(1).source:match('@?(.*/)')
-    -- TODO: confirm that .so is auto-appended
-    local extension = '.so' -- TODO: handle Windows .dll extension
-    -- TODO: rename loaded (sounds like a boolean but it is the library
-    library = ffi.load(dirname .. 'commandt' .. extension)
-
-    ffi.cdef[[
-      typedef struct {
-          const char *candidate;
-          long length;
-          long bitmask;
-          float score;
-      } haystack_t;
-
-      float commandt_calculate_match(
-          haystack_t *haystack,
-          const char *needle,
-          bool case_sensitive,
-          bool always_show_dot_files,
-          bool never_show_dot_files,
-          bool recurse,
-          long needle_bitmask
-      );
-
-      typedef struct {
-          size_t count;
-          const char **matches;
-      } matches_t;
-
-      matches_t commandt_sorted_matches_for(const char *needle);
-    ]]
-    -- TODO: avoid this; prefer to call destructor instead with ffi.gc and let
-    -- C-side code do the freeing...
-    -- void free(void *ptr);
-
-    return library
-  end,
-}
+-- }
 
 -- TODO: make mappings configurable again
 local mappings = {
@@ -122,6 +96,7 @@ local tear_down_mappings = function()
 end
 
 commandt.buffer_finder = function()
+  -- TODO: just call the method and see it not segfault
   if true then
     return
   end
@@ -188,6 +163,39 @@ commandt.buffer_finder = function()
   -- for i = 1, tonumber(sorted.count) do
   --   print(ffi.string(sorted.matches[i - 1]))
   -- end
+end
+
+-- test this out with:
+-- :lua print(vim.inspect(require('wincent.commandt').calculate_match('haystack', 'stack')))
+-- TODO: decide whether to leave this around or not (probably will keep it as
+-- it may be useful)
+commandt.calculate_match = function(
+  haystack,
+  needle,
+  case_sensitive,
+  always_show_dot_files,
+  never_show_dot_files,
+  recurse,
+  needle_bitmask
+)
+  local l = load()
+
+  local result = l.commandt_calculate_match(
+    ffi.new('haystack_t', {haystack, string.len(haystack), -1, 0}),
+    needle,
+    case_sensitive or true,
+    always_show_dot_files or false,
+    never_show_dot_files or false,
+    recurse or true,
+    needle_bitmask or 0
+  )
+
+  -- TODO: make this callable more than once
+  -- (ie. on first time we accept a string, on second etc times we need called
+  -- to do ffi.new thing)
+  commandt.calculate_match = l.commandt_calculate_match
+
+  return result
 end
 
 commandt.cmdline_changed = function(char)
