@@ -30,5 +30,12 @@ LIBS = -lpthread
 HDRS = $(wildcard *.h)
 SRCS = $(wildcard *.c)
 
+all: commandt.$(DLLEXT)
+
 commandt.$(DLLEXT): $(HDRS) $(SRCS) Makefile
 	$(CC) $(CCFLAGS) -shared -fPIC -o commandt.$(DLLEXT) $(SRCS)
+
+.PHONY: clean
+
+clean:
+	rm -f *.$(DLLEXT)
