@@ -32,6 +32,40 @@ local load = function ()
         float score;
     } haystack_t;
 
+    typedef struct {
+        const char **candidates;
+        long count;
+        unsigned version;
+    } scanner_t;
+
+    typedef struct {
+        scanner_t *scanner;
+        bool always_show_dot_files;
+        bool case_sensitive;
+        bool ignore_spaces;
+        bool never_show_dot_files;
+        bool recurse;
+        bool sort;
+        unsigned limit;
+        int threads;
+        const char *last_needle;
+        unsigned long last_needle_length;
+    } matcher_t;
+
+    //typedef struct {
+    //    size_t count;
+    //    const char **matches;
+    //} matches_t;
+
+    typedef struct {
+        long count;
+        long *indices;
+    } result_t;
+
+    result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
+
+    result_t *commandt_temporary_demo_function();
+
     float commandt_calculate_match(
         haystack_t *haystack,
         const char *needle,
@@ -42,12 +76,9 @@ local load = function ()
         long needle_bitmask
     );
 
-    typedef struct {
-        size_t count;
-        const char **matches;
-    } matches_t;
+    void commandt_result_free(result_t *result);
 
-    matches_t commandt_sorted_matches_for(const char *needle);
+    //matches_t commandt_sorted_matches_for(const char *needle);
   ]]
   -- TODO: avoid this; prefer to call destructor instead with ffi.gc and let
   -- C-side code do the freeing...
@@ -240,6 +271,12 @@ commandt.cmdline_leave = function()
     chooser_window = nil
   end
   tear_down_mappings()
+end
+
+commandt.demo = function()
+  local l = load()
+  local result = l.commandt_temporary_demo_function()
+  print(vim.inspect(result))
 end
 
 commandt.file_finder = function(arg)
