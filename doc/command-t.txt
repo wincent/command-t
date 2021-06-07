@@ -1492,14 +1492,14 @@ the project issue tracker etc).
 
 As many users choose to track Command-T using Pathogen or similar, which often
 means running a version later than the last official release, the intention is
-that the "master" branch should be kept in a stable and reliable state as much
+that the "main" branch should be kept in a stable and reliable state as much
 as possible.
 
-Riskier changes are first cooked on the "next" branch for a period before
-being merged into master. You can track this branch if you're feeling wild and
-experimental, but note that the "next" branch may periodically be rewound
-(force-updated) to keep it in sync with the "master" branch after each
-official release.
+Riskier changes are first cooked on the "next" branch for a period
+before being merged into "main". You can track this branch if you're
+feeling wild and experimental, but note that the "next" branch may
+periodically be rewound (force-updated) to keep it in sync with the
+"main" branch after each official release.
 
 
 WEBSITE                                         *command-t-website*
@@ -1572,7 +1572,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-master (not yet released) ~
+main (not yet released) ~
 
 - Support opening files which contain newlines (#365).
 - Guard against possible |E315| on accepting a selection.

@@ -22,4 +22,4 @@ Speed is the primary design goal, along with providing high-quality, intuitive m
 ---
 
 For more information, see [the
-documentation](https://github.com/wincent/command-t/blob/master/doc/command-t.txt).
+documentation](https://github.com/wincent/command-t/blob/main/doc/command-t.txt).
