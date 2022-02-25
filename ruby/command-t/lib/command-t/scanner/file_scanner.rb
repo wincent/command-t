@@ -83,6 +83,9 @@ module CommandT
           path = path[prefix_len..-1]
           path =~ @wildignore
         end
+      rescue ArgumentError
+        # Usually, "ArgumentError: invalid byte sequence in UTF-8", or such.
+        true
       end
     end
   end

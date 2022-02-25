@@ -1587,6 +1587,7 @@ main (not yet released) ~
   "*pattern" (eg. "*~", which would ignore files created with Vim's default
   |'backupext'|) (#369, patch from Steve Herrell).
 - Turn off |'signcolumn'| in the match listing (#376).
+- Teach file scanner to skip over badly encoded strings.
 
 5.0.3 (19 September 2018) ~
 
