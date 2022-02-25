@@ -9,7 +9,7 @@ jobs:
         run: |
           set -x
           sudo apt-get update -q || :
-          sudo apt-get install --no-install-recommends -q -y build-essential ruby-dev
+          sudo apt-get install --no-install-recommends -q -y build-essential ruby-dev bundler
       - name: Build extension
         run: |
           pushd ./ruby/command-t/ext/command-t
