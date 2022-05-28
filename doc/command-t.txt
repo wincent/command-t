@@ -1572,7 +1572,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+5.0.4 (28 May 2022) ~
 
 - Support opening files which contain newlines (#365).
 - Guard against possible |E315| on accepting a selection.
@@ -1588,6 +1588,7 @@ main (not yet released) ~
   |'backupext'|) (#369, patch from Steve Herrell).
 - Turn off |'signcolumn'| in the match listing (#376).
 - Teach file scanner to skip over badly encoded strings.
+- Teach watchman scanner to tolerate broken watchman installation.
 
 5.0.3 (19 September 2018) ~
 
