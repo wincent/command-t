@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
 
   s.executables = ['commandtd']
 
-  s.has_rdoc = false
   s.homepage = 'https://github.com/wincent/command-t'
 
   s.summary = 'The Command-T plug-in for VIM.'
