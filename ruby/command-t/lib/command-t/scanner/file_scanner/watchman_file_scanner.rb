@@ -63,7 +63,9 @@ module CommandT
 
         def get_raw_sockname
           raw_sockname = %x{watchman --output-encoding=bser get-sockname}
-          raise WatchmanError, 'get-sockname failed' if !$?.exitstatus&.zero?
+          if $?.exitstatus.nil? || !$?.exitstatus&.zero?
+            raise WatchmanError, 'get-sockname failed'
+          end
           raw_sockname
         end
       end
