@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
     ['../../README.md', '../../LICENSE', '../../Gemfile', '../../Rakefile'] +
     `git ls-files -z ./bin ./ext ./lib ../../doc`.split("\x0")
 
-  s.license = 'BSD'
+  s.license = 'BSD-2-Clause'
   s.require_paths = ['lib', 'ruby']
   s.extensions = 'ext/command-t/extconf.rb'
 
