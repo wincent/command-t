@@ -25,20 +25,29 @@ module CommandT
 
           UNIXSocket.open(sockname) do |socket|
             root = Pathname.new(@path).realpath.to_s
-            roots = Watchman::Utils.query(['watch-list'], socket)['roots']
-            if !roots.include?(root)
-              # this path isn't being watched yet; try to set up watch
-              result = Watchman::Utils.query(['watch', root], socket)
+            # use `watch-project` for efficiency if it's available
+            if use_watch_project?
+                result = Watchman::Utils.query(['watch-project', root], socket)
+                root = extract_value(result, 'watch')
+                relative_root = extract_value(result, 'relative_path') if result.has_key?('relative_path')
+            else
+              roots = Watchman::Utils.query(['watch-list'], socket)['roots']
+              if !roots.include?(root)
+                # this path isn't being watched yet; try to set up watch
+                result = Watchman::Utils.query(['watch', root], socket)
 
-              # root_restrict_files setting may prevent Watchman from working
-              # or enforce_root_files/root_files (>= version 3.1)
-              extract_value(result)
+                # root_restrict_files setting may prevent Watchman from working
+                # or enforce_root_files/root_files (>= version 3.1)
+                extract_value(result)
+              end
             end
 
-            query = ['query', root, {
+            query_params = {
               'expression' => ['type', 'f'],
               'fields'     => ['name'],
-            }]
+            }
+            query_params['relative_root'] = relative_root if relative_root;
+            query = ['query', root, query_params]
             paths = Watchman::Utils.query(query, socket)
 
             # could return error if watch is removed
@@ -67,6 +76,15 @@ module CommandT
             raise WatchmanError, 'get-sockname failed'
           end
           raw_sockname
+        end
+
+        # watch_project is available in 3.1+ but it's awkward to use without
+        # relative_root (3.3+), so use the latter as our minimum version.
+        def use_watch_project?
+          return @use_watch_project if defined?(@use_watch_project)
+          version = %x{watchman --version 2>/dev/null}
+          major, minor = version.split('.')[0..1] if !$?.exitstatus.nil? && $?.exitstatus.zero? && version
+          @use_watch_project = major.to_i > 3 || (major.to_i == 3 && minor.to_i >= 3)
         end
       end
     end
