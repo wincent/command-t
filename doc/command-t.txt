@@ -1413,32 +1413,32 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nate Kane
-  Adrian Keet                     Nicholas T.
-  Aleksandrs Ļedovskis            Nicolas Alpi
-  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
-  Andrius Grabauskas              Nilo César Teixeira
-  Andy Waite                      Noon Silk
-  Anthony Panozzo                 Ole Petter Bang
-  Artem Nezvigin                  Patrick Hayes
-  Ben Boeckel                     Paul Jolly
-  Brendan Mulholland              Pavel Sergeev
-  Daniel Burgess                  Rainux Luo
-  Daniel Hahler                   Richard Feldman
-  David Emett                     Roland Puntaier
-  David Szotten                   Ross Lagerwall
-  Douglas Drumond                 Sam Morris
-  Emily Strickland                Scott Bronson
-  Felix Tjandrawibawa             Seth Fowler
-  Gary Bernhardt                  Sherzod Gapirov
-  Henric Trotzig                  Shlomi Fish
-  Ivan Ukhov                      Stefan Schmidt
-  Jakob Pfender                   Stephen Gelman
-  Jeff Kreeftmeijer               Steve Herrell
-  Jerome Castaneda                Steven Moazami
-  Joe Lencioni                    Steven Stallion
-  KJ Tsanaktsidis                 Sung Pae
-  Kevin Webster                   Thomas Pelletier
+  Abhinav Gupta                   Nicholas T.
+  Adrian Keet                     Nicolas Alpi
+  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
+  Alexey Terekhov                 Nilo César Teixeira
+  Andrius Grabauskas              Noon Silk
+  Andy Waite                      Ole Petter Bang
+  Anthony Panozzo                 Patrick Hayes
+  Artem Nezvigin                  Paul Jolly
+  Ben Boeckel                     Pavel Sergeev
+  Brendan Mulholland              Rainux Luo
+  Daniel Burgess                  Richard Feldman
+  Daniel Hahler                   Roland Puntaier
+  David Emett                     Ross Lagerwall
+  David Szotten                   Sam Morris
+  Douglas Drumond                 Scott Bronson
+  Emily Strickland                Seth Fowler
+  Felix Tjandrawibawa             Sherzod Gapirov
+  Gary Bernhardt                  Shlomi Fish
+  Henric Trotzig                  Stefan Schmidt
+  Ivan Ukhov                      Stephen Gelman
+  Jakob Pfender                   Steve Herrell
+  Jeff Kreeftmeijer               Steven Moazami
+  Jerome Castaneda                Steven Stallion
+  Joe Lencioni                    Sung Pae
+  KJ Tsanaktsidis                 Thomas Pelletier
+  Kevin Webster                   Todd Derr
   Kien Nguyen Duc                 Ton van den Heuvel
   Lucas de Vries                  Victor Hugo Borja
   Marcus Brito                    Vlad Seghete
@@ -1447,6 +1447,7 @@ Other contributors that have submitted patches include, in alphabetical order:
   Max Timkovich                   Yan Pritzker
   Mike Lundy                      Zak Johnson
   Nadav Samet                     xiaodezhang
+  Nate Kane
 
 This list produced with:
 
@@ -1571,6 +1572,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
+
+main (not yet released) ~
+
+- Teach watchman scanner to favor `watch-project` over `watch` when
+  available (#390, patch from Todd Derr).
 
 5.0.4 (28 May 2022) ~
 
