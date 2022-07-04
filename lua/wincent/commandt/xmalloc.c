@@ -11,17 +11,23 @@
 
 /**
  * `malloc()` wrapper that calls `abort()` if allocation fails.
+ *
+ * Note: A future version of this wrapper might free cached data structures and
+ * retry before aborting.
  */
 void *xmalloc(size_t size) {
     void *ptr = malloc(size);
-    char err_msg[BUF_SIZE];
 
     if (!ptr) {
-        snprintf(err_msg, BUF_SIZE, "xmallox() failed to malloc %zu bytes", size);
+        char *message = malloc(BUF_SIZE);
+        if (
+            message &&
+            snprintf(message, BUF_SIZE, "xmalloc() failed to malloc %zu bytes", size) >= 0
+        ) {
+            die(message, errno);
+        }
 
-        // Note: A future version of this wrapper might free cached data
-        // structures and retry before aborting.
-        die(err_msg, errno);
+        die("xmalloc() failed", errno);
     }
 
     return ptr;

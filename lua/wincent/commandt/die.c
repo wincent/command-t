@@ -6,6 +6,10 @@
 #include <string.h> /* for strerror() */
 
 void die(char *reason, int error) {
-	fprintf(stderr, "die(): %s - %s\n", reason, strerror(error));
-	abort();
+    if (reason) {
+        fprintf(stderr, "die(): %s - %s\n", reason, strerror(error));
+    } else {
+        fprintf(stderr, "die(): %s\n", strerror(error));
+    }
+    abort();
 }
