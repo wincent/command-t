@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
-# Copyright 2013-present Greg Hurrell. All rights reserved.
-# Licensed under the terms of the BSD 2-clause license.
+# SPDX-FileCopyrightText: Copyright 2013-present Greg Hurrell. All rights reserved.
+# SPDX-License-Identifier: BSD-2-Clause
 
 %w[ext lib].each do |dir|
   path  = File.expand_path("../../ruby/command-t/#{dir}", File.dirname(__FILE__))

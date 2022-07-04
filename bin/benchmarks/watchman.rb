@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
-# Copyright 2014-present Greg Hurrell. All rights reserved.
-# Licensed under the terms of the BSD 2-clause license.
+# SPDX-FileCopyrightText: Copyright 2014-present Greg Hurrell. All rights reserved.
+# SPDX-License-Identifier: BSD-2-Clause
 
 lib  = File.expand_path('../../ruby', File.dirname(__FILE__))
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)

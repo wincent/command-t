@@ -1,5 +1,7 @@
-// Copyright 2021-present Greg Hurrell. All rights reserved.
-// Licensed under the terms of the BSD 2-clause license.
+/**
+ * SPDX-FileCopyrightText: Copyright 2021-present Greg Hurrell. All rights reserved.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
 
 #ifndef SCANNER_H
 #define SCANNER_H
