@@ -10,11 +10,10 @@
 #include "xmalloc.h"
 
 str_t *str_new(const char *source, size_t length) {
-    const char *contents = xmalloc(length);
-    memcpy((void *)contents, source, length);
-    str_t s = {.contents = contents, .length = length};
     str_t *str = xmalloc(sizeof(str_t));
-    memcpy((void *)str, &s, sizeof(str_t));
+    str->contents = xmalloc(length);
+    str->length = length;
+    memcpy((void *)str->contents, source, length);
     return str;
 }
 

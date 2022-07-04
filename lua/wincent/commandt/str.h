@@ -16,7 +16,7 @@
 
 typedef struct {
     const char *contents;
-    const size_t length;
+    size_t length;
 } str_t;
 
 /**
