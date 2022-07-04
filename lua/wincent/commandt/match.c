@@ -6,6 +6,7 @@
 #include <float.h> /* for FLT_MAX */
 #include <stdlib.h> /* for NULL */
 #include <string.h> /* for strlen() */
+
 #include "match.h"
 
 #define UNSET_SCORE FLT_MAX

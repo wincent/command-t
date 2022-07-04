@@ -15,8 +15,8 @@
 #include <stddef.h> /* for size_t */
 
 typedef struct {
-    char *contents;
-    size_t length;
+    const char *contents;
+    const size_t length;
 } str_t;
 
 /**

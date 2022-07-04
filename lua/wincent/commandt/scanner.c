@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stdlib.h> /* for free(), NULL */
+#include <stdlib.h> /* for free() */
 
 #include "scanner.h"
 #include "xmalloc.h"

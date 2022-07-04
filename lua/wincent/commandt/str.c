@@ -3,21 +3,22 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "stdlib.h" /* for free() */
-#include "string.h" /* for memcpy() */
+#include <stdlib.h> /* for free() */
+#include <string.h> /* for memcpy() */
 
 #include "str.h"
 #include "xmalloc.h"
 
 str_t *str_new(const char *source, size_t length) {
+    const char *contents = xmalloc(length);
+    memcpy((void *)contents, source, length);
+    str_t s = {.contents = contents, .length = length};
     str_t *str = xmalloc(sizeof(str_t));
-    str->contents = xmalloc(length);
-    str->length = length;
-    memcpy(str->contents, source, length);
+    memcpy((void *)str, &s, sizeof(str_t));
     return str;
 }
 
 void str_free(str_t *str) {
-    free(str->contents);
+    free((void *)str->contents);
     free(str);
 }
