@@ -33,9 +33,15 @@ local load = function ()
     } haystack_t;
 
     typedef struct {
-        const char **candidates;
-        long count;
-        unsigned version;
+        const char *contents;
+        size_t length;
+    } str_t;
+
+    typedef struct {
+        str_t **candidates;
+        size_t count;
+        size_t capacity;
+        unsigned clock;
     } scanner_t;
 
     typedef struct {
@@ -64,7 +70,8 @@ local load = function ()
 
     result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
 
-    result_t *commandt_temporary_demo_function();
+    //result_t *commandt_temporary_demo_function();
+    int commandt_temporary_demo_function();
 
     float commandt_calculate_match(
         haystack_t *haystack,

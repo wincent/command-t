@@ -8,26 +8,27 @@
 #include "scanner.h"
 #include "xmalloc.h"
 
-// TODO: make this capable of producing asynchronously.
+// TODO: make this capable of producing asynchronously?
 
 /**
- * Returns a new scanner_t structure, or NULL on failure.
+ * Default scanner capacity, suitable for most scanner types (eg. up to and
+ * including help tags scanner).
  */
-scanner_t *scanner_new() {
+#define DEFAULT_CAPACITY (1 << 14)
+
+scanner_t *scanner_new(size_t capacity) {
     scanner_t *scanner = xmalloc(sizeof(scanner_t));
-
-    long count = 1; // TODO: derive this from params
-
-    scanner->candidates = xmalloc(count * sizeof(void *));
-    scanner->count = count;
-    scanner->version = 0;
+    if (!capacity) {
+        capacity = DEFAULT_CAPACITY;
+    }
+    scanner->candidates = xmalloc(capacity * sizeof(str_t *));
+    scanner->count = 0;
+    scanner->capacity = capacity;
+    scanner->clock = 0;
 
     return scanner;
 }
 
-/**
- * Frees a previously created scanner_t structure.
- */
 void scanner_free(scanner_t *scanner) {
     free(scanner->candidates);
     free(scanner);

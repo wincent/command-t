@@ -6,17 +6,39 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
+#include <stddef.h> /* for size_t */
+
+#include "str.h"
+
 typedef struct {
-    const char **candidates;
-    long count;
+    // TODO: const
+    str_t **candidates;
+
+    /**
+     * Number of candidates currently stored in the scanner.
+     */
+    size_t count;
+
+    /**
+     * Available capacity in the scanner.
+     */
+    size_t capacity;
 
     /**
      * Counter that increments any time the candidates change.
      */
-    unsigned version; // TODO: figure out whether i need this
+    unsigned clock; // TODO: figure out whether I need this
 } scanner_t;
 
-scanner_t *scanner_new();
+/**
+ * Create a new `scanner_t` struct initialized with `capacity`. If `capacity` is
+ * 0, the default capacity is used.
+ */
+scanner_t *scanner_new(size_t capacity);
+
+/**
+ * Frees a previously created `scanner_t` structure.
+ */
 void scanner_free(scanner_t *scanner);
 
 #endif

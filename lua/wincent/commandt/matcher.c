@@ -300,19 +300,22 @@ void commandt_result_free(result_t *result) {
     free(result);
 }
 
-result_t *commandt_temporary_demo_function() {
-    scanner_t *scanner = xmalloc(sizeof(scanner_t));
-    scanner->candidates = xmalloc(5 * sizeof(void *));
-    scanner->count = 5;
-    scanner->version = 0;
-    scanner->candidates[0] = "thing";
-    scanner->candidates[1] = "foo";
-    scanner->candidates[2] = "a longer string";
-    scanner->candidates[3] = "some stuff like this";
-    scanner->candidates[4] = "and some s t u f f like that";
-    matcher_t *matcher = commandt_matcher_new(scanner, true, false);
-    return commandt_matcher_run(matcher, "stuff");
+int commandt_temporary_demo_function() {
+    return 10;
 }
+/* result_t *commandt_temporary_demo_function() { */
+    /* scanner_t *scanner = xmalloc(sizeof(scanner_t)); */
+    /* scanner->candidates = xmalloc(5 * sizeof(void *)); */
+    /* scanner->count = 5; */
+    /* scanner->clock = 0; */
+    /* scanner->candidates[0] = "thing"; */
+    /* scanner->candidates[1] = "foo"; */
+    /* scanner->candidates[2] = "a longer string"; */
+    /* scanner->candidates[3] = "some stuff like this"; */
+    /* scanner->candidates[4] = "and some s t u f f like that"; */
+    /* matcher_t *matcher = commandt_matcher_new(scanner, true, false); */
+    /* return commandt_matcher_run(matcher, "stuff"); */
+/* } */
 
 static long calculate_bitmask(const char *str) {
     unsigned long len = strlen(str);
