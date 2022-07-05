@@ -5,6 +5,7 @@
 
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #include <stdbool.h> /* for bool */
+#include <stdio.h> /* from printf() */
 #include <stdlib.h> /* for qsort(), NULL */
 #include <string.h> /* for strncmp() */
 
@@ -300,8 +301,16 @@ void commandt_result_free(result_t *result) {
     free(result);
 }
 
-int commandt_temporary_demo_function() {
-    return 10;
+// TODO: make benchmarks to compare cost of passing in array of `str_t` from Lua
+// side, vs passing in an array of `const char *` (and having to call `strlen()`
+// on them all).
+int commandt_temporary_demo_function(str_t **candidates, size_t count) {
+    scanner_t *scanner = scanner_new(count);
+    scanner_push(scanner, candidates, count);
+    str_t *dump = scanner_dump(scanner);
+    printf("\n\n\n%s\n\n\n", dump->contents);
+    str_free(dump);
+    return count;
 }
 /* result_t *commandt_temporary_demo_function() { */
     /* scanner_t *scanner = xmalloc(sizeof(scanner_t)); */

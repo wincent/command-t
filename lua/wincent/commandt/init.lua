@@ -35,6 +35,7 @@ local load = function ()
     typedef struct {
         const char *contents;
         size_t length;
+        size_t capacity;
     } str_t;
 
     typedef struct {
@@ -71,7 +72,7 @@ local load = function ()
     result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
 
     //result_t *commandt_temporary_demo_function();
-    int commandt_temporary_demo_function();
+    int commandt_temporary_demo_function(str_t **candidates, size_t count);
 
     float commandt_calculate_match(
         haystack_t *haystack,
@@ -282,7 +283,13 @@ end
 
 commandt.demo = function()
   local l = load()
-  local result = l.commandt_temporary_demo_function()
+  local result = l.commandt_temporary_demo_function(
+    ffi.new('str_t *[4]', {
+      ffi.new('str_t', {'stuff', 5, 5}),
+      ffi.new('str_t', {'more', 4, 4}),
+      ffi.new('str_t', {'and', 3, 3}),
+      ffi.new('str_t', {'rest', 4, 4}),
+    }), 4)
   print(vim.inspect(result))
 end
 

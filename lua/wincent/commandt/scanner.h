@@ -37,6 +37,15 @@ typedef struct {
 scanner_t *scanner_new(size_t capacity);
 
 /**
+ * For debugging, a human-readable string representation of the scanner.
+ *
+ * Caller should call `str_free()` on the returned string.
+ */
+str_t *scanner_dump(scanner_t *scanner);
+
+void scanner_push(scanner_t *scanner, str_t **candidates, size_t count);
+
+/**
  * Frees a previously created `scanner_t` structure.
  */
 void scanner_free(scanner_t *scanner);
