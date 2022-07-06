@@ -207,11 +207,9 @@ commandt.demo = function()
   local lib = require('wincent.commandt.lib')
   local scanner = require('wincent.commandt.scanner.help').scanner()
   local matcher = lib.commandt_matcher_new(scanner, true, false)
-
-  -- can we run AND print? no
-  -- print(vim.inspect(lib.commandt_matcher_run(matcher, "tag")))
-  -- can we merely run? no
-  lib.commandt_matcher_run(matcher, "tag")
+  local results = lib.commandt_matcher_run(matcher, "tag")
+  --print(vim.inspect(results)) -- this is boxed reference; need to figure out how to return something useful or otherwise access this
+  -- print(results.count) -- 0LL
 end
 
 commandt.demo2 = function()

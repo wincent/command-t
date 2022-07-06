@@ -194,7 +194,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(void *));
+                    memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(haystack_t));
                 }
                 heap_free(heap);
             }
@@ -213,7 +213,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(void *));
+                memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(haystack_t));
             }
             heap_free(heap);
         }
@@ -250,6 +250,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     result_t *results = xmalloc(sizeof(result_t));
+    // results->count = 100; // just testing (segfaults?)
     results->indices = xmalloc(limit * sizeof(long));
 
     for (
@@ -266,8 +267,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(heap_haystacks);
 
     // Save this state to potentially speed subsequent searches.
-    matcher->last_needle = needle;
-    matcher->last_needle_length = needle_length;
+    // BUG: these segfault?
+    /* matcher->last_needle = needle; */
+    /* matcher->last_needle_length = needle_length; */
 
     return results;
 }
