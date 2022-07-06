@@ -125,39 +125,6 @@ commandt.buffer_finder = function()
   -- end
 end
 
--- test this out with:
--- :lua print(vim.inspect(require('wincent.commandt').calculate_match('haystack', 'stack')))
--- TODO: decide whether to leave this around or not (probably will keep it as
--- it may be useful)
-commandt.calculate_match = function(
-  haystack,
-  needle,
-  case_sensitive,
-  always_show_dot_files,
-  never_show_dot_files,
-  recurse,
-  needle_bitmask
-)
-  -- local l = load()
-  --
-  -- local result = l.commandt_calculate_match(
-  --   ffi.new('haystack_t', {haystack, string.len(haystack), 0, -1, 0}),
-  --   needle,
-  --   case_sensitive or true,
-  --   always_show_dot_files or false,
-  --   never_show_dot_files or false,
-  --   recurse or true,
-  --   needle_bitmask or 0
-  -- )
-
-  -- TODO: make this callable more than once
-  -- (ie. on first time we accept a string, on second etc times we need called
-  -- to do ffi.new thing)
-  -- commandt.calculate_match = l.commandt_calculate_match
-
-  -- return result
-end
-
 commandt.cmdline_changed = function(char)
   if char == ':' then
     local line = vim.fn.getcmdline()

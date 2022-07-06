@@ -74,14 +74,11 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
-    unsigned thread_count;
     unsigned limit = matcher->limit;
     long err;
-    pthread_t *threads;
     long needle_bitmask = UNSET_BITMASK;
     long heap_matches_count;
     heap_t *heap;
-    thread_args_t *thread_args;
     // TODO: may end up inlining these
     bool case_sensitive = matcher->case_sensitive;
     bool ignore_spaces = matcher->ignore_spaces;
@@ -102,7 +99,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     str_t **candidates = scanner->candidates;
 
     if (!matcher->haystacks) {
-        matcher->haystacks = xmalloc(candidate_count * sizeof(haystack_t));
+        // TODO: consider xmalloc instead, we don't need the zero-ing behavior
+        // of xcalloc (same in many other places too)
+        matcher->haystacks = xcalloc(candidate_count, sizeof(haystack_t));
 
         for (i = 0; i < candidate_count; i++) {
             matcher->haystacks[i].candidate = candidates[i];
@@ -126,7 +125,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         /* } */
     }
 
-    thread_count = matcher->threads > 0 ? matcher->threads : 1;
+    unsigned thread_count = matcher->threads > 0 ? matcher->threads : 1;
     if (candidate_count < THREAD_THRESHOLD) {
         thread_count = 1;
     }
@@ -134,9 +133,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     // TODO: better name for this... it is for data accumulated from per-thread heap datastructures
     // heap datastructures will be populated in match_thread() call
     // when we pthread_join() we copy the data in here so that we can sort it.
-    haystack_t *heap_haystacks = xmalloc(thread_count * limit * sizeof(haystack_t));
-    threads = xmalloc(sizeof(pthread_t) * thread_count);
-    thread_args = xmalloc(sizeof(thread_args_t) * thread_count);
+    // BUG: limit could be zero here
+    haystack_t *heap_haystacks = xcalloc(thread_count * limit, sizeof(haystack_t));
+    pthread_t *threads = xcalloc(thread_count, sizeof(pthread_t));
+    thread_args_t *thread_args = xcalloc(thread_count, sizeof(thread_args_t));
 
     for (i = 0; i < thread_count; i++) {
         // TODO: probably just move matcher into thread args...
@@ -152,7 +152,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(haystack_t));
+                    memcpy(heap_haystacks + heap_matches_count++, heap->entries[j], sizeof(haystack_t));
                 }
                 heap_free(heap);
             }
@@ -171,12 +171,14 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(haystack_t));
+                memcpy(heap_haystacks + heap_matches_count++, heap->entries[j], sizeof(haystack_t));
             }
             heap_free(heap);
         }
     }
+
     free(threads);
+    free(thread_args);
 
     if (
         needle_length == 0 ||
@@ -209,7 +211,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     result_t *results = xmalloc(sizeof(result_t));
     unsigned count = heap_matches_count > limit ? limit : heap_matches_count;
-    results->matches = xmalloc(count * sizeof(const char *));
+    results->matches = xcalloc(count, sizeof(const char *));
     results->count = 0;
 
     for (
@@ -334,7 +336,7 @@ static void *match_thread(void *thread_args) {
         i < matcher->scanner->count;
         i += args->thread_count
     ) {
-        haystack_t *haystack = &matcher->haystacks[i];
+        haystack_t *haystack = matcher->haystacks + i;
         if (args->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }
@@ -343,8 +345,7 @@ static void *match_thread(void *thread_args) {
             // time and it can't match this time either.
             continue;
         }
-        // TODO: think about having commandt_calculate_match just update the
-        // score in-place
+
         haystack->score = commandt_calculate_match(
             haystack,
             args->needle,
@@ -355,6 +356,7 @@ static void *match_thread(void *thread_args) {
             matcher->recurse,
             args->needle_bitmask
         );
+
         if (haystack->score == 0.0) {
             continue;
         }

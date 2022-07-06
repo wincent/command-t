@@ -52,16 +52,6 @@ setmetatable(c, {
           unsigned count;
       } result_t;
 
-      float commandt_calculate_match(
-          haystack_t *haystack,
-          const char *needle,
-          bool case_sensitive,
-          bool always_show_dot_files,
-          bool never_show_dot_files,
-          bool recurse,
-          long needle_bitmask
-      );
-
       // Matcher methods.
 
       matcher_t *commandt_matcher_new(

@@ -178,21 +178,26 @@ float commandt_calculate_match(
         m.rightmost_match_p = rightmost_match_p;
         needle_idx = m.needle_length - 1;
         mask = 0;
-        for (size_t i = m.haystack->candidate->length - 1; i >= 0; i--) {
-            char c = m.haystack->candidate->contents[i];
-            char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
-            if (!m.case_sensitive) {
-                c = lower;
-            }
-            if (compute_bitmasks) {
-                mask |= (1 << (lower - 'a'));
-            }
+        // BUG: segfault in this for loop
+        if (m.haystack->candidate->length > 0) {
+            for (size_t i = m.haystack->candidate->length - 1; i >= 0; i--) {
+                char c = m.haystack->candidate->contents[i];
+/* return 0; */
+break; // we segfault if we don't bail...
+                char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
+                if (!m.case_sensitive) {
+                    c = lower;
+                }
+                if (compute_bitmasks) {
+                    mask |= (1 << (lower - 'a'));
+                }
 
-            if (needle_idx >= 0) {
-                char d = m.needle_p[needle_idx];
-                if (c == d) {
-                    rightmost_match_p[needle_idx] = i;
-                    needle_idx--;
+                if (needle_idx >= 0) {
+                    char d = m.needle_p[needle_idx];
+                    if (c == d) {
+                        rightmost_match_p[needle_idx] = i;
+                        needle_idx--;
+                    }
                 }
             }
         }
