@@ -1,3 +1,6 @@
+-- SPDX-FileCopyrightText: Copyright 2021-present Greg Hurrell. All rights reserved.
+-- SPDX-License-Identifier: BSD-2-Clause
+
 local buffer = {}
 
 local buffers = nil

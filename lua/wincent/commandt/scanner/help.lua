@@ -1,3 +1,6 @@
+-- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell. All rights reserved.
+-- SPDX-License-Identifier: BSD-2-Clause
+
 local help = {}
 
 local helptags = nil
