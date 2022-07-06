@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# SPDX-FileCopyrightText: Copyright 2013-present Greg Hurrell. All rights reserved.
+# SPDX-FileCopyrightText: Copyright 2013-present Greg Hurrell and contributors.
 # SPDX-License-Identifier: BSD-2-Clause
 
 %w[ext lib].each do |dir|

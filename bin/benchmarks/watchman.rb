@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# SPDX-FileCopyrightText: Copyright 2014-present Greg Hurrell. All rights reserved.
+# SPDX-FileCopyrightText: Copyright 2014-present Greg Hurrell and contributors.
 # SPDX-License-Identifier: BSD-2-Clause
 
 lib  = File.expand_path('../../ruby', File.dirname(__FILE__))

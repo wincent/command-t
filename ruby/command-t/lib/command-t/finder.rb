@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell. All rights reserved.
+# SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
 # SPDX-License-Identifier: BSD-2-Clause
 
 require 'command-t/ext' # CommandT::Matcher, CommandT::Watchman::Utils

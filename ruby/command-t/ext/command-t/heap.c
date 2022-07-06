@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: Copyright 2016-present Greg Hurrell. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright 2016-present Greg Hurrell and contributors.
  * SPDX-LicenseIdentifier: BSD-2-Clause
  */
 
