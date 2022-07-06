@@ -18,14 +18,13 @@
 #include "str.h" /* for str_t */
 #include "xmalloc.h"
 
-#define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
+// Avoid the overhead of threading when search space is small.
+#define THREAD_THRESHOLD 1000
 
 typedef struct {
     int thread_count;
     int thread_index;
     matcher_t *matcher;
-    haystack_t *haystacks;
-    int haystack_count;
     const char *needle;
     unsigned long needle_length;
     long needle_bitmask;
@@ -37,12 +36,6 @@ static int cmp_alpha(const void *a, const void *b);
 static int cmp_score(const void *a, const void *b);
 static void *match_thread(void *thread_args);
 
-/**
- * Returns a new matcher.
- *
- * The caller should dispose of the returned matcher with a call to
- * `commandt_matcher_free()`.
- */
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
@@ -71,8 +64,9 @@ matcher_t *commandt_matcher_new(
 }
 
 void commandt_matcher_free(matcher_t *matcher) {
-    // TODO free other stuff, if there is any... scanner should be freed
-    // separately
+    // Note that we don't free the scanner here, as that is passed in when
+    // creating the matcher (the scanner's owner is responsible for freeing it).
+    free(matcher->haystacks);
     free(matcher);
 }
 
@@ -87,7 +81,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     long needle_bitmask = UNSET_BITMASK;
     long heap_matches_count;
     heap_t *heap;
-    haystack_t *haystacks = xmalloc(candidate_count * sizeof(haystack_t));
     thread_args_t *thread_args;
     // TODO: may end up inlining these
     bool case_sensitive = matcher->case_sensitive;
@@ -108,35 +101,18 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     // Get unsorted matches.
     str_t **candidates = scanner->candidates;
 
-    // TODO: implement test here, to re-use previous haystack data
-    // structure if paths haven't changed... (and they often won't have)
-    if (true) {
-        // TODO: update this next comment
-        // `paths` changed, need to replace haystacks array etc.
+    if (!matcher->haystacks) {
+        matcher->haystacks = xmalloc(candidate_count * sizeof(haystack_t));
 
         for (i = 0; i < candidate_count; i++) {
-            haystacks[i].candidate = candidates[i];
-            haystacks[i].bitmask = UNSET_BITMASK;
-            haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
+            matcher->haystacks[i].candidate = candidates[i];
+            matcher->haystacks[i].bitmask = UNSET_BITMASK;
+            matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
         }
 
-        /* wrapped_matches = Data_Wrap_Struct( */
-        /*     rb_cObject, */
-        /*     0, */
-        /*     free, */
-        /*     matches */
-        /* ); */
-        /* rb_ivar_set(self, rb_intern("matches"), wrapped_matches); */
         matcher->last_needle = NULL;
         matcher->last_needle_length = 0;
     } else {
-        // Get existing array.
-        /* Data_Get_Struct( */
-        /*     rb_ivar_get(self, rb_intern("matches")), */
-        /*     haystack_t, */
-        /*     matches */
-        /* ); */
-
         // Will compare against previously computed haystack bitmasks.
         needle_bitmask = calculate_bitmask(needle);
 
@@ -167,7 +143,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
         thread_args[i].matcher = matcher;
-        thread_args[i].haystacks = haystacks;
         thread_args[i].needle = needle;
         thread_args[i].needle_length = needle_length;
         thread_args[i].needle_bitmask = needle_bitmask;
@@ -338,7 +313,7 @@ static int cmp_score(const void *a, const void *b) {
 }
 
 static void *match_thread(void *thread_args) {
-    long i;
+    size_t i;
     float score;
     heap_t *heap = NULL;
     thread_args_t *args = (thread_args_t *)thread_args;
@@ -356,10 +331,10 @@ static void *match_thread(void *thread_args) {
     // to see if cache characteristics improve the speed)
     for (
         i = args->thread_index;
-        i < args->haystack_count;
+        i < matcher->scanner->count;
         i += args->thread_count
     ) {
-        haystack_t *haystack = &args->haystacks[i];
+        haystack_t *haystack = &matcher->haystacks[i];
         if (args->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }

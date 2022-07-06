@@ -34,6 +34,7 @@ setmetatable(c, {
 
       typedef struct {
           scanner_t *scanner;
+          haystack_t *haystacks;
           bool always_show_dot_files;
           bool case_sensitive;
           bool ignore_spaces;
@@ -45,11 +46,6 @@ setmetatable(c, {
           const char *last_needle;
           unsigned long last_needle_length;
       } matcher_t;
-
-      //typedef struct {
-      //    size_t count;
-      //    const char **matches;
-      //} matches_t;
 
       typedef struct {
           str_t **matches;
@@ -125,19 +121,8 @@ lib.print_scanner = function(scanner)
 end
 
 lib.scanner_new_copy = function(candidates)
-  -- TODO: benchmark this approach (passing an array of strings and then calling
-  -- `strlen()` on the C-side) vs constructing and passing structs from the Lua
-  -- side:
-  --
-  --     ffi.new('str_t *[4]', {
-  --       ffi.new('str_t', {'stuff', 5, 5}),
-  --       ffi.new('str_t', {'more', 4, 4}),
-  --       ffi.new('str_t', {'and', 3, 3}),
-  --       ffi.new('str_t', {'rest', 4, 4}),
-  --     }), 4)
-  --
   local count = #candidates
-  scanner = c.scanner_new_copy(
+  local scanner = c.scanner_new_copy(
     ffi.new('const char *[' .. count .. ']', candidates),
     count
   )

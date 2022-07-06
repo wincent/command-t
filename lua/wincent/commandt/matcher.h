@@ -8,12 +8,14 @@
 
 #include <stdbool.h> /* for bool */
 
+#include "commandt.h" /* for haystack_t */
 #include "scanner.h" /* for scanner_t */
 #include "str.h" /* for str_t */
 
 // TODO flesh this out; basically make it a container for instance variables
 typedef struct {
     scanner_t *scanner;
+    haystack_t *haystacks;
 
     bool always_show_dot_files;
     bool case_sensitive;
@@ -39,6 +41,12 @@ typedef struct {
     unsigned count;
 } result_t;
 
+/**
+ * Returns a new matcher.
+ *
+ * The caller should dispose of the returned matcher with a call to
+ * `commandt_matcher_free()`.
+ */
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
