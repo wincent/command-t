@@ -48,7 +48,9 @@ help.scanner = function()
   local scanner = lib.scanner_new_copy(paths)
 
   -- DEMO
-  lib.print_scanner(scanner)
+  -- lib.print_scanner(scanner)
+
+  return scanner
 end
 
 return help

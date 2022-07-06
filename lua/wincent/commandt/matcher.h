@@ -33,17 +33,21 @@ typedef struct {
     // etc
 } matcher_t;
 
+// TODO: just return strings; it'll be fine
+// (may later want to return highlight positions)
 typedef struct {
     long count;
     long *indices;
 } result_t;
 
-// TODO: make commandt_matcher_free() and use it
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
     bool never_show_dot_files
 );
+
+// TODO: use this
+void commandt_matcher_free(matcher_t *matcher);
 
 /**
  * It is the responsibility of the caller to free the results struct by calling

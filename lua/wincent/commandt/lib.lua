@@ -5,9 +5,9 @@ local ffi = require('ffi')
 
 local lib = {}
 
+-- Lazy-load dynamic (C) library code on first access.
 local c = {}
 
--- Lazy-load dynamic library code on first access.
 setmetatable(c, {
   __index = function(table, key)
     ffi.cdef[[
@@ -56,11 +56,6 @@ setmetatable(c, {
           long *indices;
       } result_t;
 
-      result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
-
-      //result_t *commandt_temporary_demo_function();
-      int commandt_temporary_demo_function(str_t **candidates, size_t count);
-
       float commandt_calculate_match(
           haystack_t *haystack,
           const char *needle,
@@ -71,32 +66,58 @@ setmetatable(c, {
           long needle_bitmask
       );
 
+      // Matcher methods.
+
+      matcher_t *commandt_matcher_new(
+          scanner_t *scanner,
+          bool always_show_dot_files,
+          bool never_show_dot_files
+      );
+      void commandt_matcher_free(matcher_t *matcher);
+      result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
+
       void commandt_result_free(result_t *result);
 
+      // Not sure if going to need this...
       //matches_t commandt_sorted_matches_for(const char *needle);
+
+      // Scanner methods.
 
       scanner_t *scanner_new_copy(const char **candidates, size_t count);
       void scanner_free(scanner_t *scanner);
-
       void commandt_print_scanner(scanner_t *scanner);
     ]]
 
     local dirname = debug.getinfo(1).source:match('@?(.*/)')
-    local extension = '.so' -- TODO: handle Windows .dll extension
+    local extension = (function()
+      -- Possible values listed here: http://luajit.org/ext_jit.html#jit_os
+      if ffi.os == 'Windows' then
+        return '.dll'
+      end
+      return '.so'
+    end)()
     c = ffi.load(dirname .. 'commandt' .. extension)
     return c[key]
   end
 })
 
+lib.commandt_matcher_new = function(
+  scanner,
+  always_show_dot_files,
+  never_show_dot_files
+)
+  return c.commandt_matcher_new(scanner, always_show_dot_files, never_show_dot_files)
+end
+
+lib.commandt_matcher_run = function(matcher, needle)
+  print('hi')
+  print('there')
+  print('friend')
+  return c.commandt_matcher_run(mather, needle)
+end
+
 lib.demo = function()
-  local result = c.commandt_temporary_demo_function(
-    ffi.new('str_t *[4]', {
-      ffi.new('str_t', {'stuff', 5, 5}),
-      ffi.new('str_t', {'more', 4, 4}),
-      ffi.new('str_t', {'and', 3, 3}),
-      ffi.new('str_t', {'rest', 4, 4}),
-    }), 4)
-  print(vim.inspect(result))
+  error('delete me')
 end
 
 lib.print_scanner = function(scanner)
@@ -104,6 +125,17 @@ lib.print_scanner = function(scanner)
 end
 
 lib.scanner_new_copy = function(candidates)
+  -- TODO: benchmark this approach (passing an array of strings and then calling
+  -- `strlen()` on the C-side) vs constructing and passing structs from the Lua
+  -- side:
+  --
+  --     ffi.new('str_t *[4]', {
+  --       ffi.new('str_t', {'stuff', 5, 5}),
+  --       ffi.new('str_t', {'more', 4, 4}),
+  --       ffi.new('str_t', {'and', 3, 3}),
+  --       ffi.new('str_t', {'rest', 4, 4}),
+  --     }), 4)
+  --
   local count = #candidates
   scanner = c.scanner_new_copy(
     ffi.new('const char *[' .. count .. ']', candidates),

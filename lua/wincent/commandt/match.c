@@ -133,7 +133,7 @@ float commandt_calculate_match(
     long needle_bitmask
 ) {
     matchinfo_t m;
-    long i;
+    /* long i; */
     float score = 1.0;
     int compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
@@ -151,7 +151,7 @@ float commandt_calculate_match(
     if (m.needle_len == 0) {
         // Filter out dot files.
         if (m.never_show_dot_files || !m.always_show_dot_files) {
-            for (i = 0; i < m.haystack->candidate->length; i++) {
+            for (size_t i = 0; i < m.haystack->candidate->length; i++) {
                 char c = m.haystack->candidate->contents[i];
                 if (c == '.' && (i == 0 || m.haystack->candidate->contents[i - 1] == '/')) {
                     return -1.0;
@@ -160,7 +160,7 @@ float commandt_calculate_match(
         }
     } else {
         long haystack_limit;
-        long memo_size;
+        size_t memo_size;
         long needle_idx;
         long mask;
         long rightmost_match_p[m.needle_len];
@@ -178,7 +178,7 @@ float commandt_calculate_match(
         m.rightmost_match_p = rightmost_match_p;
         needle_idx = m.needle_len - 1;
         mask = 0;
-        for (i = m.haystack->candidate->length - 1; i >= 0; i--) {
+        for (size_t i = m.haystack->candidate->length - 1; i >= 0; i--) {
             char c = m.haystack->candidate->contents[i];
             char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
             if (!m.case_sensitive) {
@@ -208,7 +208,7 @@ float commandt_calculate_match(
         memo_size = m.needle_len * haystack_limit;
         {
             float memo[memo_size];
-            for (i = 0; i < memo_size; i++) {
+            for (size_t i = 0; i < memo_size; i++) {
                 memo[i] = UNSET_SCORE;
             }
             m.memo = memo;

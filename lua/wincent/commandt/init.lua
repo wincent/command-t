@@ -13,7 +13,7 @@ local lib = nil
 
 -- require('wincent.commandt.finder') -- TODO: decide whether we need this, or
 -- only scanners
-local scanner = require('wincent.commandt.scanner')
+-- local scanner = require('wincent.commandt.scanner')
 
 -- print('scanner ' .. vim.inspect(scanner.buffer.get()))
 
@@ -204,7 +204,14 @@ commandt.cmdline_leave = function()
 end
 
 commandt.demo = function()
-  require('wincent.commandt.lib').demo()
+  local lib = require('wincent.commandt.lib')
+  local scanner = require('wincent.commandt.scanner.help').scanner()
+  local matcher = lib.commandt_matcher_new(scanner, true, false)
+
+  -- can we run AND print? no
+  -- print(vim.inspect(lib.commandt_matcher_run(matcher, "tag")))
+  -- can we merely run? no
+  lib.commandt_matcher_run(matcher, "tag")
 end
 
 commandt.demo2 = function()
