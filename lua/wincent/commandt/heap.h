@@ -14,6 +14,8 @@
 
 typedef int (*heap_compare_entries)(const void *a, const void *b);
 
+// TODO: size_t instead of unsigned here
+
 typedef struct {
     unsigned count;
     unsigned capacity;

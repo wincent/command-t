@@ -15,6 +15,7 @@
 float commandt_calculate_match(
     haystack_t *haystack,
     const char *needle,
+    long needle_length,
     bool case_sensitive,
     bool always_show_dot_files,
     bool never_show_dot_files,

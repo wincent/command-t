@@ -19,7 +19,7 @@ typedef struct {
     bool ignore_spaces;
     bool never_show_dot_files;
     bool recurse;
-    bool sort;
+    // bool sort;
 
     /**
      * Limit the number of returned results (0 implies no limit).

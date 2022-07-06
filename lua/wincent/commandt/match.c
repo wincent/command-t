@@ -16,7 +16,7 @@ typedef struct {
     haystack_t *haystack;
     const char *needle_p;
     // TODO: consider changing some of these to size_t (stddef.h)
-    long needle_len;
+    long needle_length;
     long *rightmost_match_p; // Rightmost match for each char in needle.
     float max_score_per_char;
     bool always_show_dot_files;
@@ -40,13 +40,13 @@ static float recursive_match(
     float seen_score = 0;
 
     // Iterate over needle.
-    for (i = needle_idx; i < m->needle_len; i++) {
+    for (i = needle_idx; i < m->needle_length; i++) {
         // Iterate over (valid range of) haystack.
         for (j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
             char c, d;
 
             // Do we have a memoized result we can return?
-            memoized = &m->memo[j * m->needle_len + i];
+            memoized = &m->memo[j * m->needle_length + i];
             if (*memoized != UNSET_SCORE) {
                 return *memoized > seen_score ? *memoized : seen_score;
             }
@@ -110,7 +110,7 @@ static float recursive_match(
                 haystack_idx = last_idx + 1;
                 score += score_for_char;
                 *memoized = seen_score > score ? seen_score : score;
-                if (i == m->needle_len - 1) {
+                if (i == m->needle_length - 1) {
                     // Whole string matched.
                     return *memoized;
                 }
@@ -126,6 +126,7 @@ static float recursive_match(
 float commandt_calculate_match(
     haystack_t *haystack,
     const char *needle,
+    long needle_length,
     bool case_sensitive,
     bool always_show_dot_files,
     bool never_show_dot_files,
@@ -138,17 +139,16 @@ float commandt_calculate_match(
     int compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
     m.needle_p = needle;
-    // TODO: avoid strlen here
-    m.needle_len = strlen(needle);
+    m.needle_length = needle_length;
     m.rightmost_match_p = NULL;
-    m.max_score_per_char = (1.0 / m.haystack->candidate->length + 1.0 / m.needle_len) / 2;
+    m.max_score_per_char = (1.0 / m.haystack->candidate->length + 1.0 / m.needle_length) / 2;
     m.always_show_dot_files = always_show_dot_files;
     m.never_show_dot_files = never_show_dot_files;
     m.case_sensitive = case_sensitive;
     m.recurse = recurse;
 
     // Special case for zero-length search string.
-    if (m.needle_len == 0) {
+    if (m.needle_length == 0) {
         // Filter out dot files.
         if (m.never_show_dot_files || !m.always_show_dot_files) {
             for (size_t i = 0; i < m.haystack->candidate->length; i++) {
@@ -163,7 +163,7 @@ float commandt_calculate_match(
         size_t memo_size;
         long needle_idx;
         long mask;
-        long rightmost_match_p[m.needle_len];
+        long rightmost_match_p[m.needle_length];
 
         if (haystack->bitmask != UNSET_BITMASK) {
             if ((needle_bitmask & haystack->bitmask) != needle_bitmask) {
@@ -176,7 +176,7 @@ float commandt_calculate_match(
         // - Record rightmost match for each character (prune search space).
         // - Record bitmask for haystack to speed up future searches.
         m.rightmost_match_p = rightmost_match_p;
-        needle_idx = m.needle_len - 1;
+        needle_idx = m.needle_length - 1;
         mask = 0;
         for (size_t i = m.haystack->candidate->length - 1; i >= 0; i--) {
             char c = m.haystack->candidate->contents[i];
@@ -204,8 +204,8 @@ float commandt_calculate_match(
         }
 
         // Prepare for memoization.
-        haystack_limit = rightmost_match_p[m.needle_len - 1] + 1;
-        memo_size = m.needle_len * haystack_limit;
+        haystack_limit = rightmost_match_p[m.needle_length - 1] + 1;
+        memo_size = m.needle_length * haystack_limit;
         {
             float memo[memo_size];
             for (size_t i = 0; i < memo_size; i++) {

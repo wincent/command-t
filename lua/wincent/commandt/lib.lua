@@ -113,7 +113,7 @@ lib.commandt_matcher_run = function(matcher, needle)
   print('hi')
   print('there')
   print('friend')
-  return c.commandt_matcher_run(mather, needle)
+  return c.commandt_matcher_run(matcher, needle)
 end
 
 lib.demo = function()

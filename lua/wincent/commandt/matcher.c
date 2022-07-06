@@ -44,7 +44,10 @@ static int cmp_score(const void *a, const void *b);
 static void *match_thread(void *thread_args);
 
 /**
- * Returns a new matcher, or NULL on failure.
+ * Returns a new matcher.
+ *
+ * The caller should dispose of the returned matcher with a call to
+ * `commandt_matcher_free()`.
  */
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
@@ -68,7 +71,6 @@ matcher_t *commandt_matcher_new(
     matcher->last_needle_length = 0;
     matcher->limit = 15;
     matcher->recurse = true;
-    matcher->sort = true; // TODO: can we remove this? we really only want it for the case where the search string is empty
     matcher->threads = 4; // TODO: base on core count
 
     return matcher;
@@ -84,12 +86,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
-    unsigned limit, thread_count;
+    unsigned thread_count;
+    unsigned limit = matcher->limit;
     long err;
     pthread_t *threads;
     long needle_bitmask = UNSET_BITMASK;
     long heap_matches_count;
-    bool sort;
     heap_t *heap;
     haystack_t *haystacks = xmalloc(candidate_count * sizeof(haystack_t));
     thread_args_t *thread_args;
@@ -100,8 +102,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     bool ignore_spaces = matcher->ignore_spaces;
     bool never_show_dot_files = matcher->never_show_dot_files;
 
-    limit = matcher->limit;
-    sort = matcher->sort != false;
     heap_matches_count = 0;
 
     unsigned long needle_length = strlen(needle);
@@ -117,15 +117,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     // Get unsorted matches.
     str_t **candidates = scanner->candidates;
 
-    // TODO: implement actual test here, to re-use previous matches data
-    // structure if paths haven't changed...
+    // TODO: implement test here, to re-use previous haystack data
+    // structure if paths haven't changed... (and they often won't have)
     if (true) {
         // TODO: update this next comment
         // `paths` changed, need to replace haystacks array etc.
 
-        // TODO: way too much allocation here, this is going to be super slow
-        // instead, allocate block all at once (which we can do because
-        // haystack_t has fixed size)
         for (i = 0; i < candidate_count; i++) {
             haystacks[i].candidate = candidates[i];
             haystacks[i].bitmask = UNSET_BITMASK;
@@ -164,15 +161,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     thread_count = matcher->threads > 0 ? matcher->threads : 1;
+    // TODO: better name for this... it for data accumulated from per-thread heap datastructures
+    // heap datastructures will be populated in match_thread() call
+    // when we pthread_join() we copy the data in here so that we can sort it.
     haystack_t *heap_haystacks = xmalloc(thread_count * limit * sizeof(haystack_t));
-
-    // TODO: this is copy pasta and probably wrong... 
-    for (i = 0; i < candidate_count; i++) {
-        heap_haystacks[i].candidate = candidates[i];
-        heap_haystacks[i].bitmask = UNSET_BITMASK;
-        heap_haystacks[i].index = i;
-        heap_haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
-    }
 
     if (candidate_count < THREAD_THRESHOLD) {
         thread_count = 1;
@@ -202,13 +194,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    // TODO: this looks silly (memcpy instead? refactor out of existence?)
-                    // (same problem below)
-                    haystack_t *haystack = &heap_haystacks[heap_matches_count++];
-                    haystack->candidate = ((haystack_t *)heap->entries[j])->candidate;
-                    haystack->bitmask = ((haystack_t *)heap->entries[j])->bitmask;
-                    haystack->index = ((haystack_t *)heap->entries[j])->index;
-                    haystack->score = ((haystack_t *)heap->entries[j])->score;
+                    memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(void *));
                 }
                 heap_free(heap);
             }
@@ -227,42 +213,35 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                // TODO: same problem as above
-                haystack_t *haystack = &heap_haystacks[heap_matches_count++];
-                haystack->candidate = ((haystack_t *)heap->entries[j])->candidate;
-                haystack->bitmask = ((haystack_t *)heap->entries[j])->bitmask;
-                haystack->index = ((haystack_t *)heap->entries[j])->index;
-                haystack->score = ((haystack_t *)heap->entries[j])->score;
+                memcpy(&heap_haystacks[heap_matches_count++], heap->entries[j], sizeof(void *));
             }
             heap_free(heap);
         }
     }
     free(threads);
 
-    if (sort) {
-        if (
-            needle_length == 0 ||
-            (needle_length == 1 && needle[0] == '.')
-        ) {
-            // Alphabetic order if search string is only "" or "."
-            // TODO: make those semantics fully apply to heap case as well
-            // (they don't because the heap itself calls cmp_score, which means
-            // that the items which stay in the top [limit] may (will) be
-            // different).
-            qsort(
-                heap_haystacks,
-                heap_matches_count,
-                sizeof(haystack_t),
-                cmp_alpha
-            );
-        } else {
-            qsort(
-                heap_haystacks,
-                heap_matches_count,
-                sizeof(haystack_t),
-                cmp_score
-            );
-        }
+    if (
+        needle_length == 0 ||
+        (needle_length == 1 && needle[0] == '.')
+    ) {
+        // Alphabetic order if search string is only "" or "."
+        // TODO: make those semantics fully apply to heap case as well
+        // (they don't because the heap itself calls cmp_score, which means
+        // that the items which stay in the top [limit] may (will) be
+        // different).
+        qsort(
+            heap_haystacks,
+            heap_matches_count,
+            sizeof(haystack_t),
+            cmp_alpha
+        );
+    } else {
+        qsort(
+            heap_haystacks,
+            heap_matches_count,
+            sizeof(haystack_t),
+            cmp_score
+        );
     }
 
     if (limit == 0) {
@@ -408,7 +387,7 @@ static void *match_thread(void *thread_args) {
         haystack->score = commandt_calculate_match(
             haystack,
             args->needle,
-            // TODO pass in length here to avoid a strlen (do it once here)
+            args->needle_length,
             args->case_sensitive,
             args->always_show_dot_files,
             args->never_show_dot_files,
