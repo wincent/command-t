@@ -32,6 +32,9 @@ typedef struct {
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.
+ *
+ * Copies are made of `candidates`. The caller should call `scanner_free()` when
+ * done.
  */
 scanner_t *scanner_new_copy(const char **candidates, size_t count);
 
