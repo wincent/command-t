@@ -9,91 +9,13 @@ local chooser_buffer = nil
 local chooser_selected_index = nil
 local chooser_window = nil
 
--- Lazy loaded.
-local library = nil
+local lib = nil
 
 -- require('wincent.commandt.finder') -- TODO: decide whether we need this, or
 -- only scanners
 local scanner = require('wincent.commandt.scanner')
 
 -- print('scanner ' .. vim.inspect(scanner.buffer.get()))
-
-local load = function ()
-  local dirname = debug.getinfo(1).source:match('@?(.*/)')
-  local extension = '.so' -- TODO: handle Windows .dll extension
-  library = ffi.load(dirname .. 'commandt' .. extension)
-
-  ffi.cdef[[
-    typedef struct {
-        const char *candidate;
-        long length;
-        long index;
-        long bitmask;
-        float score;
-    } haystack_t;
-
-    typedef struct {
-        const char *contents;
-        size_t length;
-        size_t capacity;
-    } str_t;
-
-    typedef struct {
-        str_t **candidates;
-        size_t count;
-        size_t capacity;
-        unsigned clock;
-    } scanner_t;
-
-    typedef struct {
-        scanner_t *scanner;
-        bool always_show_dot_files;
-        bool case_sensitive;
-        bool ignore_spaces;
-        bool never_show_dot_files;
-        bool recurse;
-        bool sort;
-        unsigned limit;
-        int threads;
-        const char *last_needle;
-        unsigned long last_needle_length;
-    } matcher_t;
-
-    //typedef struct {
-    //    size_t count;
-    //    const char **matches;
-    //} matches_t;
-
-    typedef struct {
-        long count;
-        long *indices;
-    } result_t;
-
-    result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
-
-    //result_t *commandt_temporary_demo_function();
-    int commandt_temporary_demo_function(str_t **candidates, size_t count);
-
-    float commandt_calculate_match(
-        haystack_t *haystack,
-        const char *needle,
-        bool case_sensitive,
-        bool always_show_dot_files,
-        bool never_show_dot_files,
-        bool recurse,
-        long needle_bitmask
-    );
-
-    void commandt_result_free(result_t *result);
-
-    //matches_t commandt_sorted_matches_for(const char *needle);
-  ]]
-  -- TODO: avoid this; prefer to call destructor instead with ffi.gc and let
-  -- C-side code do the freeing...
-  -- void free(void *ptr);
-
-  return library
-end
 
 -- library = {
   -- commandt_example_func_that_returns_int = function()
@@ -218,24 +140,24 @@ commandt.calculate_match = function(
   recurse,
   needle_bitmask
 )
-  local l = load()
-
-  local result = l.commandt_calculate_match(
-    ffi.new('haystack_t', {haystack, string.len(haystack), 0, -1, 0}),
-    needle,
-    case_sensitive or true,
-    always_show_dot_files or false,
-    never_show_dot_files or false,
-    recurse or true,
-    needle_bitmask or 0
-  )
+  -- local l = load()
+  --
+  -- local result = l.commandt_calculate_match(
+  --   ffi.new('haystack_t', {haystack, string.len(haystack), 0, -1, 0}),
+  --   needle,
+  --   case_sensitive or true,
+  --   always_show_dot_files or false,
+  --   never_show_dot_files or false,
+  --   recurse or true,
+  --   needle_bitmask or 0
+  -- )
 
   -- TODO: make this callable more than once
   -- (ie. on first time we accept a string, on second etc times we need called
   -- to do ffi.new thing)
-  commandt.calculate_match = l.commandt_calculate_match
+  -- commandt.calculate_match = l.commandt_calculate_match
 
-  return result
+  -- return result
 end
 
 commandt.cmdline_changed = function(char)
@@ -282,15 +204,7 @@ commandt.cmdline_leave = function()
 end
 
 commandt.demo = function()
-  local l = load()
-  local result = l.commandt_temporary_demo_function(
-    ffi.new('str_t *[4]', {
-      ffi.new('str_t', {'stuff', 5, 5}),
-      ffi.new('str_t', {'more', 4, 4}),
-      ffi.new('str_t', {'and', 3, 3}),
-      ffi.new('str_t', {'rest', 4, 4}),
-    }), 4)
-  print(vim.inspect(result))
+  require('wincent.commandt.lib').demo()
 end
 
 commandt.file_finder = function(arg)
