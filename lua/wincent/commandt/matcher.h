@@ -28,7 +28,6 @@ typedef struct {
     unsigned limit;
     int threads;
 
-
     const char *last_needle;
     unsigned long last_needle_length;
     // etc

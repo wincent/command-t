@@ -23,17 +23,11 @@
 typedef struct {
     int thread_count;
     int thread_index;
-    bool case_sensitive;
-    unsigned limit;
+    matcher_t *matcher;
     haystack_t *haystacks;
     int haystack_count;
     const char *needle;
     unsigned long needle_length;
-    const char *last_needle;
-    unsigned long last_needle_length;
-    bool always_show_dot_files;
-    bool never_show_dot_files;
-    bool recurse;
     long needle_bitmask;
 } thread_args_t;
 
@@ -95,12 +89,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     heap_t *heap;
     haystack_t *haystacks = xmalloc(candidate_count * sizeof(haystack_t));
     thread_args_t *thread_args;
-    // TODO: may end up inlining many of these
-    bool always_show_dot_files = matcher->always_show_dot_files;
+    // TODO: may end up inlining these
     bool case_sensitive = matcher->case_sensitive;
-    bool recurse = matcher->recurse;
     bool ignore_spaces = matcher->ignore_spaces;
-    bool never_show_dot_files = matcher->never_show_dot_files;
 
     heap_matches_count = 0;
 
@@ -160,15 +151,14 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     thread_count = matcher->threads > 0 ? matcher->threads : 1;
-    // TODO: better name for this... it for data accumulated from per-thread heap datastructures
-    // heap datastructures will be populated in match_thread() call
-    // when we pthread_join() we copy the data in here so that we can sort it.
-    haystack_t *heap_haystacks = xmalloc(thread_count * limit * sizeof(haystack_t));
-
     if (candidate_count < THREAD_THRESHOLD) {
         thread_count = 1;
     }
 
+    // TODO: better name for this... it is for data accumulated from per-thread heap datastructures
+    // heap datastructures will be populated in match_thread() call
+    // when we pthread_join() we copy the data in here so that we can sort it.
+    haystack_t *heap_haystacks = xmalloc(thread_count * limit * sizeof(haystack_t));
     threads = xmalloc(sizeof(pthread_t) * thread_count);
     thread_args = xmalloc(sizeof(thread_args_t) * thread_count);
 
@@ -176,16 +166,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         // TODO: probably just move matcher into thread args...
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
-        thread_args[i].case_sensitive = case_sensitive;
-        thread_args[i].limit = limit;
+        thread_args[i].matcher = matcher;
         thread_args[i].haystacks = haystacks;
         thread_args[i].needle = needle;
         thread_args[i].needle_length = needle_length;
-        thread_args[i].last_needle = matcher->last_needle;
-        thread_args[i].last_needle_length = matcher->last_needle_length;
-        thread_args[i].always_show_dot_files = always_show_dot_files;
-        thread_args[i].never_show_dot_files = never_show_dot_files;
-        thread_args[i].recurse = recurse;
         thread_args[i].needle_bitmask = needle_bitmask;
 
         if (i == thread_count - 1) {
@@ -358,12 +342,13 @@ static void *match_thread(void *thread_args) {
     float score;
     heap_t *heap = NULL;
     thread_args_t *args = (thread_args_t *)thread_args;
+    matcher_t *matcher = args->matcher;
 
-    if (args->limit) {
+    if (matcher->limit) {
         // Reserve one extra slot so that we can do an insert-then-extract even
         // when "full" (effectively allows use of min-heap to maintain a
         // top-"limit" list of items).
-        heap = heap_new(args->limit + 1, cmp_score);
+        heap = heap_new(matcher->limit + 1, cmp_score);
     }
 
     // TODO benchmark different thread partitioning method
@@ -378,7 +363,7 @@ static void *match_thread(void *thread_args) {
         if (args->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }
-        if (args->last_needle != NULL && haystack->score == 0.0) {
+        if (matcher->last_needle != NULL && haystack->score == 0.0) {
             // Skip over this candidate because it didn't match last
             // time and it can't match this time either.
             continue;
@@ -389,17 +374,17 @@ static void *match_thread(void *thread_args) {
             haystack,
             args->needle,
             args->needle_length,
-            args->case_sensitive,
-            args->always_show_dot_files,
-            args->never_show_dot_files,
-            args->recurse,
+            matcher->case_sensitive,
+            matcher->always_show_dot_files,
+            matcher->never_show_dot_files,
+            matcher->recurse,
             args->needle_bitmask
         );
         if (haystack->score == 0.0) {
             continue;
         }
         if (heap) {
-            if (heap->count == args->limit) {
+            if (heap->count == matcher->limit) {
                 score = ((haystack_t *)HEAP_PEEK(heap))->score;
                 if (haystack->score >= score) {
                     heap_insert(heap, haystack);
