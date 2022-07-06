@@ -2,11 +2,6 @@ local help = {}
 
 local helptags = nil
 
--- The joys of Vim "magic" regexps: `(`, `)`, and `+` need a backslash, but `*`
--- does not. I'm going to rewrite this using Lua patterns, but I want to commit
--- this just to reflect my indignation in the Git history.
-local tag_regex = vim.regex('^\\s*\\(\\S\\+\\)\\s\\+')
-
 -- Returns the list of helptags that can be opened with `:help {tag}`
 --
 -- Will return a cached value unless `force` is truthy (or there is no cached
@@ -29,9 +24,8 @@ help.get = function(force)
     for _, tagfile in ipairs(tagfiles) do
       if vim.fn.filereadable(tagfile) then
         for _, tag in ipairs(vim.fn.readfile(tagfile)) do
-          local start_index, end_index = tag_regex:match_str(tag)
-          if start_index ~= nil then
-            local tag_text = tag:sub(start_index, end_index - 1)
+          local _, _, tag_text = tag:find('^%s*(%S+)%s+')
+          if tag_text ~= nil then
             table.insert(helptags, tag_text)
           end
         end
