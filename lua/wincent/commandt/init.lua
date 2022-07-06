@@ -9,8 +9,6 @@ local chooser_buffer = nil
 local chooser_selected_index = nil
 local chooser_window = nil
 
-local lib = nil
-
 -- require('wincent.commandt.finder') -- TODO: decide whether we need this, or
 -- only scanners
 -- local scanner = require('wincent.commandt.scanner')
@@ -208,8 +206,13 @@ commandt.demo = function()
   local scanner = require('wincent.commandt.scanner.help').scanner()
   local matcher = lib.commandt_matcher_new(scanner, true, false)
   local results = lib.commandt_matcher_run(matcher, "tag")
-  --print(vim.inspect(results)) -- this is boxed reference; need to figure out how to return something useful or otherwise access this
-  -- print(results.count) -- 0LL
+  local strings = {}
+  for i = 1, results.count do
+    local str = results.matches[i]
+    table.insert(strings, ffi.string(str.contents, str.length))
+  end
+  print(vim.inspect(strings))
+  return strings
 end
 
 commandt.demo2 = function()

@@ -126,7 +126,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         for (i = 0; i < candidate_count; i++) {
             haystacks[i].candidate = candidates[i];
             haystacks[i].bitmask = UNSET_BITMASK;
-            haystacks[i].index = i;
             haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
         }
 
@@ -250,17 +249,17 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     result_t *results = xmalloc(sizeof(result_t));
-    // results->count = 100; // just testing (segfaults?)
-    results->indices = xmalloc(limit * sizeof(long));
+    unsigned count = heap_matches_count > limit ? limit : heap_matches_count;
+    results->matches = xmalloc(count * sizeof(const char *));
+    results->count = 0;
 
     for (
         i = 0;
-        i < heap_matches_count && limit > 0;
+        i < count && results->count < limit;
         i++
     ) {
         if (heap_haystacks[i].score > 0.0) {
-            results->indices[i] = heap_haystacks[i].index;
-            limit--;
+            results->matches[results->count++] = heap_haystacks[i].candidate;
         }
     }
 
@@ -275,7 +274,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 }
 
 void commandt_result_free(result_t *result) {
-    free(result->indices);
+    free(result->matches);
     free(result);
 }
 

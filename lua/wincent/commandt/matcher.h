@@ -9,6 +9,7 @@
 #include <stdbool.h> /* for bool */
 
 #include "scanner.h" /* for scanner_t */
+#include "str.h" /* for str_t */
 
 // TODO flesh this out; basically make it a container for instance variables
 typedef struct {
@@ -33,11 +34,10 @@ typedef struct {
     // etc
 } matcher_t;
 
-// TODO: just return strings; it'll be fine
-// (may later want to return highlight positions)
+// TODO: may later want to return highlight positions as well
 typedef struct {
-    long count;
-    long *indices;
+    str_t **matches;
+    unsigned count;
 } result_t;
 
 matcher_t *commandt_matcher_new(

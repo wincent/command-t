@@ -52,8 +52,8 @@ setmetatable(c, {
       //} matches_t;
 
       typedef struct {
-          long count;
-          long *indices;
+          str_t **matches;
+          unsigned count;
       } result_t;
 
       float commandt_calculate_match(
