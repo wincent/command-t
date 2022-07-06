@@ -306,12 +306,24 @@ void commandt_result_free(result_t *result) {
 // on them all).
 int commandt_temporary_demo_function(str_t **candidates, size_t count) {
     scanner_t *scanner = scanner_new(count);
-    scanner_push(scanner, candidates, count);
+    scanner_push_str(scanner, candidates, count);
     str_t *dump = scanner_dump(scanner);
     printf("\n\n\n%s\n\n\n", dump->contents);
     str_free(dump);
     return count;
 }
+
+// This one shows us constructing str_t on the C side.
+// I suspect this will double-copy, just like the other one does, but maybe
+// not...
+scanner_t *commandt_another_demo(const char **candidates, size_t count) {
+    scanner_t *scanner = scanner_new_copy(candidates, count);
+    str_t *dump = scanner_dump(scanner);
+    printf("\n\n\n%s\n\n\n", dump->contents);
+    str_free(dump);
+    return scanner;
+}
+
 /* result_t *commandt_temporary_demo_function() { */
     /* scanner_t *scanner = xmalloc(sizeof(scanner_t)); */
     /* scanner->candidates = xmalloc(5 * sizeof(void *)); */

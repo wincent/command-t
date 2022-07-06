@@ -39,4 +39,12 @@ help.get = function(force)
   return helptags
 end
 
+-- temporary function
+-- see me run with:
+-- :lua require('wincent.commandt.scanner.help').scanner()
+help.scanner = function()
+  local lib = require('wincent.commandt.lib')
+  local scanner = lib.scanner()
+end
+
 return help

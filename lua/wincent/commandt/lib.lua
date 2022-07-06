@@ -60,6 +60,7 @@ setmetatable(c, {
 
       //result_t *commandt_temporary_demo_function();
       int commandt_temporary_demo_function(str_t **candidates, size_t count);
+      scanner_t *commandt_another_demo(const char **candidates, size_t count);
 
       float commandt_calculate_match(
           haystack_t *haystack,
@@ -74,6 +75,8 @@ setmetatable(c, {
       void commandt_result_free(result_t *result);
 
       //matches_t commandt_sorted_matches_for(const char *needle);
+
+      void scanner_free(scanner_t *scanner);
     ]]
 
     local dirname = debug.getinfo(1).source:match('@?(.*/)')
@@ -92,6 +95,21 @@ lib.demo = function()
       ffi.new('str_t', {'rest', 4, 4}),
     }), 4)
   print(vim.inspect(result))
+end
+
+-- goal here is just to show that I can allocate stuff in C land and return a
+-- "handle" that can be used latter to dispose of resources.
+lib.demo2 = function()
+  -- It's not quite magic enough to do this...
+  -- bad argument #1 to 'commandt_another_demo' (cannot convert 'table' to 'const char **')
+  -- local result = c.commandt_another_demo({"does", "this", "work?"}, 3)
+  -- But it can do this:
+  local result = c.commandt_another_demo(
+    ffi.new('const char *[3]', {"does", "this", "work?"}),
+    3
+  )
+  print(vim.inspect(result))
+  ffi.gc(result, c.scanner_free)
 end
 
 return lib

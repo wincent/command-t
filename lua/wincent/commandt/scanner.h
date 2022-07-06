@@ -31,6 +31,11 @@ typedef struct {
 } scanner_t;
 
 /**
+ * Create a new `scanner_t` struct initialized with `candidates`.
+ */
+scanner_t *scanner_new_copy(const char **candidates, size_t count);
+
+/**
  * Create a new `scanner_t` struct initialized with `capacity`. If `capacity` is
  * 0, the default capacity is used.
  */
@@ -43,7 +48,7 @@ scanner_t *scanner_new(size_t capacity);
  */
 str_t *scanner_dump(scanner_t *scanner);
 
-void scanner_push(scanner_t *scanner, str_t **candidates, size_t count);
+void scanner_push_str(scanner_t *scanner, str_t **candidates, size_t count);
 
 /**
  * Frees a previously created `scanner_t` structure.

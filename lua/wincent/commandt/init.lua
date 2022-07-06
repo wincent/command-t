@@ -207,6 +207,10 @@ commandt.demo = function()
   require('wincent.commandt.lib').demo()
 end
 
+commandt.demo2 = function()
+  require('wincent.commandt.lib').demo2()
+end
+
 commandt.file_finder = function(arg)
   local directory = vim.trim(arg)
 
