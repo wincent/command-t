@@ -15,6 +15,7 @@
 #include "match.h"
 #include "matcher.h"
 #include "scanner.h"
+#include "str.h" /* for str_t */
 #include "xmalloc.h"
 
 #define THREAD_THRESHOLD 1000 /* avoid the overhead of threading when search space is small */
@@ -118,7 +119,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     // Get unsorted matches.
     scanner_t *scanner = matcher->scanner;
 
-    const char **candidates = scanner->candidates;
+    str_t **candidates = scanner->candidates;
     candidate_count = scanner->count;
 
     // TODO: implement actual test here, to re-use previous matches data
@@ -135,7 +136,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             corpus->haystacks[i]->candidate = candidates[i];
             corpus->haystacks[i]->bitmask = UNSET_BITMASK;
             corpus->haystacks[i]->index = i;
-            corpus->haystacks[i]->length = strlen(candidates[i]); // TODO avoid
+            /* corpus->haystacks[i]->length = strlen(candidates[i]); // TODO avoid */
             corpus->haystacks[i]->score = 1.0; // TODO: default to 0? 1? -1?
         }
 
@@ -353,10 +354,10 @@ static long calculate_bitmask(const char *str) {
 static int cmp_alpha(const void *a, const void *b) {
     haystack_t a_match = *(haystack_t *)a;
     haystack_t b_match = *(haystack_t *)b;
-    const char *a_ptr = a_match.candidate;
-    const char *b_ptr = b_match.candidate;
-    long a_len = a_match.length;
-    long b_len = b_match.length;
+    const char *a_ptr = a_match.candidate->contents;
+    const char *b_ptr = b_match.candidate->contents;
+    long a_len = a_match.candidate->length;
+    long b_len = b_match.candidate->length;
     int order = 0;
 
     if (a_len > b_len) {

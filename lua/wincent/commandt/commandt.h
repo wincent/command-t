@@ -6,14 +6,16 @@
 #ifndef COMMANDT_H
 #define COMMANDT_H
 
+#include "str.h" /* for str_t */
+
 /**
  *  Represents a single "haystack" (ie. a string to be searched for the needle).
  */
 typedef struct {
-    const char *candidate;
+    str_t *candidate;
     // TODO: probably don't need `long` here! PATH_MAX is small
     // but most string methods return size_t (which is effectively long, at least)
-    long length;
+    // long length;
 
     /**
      * Original index in the scanner's candidates array, so that we can return

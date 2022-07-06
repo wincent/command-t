@@ -12,18 +12,18 @@ setmetatable(c, {
   __index = function(table, key)
     ffi.cdef[[
       typedef struct {
-          const char *candidate;
+          const char *contents;
+          size_t length;
+          size_t capacity;
+      } str_t;
+
+      typedef struct {
+          str_t *candidate;
           long length;
           long index;
           long bitmask;
           float score;
       } haystack_t;
-
-      typedef struct {
-          const char *contents;
-          size_t length;
-          size_t capacity;
-      } str_t;
 
       typedef struct {
           str_t **candidates;

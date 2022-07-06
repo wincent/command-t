@@ -51,9 +51,9 @@ static float recursive_match(
                 return *memoized > seen_score ? *memoized : seen_score;
             }
             c = m->needle_p[i];
-            d = m->haystack->candidate[j];
+            d = m->haystack->candidate->contents[j];
             if (d == '.') {
-                if (j == 0 || m->haystack->candidate[j - 1] == '/') { // This is a dot-file.
+                if (j == 0 || m->haystack->candidate->contents[j - 1] == '/') { // This is a dot-file.
                     int dot_search = c == '.'; // Searching for a dot.
                     if (
                         m->never_show_dot_files ||
@@ -74,8 +74,8 @@ static float recursive_match(
 
                 if (distance > 1) {
                     float factor = 1.0;
-                    char last = m->haystack->candidate[j - 1];
-                    char curr = m->haystack->candidate[j]; // Case matters, so get again.
+                    char last = m->haystack->candidate->contents[j - 1];
+                    char curr = m->haystack->candidate->contents[j]; // Case matters, so get again.
                     if (last == '/') {
                         factor = 0.9;
                     } else if (
@@ -141,7 +141,7 @@ float commandt_calculate_match(
     // TODO: avoid strlen here
     m.needle_len = strlen(needle);
     m.rightmost_match_p = NULL;
-    m.max_score_per_char = (1.0 / m.haystack->length + 1.0 / m.needle_len) / 2;
+    m.max_score_per_char = (1.0 / m.haystack->candidate->length + 1.0 / m.needle_len) / 2;
     m.always_show_dot_files = always_show_dot_files;
     m.never_show_dot_files = never_show_dot_files;
     m.case_sensitive = case_sensitive;
@@ -151,9 +151,9 @@ float commandt_calculate_match(
     if (m.needle_len == 0) {
         // Filter out dot files.
         if (m.never_show_dot_files || !m.always_show_dot_files) {
-            for (i = 0; i < m.haystack->length; i++) {
-                char c = m.haystack->candidate[i];
-                if (c == '.' && (i == 0 || m.haystack->candidate[i - 1] == '/')) {
+            for (i = 0; i < m.haystack->candidate->length; i++) {
+                char c = m.haystack->candidate->contents[i];
+                if (c == '.' && (i == 0 || m.haystack->candidate->contents[i - 1] == '/')) {
                     return -1.0;
                 }
             }
@@ -178,8 +178,8 @@ float commandt_calculate_match(
         m.rightmost_match_p = rightmost_match_p;
         needle_idx = m.needle_len - 1;
         mask = 0;
-        for (i = m.haystack->length - 1; i >= 0; i--) {
-            char c = m.haystack->candidate[i];
+        for (i = m.haystack->candidate->length - 1; i >= 0; i--) {
+            char c = m.haystack->candidate->contents[i];
             char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
             if (!m.case_sensitive) {
                 c = lower;
