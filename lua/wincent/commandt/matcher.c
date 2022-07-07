@@ -37,33 +37,28 @@ static void *match_thread(void *thread_args);
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
-    bool never_show_dot_files
+    bool case_sensitive,
+    bool ignore_spaces,
+    unsigned limit,
+    bool never_show_dot_files,
+    bool recurse
 ) {
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
     matcher->haystacks = xmalloc(scanner->count * sizeof(haystack_t));
 
-    str_t **candidates = scanner->candidates;
-
     for (size_t i = 0; i < scanner->count; i++) {
-        /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
-        matcher->haystacks[i].candidate = candidates[i];
+        matcher->haystacks[i].candidate = scanner->candidates[i];
         matcher->haystacks[i].bitmask = UNSET_BITMASK;
         matcher->haystacks[i].score = UNSET_SCORE;
     }
 
-    // Defaults.
-
-    // TODO: sort out which ones should be passed in at init time and which ones
-    // later... should be consistent
-    // TODO: provide a way to override these (either setters or passed in to
-    // to commandt_matcher_run())
     matcher->always_show_dot_files = always_show_dot_files;
-    matcher->case_sensitive = true; // TODO maybe consider doing smart case at this level (currently doing it at ruby level)
-    matcher->ignore_spaces = true;
+    matcher->case_sensitive = case_sensitive; // TODO maybe consider doing smart case at this level (currently doing it at Ruby/Lua level)
+    matcher->ignore_spaces = ignore_spaces;
     matcher->never_show_dot_files = never_show_dot_files;
-    matcher->recurse = true;
-    matcher->limit = 15; // TODO: make the default 16 and the max 128; never let it be 0
+    matcher->recurse = recurse;
+    matcher->limit = limit;
     matcher->threads = 4; // TODO: base on core count
     matcher->needle = NULL;
     matcher->needle_length = 0;
@@ -75,7 +70,6 @@ matcher_t *commandt_matcher_new(
 }
 
 void commandt_matcher_free(matcher_t *matcher) {
-    DEBUG_LOG("commandt_matcher_free\n");
     // Note that we don't free the scanner here, as that is passed in when
     // creating the matcher (the scanner's owner is responsible for freeing it).
     free(matcher->haystacks);
@@ -93,7 +87,6 @@ void commandt_matcher_free(matcher_t *matcher) {
 }
 
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
-    /* DEBUG_LOG("needle: %s\n", needle); */
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
@@ -154,6 +147,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
                     matcher->last_needle_length = 0;
                     break;
                 }
+                index++;
             }
         }
     }
@@ -171,7 +165,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     thread_args_t *thread_args = xmalloc(thread_count * sizeof(thread_args_t));
 
     for (i = 0; i < thread_count; i++) {
-        DEBUG_LOG("gonna spawn thread\n");
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
         thread_args[i].matcher = matcher;
@@ -181,9 +174,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    DEBUG_LOG("copied (main thread) from last %d\n", j);
                     memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-                    DEBUG_LOG("contents now %s (score = %f)\n", matches[matches_count - 1].candidate->contents, matches[matches_count - 1].score);
                 }
                 heap_free(heap);
             }
@@ -202,9 +193,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                DEBUG_LOG("copied from thread %d item %d\n", i, j);
                 memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-                DEBUG_LOG("contents now %s (score = %f)\n", matches[matches_count - 1].candidate->contents, matches[matches_count - 1].score);
             }
             heap_free(heap);
         }
@@ -213,7 +202,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(threads);
     free(thread_args);
 
-    DEBUG_LOG("will sort\n");
     if (
         needle_length == 0 ||
         (needle_length == 1 && needle[0] == '.')
@@ -239,14 +227,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         limit = candidate_count;
     }
 
-    DEBUG_LOG("we sorted %d\n", matches_count); // we don't always get this far
     result_t *results = xmalloc(sizeof(result_t));
-    DEBUG_LOG("we malloced\n");
     unsigned count = matches_count > limit ? limit : matches_count;
-    DEBUG_LOG("count %d\n", count);
     results->matches = xmalloc(count * sizeof(const char *));
     results->count = 0;
-    DEBUG_LOG("we calloced\n"); // we die before we get here, which is puzzling
 
     for (
         i = 0;
@@ -257,10 +241,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             results->matches[results->count++] = matches[i].candidate;
         }
     }
-    DEBUG_LOG("we copied\n");
 
     free(matches);
-    DEBUG_LOG("we freed\n");
 
     // Save this state to potentially speed subsequent searches.
     matcher->last_needle = needle; // BUG? could be leaking this?
@@ -370,7 +352,6 @@ static void *match_thread(void *thread_args) {
         i += args->thread_count
     ) {
         haystack_t *haystack = matcher->haystacks + i;
-        /* DEBUG_LOG("haystack pointer %x from base %x + %d\n", (void *)haystack, (void *)matcher->haystacks, i); */
         if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }

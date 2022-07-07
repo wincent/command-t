@@ -57,7 +57,7 @@ typedef struct {
     // bool sort;
 
     /**
-     * Limit the number of returned results (0 implies no limit).
+     * Limit the number of returned results. Must be non-zero.
      */
     unsigned limit;
     int threads;

@@ -57,7 +57,11 @@ setmetatable(c, {
       matcher_t *commandt_matcher_new(
           scanner_t *scanner,
           bool always_show_dot_files,
-          bool never_show_dot_files
+          bool case_sensitive,
+          bool ignore_spaces,
+          unsigned limit,
+          bool never_show_dot_files,
+          bool recurse
       );
       void commandt_matcher_free(matcher_t *matcher);
       result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
@@ -87,12 +91,46 @@ setmetatable(c, {
   end
 })
 
-lib.commandt_matcher_new = function(
-  scanner,
-  always_show_dot_files,
-  never_show_dot_files
-)
-  local matcher = c.commandt_matcher_new(scanner, always_show_dot_files, never_show_dot_files)
+-- Utility function for working with functions that take optional arguments.
+--
+-- Creates a merged table contaiing items from the supplied tables, working from
+-- left to right.
+--
+-- ie. `merge(t1, t2, t3)` will insert elements from `t1`, then `t2`, then
+-- `t3` into a new table, then return the new table.
+local merge = function(...)
+  local final = {}
+  for _, t in ipairs({...}) do
+    if t ~= nil then
+      for k, v in pairs(t) do
+        final[k] = v
+      end
+    end
+  end
+  return final
+end
+
+lib.commandt_matcher_new = function(scanner, options)
+  options = merge({
+    always_show_dot_files = false,
+    case_sensitive = false,
+    ignore_spaces = true,
+    limit = 15,
+    never_show_dot_files = false,
+    recurse = true,
+  }, options)
+  if options.limit < 1 then
+    error("limit must be > 0")
+  end
+  local matcher = c.commandt_matcher_new(
+    scanner,
+    options.always_show_dot_files,
+    options.case_sensitive,
+    options.ignore_spaces,
+    options.limit,
+    options.never_show_dot_files,
+    options.recurse
+   )
   ffi.gc(matcher, c.commandt_matcher_free)
   return matcher
 end

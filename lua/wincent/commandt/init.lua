@@ -176,8 +176,9 @@ local scanner = nil
 commandt.demo = function(query)
   local lib = require('wincent.commandt.lib')
   if matcher == nil then
+    local options = {}
     --[[local--]] scanner = require('wincent.commandt.scanner.help').scanner()
-    --[[local--]] matcher = lib.commandt_matcher_new(scanner, true, false)
+    --[[local--]] matcher = lib.commandt_matcher_new(scanner, options)
   end
   print('query: ' .. query)
 
