@@ -41,9 +41,6 @@ matcher_t *commandt_matcher_new(
 ) {
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
-
-    // TODO: consider xmalloc instead, like we're doing here, in places where
-    // we don't need the zero-ing behavior of xcalloc
     matcher->haystacks = xmalloc(scanner->count * sizeof(haystack_t));
 
     str_t **candidates = scanner->candidates;
@@ -52,7 +49,7 @@ matcher_t *commandt_matcher_new(
         /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
         matcher->haystacks[i].candidate = candidates[i];
         matcher->haystacks[i].bitmask = UNSET_BITMASK;
-        matcher->haystacks[i].score = UNSET_SCORE;//1.0; // TODO: default to 0? 1? -1? or UNSET_SCORE/FLT_MAX
+        matcher->haystacks[i].score = UNSET_SCORE;
     }
 
     // Defaults.
@@ -165,9 +162,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     // Get unsorted matches.
 
     // BUG: limit could be zero here
-    haystack_t *matches = xcalloc(thread_count * limit, sizeof(haystack_t));
-    pthread_t *threads = xcalloc(thread_count, sizeof(pthread_t));
-    thread_args_t *thread_args = xcalloc(thread_count, sizeof(thread_args_t));
+    haystack_t *matches = xmalloc(thread_count * limit * sizeof(haystack_t));
+    pthread_t *threads = xmalloc(thread_count * sizeof(pthread_t));
+    thread_args_t *thread_args = xmalloc(thread_count * sizeof(thread_args_t));
 
     for (i = 0; i < thread_count; i++) {
         DEBUG_LOG("gonna spawn thread\n");
@@ -243,7 +240,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     DEBUG_LOG("we malloced\n");
     unsigned count = matches_count > limit ? limit : matches_count;
     DEBUG_LOG("count %d\n", count);
-    results->matches = xcalloc(count, sizeof(const char *));
+    results->matches = xmalloc(count * sizeof(const char *));
     results->count = 0;
     DEBUG_LOG("we calloced\n"); // we die before we get here, which is puzzling
 

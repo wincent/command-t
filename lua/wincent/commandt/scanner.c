@@ -19,7 +19,7 @@
 
 scanner_t *scanner_new_copy(const char **candidates, size_t count) {
     scanner_t *scanner = xmalloc(sizeof(scanner_t));
-    scanner->candidates = xcalloc(count, sizeof(str_t *));
+    scanner->candidates = xmalloc(count * sizeof(str_t *));
     for (size_t i = 0; i < count; i++) {
         size_t length = strlen(candidates[i]);
         scanner->candidates[i] = str_new_copy(candidates[i], length);
