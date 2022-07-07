@@ -132,16 +132,13 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         thread_count = 1;
     }
 
-    // TESTING only
-    thread_count = 1;
-
     // BUG: limit could be zero here
     haystack_t *matches = xcalloc(thread_count * limit, sizeof(haystack_t));
     pthread_t *threads = xcalloc(thread_count, sizeof(pthread_t));
     thread_args_t *thread_args = xcalloc(thread_count, sizeof(thread_args_t));
 
-    DEBUG_LOG("gonna spawn thread\n");
     for (i = 0; i < thread_count; i++) {
+        DEBUG_LOG("gonna spawn thread\n");
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
         thread_args[i].matcher = matcher;
@@ -154,12 +151,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    DEBUG_LOG("copied from last %d\n", j);
+                    DEBUG_LOG("copied (main thread) from last %d\n", j);
                     memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-                    // supposedly the heap entry is a pointer to a haystack
-                    // so we're supposedly copying the haystack struct to
-                    // somewhere that it can be copied... and this verifies that
-                    DEBUG_LOG("contents now %s (score = %f)\n", matches[j].candidate->contents, matches[j].score);
+                    DEBUG_LOG("contents now %s (score = %f)\n", matches[matches_count - 1].candidate->contents, matches[matches_count - 1].score);
                 }
                 heap_free(heap);
             }
@@ -180,6 +174,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             for (j = 0; j < heap->count; j++) {
                 DEBUG_LOG("copied from thread %d item %d\n", i, j);
                 memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
+                DEBUG_LOG("contents now %s (score = %f)\n", matches[matches_count - 1].candidate->contents, matches[matches_count - 1].score);
             }
             heap_free(heap);
         }
@@ -188,6 +183,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(threads);
     free(thread_args);
 
+    DEBUG_LOG("will sort\n");
     if (
         needle_length == 0 ||
         (needle_length == 1 && needle[0] == '.')
