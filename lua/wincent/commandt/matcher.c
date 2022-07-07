@@ -52,7 +52,7 @@ matcher_t *commandt_matcher_new(
         /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
         matcher->haystacks[i].candidate = candidates[i];
         matcher->haystacks[i].bitmask = UNSET_BITMASK;
-        matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
+        matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1? or UNSET_SCORE/FLT_MAX
     }
 
     // Defaults.
@@ -91,11 +91,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
     unsigned limit = matcher->limit;
-    int err;
     heap_t *heap;
     long matches_count = 0;
 
-    unsigned long needle_length = strlen(needle);
+    // TODO: take ownership (copy) needle so that we can free it if needed
 
     // Downcase needle if required.
     if (!matcher->case_sensitive) {
@@ -173,7 +172,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
                 heap_free(heap);
             }
         } else {
-            err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
+            int err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
             if (err != 0) {
                 die("phthread_create() failed", err);
             }
@@ -181,7 +180,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     for (i = 0; i < thread_count - 1; i++) {
-        err = pthread_join(threads[i], (void **)&heap);
+        int err = pthread_join(threads[i], (void **)&heap);
         if (err != 0) {
             die("phtread_join() failed", err);
         }
@@ -199,6 +198,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(thread_args);
 
     DEBUG_LOG("will sort\n");
+    unsigned long needle_length = strlen(needle);
     if (
         needle_length == 0 ||
         (needle_length == 1 && needle[0] == '.')
