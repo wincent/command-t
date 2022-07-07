@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for strlen() */
 
@@ -85,4 +86,10 @@ void scanner_push_str(scanner_t *scanner, str_t **candidates, size_t count) {
 void scanner_free(scanner_t *scanner) {
     free(scanner->candidates);
     free(scanner);
+}
+
+void commandt_print_scanner(scanner_t *scanner) {
+    str_t *dump = scanner_dump(scanner);
+    fprintf(stderr, "\n\n\n%s\n\n\n", dump->contents);
+    str_free(dump);
 }

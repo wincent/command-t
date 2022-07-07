@@ -6,7 +6,6 @@
 #include <assert.h> /* for assert */
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #include <stdbool.h> /* for bool */
-#include <stdio.h> /* from printf() */
 #include <stdlib.h> /* for qsort(), NULL */
 #include <string.h> /* for strncmp() */
 
@@ -228,24 +227,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 void commandt_result_free(result_t *result) {
     free(result->matches);
     free(result);
-}
-
-// TODO: make benchmarks to compare cost of passing in array of `str_t` from Lua
-// side, vs passing in an array of `const char *` (and having to call `strlen()`
-// on them all).
-int commandt_temporary_demo_function(str_t **candidates, size_t count) {
-    scanner_t *scanner = scanner_new(count);
-    scanner_push_str(scanner, candidates, count);
-    str_t *dump = scanner_dump(scanner);
-    printf("\n\n\n%s\n\n\n", dump->contents);
-    str_free(dump);
-    return count;
-}
-
-void commandt_print_scanner(scanner_t *scanner) {
-    str_t *dump = scanner_dump(scanner);
-    fprintf(stderr, "\n\n\n%s\n\n\n", dump->contents);
-    str_free(dump);
 }
 
 static long calculate_bitmask(const char *str, unsigned long length) {
