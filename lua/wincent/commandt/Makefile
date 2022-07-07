@@ -6,7 +6,7 @@ CC = gcc
 CCFLAGS += -Wall -Wextra -Wno-unused-parameter
 
 ifdef DEBUG
-    CCFLAGS += -DDEBUG -g
+    CCFLAGS += -DDEBUG -g -O0
 endif
 
 DLLEXT := so
