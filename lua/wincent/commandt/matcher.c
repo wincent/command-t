@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <assert.h> /* for assert */
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #include <stdbool.h> /* for bool */
 #include <stdio.h> /* from printf() */
@@ -43,6 +44,8 @@ matcher_t *commandt_matcher_new(
     bool never_show_dot_files,
     bool recurse
 ) {
+    assert(limit > 0);
+
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
     matcher->haystacks = xmalloc(scanner->count * sizeof(haystack_t));
@@ -159,7 +162,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     // Get unsorted matches.
 
-    // BUG: limit could be zero here
     haystack_t *matches = xmalloc(thread_count * limit * sizeof(haystack_t));
     pthread_t *threads = xmalloc(thread_count * sizeof(pthread_t));
     thread_args_t *thread_args = xmalloc(thread_count * sizeof(thread_args_t));
@@ -202,29 +204,11 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(threads);
     free(thread_args);
 
-    if (
-        needle_length == 0 ||
-        (needle_length == 1 && needle[0] == '.')
-    ) {
+    if (needle_length == 0 || (needle_length == 1 && needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
-        qsort(
-            matches,
-            matches_count,
-            sizeof(haystack_t),
-            cmp_alpha
-        );
+        qsort(matches, matches_count, sizeof(haystack_t), cmp_alpha);
     } else {
-        qsort(
-            matches,
-            matches_count,
-            sizeof(haystack_t),
-            cmp_score
-        );
-    }
-
-    if (limit == 0) {
-        // TODO: check whether we still want to do this (limit 0 = no limit)
-        limit = candidate_count;
+        qsort(matches, matches_count, sizeof(haystack_t), cmp_score);
     }
 
     result_t *results = xmalloc(sizeof(result_t));

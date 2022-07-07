@@ -7,6 +7,9 @@ CCFLAGS += -Wall -Wextra -Wno-unused-parameter
 
 ifdef DEBUG
     CCFLAGS += -DDEBUG -g -O0
+else
+    # As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
+    CCFLAGS += -DNDEBUG
 endif
 
 DLLEXT := so
