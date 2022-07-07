@@ -169,11 +169,14 @@ commandt.cmdline_leave = function()
 end
 
 local matcher = nil
+-- Attempt to work around potential bug where scanner could get garbage
+-- collected as soon as it falls out of scope...
+local scanner = nil
 
 commandt.demo = function(query)
   local lib = require('wincent.commandt.lib')
   if matcher == nil then
-    local scanner = require('wincent.commandt.scanner.help').scanner()
+    --[[local--]] scanner = require('wincent.commandt.scanner.help').scanner()
     --[[local--]] matcher = lib.commandt_matcher_new(scanner, true, false)
   end
   print('query: ' .. query)

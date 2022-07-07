@@ -41,27 +41,32 @@ matcher_t *commandt_matcher_new(
 ) {
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
+    matcher->haystacks = NULL; // Lazily initialized.
 
     // TODO: sort out which ones should be passed in at init time and which ones
     // later... should be consistent
     matcher->always_show_dot_files = always_show_dot_files;
-    matcher->never_show_dot_files = never_show_dot_files;
 
     // Defaults.
     // TODO: provide a way to override these (either setters or passed in to
     // to commandt_matcher_run())
     matcher->case_sensitive = true; // TODO maybe consider doing smart case at this level (currently doing it at ruby level)
     matcher->ignore_spaces = true;
+    matcher->never_show_dot_files = never_show_dot_files;
+    matcher->recurse = true;
+    matcher->limit = 15; // TODO: make the default 16 and the max 128; never let it be 0
+    matcher->threads = 4; // TODO: base on core count
+    matcher->needle = NULL;
+    matcher->needle_length = 0;
+    matcher->needle_bitmask = UNSET_BITMASK;
     matcher->last_needle = NULL;
     matcher->last_needle_length = 0;
-    matcher->limit = 15; // TODO: make the default 16 and the max 128; never let it be 0
-    matcher->recurse = true;
-    matcher->threads = 4; // TODO: base on core count
 
     return matcher;
 }
 
 void commandt_matcher_free(matcher_t *matcher) {
+    DEBUG_LOG("commandt_matcher_free\n");
     // Note that we don't free the scanner here, as that is passed in when
     // creating the matcher (the scanner's owner is responsible for freeing it).
     free(matcher->haystacks);
@@ -336,6 +341,7 @@ static void *match_thread(void *thread_args) {
         i += args->thread_count
     ) {
         haystack_t *haystack = matcher->haystacks + i;
+        /* DEBUG_LOG("haystack pointer %x from base %x + %d\n", (void *)haystack, (void *)matcher->haystacks, i); */
         if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }

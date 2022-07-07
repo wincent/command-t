@@ -29,7 +29,10 @@ matcher_t *commandt_matcher_new(
     bool never_show_dot_files
 );
 
-// TODO: use this
+/**
+ * Frees a previously allocated matcher. Note that the associated scanner should
+ * be freed separately.
+ */
 void commandt_matcher_free(matcher_t *matcher);
 
 /**
@@ -39,5 +42,9 @@ void commandt_matcher_free(matcher_t *matcher);
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
 
 void commandt_result_free(result_t *results);
+
+// TODO: figure out whether I can safely drop the `commandt_` prefixes to these
+// functions... (or whether we should be _adding_ more prefixes to other places
+// that don't currently have them).
 
 #endif

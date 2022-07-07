@@ -92,7 +92,9 @@ lib.commandt_matcher_new = function(
   always_show_dot_files,
   never_show_dot_files
 )
-  return c.commandt_matcher_new(scanner, always_show_dot_files, never_show_dot_files)
+  local matcher = c.commandt_matcher_new(scanner, always_show_dot_files, never_show_dot_files)
+  ffi.gc(matcher, c.commandt_matcher_free)
+  return matcher
 end
 
 lib.commandt_matcher_run = function(matcher, needle)
