@@ -228,7 +228,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     for (
         i = 0;
-        i < count && results->count < limit;
+        i < count && results->count <= limit;
         i++
     ) {
         if (matches[i].score > 0.0) {
