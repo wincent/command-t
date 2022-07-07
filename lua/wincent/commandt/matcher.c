@@ -139,7 +139,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     thread_args_t *thread_args = xcalloc(thread_count, sizeof(thread_args_t));
 
     for (i = 0; i < thread_count; i++) {
-        // TODO: probably just move matcher into thread args...
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
         thread_args[i].matcher = matcher;
