@@ -89,12 +89,12 @@ void commandt_matcher_free(matcher_t *matcher) {
     free(matcher);
 }
 
+// TODO: fix bug where I can't _unextend_ a needle...
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
     unsigned limit = matcher->limit;
-    heap_t *heap;
     long matches_count = 0;
 
     // TODO: take ownership (copy) needle so that we can free it if needed
@@ -173,13 +173,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
         if (i == worker_count - 1) {
             // For the last worker, we'll just use the main thread.
-            heap = get_matches(&worker_args[i]);
-            if (heap) {
-                for (j = 0; j < heap->count; j++) {
-                    memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-                }
-                heap_free(heap);
+            heap_t *heap = get_matches(&worker_args[i]);
+            for (j = 0; j < heap->count; j++) {
+                // TODO: copy en masse
+                memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
             }
+            heap_free(heap);
         } else {
             int err = pthread_create(&threads[i], NULL, get_matches, (void *)&worker_args[i]);
             if (err != 0) {
@@ -189,16 +188,16 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     for (i = 0; i < worker_count - 1; i++) {
+        heap_t *heap;
         int err = pthread_join(threads[i], (void **)&heap);
         if (err != 0) {
             die("phtread_join() failed", err);
         }
-        if (heap) {
-            for (j = 0; j < heap->count; j++) {
-                memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-            }
-            heap_free(heap);
+        for (j = 0; j < heap->count; j++) {
+            // TODO: en masse
+            memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
         }
+        heap_free(heap);
     }
 
     free(threads);
