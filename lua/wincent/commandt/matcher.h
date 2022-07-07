@@ -30,9 +30,12 @@ typedef struct {
     unsigned limit;
     int threads;
 
+    const char *needle;
+    unsigned long needle_length;
+    long needle_bitmask;
+
     const char *last_needle;
     unsigned long last_needle_length;
-    // etc
 } matcher_t;
 
 // TODO: may later want to return highlight positions as well

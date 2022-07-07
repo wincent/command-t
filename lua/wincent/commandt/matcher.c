@@ -26,9 +26,6 @@ typedef struct {
     int thread_count;
     int thread_index;
     matcher_t *matcher;
-    const char *needle;
-    unsigned long needle_length;
-    long needle_bitmask;
 } thread_args_t;
 
 // Forward declarations.
@@ -78,7 +75,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     long candidate_count = scanner->count;
     unsigned limit = matcher->limit;
     long err;
-    long needle_bitmask = UNSET_BITMASK;
     heap_t *heap;
     // TODO: may end up inlining these
     bool case_sensitive = matcher->case_sensitive;
@@ -111,11 +107,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
         }
 
+        matcher->needle_bitmask = UNSET_BITMASK;
         matcher->last_needle = NULL;
         matcher->last_needle_length = 0;
     } else {
         // Will compare against previously computed haystack bitmasks.
-        needle_bitmask = calculate_bitmask(needle);
+        matcher->needle_bitmask = calculate_bitmask(needle);
 
         // Check whether current search extends previous search; if so, we can
         // skip all the non-matches from last time without looking at them.
@@ -142,9 +139,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
         thread_args[i].matcher = matcher;
-        thread_args[i].needle = needle;
-        thread_args[i].needle_length = needle_length;
-        thread_args[i].needle_bitmask = needle_bitmask;
 
         if (i == thread_count - 1) {
             // For the last "worker", we'll just use the main thread.
@@ -342,7 +336,7 @@ static void *match_thread(void *thread_args) {
         i += args->thread_count
     ) {
         haystack_t *haystack = matcher->haystacks + i;
-        if (args->needle_bitmask == UNSET_BITMASK) {
+        if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }
         if (matcher->last_needle != NULL && haystack->score == 0.0) {
@@ -353,13 +347,13 @@ static void *match_thread(void *thread_args) {
 
         haystack->score = commandt_calculate_match(
             haystack,
-            args->needle,
-            args->needle_length,
+            matcher->needle,
+            matcher->needle_length,
             matcher->case_sensitive,
             matcher->always_show_dot_files,
             matcher->never_show_dot_files,
             matcher->recurse,
-            args->needle_bitmask
+            matcher->needle_bitmask
         );
 
         if (haystack->score == 0.0) {
