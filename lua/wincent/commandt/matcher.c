@@ -72,7 +72,7 @@ void commandt_matcher_free(matcher_t *matcher) {
 }
 
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
-    /* DEBUG_LOG("needle: %s\n", needle); */
+    DEBUG_LOG("needle: %s\n", needle);
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
@@ -105,7 +105,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         matcher->haystacks = xcalloc(candidate_count, sizeof(haystack_t));
 
         for (i = 0; i < candidate_count; i++) {
-            /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
+            DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents);
             matcher->haystacks[i].candidate = candidates[i];
             matcher->haystacks[i].bitmask = UNSET_BITMASK;
             matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
@@ -150,6 +150,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
+                    DEBUG_LOG("copied from last %d\n", j); // not seen
                     memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
                 }
                 heap_free(heap);
@@ -169,6 +170,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
+                DEBUG_LOG("copied from thread %d item %d\n", i, j); // not seen
                 memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
             }
             heap_free(heap);

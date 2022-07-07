@@ -7,6 +7,7 @@
 #include <stdlib.h> /* for NULL */
 #include <string.h> /* for strlen() */
 
+#include "debug.h"
 #include "match.h"
 
 #define UNSET_SCORE FLT_MAX
@@ -133,6 +134,7 @@ float commandt_calculate_match(
     bool recurse,
     long needle_bitmask
 ) {
+    DEBUG_LOG("in commandt_calculate_match\n");
     matchinfo_t m;
     /* long i; */
     float score = 1.0;
@@ -146,6 +148,8 @@ float commandt_calculate_match(
     m.never_show_dot_files = never_show_dot_files;
     m.case_sensitive = case_sensitive;
     m.recurse = recurse;
+
+    DEBUG_LOG("going to score haystack of length %d\n", m.haystack->candidate->length);
 
     // Special case for zero-length search string.
     if (m.needle_length == 0) {
