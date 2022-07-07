@@ -46,7 +46,6 @@ commandt.$(DLLEXT): $(HDRS) $(SRCS) Makefile .make/CCFLAGS
 	$(CC) $(CCFLAGS) -shared -fPIC -o commandt.$(DLLEXT) $(SRCS)
 
 .PHONY: clean
-
 clean:
 	rm -f *.$(DLLEXT)
 	rm -f .make/*
