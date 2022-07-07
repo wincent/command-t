@@ -168,15 +168,21 @@ commandt.cmdline_leave = function()
   tear_down_mappings()
 end
 
-commandt.demo = function()
+local matcher = nil
+
+commandt.demo = function(query)
   local lib = require('wincent.commandt.lib')
-  local scanner = require('wincent.commandt.scanner.help').scanner()
-  local matcher = lib.commandt_matcher_new(scanner, true, false)
+  if matcher == nil then
+    local scanner = require('wincent.commandt.scanner.help').scanner()
+    --[[local--]] matcher = lib.commandt_matcher_new(scanner, true, false)
+  end
+  print('query: ' .. query)
 
   -- Using help scanner, a needle like "tag" returns a bunch of results (eg.
   -- `tag`, `-tag`, `:tag`, `tags` etc).
   -- local results = lib.commandt_matcher_run(matcher, "tag")
-  local results = lib.commandt_matcher_run(matcher, "")
+  -- local results = lib.commandt_matcher_run(matcher, "")
+  local results = lib.commandt_matcher_run(matcher, query)
   local strings = {}
   print(results.count)
   for i = 0, results.count - 1 do

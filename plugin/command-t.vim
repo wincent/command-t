@@ -57,7 +57,8 @@ if !has('nvim')
   finish
 endif
 
-command! KommandTDemo lua require'wincent.commandt'.demo()
+" command! KommandTDemo lua require'wincent.commandt'.demo()
+command! -nargs=? KommandTDemo call luaeval("require'wincent.commandt'.demo(_A)", <q-args>)
 command! KommandTBuffer lua require'wincent.commandt'.buffer_finder()
 command! -nargs=? -complete=dir KommandT call luaeval("require'wincent.commandt'.file_finder(_A)", <q-args>)
 
