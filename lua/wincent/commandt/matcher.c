@@ -189,10 +189,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         (needle_length == 1 && needle[0] == '.')
     ) {
         // Alphabetic order if search string is only "" or "."
-        // TODO: make those semantics fully apply to heap case as well
-        // (they don't because the heap itself calls cmp_score, which means
-        // that the items which stay in the top [limit] may (will) be
-        // different).
         qsort(
             matches,
             matches_count,
