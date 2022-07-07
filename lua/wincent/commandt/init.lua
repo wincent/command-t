@@ -175,7 +175,8 @@ commandt.demo = function()
 
   -- Using help scanner, a needle like "tag" returns a bunch of results (eg.
   -- `tag`, `-tag`, `:tag`, `tags` etc).
-  local results = lib.commandt_matcher_run(matcher, "tag")
+  -- local results = lib.commandt_matcher_run(matcher, "tag")
+  local results = lib.commandt_matcher_run(matcher, "")
   local strings = {}
   print(results.count)
   for i = 0, results.count - 1 do
