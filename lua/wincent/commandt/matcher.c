@@ -216,11 +216,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     results->matches = xmalloc(count * sizeof(const char *));
     results->count = 0;
 
-    for (
-        i = 0;
-        i < count && results->count <= limit;
-        i++
-    ) {
+    for (i = 0; i < count && results->count <= limit; i++) {
         if (matches[i].score > 0.0) {
             results->matches[results->count++] = matches[i].candidate;
         }
@@ -316,16 +312,13 @@ static int cmp_score(const void *a, const void *b) {
 static void *match_thread(void *thread_args) {
     size_t i;
     float score;
-    heap_t *heap = NULL;
     thread_args_t *args = (thread_args_t *)thread_args;
     matcher_t *matcher = args->matcher;
 
-    if (matcher->limit) {
-        // Reserve one extra slot so that we can do an insert-then-extract even
-        // when "full" (effectively allows use of min-heap to maintain a
-        // top-"limit" list of items).
-        heap = heap_new(matcher->limit + 1, cmp_score);
-    }
+    // Reserve one extra slot so that we can do an insert-then-extract even
+    // when "full" (effectively allows use of min-heap to maintain a
+    // top-"limit" list of items).
+    heap_t *heap = heap_new(matcher->limit + 1, cmp_score);
 
     // TODO benchmark different thread partitioning method
     // (intead of every nth item to a thread, break into blocks)
@@ -350,16 +343,15 @@ static void *match_thread(void *thread_args) {
         if (haystack->score == 0.0) {
             continue;
         }
-        if (heap) {
-            if (heap->count == matcher->limit) {
-                score = ((haystack_t *)HEAP_PEEK(heap))->score;
-                if (haystack->score >= score) {
-                    heap_insert(heap, haystack);
-                    (void)heap_extract(heap);
-                }
-            } else {
+
+        if (heap->count == matcher->limit) {
+            score = ((haystack_t *)HEAP_PEEK(heap))->score;
+            if (haystack->score >= score) {
                 heap_insert(heap, haystack);
+                (void)heap_extract(heap);
             }
+        } else {
+            heap_insert(heap, haystack);
         }
     }
 
