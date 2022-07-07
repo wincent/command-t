@@ -26,6 +26,7 @@ typedef struct {
     /**
      * Number of candidates currently stored in the scanner.
      */
+    // TODO: use size_t for things that are measured in byte sizes.
     size_t count;
 
     /**

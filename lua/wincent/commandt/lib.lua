@@ -19,8 +19,6 @@ setmetatable(c, {
 
       typedef struct {
           str_t *candidate;
-          long length;
-          long index;
           long bitmask;
           float score;
       } haystack_t;
@@ -40,9 +38,11 @@ setmetatable(c, {
           bool ignore_spaces;
           bool never_show_dot_files;
           bool recurse;
-          bool sort;
           unsigned limit;
           int threads;
+          const char *needle;
+          unsigned long needle_length;
+          long needle_bitmask;
           const char *last_needle;
           unsigned long last_needle_length;
       } matcher_t;
