@@ -13,9 +13,9 @@
 #include "debug.h"
 #include "die.h"
 #include "heap.h"
-#include "match.h"
 #include "matcher.h"
 #include "scanner.h"
+#include "score.h"
 #include "str.h" /* for str_t */
 #include "xmalloc.h"
 
@@ -381,7 +381,7 @@ static void *match_thread(void *thread_args) {
             continue;
         }
 
-        haystack->score = commandt_calculate_match(haystack, matcher);
+        haystack->score = commandt_score(haystack, matcher);
 
         if (haystack->score == 0.0) {
             continue;

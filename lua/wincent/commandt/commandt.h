@@ -64,10 +64,10 @@ typedef struct {
 
     /**
      * Note that the matcher doesn't take ownership of the `needle` (ie. it
-     * doesn't make a copy of it) because it only needs it to stick around
-     * long enough to calculate scores with it. These fields are merely
-     * here as a convenience for temporarily threading state through to
-     * `commandt_calculate_match()` and friends.
+     * doesn't make a copy of it) because it only needs it to stick around long
+     * enough to calculate scores with it. These fields are merely here as a
+     * convenience for temporarily threading state through to `commandt_score()`
+     * and friends.
      */
     const char *needle;
     unsigned long needle_length;

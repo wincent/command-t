@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#ifndef MATCH_H
-#define MATCH_H
+#ifndef SCORE_H
+#define SCORE_H
 
 #include <float.h> /* for FLT_MAX */
 
@@ -13,6 +13,6 @@
 #define UNSET_BITMASK (-1)
 #define UNSET_SCORE FLT_MAX
 
-float commandt_calculate_match(haystack_t *haystack, matcher_t *matcher);
+float commandt_score(haystack_t *haystack, matcher_t *matcher);
 
 #endif

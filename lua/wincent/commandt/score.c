@@ -8,7 +8,7 @@
 #include <string.h> /* for strlen() */
 
 #include "debug.h"
-#include "match.h"
+#include "score.h"
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
@@ -122,8 +122,8 @@ static float recursive_match(
     return *memoized = score;
 }
 
-float commandt_calculate_match(haystack_t *haystack, matcher_t *matcher) {
-    /* DEBUG_LOG("in commandt_calculate_match\n"); */
+float commandt_score(haystack_t *haystack, matcher_t *matcher) {
+    /* DEBUG_LOG("in commandt_score\n"); */
     matchinfo_t m;
     /* long i; */
     float score = 1.0;
