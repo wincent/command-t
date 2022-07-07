@@ -93,19 +93,15 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     unsigned limit = matcher->limit;
     int err;
     heap_t *heap;
-    // TODO: may end up inlining these
-    bool case_sensitive = matcher->case_sensitive;
-    bool ignore_spaces = matcher->ignore_spaces;
-
     long matches_count = 0;
 
     unsigned long needle_length = strlen(needle);
 
-    if (!case_sensitive) {
+    if (!matcher->case_sensitive) {
         // TODO: implement (downcase needle)
     }
 
-    if (ignore_spaces) {
+    if (matcher->ignore_spaces) {
         // TODO: implement (delete spaces from needle)
     }
 
