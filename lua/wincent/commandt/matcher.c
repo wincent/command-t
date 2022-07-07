@@ -72,7 +72,7 @@ void commandt_matcher_free(matcher_t *matcher) {
 }
 
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
-    DEBUG_LOG("needle: %s\n", needle);
+    /* DEBUG_LOG("needle: %s\n", needle); */
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
@@ -105,7 +105,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         matcher->haystacks = xcalloc(candidate_count, sizeof(haystack_t));
 
         for (i = 0; i < candidate_count; i++) {
-            DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents);
+            /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
             matcher->haystacks[i].candidate = candidates[i];
             matcher->haystacks[i].bitmask = UNSET_BITMASK;
             matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
@@ -132,11 +132,15 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         thread_count = 1;
     }
 
+    // TESTING only
+    thread_count = 1;
+
     // BUG: limit could be zero here
     haystack_t *matches = xcalloc(thread_count * limit, sizeof(haystack_t));
     pthread_t *threads = xcalloc(thread_count, sizeof(pthread_t));
     thread_args_t *thread_args = xcalloc(thread_count, sizeof(thread_args_t));
 
+    DEBUG_LOG("gonna spawn thread\n");
     for (i = 0; i < thread_count; i++) {
         thread_args[i].thread_count = thread_count;
         thread_args[i].thread_index = i;
@@ -150,8 +154,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    DEBUG_LOG("copied from last %d\n", j); // not seen
+                    DEBUG_LOG("copied from last %d\n", j);
                     memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
+                    // supposedly the heap entry is a pointer to a haystack
+                    // so we're supposedly copying the haystack struct to
+                    // somewhere that it can be copied... and this verifies that
+                    DEBUG_LOG("contents now %s (score = %f)\n", matches[j].candidate->contents, matches[j].score);
                 }
                 heap_free(heap);
             }
@@ -170,7 +178,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                DEBUG_LOG("copied from thread %d item %d\n", i, j); // not seen
+                DEBUG_LOG("copied from thread %d item %d\n", i, j);
                 memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
             }
             heap_free(heap);
@@ -209,10 +217,14 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         limit = candidate_count;
     }
 
+    DEBUG_LOG("we sorted %d\n", matches_count); // we don't always get this far
     result_t *results = xmalloc(sizeof(result_t));
+    DEBUG_LOG("we malloced\n");
     unsigned count = matches_count > limit ? limit : matches_count;
+    DEBUG_LOG("count %d\n", count);
     results->matches = xcalloc(count, sizeof(const char *));
     results->count = 0;
+    DEBUG_LOG("we calloced\n"); // we die before we get here, which is puzzling
 
     for (
         i = 0;
@@ -223,13 +235,14 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             results->matches[results->count++] = matches[i].candidate;
         }
     }
+    DEBUG_LOG("we copied\n");
 
     free(matches);
+    DEBUG_LOG("we freed\n");
 
     // Save this state to potentially speed subsequent searches.
-    // BUG: these segfault?
-    /* matcher->last_needle = needle; */
-    /* matcher->last_needle_length = needle_length; */
+    matcher->last_needle = needle;
+    matcher->last_needle_length = needle_length;
 
     return results;
 }

@@ -134,7 +134,7 @@ float commandt_calculate_match(
     bool recurse,
     long needle_bitmask
 ) {
-    DEBUG_LOG("in commandt_calculate_match\n");
+    /* DEBUG_LOG("in commandt_calculate_match\n"); */
     matchinfo_t m;
     /* long i; */
     float score = 1.0;
@@ -149,7 +149,7 @@ float commandt_calculate_match(
     m.case_sensitive = case_sensitive;
     m.recurse = recurse;
 
-    DEBUG_LOG("going to score haystack of length %d\n", m.haystack->candidate->length);
+    /* DEBUG_LOG("going to score haystack of length %d\n", m.haystack->candidate->length); */
 
     // Special case for zero-length search string.
     if (m.needle_length == 0) {
@@ -182,12 +182,14 @@ float commandt_calculate_match(
         m.rightmost_match_p = rightmost_match_p;
         needle_idx = m.needle_length - 1;
         mask = 0;
-        // BUG: segfault in this for loop
         if (m.haystack->candidate->length > 0) {
-            for (size_t i = m.haystack->candidate->length - 1; i >= 0; i--) {
+            // Meh, use of (signed) size_t here makes this loop awkward, because
+            // I can't do the natural `for` with `i >= 0` condition.
+            size_t i = m.haystack->candidate->length - 1;
+            while (1) {
+                /* DEBUG_LOG("checking pos %d\n", i); */
                 char c = m.haystack->candidate->contents[i];
-/* return 0; */
-break; // we segfault if we don't bail...
+                /* DEBUG_LOG("got char %c\n", c); */
                 char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
                 if (!m.case_sensitive) {
                     c = lower;
@@ -199,9 +201,16 @@ break; // we segfault if we don't bail...
                 if (needle_idx >= 0) {
                     char d = m.needle_p[needle_idx];
                     if (c == d) {
+                        /* DEBUG_LOG("found match for needle %d %c at haystack %d\n", needle_idx, c, i); */
                         rightmost_match_p[needle_idx] = i;
                         needle_idx--;
                     }
+                }
+
+                if (i == 0) {
+                    break;
+                } else {
+                    i--;
                 }
             }
         }
@@ -222,6 +231,7 @@ break; // we segfault if we don't bail...
             }
             m.memo = memo;
             score = recursive_match(&m, 0, 0, 0, 0.0);
+            /* DEBUG_LOG("score %f for candidate %s\n", score, m.haystack->candidate->contents); */
         }
     }
     return score;
