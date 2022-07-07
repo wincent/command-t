@@ -29,7 +29,7 @@ typedef struct {
 } thread_args_t;
 
 // Forward declarations.
-static long calculate_bitmask(const char *str);
+static long calculate_bitmask(const char *str, unsigned long length);
 static int cmp_alpha(const void *a, const void *b);
 static int cmp_score(const void *a, const void *b);
 static void *match_thread(void *thread_args);
@@ -142,16 +142,20 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     if (matcher->last_needle) {
         // Will compare against previously computed haystack bitmasks.
-        matcher->needle_bitmask = calculate_bitmask(needle);
+        matcher->needle_bitmask = calculate_bitmask(needle, needle_length);
 
         // Check whether current search extends previous search; if so, we can
         // skip all the non-matches from last time without looking at them.
-        // TODO: implement (roll into calculate_bitmask check? probably inline
-        // it here so that i don't have to come up with a name for it)
-        /* if (rb_funcall(needle, rb_intern("start_with?"), 1, last_needle) != Qtrue) { */
-        /*     matcher->last_needle = NULL; */
-        /*     matcher->last_needle_length = 0; */
-        /* } */
+        if (needle_length > matcher->last_needle_length) {
+            unsigned long index = 0;
+            while (index < matcher->last_needle_length) {
+                if (needle[index] != matcher->last_needle[index]) {
+                    matcher->last_needle = NULL;
+                    matcher->last_needle_length = 0;
+                    break;
+                }
+            }
+        }
     }
 
     unsigned thread_count = matcher->threads > 0 ? matcher->threads : 1;
@@ -288,11 +292,9 @@ void commandt_print_scanner(scanner_t *scanner) {
     str_free(dump);
 }
 
-static long calculate_bitmask(const char *str) {
-    unsigned long len = strlen(str);
-    unsigned long i;
+static long calculate_bitmask(const char *str, unsigned long length) {
     long mask = 0;
-    for (i = 0; i < len; i++) {
+    for (unsigned long i = 0; i < length; i++) {
         if (str[i] >= 'a' && str[i] <= 'z') {
             mask |= (1 << (str[i] - 'a'));
         } else if (str[i] >= 'A' && str[i] <= 'Z') {
