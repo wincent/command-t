@@ -14,8 +14,6 @@
 
 typedef int (*heap_compare_entries)(const void *a, const void *b);
 
-// TODO: size_t instead of unsigned here
-
 typedef struct {
     unsigned count;
     unsigned capacity;
@@ -25,9 +23,24 @@ typedef struct {
 
 #define HEAP_PEEK(heap) (heap->entries[0])
 
-heap_t *heap_new(unsigned capacity, heap_compare_entries comparator);
-void heap_free(heap_t *heap);
-void heap_insert(heap_t *heap, void *value);
+/**
+ * Extracts the minimum value from `heap`.
+ */
 void *heap_extract(heap_t *heap);
+
+/**
+ * Frees a previously created heap.
+ */
+void heap_free(heap_t *heap);
+
+/**
+ * Inserts `value` into `heap`.
+ */
+void heap_insert(heap_t *heap, void *value);
+
+/**
+ * Returns a new heap.
+ */
+heap_t *heap_new(unsigned capacity, heap_compare_entries comparator);
 
 #endif

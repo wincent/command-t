@@ -97,19 +97,3 @@ void commandt_buffer_finder() {
     // TODO provide a way to update this
     /* static const char **candidates[] = {}; */
 }
-
-matches_t commandt_sorted_matches_for(const char *needle) {
-    matches_t result;
-
-    result.count = 3;
-    result.matches = xmalloc((sizeof (char *)) * result.count);
-
-    // TODO: show this works with dynamically allocated strings too...
-    // although, really, i think we don't want to be allocating anything...
-    // rather, let Lua pass the strings to us and we just access them
-    result.matches[0] = foo;
-    result.matches[1] = bar;
-    result.matches[2] = baz;
-
-    return result;
-}

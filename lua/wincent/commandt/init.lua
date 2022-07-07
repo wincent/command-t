@@ -60,69 +60,6 @@ commandt.buffer_finder = function()
   if true then
     return
   end
-
-  -- print(library.commandt_example_func_that_returns_int())
-  --
-  -- print(ffi.string(library.commandt_example_func_that_returns_str()))
-  --
-  -- local t = {
-  --     "one",
-  --     "two",
-  --     "three",
-  --   }
-  --   local ffi_t = ffi.new("const char *[4]", t);
-  -- local flag = library.commandt_example_func_that_takes_a_table_of_strings(
-  --   ffi.new("int", 3),
-  --   -- 3 items + 1 NUL terminator
-  --   ffi_t)
-  --
-  -- print('flag '..tonumber(flag))
-  --
-  -- local flag2 = library.commandt_example_func_that_takes_a_table_of_strings(
-  --   ffi.new("int", 3),
-  --   -- 3 items + 1 NUL terminator
-  --   ffi_t -- this produces the same pointer
-  --   -- ffi.new("const char *[4]", t) -- this is a diff value, producing a diff
-  --   -- pointer
-  --   )
-  --
-  -- print('flag2 '..tonumber(flag2))
-  --
-  -- -- and nil
-  -- local flag3 = library.commandt_example_func_that_takes_a_table_of_strings(
-  -- ffi.new("int", 0),
-  -- ffi.new("const char *[1]", nil) -- does not wind up as NULL over there
-  -- )
-  -- print('flag3 '..tonumber(flag3))
-  --
-  -- local indices = library.commandt_example_func_that_returns_table_of_ints()
-  --
-  -- -- TODO copy this kind somewhere useful (ie. a cheatsheet)
-  -- -- we can look up the size of the pointer to the array, but not
-  -- -- the length of the array itself; it is terminated with a -1.
-  -- -- print(ffi.sizeof(indices)) -- 8
-  -- -- print(tostring(ffi.typeof(indices))) -- ctype<const int *>
-  --
-  -- local i = 0
-  -- while true do
-  --   local index = tonumber(indices[i])
-  --   if index == -1 then
-  --     break
-  --   end
-  --   print(index)
-  --   i = i + 1
-  -- end
-  --
-  -- local sorted = --ffi.gc(
-  --   library.commandt_sorted_matches_for('some query')--,
-  --   -- ffi.C.free
-  -- --)
-  -- -- (Note: don't free here, better to tell matcher/scanner to destruct and do its own free-ing)
-  --
-  -- -- tonumber() needed here because ULL (boxed)
-  -- for i = 1, tonumber(sorted.count) do
-  --   print(ffi.string(sorted.matches[i - 1]))
-  -- end
 end
 
 commandt.cmdline_changed = function(char)

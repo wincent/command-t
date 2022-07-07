@@ -68,9 +68,6 @@ setmetatable(c, {
 
       void commandt_result_free(result_t *result);
 
-      // Not sure if going to need this...
-      //matches_t commandt_sorted_matches_for(const char *needle);
-
       // Scanner methods.
 
       scanner_t *scanner_new_copy(const char **candidates, size_t count);

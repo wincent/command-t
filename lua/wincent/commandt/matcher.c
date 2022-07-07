@@ -76,12 +76,6 @@ void commandt_matcher_free(matcher_t *matcher) {
     // creating the matcher (the scanner's owner is responsible for freeing it).
     free(matcher->haystacks);
 
-    // NOTE: we don't "own" this one; we just keep it for book keeping. it
-    // doesn't have to be durable...
-    if (matcher->needle) {
-        free((void *)matcher->needle);
-    }
-
     if (matcher->last_needle) {
         free((void *)matcher->last_needle);
     }
