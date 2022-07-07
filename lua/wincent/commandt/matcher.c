@@ -106,6 +106,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         matcher->haystacks = xcalloc(candidate_count, sizeof(haystack_t));
 
         for (i = 0; i < candidate_count; i++) {
+            DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents);
             matcher->haystacks[i].candidate = candidates[i];
             matcher->haystacks[i].bitmask = UNSET_BITMASK;
             matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
