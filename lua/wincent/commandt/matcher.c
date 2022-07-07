@@ -41,15 +41,27 @@ matcher_t *commandt_matcher_new(
 ) {
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
-    matcher->haystacks = NULL; // Lazily initialized.
+
+    // TODO: consider xmalloc instead, like we're doing here, in places where
+    // we don't need the zero-ing behavior of xcalloc
+    matcher->haystacks = xmalloc(scanner->count * sizeof(haystack_t));
+
+    str_t **candidates = scanner->candidates;
+
+    for (size_t i = 0; i < scanner->count; i++) {
+        /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
+        matcher->haystacks[i].candidate = candidates[i];
+        matcher->haystacks[i].bitmask = UNSET_BITMASK;
+        matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
+    }
+
+    // Defaults.
 
     // TODO: sort out which ones should be passed in at init time and which ones
     // later... should be consistent
-    matcher->always_show_dot_files = always_show_dot_files;
-
-    // Defaults.
     // TODO: provide a way to override these (either setters or passed in to
     // to commandt_matcher_run())
+    matcher->always_show_dot_files = always_show_dot_files;
     matcher->case_sensitive = true; // TODO maybe consider doing smart case at this level (currently doing it at ruby level)
     matcher->ignore_spaces = true;
     matcher->never_show_dot_files = never_show_dot_files;
@@ -97,25 +109,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         // TODO: implement (delete spaces from needle)
     }
 
-    // Get unsorted matches.
-    str_t **candidates = scanner->candidates;
-
-    if (!matcher->haystacks) {
-        // TODO: consider xmalloc instead, we don't need the zero-ing behavior
-        // of xcalloc (same in many other places too)
-        matcher->haystacks = xcalloc(candidate_count, sizeof(haystack_t));
-
-        for (i = 0; i < candidate_count; i++) {
-            /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
-            matcher->haystacks[i].candidate = candidates[i];
-            matcher->haystacks[i].bitmask = UNSET_BITMASK;
-            matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
-        }
-
-        matcher->needle_bitmask = UNSET_BITMASK;
-        matcher->last_needle = NULL;
-        matcher->last_needle_length = 0;
-    } else {
+    if (matcher->last_needle) {
         // Will compare against previously computed haystack bitmasks.
         matcher->needle_bitmask = calculate_bitmask(needle);
 
@@ -133,6 +127,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     if (candidate_count < THREAD_THRESHOLD) {
         thread_count = 1;
     }
+
+    // Get unsorted matches.
 
     // BUG: limit could be zero here
     haystack_t *matches = xcalloc(thread_count * limit, sizeof(haystack_t));
