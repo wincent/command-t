@@ -97,12 +97,36 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     unsigned long needle_length = strlen(needle);
 
+    // Downcase needle if required.
     if (!matcher->case_sensitive) {
-        // TODO: implement (downcase needle)
+        unsigned long length = strlen(needle);
+        char *downcased = xmalloc(length + 1);
+        for (unsigned long i = 0; i < length; i++) {
+            char c = needle[i];
+            if (c >= 'A' && c <= 'Z') {
+                downcased[i] = c + 'a' - 'A'; // Add 32 to downcase.
+            } else {
+                downcased[i] = c;
+            }
+        }
+        downcased[length] = '\0';
+        needle = downcased; // TODO free when we're done with this
     }
 
+    // Delete spaces from needle if required.
     if (matcher->ignore_spaces) {
-        // TODO: implement (delete spaces from needle)
+        unsigned long length = strlen(needle);
+        char *squished = xmalloc(length + 1);
+        unsigned long src = 0;
+        unsigned long dest = 0;
+        while (src < length) {
+            char c = needle[src++];
+            if (c != ' ') {
+                squished[dest++] = c;
+            }
+        }
+        squished[dest] = '\0';
+        needle = squished; // TODO free when we're done with this
     }
 
     if (matcher->last_needle) {
@@ -224,7 +248,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     DEBUG_LOG("we freed\n");
 
     // Save this state to potentially speed subsequent searches.
-    matcher->last_needle = needle;
+    matcher->last_needle = needle; // BUG? could be leaking this?
     matcher->last_needle_length = needle_length;
 
     return results;
