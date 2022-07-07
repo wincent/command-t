@@ -6,11 +6,12 @@
 #ifndef MATCH_H
 #define MATCH_H
 
-#include <stdbool.h> /* for bool */
+#include <float.h> /* for FLT_MAX */
 
 #include "commandt.h" /* for haystack_t, matcher_t */
 
 #define UNSET_BITMASK (-1)
+#define UNSET_SCORE FLT_MAX
 
 float commandt_calculate_match(haystack_t *haystack, matcher_t *matcher);
 

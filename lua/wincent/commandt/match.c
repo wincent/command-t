@@ -3,14 +3,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <float.h> /* for FLT_MAX */
+#include <stdbool.h> /* for bool */
 #include <stdlib.h> /* for NULL */
 #include <string.h> /* for strlen() */
 
 #include "debug.h"
 #include "match.h"
-
-#define UNSET_SCORE FLT_MAX
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
@@ -144,6 +142,7 @@ float commandt_calculate_match(haystack_t *haystack, matcher_t *matcher) {
 
     // Special case for zero-length search string.
     if (m.needle_length == 0) {
+        DEBUG_LOG("bet you didn't think we were going to get in here, yet, here we are\n");
         // Filter out dot files.
         if (m.never_show_dot_files || !m.always_show_dot_files) {
             for (size_t i = 0; i < m.haystack->candidate->length; i++) {
@@ -222,7 +221,7 @@ float commandt_calculate_match(haystack_t *haystack, matcher_t *matcher) {
             }
             m.memo = memo;
             score = recursive_match(&m, 0, 0, 0, 0.0);
-            /* DEBUG_LOG("score %f for candidate %s\n", score, m.haystack->candidate->contents); */
+            DEBUG_LOG("score %f for candidate %s\n", score, m.haystack->candidate->contents);
         }
     }
     return score;

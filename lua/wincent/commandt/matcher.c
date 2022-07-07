@@ -52,7 +52,7 @@ matcher_t *commandt_matcher_new(
         /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
         matcher->haystacks[i].candidate = candidates[i];
         matcher->haystacks[i].bitmask = UNSET_BITMASK;
-        matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1? or UNSET_SCORE/FLT_MAX
+        matcher->haystacks[i].score = UNSET_SCORE;//1.0; // TODO: default to 0? 1? -1? or UNSET_SCORE/FLT_MAX
     }
 
     // Defaults.
@@ -82,6 +82,16 @@ void commandt_matcher_free(matcher_t *matcher) {
     // Note that we don't free the scanner here, as that is passed in when
     // creating the matcher (the scanner's owner is responsible for freeing it).
     free(matcher->haystacks);
+
+    // NOTE: we don't "own" this one; we just keep it for book keeping. it
+    // doesn't have to be durable...
+    if (matcher->needle) {
+        free((void *)matcher->needle);
+    }
+
+    if (matcher->last_needle) {
+        free((void *)matcher->last_needle);
+    }
     free(matcher);
 }
 
@@ -95,6 +105,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     long matches_count = 0;
 
     // TODO: take ownership (copy) needle so that we can free it if needed
+    // nah, only need to do that for last_needle
 
     // Downcase needle if required.
     if (!matcher->case_sensitive) {
@@ -127,6 +138,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         squished[dest] = '\0';
         needle = squished; // TODO free when we're done with this
     }
+
+    unsigned long needle_length = strlen(needle);
+    matcher->needle = needle;
+    matcher->needle_length = needle_length;
 
     if (matcher->last_needle) {
         // Will compare against previously computed haystack bitmasks.
@@ -198,7 +213,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(thread_args);
 
     DEBUG_LOG("will sort\n");
-    unsigned long needle_length = strlen(needle);
     if (
         needle_length == 0 ||
         (needle_length == 1 && needle[0] == '.')
