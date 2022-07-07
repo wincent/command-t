@@ -72,20 +72,19 @@ void commandt_matcher_free(matcher_t *matcher) {
 }
 
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
-    DEBUG_LOG("needle: %s\n", needle);
+    /* DEBUG_LOG("needle: %s\n", needle); */
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
     unsigned limit = matcher->limit;
     long err;
     long needle_bitmask = UNSET_BITMASK;
-    long heap_matches_count;
     heap_t *heap;
     // TODO: may end up inlining these
     bool case_sensitive = matcher->case_sensitive;
     bool ignore_spaces = matcher->ignore_spaces;
 
-    heap_matches_count = 0;
+    long matches_count = 0;
 
     unsigned long needle_length = strlen(needle);
 
@@ -106,7 +105,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         matcher->haystacks = xcalloc(candidate_count, sizeof(haystack_t));
 
         for (i = 0; i < candidate_count; i++) {
-            DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents);
+            /* DEBUG_LOG("candidate %d: %s\n", i, candidates[i]->contents); */
             matcher->haystacks[i].candidate = candidates[i];
             matcher->haystacks[i].bitmask = UNSET_BITMASK;
             matcher->haystacks[i].score = 1.0; // TODO: default to 0? 1? -1?
@@ -133,11 +132,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         thread_count = 1;
     }
 
-    // TODO: better name for this... it is for data accumulated from per-thread heap datastructures
-    // heap datastructures will be populated in match_thread() call
-    // when we pthread_join() we copy the data in here so that we can sort it.
     // BUG: limit could be zero here
-    haystack_t *heap_haystacks = xcalloc(thread_count * limit, sizeof(haystack_t));
+    haystack_t *matches = xcalloc(thread_count * limit, sizeof(haystack_t));
     pthread_t *threads = xcalloc(thread_count, sizeof(pthread_t));
     thread_args_t *thread_args = xcalloc(thread_count, sizeof(thread_args_t));
 
@@ -154,7 +150,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             heap = match_thread(&thread_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
-                    memcpy(heap_haystacks + heap_matches_count++, heap->entries[j], sizeof(haystack_t));
+                    memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
                 }
                 heap_free(heap);
             }
@@ -173,7 +169,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
         if (heap) {
             for (j = 0; j < heap->count; j++) {
-                memcpy(heap_haystacks + heap_matches_count++, heap->entries[j], sizeof(haystack_t));
+                memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
             }
             heap_free(heap);
         }
@@ -192,15 +188,15 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         // that the items which stay in the top [limit] may (will) be
         // different).
         qsort(
-            heap_haystacks,
-            heap_matches_count,
+            matches,
+            matches_count,
             sizeof(haystack_t),
             cmp_alpha
         );
     } else {
         qsort(
-            heap_haystacks,
-            heap_matches_count,
+            matches,
+            matches_count,
             sizeof(haystack_t),
             cmp_score
         );
@@ -212,7 +208,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     result_t *results = xmalloc(sizeof(result_t));
-    unsigned count = heap_matches_count > limit ? limit : heap_matches_count;
+    unsigned count = matches_count > limit ? limit : matches_count;
     results->matches = xcalloc(count, sizeof(const char *));
     results->count = 0;
 
@@ -221,12 +217,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         i < count && results->count < limit;
         i++
     ) {
-        if (heap_haystacks[i].score > 0.0) {
-            results->matches[results->count++] = heap_haystacks[i].candidate;
+        if (matches[i].score > 0.0) {
+            results->matches[results->count++] = matches[i].candidate;
         }
     }
 
-    free(heap_haystacks);
+    free(matches);
 
     // Save this state to potentially speed subsequent searches.
     // BUG: these segfault?
