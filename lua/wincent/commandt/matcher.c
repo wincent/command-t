@@ -86,58 +86,52 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     unsigned limit = matcher->limit;
     long matches_count = 0;
 
-    char *downcased_needle = NULL;
-    char *squished_needle = NULL;
+    unsigned long needle_length = strlen(needle);
+    char *needle_copy = xmalloc(needle_length + 1);
+    strcpy(needle_copy, needle);
 
     // Downcase needle if required.
     if (!matcher->case_sensitive) {
-        unsigned long length = strlen(needle);
-        downcased_needle = xmalloc(length + 1);
-        for (unsigned long i = 0; i < length; i++) {
-            char c = needle[i];
+        for (unsigned long i = 0; i < needle_length; i++) {
+            char c = needle_copy[i];
             if (c >= 'A' && c <= 'Z') {
-                downcased_needle[i] = c + 'a' - 'A'; // Add 32 to downcase.
-            } else {
-                downcased_needle[i] = c;
+                needle_copy[i] = c + 'a' - 'A'; // Add 32 to downcase.
             }
         }
-        downcased_needle[length] = '\0';
-        needle = downcased_needle;
     }
 
     // Delete spaces from needle if required.
     if (matcher->ignore_spaces) {
-        unsigned long length = strlen(needle);
-        squished_needle = xmalloc(length + 1);
         unsigned long src = 0;
         unsigned long dest = 0;
-        while (src < length) {
-            char c = needle[src++];
+        while (src < needle_length) {
+            char c = needle[src];
             if (c != ' ') {
-                squished_needle[dest++] = c;
+                if (dest == src) {
+                    dest++;
+                } else {
+                    needle_copy[dest++] = c;
+                }
             }
+            src++;
         }
-        squished_needle[dest] = '\0';
-        needle = squished_needle;
-        free(downcased_needle);
+        needle_copy[dest] = '\0';
+        needle_length -= src - dest;
     }
 
-    unsigned long needle_length = strlen(needle);
-    matcher->needle = xmalloc(needle_length + 1);
-    strcpy((char *)matcher->needle, needle);
-    free(squished_needle);
+    matcher->needle = needle_copy;
     matcher->needle_length = needle_length;
 
     if (matcher->last_needle) {
         // Will compare against previously computed haystack bitmasks.
-        matcher->needle_bitmask = calculate_bitmask(needle, needle_length);
+        matcher->needle_bitmask = calculate_bitmask(matcher->needle, needle_length);
 
         // Check whether current search extends previous search; if so, we can
         // skip all the non-matches from last time without looking at them.
         if (needle_length > matcher->last_needle_length) {
             unsigned long index = 0;
             while (index < matcher->last_needle_length) {
-                if (needle[index] != matcher->last_needle[index]) {
+                if (matcher->needle[index] != matcher->last_needle[index]) {
                     free((void *)matcher->last_needle);
                     matcher->last_needle = NULL;
                     matcher->last_needle_length = 0;
@@ -192,7 +186,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(threads);
     free(worker_args);
 
-    if (needle_length == 0 || (needle_length == 1 && needle[0] == '.')) {
+    if (needle_length == 0 || (needle_length == 1 && matcher->needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
         qsort(matches, matches_count, sizeof(haystack_t *), cmp_alpha);
     } else {
@@ -214,7 +208,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     // Save this state to potentially speed subsequent searches.
     free((void *)matcher->last_needle);
-    matcher->last_needle = needle;
+    matcher->last_needle = matcher->needle;
     matcher->last_needle_length = needle_length;
 
     return results;
