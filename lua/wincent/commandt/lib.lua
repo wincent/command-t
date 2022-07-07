@@ -96,14 +96,8 @@ lib.commandt_matcher_new = function(
 end
 
 lib.commandt_matcher_run = function(matcher, needle)
-  print('hi')
-  print('there')
-  print('friend')
+  print('searching for: ' .. needle)
   return c.commandt_matcher_run(matcher, needle)
-end
-
-lib.demo = function()
-  error('delete me')
 end
 
 lib.print_scanner = function(scanner)

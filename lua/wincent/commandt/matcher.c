@@ -10,6 +10,7 @@
 #include <string.h> /* for strncmp() */
 
 #include "commandt.h"
+#include "debug.h"
 #include "die.h"
 #include "heap.h"
 #include "match.h"
@@ -56,7 +57,7 @@ matcher_t *commandt_matcher_new(
     matcher->ignore_spaces = true;
     matcher->last_needle = NULL;
     matcher->last_needle_length = 0;
-    matcher->limit = 15;
+    matcher->limit = 15; // TODO: make the default 16 and the max 128; never let it be 0
     matcher->recurse = true;
     matcher->threads = 4; // TODO: base on core count
 
@@ -71,6 +72,7 @@ void commandt_matcher_free(matcher_t *matcher) {
 }
 
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
+    DEBUG_LOG("needle: %s\n", needle);
     long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;

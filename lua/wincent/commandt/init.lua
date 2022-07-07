@@ -172,18 +172,18 @@ commandt.demo = function()
   local lib = require('wincent.commandt.lib')
   local scanner = require('wincent.commandt.scanner.help').scanner()
   local matcher = lib.commandt_matcher_new(scanner, true, false)
+
+  -- Using help scanner, a needle like "tag" returns a bunch of results (eg.
+  -- `tag`, `-tag`, `:tag`, `tags` etc).
   local results = lib.commandt_matcher_run(matcher, "tag")
   local strings = {}
+  print(results.count)
   for i = 1, results.count do
     local str = results.matches[i]
     table.insert(strings, ffi.string(str.contents, str.length))
   end
   print(vim.inspect(strings))
   return strings
-end
-
-commandt.demo2 = function()
-  require('wincent.commandt.lib').demo2()
 end
 
 commandt.file_finder = function(arg)

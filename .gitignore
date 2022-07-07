@@ -6,4 +6,5 @@
 /.bundle
 /data/log.yml
 /media
+commandt-debug.log
 vendor/bundle
