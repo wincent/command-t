@@ -91,7 +91,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
     unsigned limit = matcher->limit;
-    long err;
+    int err;
     heap_t *heap;
     // TODO: may end up inlining these
     bool case_sensitive = matcher->case_sensitive;
