@@ -8,35 +8,8 @@
 
 #include <stdbool.h> /* for bool */
 
-#include "commandt.h" /* for haystack_t */
-#include "scanner.h" /* for scanner_t */
+#include "commandt.h" /* for matcher_t */
 #include "str.h" /* for str_t */
-
-// TODO flesh this out; basically make it a container for instance variables
-typedef struct {
-    scanner_t *scanner;
-    haystack_t *haystacks;
-
-    bool always_show_dot_files;
-    bool case_sensitive;
-    bool ignore_spaces;
-    bool never_show_dot_files;
-    bool recurse;
-    // bool sort;
-
-    /**
-     * Limit the number of returned results (0 implies no limit).
-     */
-    unsigned limit;
-    int threads;
-
-    const char *needle;
-    unsigned long needle_length;
-    long needle_bitmask;
-
-    const char *last_needle;
-    unsigned long last_needle_length;
-} matcher_t;
 
 // TODO: may later want to return highlight positions as well
 typedef struct {

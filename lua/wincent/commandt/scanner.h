@@ -8,27 +8,8 @@
 
 #include <stddef.h> /* for size_t */
 
+#include "commandt.h" /* for scanner_t */
 #include "str.h"
-
-typedef struct {
-    // TODO: const
-    str_t **candidates;
-
-    /**
-     * Number of candidates currently stored in the scanner.
-     */
-    size_t count;
-
-    /**
-     * Available capacity in the scanner.
-     */
-    size_t capacity;
-
-    /**
-     * Counter that increments any time the candidates change.
-     */
-    unsigned clock; // TODO: figure out whether I need this
-} scanner_t;
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.

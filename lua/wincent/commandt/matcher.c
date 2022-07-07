@@ -345,16 +345,7 @@ static void *match_thread(void *thread_args) {
             continue;
         }
 
-        haystack->score = commandt_calculate_match(
-            haystack,
-            matcher->needle,
-            matcher->needle_length,
-            matcher->case_sensitive,
-            matcher->always_show_dot_files,
-            matcher->never_show_dot_files,
-            matcher->recurse,
-            matcher->needle_bitmask
-        );
+        haystack->score = commandt_calculate_match(haystack, matcher);
 
         if (haystack->score == 0.0) {
             continue;

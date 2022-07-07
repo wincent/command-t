@@ -124,30 +124,21 @@ static float recursive_match(
     return *memoized = score;
 }
 
-float commandt_calculate_match(
-    haystack_t *haystack,
-    const char *needle,
-    long needle_length,
-    bool case_sensitive,
-    bool always_show_dot_files,
-    bool never_show_dot_files,
-    bool recurse,
-    long needle_bitmask
-) {
+float commandt_calculate_match(haystack_t *haystack, matcher_t *matcher) {
     /* DEBUG_LOG("in commandt_calculate_match\n"); */
     matchinfo_t m;
     /* long i; */
     float score = 1.0;
     int compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
-    m.needle_p = needle;
-    m.needle_length = needle_length;
+    m.needle_p = matcher->needle;
+    m.needle_length = matcher->needle_length;
     m.rightmost_match_p = NULL;
     m.max_score_per_char = (1.0 / m.haystack->candidate->length + 1.0 / m.needle_length) / 2;
-    m.always_show_dot_files = always_show_dot_files;
-    m.never_show_dot_files = never_show_dot_files;
-    m.case_sensitive = case_sensitive;
-    m.recurse = recurse;
+    m.always_show_dot_files = matcher->always_show_dot_files;
+    m.never_show_dot_files = matcher->never_show_dot_files;
+    m.case_sensitive = matcher->case_sensitive;
+    m.recurse = matcher->recurse;
 
     /* DEBUG_LOG("going to score haystack of length %d\n", m.haystack->candidate->length); */
 
@@ -170,7 +161,7 @@ float commandt_calculate_match(
         long rightmost_match_p[m.needle_length];
 
         if (haystack->bitmask != UNSET_BITMASK) {
-            if ((needle_bitmask & haystack->bitmask) != needle_bitmask) {
+            if ((matcher->needle_bitmask & haystack->bitmask) != matcher->needle_bitmask) {
                 return 0.0;
             }
         }
