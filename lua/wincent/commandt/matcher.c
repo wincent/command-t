@@ -91,7 +91,6 @@ void commandt_matcher_free(matcher_t *matcher) {
 
 // TODO: fix bug where I can't _unextend_ a needle...
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
-    long i, j;
     scanner_t *scanner = matcher->scanner;
     long candidate_count = scanner->count;
     unsigned limit = matcher->limit;
@@ -162,11 +161,11 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     // Get unsorted matches.
 
-    haystack_t *matches = xmalloc(worker_count * limit * sizeof(haystack_t));
+    haystack_t **matches = xmalloc(worker_count * limit * sizeof(haystack_t *));
     pthread_t *threads = xmalloc(worker_count * sizeof(pthread_t));
     worker_args_t *worker_args = xmalloc(worker_count * sizeof(worker_args_t));
 
-    for (i = 0; i < worker_count; i++) {
+    for (long i = 0; i < worker_count; i++) {
         worker_args[i].worker_count = worker_count;
         worker_args[i].worker_index = i;
         worker_args[i].matcher = matcher;
@@ -174,10 +173,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         if (i == worker_count - 1) {
             // For the last worker, we'll just use the main thread.
             heap_t *heap = get_matches(&worker_args[i]);
-            for (j = 0; j < heap->count; j++) {
-                // TODO: copy en masse
-                memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-            }
+            memcpy(matches + matches_count, heap->entries, heap->count * sizeof(haystack_t *));
+            matches_count += heap->count;
             heap_free(heap);
         } else {
             int err = pthread_create(&threads[i], NULL, get_matches, (void *)&worker_args[i]);
@@ -187,16 +184,14 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
     }
 
-    for (i = 0; i < worker_count - 1; i++) {
+    for (long i = 0; i < worker_count - 1; i++) {
         heap_t *heap;
         int err = pthread_join(threads[i], (void **)&heap);
         if (err != 0) {
             die("phtread_join() failed", err);
         }
-        for (j = 0; j < heap->count; j++) {
-            // TODO: en masse
-            memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
-        }
+        memcpy(matches + matches_count, heap->entries, heap->count * sizeof(haystack_t *));
+        matches_count += heap->count;
         heap_free(heap);
     }
 
@@ -205,9 +200,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     if (needle_length == 0 || (needle_length == 1 && needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
-        qsort(matches, matches_count, sizeof(haystack_t), cmp_alpha);
+        qsort(matches, matches_count, sizeof(haystack_t *), cmp_alpha);
     } else {
-        qsort(matches, matches_count, sizeof(haystack_t), cmp_score);
+        qsort(matches, matches_count, sizeof(haystack_t *), cmp_score);
     }
 
     result_t *results = xmalloc(sizeof(result_t));
@@ -215,9 +210,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     results->matches = xmalloc(count * sizeof(const char *));
     results->count = 0;
 
-    for (i = 0; i < count && results->count <= limit; i++) {
-        if (matches[i].score > 0.0) {
-            results->matches[results->count++] = matches[i].candidate;
+    for (long i = 0; i < count && results->count <= limit; i++) {
+        if (matches[i]->score > 0.0) {
+            results->matches[results->count++] = matches[i]->candidate;
         }
     }
 
