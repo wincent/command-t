@@ -160,6 +160,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     // Get unsorted matches.
 
+    // TODO: do an audit of all the places we're mallocing to check for leaks
     haystack_t **matches = xmalloc(worker_count * limit * sizeof(haystack_t *));
     pthread_t *threads = xmalloc(worker_count * sizeof(pthread_t));
     worker_args_t *worker_args = xmalloc(worker_count * sizeof(worker_args_t));
