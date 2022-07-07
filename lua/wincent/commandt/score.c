@@ -123,9 +123,7 @@ static float recursive_match(
 }
 
 float commandt_score(haystack_t *haystack, matcher_t *matcher) {
-    /* DEBUG_LOG("in commandt_score\n"); */
     matchinfo_t m;
-    /* long i; */
     float score = 1.0;
     int compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
@@ -138,11 +136,8 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
     m.case_sensitive = matcher->case_sensitive;
     m.recurse = matcher->recurse;
 
-    /* DEBUG_LOG("going to score haystack of length %d\n", m.haystack->candidate->length); */
-
     // Special case for zero-length search string.
     if (m.needle_length == 0) {
-        DEBUG_LOG("bet you didn't think we were going to get in here, yet, here we are\n");
         // Filter out dot files.
         if (m.never_show_dot_files || !m.always_show_dot_files) {
             for (size_t i = 0; i < m.haystack->candidate->length; i++) {
@@ -177,9 +172,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             // I can't do the natural `for` with `i >= 0` condition.
             size_t i = m.haystack->candidate->length - 1;
             while (1) {
-                /* DEBUG_LOG("checking pos %d\n", i); */
                 char c = m.haystack->candidate->contents[i];
-                /* DEBUG_LOG("got char %c\n", c); */
                 char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
                 if (!m.case_sensitive) {
                     c = lower;
@@ -191,7 +184,6 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
                 if (needle_idx >= 0) {
                     char d = m.needle_p[needle_idx];
                     if (c == d) {
-                        /* DEBUG_LOG("found match for needle %d %c at haystack %d\n", needle_idx, c, i); */
                         rightmost_match_p[needle_idx] = i;
                         needle_idx--;
                     }
@@ -221,7 +213,6 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             }
             m.memo = memo;
             score = recursive_match(&m, 0, 0, 0, 0.0);
-            DEBUG_LOG("score %f for candidate %s\n", score, m.haystack->candidate->contents);
         }
     }
     return score;
