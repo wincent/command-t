@@ -24,16 +24,16 @@
 #define THREAD_THRESHOLD 1000
 
 typedef struct {
-    int thread_count;
-    int thread_index;
+    unsigned worker_count;
+    unsigned worker_index;
     matcher_t *matcher;
-} thread_args_t;
+} worker_args_t;
 
 // Forward declarations.
 static long calculate_bitmask(const char *str, unsigned long length);
 static int cmp_alpha(const void *a, const void *b);
 static int cmp_score(const void *a, const void *b);
-static void *match_thread(void *thread_args);
+static void *get_matches(void *worker_args);
 
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
@@ -155,25 +155,25 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         }
     }
 
-    unsigned thread_count = matcher->threads > 0 ? matcher->threads : 1;
+    unsigned worker_count = matcher->threads > 0 ? matcher->threads : 1;
     if (candidate_count < THREAD_THRESHOLD) {
-        thread_count = 1;
+        worker_count = 1;
     }
 
     // Get unsorted matches.
 
-    haystack_t *matches = xmalloc(thread_count * limit * sizeof(haystack_t));
-    pthread_t *threads = xmalloc(thread_count * sizeof(pthread_t));
-    thread_args_t *thread_args = xmalloc(thread_count * sizeof(thread_args_t));
+    haystack_t *matches = xmalloc(worker_count * limit * sizeof(haystack_t));
+    pthread_t *threads = xmalloc(worker_count * sizeof(pthread_t));
+    worker_args_t *worker_args = xmalloc(worker_count * sizeof(worker_args_t));
 
-    for (i = 0; i < thread_count; i++) {
-        thread_args[i].thread_count = thread_count;
-        thread_args[i].thread_index = i;
-        thread_args[i].matcher = matcher;
+    for (i = 0; i < worker_count; i++) {
+        worker_args[i].worker_count = worker_count;
+        worker_args[i].worker_index = i;
+        worker_args[i].matcher = matcher;
 
-        if (i == thread_count - 1) {
-            // For the last "worker", we'll just use the main thread.
-            heap = match_thread(&thread_args[i]);
+        if (i == worker_count - 1) {
+            // For the last worker, we'll just use the main thread.
+            heap = get_matches(&worker_args[i]);
             if (heap) {
                 for (j = 0; j < heap->count; j++) {
                     memcpy(matches + matches_count++, heap->entries[j], sizeof(haystack_t));
@@ -181,14 +181,14 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
                 heap_free(heap);
             }
         } else {
-            int err = pthread_create(&threads[i], NULL, match_thread, (void *)&thread_args[i]);
+            int err = pthread_create(&threads[i], NULL, get_matches, (void *)&worker_args[i]);
             if (err != 0) {
                 die("phthread_create() failed", err);
             }
         }
     }
 
-    for (i = 0; i < thread_count - 1; i++) {
+    for (i = 0; i < worker_count - 1; i++) {
         int err = pthread_join(threads[i], (void **)&heap);
         if (err != 0) {
             die("phtread_join() failed", err);
@@ -202,7 +202,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     }
 
     free(threads);
-    free(thread_args);
+    free(worker_args);
 
     if (needle_length == 0 || (needle_length == 1 && needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
@@ -309,10 +309,10 @@ static int cmp_score(const void *a, const void *b) {
     }
 }
 
-static void *match_thread(void *thread_args) {
+static void *get_matches(void *worker_args) {
     size_t i;
     float score;
-    thread_args_t *args = (thread_args_t *)thread_args;
+    worker_args_t *args = (worker_args_t *)worker_args;
     matcher_t *matcher = args->matcher;
 
     // Reserve one extra slot so that we can do an insert-then-extract even
@@ -324,9 +324,9 @@ static void *match_thread(void *thread_args) {
     // (intead of every nth item to a thread, break into blocks)
     // to see if cache characteristics improve the speed)
     for (
-        i = args->thread_index;
+        i = args->worker_index;
         i < matcher->scanner->count;
-        i += args->thread_count
+        i += args->worker_count
     ) {
         haystack_t *haystack = matcher->haystacks + i;
         if (matcher->needle_bitmask == UNSET_BITMASK) {
