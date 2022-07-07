@@ -72,13 +72,10 @@ matcher_t *commandt_matcher_new(
 }
 
 void commandt_matcher_free(matcher_t *matcher) {
-    // Note that we don't free the scanner here, as that is passed in when
-    // creating the matcher (the scanner's owner is responsible for freeing it).
+    // Note that we don't free the scanner here (the scanner's owner is
+    // responsible for freeing it).
     free(matcher->haystacks);
-
-    if (matcher->last_needle) {
-        free((void *)matcher->last_needle);
-    }
+    free((void *)matcher->last_needle);
     free(matcher);
 }
 
@@ -89,43 +86,46 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     unsigned limit = matcher->limit;
     long matches_count = 0;
 
-    // TODO: take ownership (copy) needle so that we can free it if needed
-    // nah, only need to do that for last_needle
+    char *downcased_needle = NULL;
+    char *squished_needle = NULL;
 
     // Downcase needle if required.
     if (!matcher->case_sensitive) {
         unsigned long length = strlen(needle);
-        char *downcased = xmalloc(length + 1);
+        downcased_needle = xmalloc(length + 1);
         for (unsigned long i = 0; i < length; i++) {
             char c = needle[i];
             if (c >= 'A' && c <= 'Z') {
-                downcased[i] = c + 'a' - 'A'; // Add 32 to downcase.
+                downcased_needle[i] = c + 'a' - 'A'; // Add 32 to downcase.
             } else {
-                downcased[i] = c;
+                downcased_needle[i] = c;
             }
         }
-        downcased[length] = '\0';
-        needle = downcased; // TODO free when we're done with this
+        downcased_needle[length] = '\0';
+        needle = downcased_needle;
     }
 
     // Delete spaces from needle if required.
     if (matcher->ignore_spaces) {
         unsigned long length = strlen(needle);
-        char *squished = xmalloc(length + 1);
+        squished_needle = xmalloc(length + 1);
         unsigned long src = 0;
         unsigned long dest = 0;
         while (src < length) {
             char c = needle[src++];
             if (c != ' ') {
-                squished[dest++] = c;
+                squished_needle[dest++] = c;
             }
         }
-        squished[dest] = '\0';
-        needle = squished; // TODO free when we're done with this
+        squished_needle[dest] = '\0';
+        needle = squished_needle;
+        free(downcased_needle);
     }
 
     unsigned long needle_length = strlen(needle);
-    matcher->needle = needle;
+    matcher->needle = xmalloc(needle_length + 1);
+    strcpy((char *)matcher->needle, needle);
+    free(squished_needle);
     matcher->needle_length = needle_length;
 
     if (matcher->last_needle) {
@@ -138,6 +138,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             unsigned long index = 0;
             while (index < matcher->last_needle_length) {
                 if (needle[index] != matcher->last_needle[index]) {
+                    free((void *)matcher->last_needle);
                     matcher->last_needle = NULL;
                     matcher->last_needle_length = 0;
                     break;
@@ -154,7 +155,6 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     // Get unsorted matches.
 
-    // TODO: do an audit of all the places we're mallocing to check for leaks
     haystack_t **matches = xmalloc(worker_count * limit * sizeof(haystack_t *));
     pthread_t *threads = xmalloc(worker_count * sizeof(pthread_t));
     worker_args_t *worker_args = xmalloc(worker_count * sizeof(worker_args_t));
@@ -213,7 +213,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     free(matches);
 
     // Save this state to potentially speed subsequent searches.
-    matcher->last_needle = needle; // BUG? could be leaking this?
+    free((void *)matcher->last_needle);
+    matcher->last_needle = needle;
     matcher->last_needle_length = needle_length;
 
     return results;
