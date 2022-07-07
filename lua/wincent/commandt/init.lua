@@ -178,7 +178,7 @@ commandt.demo = function()
   local results = lib.commandt_matcher_run(matcher, "tag")
   local strings = {}
   print(results.count)
-  for i = 1, results.count do
+  for i = 1, (results.count - 1) do
     local str = results.matches[i]
     table.insert(strings, ffi.string(str.contents, str.length))
   end
