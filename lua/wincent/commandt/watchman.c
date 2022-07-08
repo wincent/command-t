@@ -5,30 +5,30 @@
 
 #include "watchman.h"
 
-#ifdef WATCHMAN_BUILD
+#include "str.h"
+#include "xmalloc.h" /* for xmalloc() */
 
-#if defined(HAVE_RUBY_ST_H)
-#include <ruby/st.h>
-#elif defined(HAVE_ST_H)
-#include <st.h>
-#else
-#error no st.h header found
-#endif
+// TODO: mark most of these functions as static (internal only)
 
-#include <stdint.h>     /* for uint8_t */
-#include <fcntl.h>      /* for fcntl() */
-#include <sys/errno.h>  /* for errno */
-#include <sys/socket.h> /* for recv(), MSG_PEEK */
+#include <stdint.h> /* for uint8_t */
+#include <fcntl.h> /* for fcntl() */
+#include <sys/errno.h> /* for errno */
+#include <sys/socket.h> /* for AF_LOCAL, recv(), MSG_PEEK */
+#include <sys/un.h> /* for sockaddr_un */
 
 typedef struct {
     uint8_t *data;  // payload
     size_t cap;     // total capacity
     size_t len;     // current length
-} watchman_t;
+} watchman_payload_t;
+
+// TODO: replace this; just silencing some of the many Ruby-related errors in
+// here.
+#define VALUE   void *
 
 // Forward declarations:
 VALUE watchman_load(char **ptr, char *end);
-void watchman_dump(watchman_t *w, VALUE serializable);
+void watchman_dump(watchman_payload_t *w, VALUE serializable);
 
 #define WATCHMAN_DEFAULT_STORAGE 4096
 
@@ -60,11 +60,11 @@ static const char watchman_false         = WATCHMAN_FALSE;
 static const char watchman_nil           = WATCHMAN_NIL;
 
 /**
- * Appends `len` bytes, starting at `data`, to the watchman_t struct `w`
+ * Appends `len` bytes, starting at `data`, to the watchman_payload_t struct `w`
  *
  * Will attempt to reallocate the underlying storage if it is not sufficient.
  */
-void watchman_append(watchman_t *w, const char *data, size_t len) {
+void watchman_append(watchman_payload_t *w, const char *data, size_t len) {
     if (w->len + len > w->cap) {
         w->cap += w->len + WATCHMAN_DEFAULT_STORAGE;
         REALLOC_N(w->data, uint8_t, w->cap);
@@ -74,13 +74,13 @@ void watchman_append(watchman_t *w, const char *data, size_t len) {
 }
 
 /**
- * Allocate a new watchman_t struct
+ * Allocate a new watchman_payload_t struct
  *
  * The struct has a small amount of extra capacity preallocated, and a blank
  * header that can be filled in later to describe the PDU.
  */
-watchman_t *watchman_init() {
-    watchman_t *w = ALLOC(watchman_t);
+watchman_payload_t *watchman_init() {
+    watchman_payload_t *w = ALLOC(watchman_payload_t);
     w->cap = WATCHMAN_DEFAULT_STORAGE;
     w->len = 0;
     w->data = ALLOC_N(uint8_t, WATCHMAN_DEFAULT_STORAGE);
@@ -90,10 +90,10 @@ watchman_t *watchman_init() {
 }
 
 /**
- * Free a watchman_t struct `w` that was previously allocated with
+ * Free a watchman_payload_t struct `w` that was previously allocated with
  * `watchman_init`
  */
-void watchman_free(watchman_t *w) {
+void watchman_free(watchman_payload_t *w) {
     xfree(w->data);
     xfree(w);
 }
@@ -101,7 +101,7 @@ void watchman_free(watchman_t *w) {
 /**
  * Encodes and appends the integer `num` to `w`
  */
-void watchman_dump_int(watchman_t *w, int64_t num) {
+void watchman_dump_int(watchman_payload_t *w, int64_t num) {
     char encoded[1 + sizeof(int64_t)];
 
     if (num == (int8_t)num) {
@@ -126,7 +126,7 @@ void watchman_dump_int(watchman_t *w, int64_t num) {
 /**
  * Encodes and appends the string `string` to `w`
  */
-void watchman_dump_string(watchman_t *w, VALUE string) {
+void watchman_dump_string(watchman_payload_t *w, VALUE string) {
     watchman_append(w, &watchman_string_marker, sizeof(watchman_string_marker));
     watchman_dump_int(w, RSTRING_LEN(string));
     watchman_append(w, RSTRING_PTR(string), RSTRING_LEN(string));
@@ -135,7 +135,7 @@ void watchman_dump_string(watchman_t *w, VALUE string) {
 /**
  * Encodes and appends the double `num` to `w`
  */
-void watchman_dump_double(watchman_t *w, double num) {
+void watchman_dump_double(watchman_payload_t *w, double num) {
     char encoded[1 + sizeof(double)];
     encoded[0] = WATCHMAN_FLOAT_MARKER;
     *(double *)(encoded + 1) = num;
@@ -145,7 +145,7 @@ void watchman_dump_double(watchman_t *w, double num) {
 /**
  * Encodes and appends the array `array` to `w`
  */
-void watchman_dump_array(watchman_t *w, VALUE array) {
+void watchman_dump_array(watchman_payload_t *w, VALUE array) {
     long i;
     watchman_append(w, &watchman_array_marker, sizeof(watchman_array_marker));
     watchman_dump_int(w, RARRAY_LEN(array));
@@ -156,10 +156,10 @@ void watchman_dump_array(watchman_t *w, VALUE array) {
 
 /**
  * Helper method that encodes and appends a key/value pair (`key`, `value`) from
- * a hash to the watchman_t struct passed in via `data`
+ * a hash to the watchman_payload_t struct passed in via `data`
  */
 int watchman_dump_hash_iterator(VALUE key, VALUE value, VALUE data) {
-    watchman_t *w = (watchman_t *)data;
+    watchman_payload_t *w = (watchman_payload_t *)data;
     watchman_dump_string(w, StringValue(key));
     watchman_dump(w, value);
     return ST_CONTINUE;
@@ -168,7 +168,7 @@ int watchman_dump_hash_iterator(VALUE key, VALUE value, VALUE data) {
 /**
  * Encodes and appends the hash `hash` to `w`
  */
-void watchman_dump_hash(watchman_t *w, VALUE hash) {
+void watchman_dump_hash(watchman_payload_t *w, VALUE hash) {
     watchman_append(w, &watchman_hash_marker, sizeof(watchman_hash_marker));
     watchman_dump_int(w, RHASH_SIZE(hash));
     rb_hash_foreach(hash, watchman_dump_hash_iterator, (VALUE)w);
@@ -180,7 +180,7 @@ void watchman_dump_hash(watchman_t *w, VALUE hash) {
  * Examples of serializable objects include arrays, hashes, strings, numbers
  * (integers, floats), booleans, and nil.
  */
-void watchman_dump(watchman_t *w, VALUE serializable) {
+void watchman_dump(watchman_payload_t *w, VALUE serializable) {
     switch (TYPE(serializable)) {
         case T_ARRAY:
             return watchman_dump_array(w, serializable);
@@ -527,7 +527,7 @@ VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
 VALUE CommandTWatchmanUtils_dump(VALUE self, VALUE serializable) {
     uint64_t *len;
     VALUE serialized;
-    watchman_t *w = watchman_init();
+    watchman_payload_t *w = watchman_init();
     watchman_dump(w, serializable);
 
     // update header with final length information
@@ -645,18 +645,77 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     return loaded;
 }
 
-#else /* don't build Watchman utils; supply stubs only*/
+// Note: If I run into headaches with BSD-style (macOS) vs Linux-style sockets,
+// may need to rethink how I do this.
+int commandt_watchman_connect(const char *socket_path) {
+    int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
+    if (fd == -1) {
+        return -1; // TODO: make caller deal with this
+    }
 
-VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
-    rb_raise(rb_eRuntimeError, "unsupported operation");
+    struct sockaddr_un addr;
+    memset(&addr, 0, sizeof(struct sockaddr_un) - 1);
+    addr.sun_family = AF_LOCAL;
+
+    // On macOS, `sun_path` is 104 bytes long... so good thing the socket path
+    // is only: "/opt/homebrew/var/run/watchman/wincent-state/sock"...
+    strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+
+    if (connect(fd, &addr, sizeof(sockaddr)) == -1) {
+        return -1; // TODO: make caller deal with this
+    }
+    return fd;
 }
 
-VALUE CommandTWatchmanUtils_dump(VALUE self, VALUE serializable) {
-    rb_raise(rb_eRuntimeError, "unsupported operation");
+int commandt_watchman_disconnect(int socket) {
+    if (close(socket) == 0) {
+        return 0;
+    } else {
+        return errno;
+    }
 }
 
-VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
-    rb_raise(rb_eRuntimeError, "unsupported operation");
+watchman_query_result_t *commandt_watchman_query(
+    const char *root,
+    const char *relative_root,
+    int socket
+) {
+    watchman_query_result_t *result = xmalloc(sizeof(watchman_query_result_t));
+
+    // 1. send
+    //   ["query", root, {"expression": ["type", "f"], "fields": ["name"]}]
+    //   or
+    //   ["query", root, {"expression": ["type", "f"], "fields": ["name"],
+    //   "relative_root": relative_root}] (if we have that)
+    // 2. extract "files"
+    // 3. return NULL if "error"
+    return result;
 }
 
-#endif
+void commandt_watchman_query_result_free(watchman_query_result_t *result) {
+    // TODO: free more stuff...
+    free(result);
+}
+
+watchman_watch_project_result_t *commandt_watchman_watch_project(
+    const char *root,
+    int socket
+) {
+    watchman_watch_project_result_t *result =
+        xmalloc(sizeof(watchman_watch_project_result_t));
+
+    // 1. send ["watch-project", root]
+    // 2. extract "watch"
+    // 3. extract "relative_root", if present
+    // 4. return NULL if "error"
+
+    return result;
+}
+
+void commandt_watchman_watch_project_result_free(
+    watchman_watch_project_result_t *result
+) {
+    free(result->watch);
+    free(result->relative_path);
+    free(result);
+}
