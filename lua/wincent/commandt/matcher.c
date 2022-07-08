@@ -235,40 +235,31 @@ static long calculate_bitmask(const char *str, unsigned long length) {
  * Comparison function for use with qsort.
  */
 static int cmp_alpha(const void *a, const void *b) {
-    haystack_t *a_match = (haystack_t *)a;
-    haystack_t *b_match = (haystack_t *)b;
-    const char *a_ptr = a_match->candidate->contents;
-    const char *b_ptr = b_match->candidate->contents;
-    long a_len = a_match->candidate->length;
-    long b_len = b_match->candidate->length;
-    int order = 0;
-
-    if (a_len > b_len) {
-        order = strncmp(a_ptr, b_ptr, b_len);
-        if (order == 0)
-            order = 1; // shorter string (b) wins.
-    } else if (a_len < b_len) {
-        order = strncmp(a_ptr, b_ptr, a_len);
-        if (order == 0)
-            order = -1; // shorter string (a) wins.
+    // TODO: rename other places like this where we were calling a haystack a "match"
+    str_t *a_str = ((haystack_t *)a)->candidate;
+    str_t *b_str = ((haystack_t *)b)->candidate;
+    const char *a_ptr = a_str->contents;
+    const char *b_ptr = b_str->contents;
+    size_t a_len = a_str->length;
+    size_t b_len = b_str->length;
+    int order = strncmp(a_ptr, b_ptr, b_len);
+    if (order == 0) {
+        return a_len - b_len; // Shorter string wins.
     } else {
-        order = strncmp(a_ptr, b_ptr, a_len);
+        return order;
     }
-
-    return order;
 }
 
 /**
  * Comparison function for use with qsort.
  */
 static int cmp_score(const void *a, const void *b) {
-    haystack_t *a_match = (haystack_t *)a;
-    haystack_t *b_match = (haystack_t *)b;
-
-    if (a_match->score > b_match->score) {
-        return -1; // a scores higher, a should appear sooner.
-    } else if (a_match->score < b_match->score) {
-        return 1;  // b scores higher, a should appear later.
+    float a_score = ((haystack_t *)a)->score;
+    float b_score = ((haystack_t *)b)->score;
+    if (a_score > b_score) {
+        return -1; // `a` should appear before `b`.
+    } else if (a_score < b_score) {
+        return 1;  // `b` should appear before `a`.
     } else {
         return cmp_alpha(a, b);
     }
