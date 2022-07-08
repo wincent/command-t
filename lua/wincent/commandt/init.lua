@@ -124,6 +124,7 @@ commandt.file_finder = function(arg)
 end
 
 commandt.prompt = function()
+  require'wincent.commandt.match_listing'.show()
   require'wincent.commandt.prompt'.show()
 end
 
