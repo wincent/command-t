@@ -158,9 +158,10 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
         size_t rightmost_match_p[m.needle_length];
         m.rightmost_match_p = rightmost_match_p;
         size_t needle_idx = m.needle_length - 1;
+        size_t haystack_len = m.haystack->candidate->length;
+        size_t haystack_idx = haystack_len ? haystack_len - 1 : 0;
         long mask = 0;
-        if (m.haystack->candidate->length > 0) {
-            size_t haystack_idx = m.haystack->candidate->length - 1;
+        if (haystack_len) {
             while (haystack_idx >= needle_idx) {
                 char c = m.haystack->candidate->contents[haystack_idx];
                 char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
@@ -189,6 +190,17 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             }
         }
         if (compute_bitmasks) {
+            if (haystack_len) {
+                // In case we broke out of the loop early, compute rest of mask.
+                for (size_t i = 0; i <= haystack_idx; i++) {
+                    char c = m.haystack->candidate->contents[i];
+                    char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
+                    if (!m.case_sensitive) {
+                        c = lower;
+                    }
+                    mask |= (1 << (lower - 'a'));
+                }
+            }
             haystack->bitmask = mask;
         }
         if (needle_idx > 0) {
