@@ -32,6 +32,7 @@ typedef struct {
 // Forward declarations.
 static long calculate_bitmask(const char *str, unsigned long length);
 static int cmp_alpha(const void *a, const void *b);
+static int cmp_alpha_p(const void *a, const void *b);
 static int cmp_score(const void *a, const void *b);
 static int cmp_score_p(const void *a, const void *b);
 static void *get_matches(void *worker_args);
@@ -190,9 +191,9 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     if (needle_length == 0 || (needle_length == 1 && matcher->needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
-        qsort(matches, matches_count, sizeof(haystack_t *), cmp_alpha);
+        qsort(matches, matches_count, sizeof(haystack_t *), cmp_alpha_p);
     } else {
-        qsort(matches, matches_count, sizeof(haystack_t *), cmp_score);
+        qsort(matches, matches_count, sizeof(haystack_t *), cmp_score_p);
     }
 
     result_t *results = xmalloc(sizeof(result_t));
@@ -234,11 +235,11 @@ static long calculate_bitmask(const char *str, unsigned long length) {
 }
 
 /**
- * Comparison function for use with qsort.
+ * Comparison function for use with `heap_new()`.
  */
 static int cmp_alpha(const void *a, const void *b) {
-    str_t *a_str = (*((haystack_t **)a))->candidate;
-    str_t *b_str = (*((haystack_t **)b))->candidate;
+    str_t *a_str = ((haystack_t *)a)->candidate;
+    str_t *b_str = ((haystack_t *)b)->candidate;
     const char *a_ptr = a_str->contents;
     const char *b_ptr = b_str->contents;
     size_t a_len = a_str->length;
@@ -252,11 +253,11 @@ static int cmp_alpha(const void *a, const void *b) {
 }
 
 /**
- * Comparison function for use with qsort.
+ * Comparison function for use with `heap_new()`.
  */
 static int cmp_score(const void *a, const void *b) {
-    float a_score = (*((haystack_t **)a))->score;
-    float b_score = (*((haystack_t **)b))->score;
+    float a_score = ((haystack_t *)a)->score;
+    float b_score = ((haystack_t *)b)->score;
     if (a_score > b_score) {
         return -1; // `a` should appear before `b`.
     } else if (a_score < b_score) {
@@ -267,10 +268,21 @@ static int cmp_score(const void *a, const void *b) {
 }
 
 /**
- * Comparison function for use with heap_new.
+ * Comparison function for use with `qsort()`.
+ */
+static int cmp_alpha_p(const void *a, const void *b) {
+    haystack_t *a_haystack = *((haystack_t **)a);
+    haystack_t *b_haystack = *((haystack_t **)b);
+    return cmp_alpha(a_haystack, b_haystack);
+}
+
+/**
+ * Comparison function for use with `qsort()`.
  */
 static int cmp_score_p(const void *a, const void *b) {
-    return cmp_score(&a, &b);
+    haystack_t *a_haystack = *((haystack_t **)a);
+    haystack_t *b_haystack = *((haystack_t **)b);
+    return cmp_score(a_haystack, b_haystack);
 }
 
 static void *get_matches(void *worker_args) {
@@ -281,7 +293,7 @@ static void *get_matches(void *worker_args) {
     // Reserve one extra slot so that we can do an insert-then-extract even
     // when "full" (effectively allows use of min-heap to maintain a
     // top-"limit" list of items).
-    heap_t *heap = heap_new(matcher->limit + 1, cmp_score_p);
+    heap_t *heap = heap_new(matcher->limit + 1, cmp_score);
 
     // TODO benchmark different thread partitioning method
     // (intead of every nth item to a thread, break into blocks)
