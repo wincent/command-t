@@ -20,10 +20,13 @@ str_t *str_new_copy(const char *source, size_t length) {
     str->contents = xmalloc(length + NULL_PADDING);
     str->length = length;
     str->capacity = length + NULL_PADDING;
-    memcpy((void *)str->contents, source, length + NULL_PADDING);
+    memcpy((void *)str->contents, source, length);
+    char *end = (char *)str->contents + length;
+    end[0] = '\0';
     return str;
 }
 
+// Internal only, so doesn't need to be fast/cheap.
 str_t *str_new(void) {
     str_t *str = xmalloc(sizeof(str_t));
     str->contents = xcalloc(STR_OVERALLOC, 1);

@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
     const char *watch;
-    const char *relative_root; /** May be NULL. */
+    const char *relative_path; /** May be NULL. */
 } watchman_watch_project_result_t;
 
 // TODO: may need to make this way less flexible so that I can pass structs back
@@ -43,7 +43,7 @@ typedef struct {
 // query = ['watch-project', '/root/path/string']
 // result = {...}
 // root = result['watch']
-// relative_root = result['relative_path'] (if it has that key)
+// relative_path = result['relative_path'] (if it has that key)
 // other fields:
 //   version: "..."
 //   watch: "..."
@@ -53,7 +53,7 @@ typedef struct {
 // query = ['query', root, {
 //   'expression' => ['type', 'f'],
 //   'fields' => ['name'],
-//   'relative_root' => relative_root, (if we got that key)
+//   'relative_root' => relative_path, (if we got that key)
 // }]
 // result = {...}
 // paths = result['files']

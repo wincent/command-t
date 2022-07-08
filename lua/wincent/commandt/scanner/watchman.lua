@@ -13,7 +13,8 @@ watchman.get_socket = function()
     if name == nil then
       error('wincent.commandt.scanner.watchman.get_socket(): no sockname')
     end
-    socket = c.commandt_watchman_connect(name)
+    local lib = require('wincent.commandt.lib')
+    socket = lib.commandt_watchman_connect(name)
   end
   return socket
 end
@@ -51,21 +52,17 @@ end
 --
 -- If `relative_root` is `nil`, it will be omitted from the query.
 watchman.query = function(root, relative_root)
-  -- TODO: pass sockname down... will open a connection if there isn't one
-  -- already
-  --
-  -- When to clean up?
+  local socket = watchman.get_socket() -- TODO: when to clean up?
+  -- TODO: call...
 end
 
 -- Equivalent to `watchman watch-project $root`.
 --
--- Returns a table with `watch` and `relative_root` properties. `relative_root`
+-- Returns a table with `watch` and `relative_path` properties. `relative_path`
 -- my be `nil`.
 watchman.watch_project = function(root)
-  -- TODO: pass sockname down... will open a connection if there isn't one
-  -- already
-  --
-  -- When to clean up?
+  local socket = watchman.get_socket() -- TODO: when to clean up?
+  -- TODO: call...
 end
 
 return watchman

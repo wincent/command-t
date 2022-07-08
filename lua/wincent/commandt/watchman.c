@@ -10,11 +10,14 @@
 
 // TODO: mark most of these functions as static (internal only)
 
+#include <fcntl.h> /* for F_GETFL, F_SETFL, O_NONBLOCK, fcntl() */
 #include <stdint.h> /* for uint8_t */
-#include <fcntl.h> /* for fcntl() */
+#include <stdlib.h> /* for abort(), free() */
+#include <string.h> /* for memset(), strncpy() */
 #include <sys/errno.h> /* for errno */
 #include <sys/socket.h> /* for AF_LOCAL, recv(), MSG_PEEK */
 #include <sys/un.h> /* for sockaddr_un */
+#include <unistd.h> /* for close() */
 
 typedef struct {
     uint8_t *data;  // payload
@@ -22,13 +25,12 @@ typedef struct {
     size_t len;     // current length
 } watchman_payload_t;
 
-// TODO: replace this; just silencing some of the many Ruby-related errors in
-// here.
-#define VALUE   void *
-
+// TODO: delete me
+#if 0
 // Forward declarations:
 VALUE watchman_load(char **ptr, char *end);
 void watchman_dump(watchman_payload_t *w, VALUE serializable);
+#endif
 
 #define WATCHMAN_DEFAULT_STORAGE 4096
 
@@ -52,6 +54,15 @@ void watchman_dump(watchman_payload_t *w, VALUE serializable);
         "\x06" \
         "\x00\x00\x00\x00\x00\x00\x00\x00"
 
+// How far we have to look to figure out the size of the PDU header.
+#define WATCHMAN_SNIFF_BUFFER_SIZE sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
+
+// How far we have to peek, at most, to figure out the size of the PDU itself.
+#define WATCHMAN_PEEK_BUFFER_SIZE \
+    sizeof(WATCHMAN_BINARY_MARKER) - 1 + \
+    sizeof(WATCHMAN_INT64_MARKER) + \
+    sizeof(int64_t)
+
 static const char watchman_array_marker  = WATCHMAN_ARRAY_MARKER;
 static const char watchman_hash_marker   = WATCHMAN_HASH_MARKER;
 static const char watchman_string_marker = WATCHMAN_STRING_MARKER;
@@ -67,7 +78,7 @@ static const char watchman_nil           = WATCHMAN_NIL;
 void watchman_append(watchman_payload_t *w, const char *data, size_t len) {
     if (w->len + len > w->cap) {
         w->cap += w->len + WATCHMAN_DEFAULT_STORAGE;
-        REALLOC_N(w->data, uint8_t, w->cap);
+        xrealloc(w->data, sizeof(uint8_t) * w->cap);
     }
     memcpy(w->data + w->len, data, len);
     w->len += len;
@@ -80,10 +91,10 @@ void watchman_append(watchman_payload_t *w, const char *data, size_t len) {
  * header that can be filled in later to describe the PDU.
  */
 watchman_payload_t *watchman_init() {
-    watchman_payload_t *w = ALLOC(watchman_payload_t);
+    watchman_payload_t *w = xmalloc(sizeof(watchman_payload_t));
     w->cap = WATCHMAN_DEFAULT_STORAGE;
     w->len = 0;
-    w->data = ALLOC_N(uint8_t, WATCHMAN_DEFAULT_STORAGE);
+    w->data = xcalloc(WATCHMAN_DEFAULT_STORAGE, sizeof(uint8_t));
 
     watchman_append(w, WATCHMAN_HEADER, sizeof(WATCHMAN_HEADER) - 1);
     return w;
@@ -94,8 +105,8 @@ watchman_payload_t *watchman_init() {
  * `watchman_init`
  */
 void watchman_free(watchman_payload_t *w) {
-    xfree(w->data);
-    xfree(w);
+    free(w->data);
+    free(w);
 }
 
 /**
@@ -126,10 +137,10 @@ void watchman_dump_int(watchman_payload_t *w, int64_t num) {
 /**
  * Encodes and appends the string `string` to `w`
  */
-void watchman_dump_string(watchman_payload_t *w, VALUE string) {
+void watchman_dump_string(watchman_payload_t *w, const char *string, size_t length) {
     watchman_append(w, &watchman_string_marker, sizeof(watchman_string_marker));
-    watchman_dump_int(w, RSTRING_LEN(string));
-    watchman_append(w, RSTRING_PTR(string), RSTRING_LEN(string));
+    watchman_dump_int(w, length);
+    watchman_append(w, string, length);
 }
 
 /**
@@ -141,6 +152,8 @@ void watchman_dump_double(watchman_payload_t *w, double num) {
     *(double *)(encoded + 1) = num;
     watchman_append(w, encoded, sizeof(encoded));
 }
+
+#if 0
 
 /**
  * Encodes and appends the array `array` to `w`
@@ -158,9 +171,9 @@ void watchman_dump_array(watchman_payload_t *w, VALUE array) {
  * Helper method that encodes and appends a key/value pair (`key`, `value`) from
  * a hash to the watchman_payload_t struct passed in via `data`
  */
-int watchman_dump_hash_iterator(VALUE key, VALUE value, VALUE data) {
+int watchman_dump_hash_iterator(const char *key_ptr, size_t key_len, VALUE value, VALUE data) {
     watchman_payload_t *w = (watchman_payload_t *)data;
-    watchman_dump_string(w, StringValue(key));
+    watchman_dump_string(w, key_ptr, key_len);
     watchman_dump(w, value);
     return ST_CONTINUE;
 }
@@ -187,7 +200,7 @@ void watchman_dump(watchman_payload_t *w, VALUE serializable) {
         case T_HASH:
             return watchman_dump_hash(w, serializable);
         case T_STRING:
-            return watchman_dump_string(w, serializable);
+            return watchman_dump_string(w, RSTRING_PTR(serializable), RSTRING_LEN(serializable));
         case T_FIXNUM: // up to 63 bits
             return watchman_dump_int(w, FIX2LONG(serializable));
         case T_BIGNUM:
@@ -204,6 +217,7 @@ void watchman_dump(watchman_payload_t *w, VALUE serializable) {
             rb_raise(rb_eTypeError, "unsupported type");
     }
 }
+#endif
 
 /**
  * Extract and return the int encoded at `ptr`
@@ -220,40 +234,40 @@ int64_t watchman_load_int(char **ptr, char *end) {
     int64_t val = 0;
 
     if (val_ptr >= end) {
-        rb_raise(rb_eArgError, "insufficient int storage");
+        abort(); // Insufficient int storage.
     }
 
     switch (*ptr[0]) {
         case WATCHMAN_INT8_MARKER:
             if (val_ptr + sizeof(int8_t) > end) {
-                rb_raise(rb_eArgError, "overrun extracting int8_t");
+                abort(); // Overrun extracting int8_t.
             }
             val = *(int8_t *)val_ptr;
             *ptr = val_ptr + sizeof(int8_t);
             break;
         case WATCHMAN_INT16_MARKER:
             if (val_ptr + sizeof(int16_t) > end) {
-                rb_raise(rb_eArgError, "overrun extracting int16_t");
+                abort(); // Overrun extracting int16_t.
             }
             val = *(int16_t *)val_ptr;
             *ptr = val_ptr + sizeof(int16_t);
             break;
         case WATCHMAN_INT32_MARKER:
             if (val_ptr + sizeof(int32_t) > end) {
-                rb_raise(rb_eArgError, "overrun extracting int32_t");
+                abort(); // Overrun extracting int32_t.
             }
             val = *(int32_t *)val_ptr;
             *ptr = val_ptr + sizeof(int32_t);
             break;
         case WATCHMAN_INT64_MARKER:
             if (val_ptr + sizeof(int64_t) > end) {
-                rb_raise(rb_eArgError, "overrun extracting int64_t");
+                abort(); // Overrun extracting int64_t.
             }
             val = *(int64_t *)val_ptr;
             *ptr = val_ptr + sizeof(int64_t);
             break;
         default:
-            rb_raise(rb_eArgError, "bad integer marker 0x%02x", (unsigned int)*ptr[0]);
+            abort(); // Bad integer marker.
             break;
     }
 
@@ -264,30 +278,29 @@ int64_t watchman_load_int(char **ptr, char *end) {
  * Reads and returns a string encoded in the Watchman binary protocol format,
  * starting at `ptr` and finishing at or before `end`
  */
-VALUE watchman_load_string(char **ptr, char *end) {
+str_t *watchman_load_string(char **ptr, char *end) {
     int64_t len;
-    VALUE string;
     if (*ptr >= end) {
-        rb_raise(rb_eArgError, "unexpected end of input");
+        abort(); // Unexpected end of input.
     }
 
     if (*ptr[0] != WATCHMAN_STRING_MARKER) {
-        rb_raise(rb_eArgError, "not a number");
+        abort(); // Not a number.
     }
 
     *ptr += sizeof(int8_t);
     if (*ptr >= end) {
-        rb_raise(rb_eArgError, "invalid string header");
+        abort(); // Invalid string header.
     }
 
     len = watchman_load_int(ptr, end);
-    if (len == 0) { // special case for zero-length strings
-        return rb_str_new2("");
+    if (len == 0) { // Special case for zero-length strings.
+        return str_new_copy("", 0);
     } else if (*ptr + len > end) {
-        rb_raise(rb_eArgError, "insufficient string storage");
+        abort(); // Insufficient string storage.
     }
 
-    string = rb_str_new(*ptr, len);
+    str_t *string = str_new_copy(*ptr, len);
     *ptr += len;
     return string;
 }
@@ -298,9 +311,9 @@ VALUE watchman_load_string(char **ptr, char *end) {
  */
 double watchman_load_double(char **ptr, char *end) {
     double val;
-    *ptr += sizeof(int8_t); // caller has already verified the marker
+    *ptr += sizeof(int8_t); // Caller has already verified the marker.
     if (*ptr + sizeof(double) > end) {
-        rb_raise(rb_eArgError, "insufficient double storage");
+        abort(); // Insufficient double storage.
     }
     val = *(double *)*ptr;
     *ptr += sizeof(double);
@@ -313,21 +326,23 @@ double watchman_load_double(char **ptr, char *end) {
  */
 int64_t watchman_load_array_header(char **ptr, char *end) {
     if (*ptr >= end) {
-        rb_raise(rb_eArgError, "unexpected end of input");
+        abort(); // Unexpected end of input.
     }
 
     // verify and consume marker
     if (*ptr[0] != WATCHMAN_ARRAY_MARKER) {
-        rb_raise(rb_eArgError, "not an array");
+        abort(); // Not an array.
     }
     *ptr += sizeof(int8_t);
 
     // expect a count
     if (*ptr + sizeof(int8_t) * 2 > end) {
-        rb_raise(rb_eArgError, "incomplete array header");
+        abort(); // Incomplete array header.
     }
     return watchman_load_int(ptr, end);
 }
+
+#if 0
 
 /**
  * Reads and returns an array encoded in the Watchman binary protocol format,
@@ -425,7 +440,7 @@ VALUE watchman_load_template(char **ptr, char *end) {
  */
 VALUE watchman_load(char **ptr, char *end) {
     if (*ptr >= end) {
-        rb_raise(rb_eArgError, "unexpected end of input");
+        abort(); // Unexpected end of input.
     }
 
     switch (*ptr[0]) {
@@ -454,7 +469,7 @@ VALUE watchman_load(char **ptr, char *end) {
         case WATCHMAN_TEMPLATE_MARKER:
             return watchman_load_template(ptr, end);
         default:
-            rb_raise(rb_eTypeError, "unsupported type");
+            abort(); // Unsupported type.
     }
 
     return Qnil; // keep the compiler happy
@@ -550,15 +565,6 @@ void watchman_raise_system_call_error(int number) {
     rb_exc_raise(rb_class_new_instance(1, &error, rb_eSystemCallError));
 }
 
-// How far we have to look to figure out the size of the PDU header
-#define WATCHMAN_SNIFF_BUFFER_SIZE sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
-
-// How far we have to peek, at most, to figure out the size of the PDU itself
-#define WATCHMAN_PEEK_BUFFER_SIZE \
-    sizeof(WATCHMAN_BINARY_MARKER) - 1 + \
-    sizeof(WATCHMAN_INT64_MARKER) + \
-    sizeof(int64_t)
-
 /**
  * CommandT::Watchman::Utils.query(query, socket)
  *
@@ -645,12 +651,12 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     return loaded;
 }
 
-// Note: If I run into headaches with BSD-style (macOS) vs Linux-style sockets,
-// may need to rethink how I do this.
+#endif
+
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
     if (fd == -1) {
-        return -1; // TODO: make caller deal with this
+        return -1;
     }
 
     struct sockaddr_un addr;
@@ -661,9 +667,19 @@ int commandt_watchman_connect(const char *socket_path) {
     // is only: "/opt/homebrew/var/run/watchman/wincent-state/sock"...
     strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
 
-    if (connect(fd, &addr, sizeof(sockaddr)) == -1) {
-        return -1; // TODO: make caller deal with this
+    if (connect(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un)) == -1) {
+        return -1;
     }
+
+    // Do blocking I/O to make logic simpler.
+    int flags = fcntl(fd, F_GETFL);
+    if (flags == -1) {
+        return -1;
+    }
+    if (fcntl(fd, F_SETFL, flags & ~O_NONBLOCK) == -1) {
+        return -1;
+    }
+
     return fd;
 }
 
@@ -704,9 +720,58 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     watchman_watch_project_result_t *result =
         xmalloc(sizeof(watchman_watch_project_result_t));
 
-    // 1. send ["watch-project", root]
+    // Prepare the message.
+    char *message = ""; // ["watch-project", root]
+    ssize_t length = 0;
+
+    // Send the message.
+    ssize_t sent = send(socket, message, length, 0);
+    if (sent == -1 || sent != length) {
+        return NULL;
+    }
+
+    // Sniff to see how large the header is.
+    int8_t peek[WATCHMAN_PEEK_BUFFER_SIZE];
+    ssize_t received = recv(socket, peek, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL);
+    if (received == -1 || received != WATCHMAN_SNIFF_BUFFER_SIZE) {
+        return NULL;
+    }
+
+    // Peek at size of PDU.
+    int8_t sizes_idx = peek[sizeof(WATCHMAN_BINARY_MARKER) - 1];
+    if (sizes_idx < WATCHMAN_INT8_MARKER || sizes_idx > WATCHMAN_INT64_MARKER) {
+        return NULL;
+    }
+    int8_t sizes[] = {0, 0, 0, 1, 2, 4, 8};
+    ssize_t peek_size = sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) +
+        sizes[sizes_idx];
+
+    received = recv(socket, peek, peek_size, MSG_PEEK);
+    if (received == -1 || received != peek_size) {
+        return NULL;
+    }
+    int8_t *pdu_size_ptr = peek + sizeof(WATCHMAN_BINARY_MARKER) - sizeof(int8_t);
+    int64_t payload_size =
+        peek_size +
+        watchman_load_int((char **)&pdu_size_ptr, (char *)peek + peek_size);
+
+    // Actually read the PDU.
+    char *buffer = xmalloc(payload_size);
+    if (!buffer) {
+        return NULL;
+    }
+    received = recv(socket, buffer, payload_size, MSG_WAITALL);
+    if (received == -1 || received != payload_size) {
+        // TODO free buffer
+        return NULL;
+    }
+    char *payload = buffer + peek_size;
+    // this would return a Ruby object.
+    //loaded = watchman_load(&payload, payload + payload_size);
+    free(buffer);
+
     // 2. extract "watch"
-    // 3. extract "relative_root", if present
+    // 3. extract "relative_path", if present
     // 4. return NULL if "error"
 
     return result;
@@ -715,7 +780,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
 void commandt_watchman_watch_project_result_free(
     watchman_watch_project_result_t *result
 ) {
-    free(result->watch);
-    free(result->relative_path);
+    free((void *)result->watch);
+    free((void *)result->relative_path);
     free(result);
 }

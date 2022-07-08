@@ -11,6 +11,8 @@ local c = {}
 setmetatable(c, {
   __index = function(table, key)
     ffi.cdef[[
+      // Types.
+
       typedef struct {
           const char *contents;
           size_t length;
@@ -52,6 +54,16 @@ setmetatable(c, {
           unsigned count;
       } result_t;
 
+      typedef struct {
+          str_t **files;
+          unsigned count;
+      } watchman_query_result_t;
+
+      typedef struct {
+          const char *watch;
+          const char *relative_path;
+      } watchman_watch_project_result_t;
+
       // Matcher methods.
 
       matcher_t *commandt_matcher_new(
@@ -65,7 +77,6 @@ setmetatable(c, {
       );
       void commandt_matcher_free(matcher_t *matcher);
       result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
-
       void commandt_result_free(result_t *result);
 
       // Scanner methods.
@@ -73,6 +84,24 @@ setmetatable(c, {
       scanner_t *scanner_new_copy(const char **candidates, unsigned count);
       void scanner_free(scanner_t *scanner);
       void commandt_print_scanner(scanner_t *scanner);
+
+      // Watchman methods.
+
+      int commandt_watchman_connect(const char *socket_path);
+      int commandt_watchman_disconnect(int socket);
+      watchman_query_result_t *commandt_watchman_query(
+          const char *root,
+          const char *relative_root,
+          int socket
+      );
+      void commandt_watchman_query_result_free(watchman_query_result_t *result);
+      watchman_watch_project_result_t *commandt_watchman_watch_project(
+          const char *root,
+          int socket
+      );
+      void commandt_watchman_watch_project_result_free(
+          watchman_watch_project_result_t *result
+      );
     ]]
 
     local dirname = debug.getinfo(1).source:match('@?(.*/)')
@@ -90,8 +119,8 @@ setmetatable(c, {
 
 -- Utility function for working with functions that take optional arguments.
 --
--- Creates a merged table contaiing items from the supplied tables, working from
--- left to right.
+-- Creates a merged table containing items from the supplied tables, working
+-- from left to right.
 --
 -- ie. `merge(t1, t2, t3)` will insert elements from `t1`, then `t2`, then
 -- `t3` into a new table, then return the new table.
@@ -149,6 +178,35 @@ lib.scanner_new_copy = function(candidates)
   )
   ffi.gc(scanner, c.scanner_free)
   return scanner
+end
+
+lib.commandt_watchman_connect = function(name)
+  -- TODO: validate name is a string/path
+  local socket = c.commandt_watchman_connect(name)
+  if socket == -1 then
+    error('commandt_watchman_connect(): failed')
+  end
+  return socket
+end
+
+lib.commandt_watchman_disconnect = function(socket)
+  -- TODO: validate socket is a number
+  local errno = c.commandt_watchman_disconnect(socket)
+  if errno ~= 0 then
+    error('commandt_watchman_disconnect(): failed with errno ' .. errno)
+  end
+end
+
+lib.commandt_watchman_query = function(root, relative_root, socket)
+end
+
+lib.commandt_watchman_query_result_free = function(result)
+end
+
+lib.commandt_watchman_watch_project = function(root, socket)
+end
+
+lib.commandt_watchman_watch_project_result_free = function(result)
 end
 
 return lib
