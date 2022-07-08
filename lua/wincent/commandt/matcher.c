@@ -33,6 +33,7 @@ typedef struct {
 static long calculate_bitmask(const char *str, unsigned long length);
 static int cmp_alpha(const void *a, const void *b);
 static int cmp_score(const void *a, const void *b);
+static int cmp_score_p(const void *a, const void *b);
 static void *get_matches(void *worker_args);
 
 matcher_t *commandt_matcher_new(
@@ -236,8 +237,8 @@ static long calculate_bitmask(const char *str, unsigned long length) {
  * Comparison function for use with qsort.
  */
 static int cmp_alpha(const void *a, const void *b) {
-    str_t *a_str = ((haystack_t *)a)->candidate;
-    str_t *b_str = ((haystack_t *)b)->candidate;
+    str_t *a_str = (*((haystack_t **)a))->candidate;
+    str_t *b_str = (*((haystack_t **)b))->candidate;
     const char *a_ptr = a_str->contents;
     const char *b_ptr = b_str->contents;
     size_t a_len = a_str->length;
@@ -254,8 +255,8 @@ static int cmp_alpha(const void *a, const void *b) {
  * Comparison function for use with qsort.
  */
 static int cmp_score(const void *a, const void *b) {
-    float a_score = ((haystack_t *)a)->score;
-    float b_score = ((haystack_t *)b)->score;
+    float a_score = (*((haystack_t **)a))->score;
+    float b_score = (*((haystack_t **)b))->score;
     if (a_score > b_score) {
         return -1; // `a` should appear before `b`.
     } else if (a_score < b_score) {
@@ -263,6 +264,13 @@ static int cmp_score(const void *a, const void *b) {
     } else {
         return cmp_alpha(a, b);
     }
+}
+
+/**
+ * Comparison function for use with heap_new.
+ */
+static int cmp_score_p(const void *a, const void *b) {
+    return cmp_score(&a, &b);
 }
 
 static void *get_matches(void *worker_args) {
@@ -273,7 +281,7 @@ static void *get_matches(void *worker_args) {
     // Reserve one extra slot so that we can do an insert-then-extract even
     // when "full" (effectively allows use of min-heap to maintain a
     // top-"limit" list of items).
-    heap_t *heap = heap_new(matcher->limit + 1, cmp_score);
+    heap_t *heap = heap_new(matcher->limit + 1, cmp_score_p);
 
     // TODO benchmark different thread partitioning method
     // (intead of every nth item to a thread, break into blocks)
