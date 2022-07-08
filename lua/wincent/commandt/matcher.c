@@ -82,7 +82,6 @@ void commandt_matcher_free(matcher_t *matcher) {
     free(matcher);
 }
 
-// TODO: fix bug where I can't _unextend_ a needle...
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
     unsigned candidate_count = scanner->count;
@@ -131,17 +130,22 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
         // Check whether current search extends previous search; if so, we can
         // skip all the non-matches from last time without looking at them.
-        if (needle_length > matcher->last_needle_length) {
+        bool is_extension = false;
+        if (needle_length >= matcher->last_needle_length) {
+            is_extension = true;
             unsigned long index = 0;
             while (index < matcher->last_needle_length) {
                 if (matcher->needle[index] != matcher->last_needle[index]) {
-                    free((void *)matcher->last_needle);
-                    matcher->last_needle = NULL;
-                    matcher->last_needle_length = 0;
+                    is_extension = false;
                     break;
                 }
                 index++;
             }
+        }
+        if (!is_extension) {
+            free((void *)matcher->last_needle);
+            matcher->last_needle = NULL;
+            matcher->last_needle_length = 0;
         }
     }
 
