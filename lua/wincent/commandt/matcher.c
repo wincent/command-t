@@ -235,7 +235,6 @@ static long calculate_bitmask(const char *str, unsigned long length) {
  * Comparison function for use with qsort.
  */
 static int cmp_alpha(const void *a, const void *b) {
-    // TODO: rename other places like this where we were calling a haystack a "match"
     str_t *a_str = ((haystack_t *)a)->candidate;
     str_t *b_str = ((haystack_t *)b)->candidate;
     const char *a_ptr = a_str->contents;
@@ -266,10 +265,9 @@ static int cmp_score(const void *a, const void *b) {
 }
 
 static void *get_matches(void *worker_args) {
-    size_t i;
-    float score;
-    worker_args_t *args = (worker_args_t *)worker_args;
-    matcher_t *matcher = args->matcher;
+    unsigned worker_count = ((worker_args_t *)worker_args)->worker_count;
+    unsigned worker_index = ((worker_args_t *)worker_args)->worker_index;
+    matcher_t *matcher = ((worker_args_t *)worker_args)->matcher;
 
     // Reserve one extra slot so that we can do an insert-then-extract even
     // when "full" (effectively allows use of min-heap to maintain a
@@ -279,11 +277,7 @@ static void *get_matches(void *worker_args) {
     // TODO benchmark different thread partitioning method
     // (intead of every nth item to a thread, break into blocks)
     // to see if cache characteristics improve the speed)
-    for (
-        i = args->worker_index;
-        i < matcher->scanner->count;
-        i += args->worker_count
-    ) {
+    for (size_t i = worker_index; i < matcher->scanner->count; i += worker_count) {
         haystack_t *haystack = matcher->haystacks + i;
         if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
@@ -301,7 +295,7 @@ static void *get_matches(void *worker_args) {
         }
 
         if (heap->count == matcher->limit) {
-            score = ((haystack_t *)HEAP_PEEK(heap))->score;
+            float score = ((haystack_t *)HEAP_PEEK(heap))->score;
             if (haystack->score >= score) {
                 heap_insert(heap, haystack);
                 (void)heap_extract(heap);

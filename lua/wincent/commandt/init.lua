@@ -15,24 +15,6 @@ local chooser_window = nil
 
 -- print('scanner ' .. vim.inspect(scanner.buffer.get()))
 
--- library = {
-  -- commandt_example_func_that_returns_int = function()
-  --   if not loaded then
-  --     library = library.load()
-  --   end
-  --
-  --   return library.commandt_example_func_that_returns_int()
-  -- end,
-  --
-  -- commandt_example_func_that_returns_str = function()
-  --   if not loaded then
-  --     library = library.load()
-  --   end
-  --
-  --   return library.commandt_example_func_that_returns_str()
-  -- end,
--- }
-
 -- TODO: make mappings configurable again
 local mappings = {
   ['<C-j>'] = "<Cmd>lua require'wincent.commandt'.select_next()<CR>",
