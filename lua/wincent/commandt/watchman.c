@@ -320,28 +320,6 @@ double watchman_load_double(char **ptr, char *end) {
     return val;
 }
 
-/**
- * Helper method which returns length of the array encoded in the Watchman
- * binary protocol format, starting at `ptr` and finishing at or before `end`
- */
-int64_t watchman_load_array_header(char **ptr, char *end) {
-    if (*ptr >= end) {
-        abort(); // Unexpected end of input.
-    }
-
-    // verify and consume marker
-    if (*ptr[0] != WATCHMAN_ARRAY_MARKER) {
-        abort(); // Not an array.
-    }
-    *ptr += sizeof(int8_t);
-
-    // expect a count
-    if (*ptr + sizeof(int8_t) * 2 > end) {
-        abort(); // Incomplete array header.
-    }
-    return watchman_load_int(ptr, end);
-}
-
 #if 0
 
 /**
@@ -352,7 +330,23 @@ VALUE watchman_load_array(char **ptr, char *end) {
     int64_t count, i;
     VALUE array;
 
-    count = watchman_load_array_header(ptr, end);
+    if (*ptr >= end) {
+        abort(); // Unexpected end of input.
+    }
+
+    // Verify and consume marker.
+    if (*ptr[0] != WATCHMAN_ARRAY_MARKER) {
+        abort(); // Not an array.
+    }
+    *ptr += sizeof(int8_t);
+
+    // Expect a count.
+    if (*ptr + sizeof(int8_t) * 2 > end) {
+        abort(); // Incomplete array header.
+    }
+
+    int64_t count = watchman_load_int(ptr, end);
+
     array = rb_ary_new2(count);
 
     for (i = 0; i < count; i++) {
@@ -390,51 +384,6 @@ VALUE watchman_load_hash(char **ptr, char *end) {
 }
 
 /**
- * Reads and returns a templated array encoded in the Watchman binary protocol
- * format, starting at `ptr` and finishing at or before `end`
- *
- * Templated arrays are arrays of hashes which have repetitive key information
- * pulled out into a separate "headers" prefix.
- *
- * @see https://github.com/facebook/watchman/blob/master/website/_docs/BSER.markdown
- */
-VALUE watchman_load_template(char **ptr, char *end) {
-    int64_t header_items_count, i, row_count;
-    VALUE array, hash, header, key, value;
-
-    *ptr += sizeof(int8_t); // caller has already verified the marker
-
-    // process template header array
-    header_items_count = watchman_load_array_header(ptr, end);
-    header = rb_ary_new2(header_items_count);
-    for (i = 0; i < header_items_count; i++) {
-        rb_ary_push(header, watchman_load_string(ptr, end));
-    }
-
-    // process row items
-    row_count = watchman_load_int(ptr, end);
-    array = rb_ary_new2(header_items_count);
-    while (row_count--) {
-        hash = rb_hash_new();
-        for (i = 0; i < header_items_count; i++) {
-            if (*ptr >= end) {
-                rb_raise(rb_eArgError, "unexpected end of input");
-            }
-
-            if (*ptr[0] == WATCHMAN_SKIP_MARKER) {
-                *ptr += sizeof(uint8_t);
-            } else {
-                value = watchman_load(ptr, end);
-                key = rb_ary_entry(header, i);
-                rb_hash_aset(hash, key, value);
-            }
-        }
-        rb_ary_push(array, hash);
-    }
-    return array;
-}
-
-/**
  * Reads and returns an object encoded in the Watchman binary protocol format,
  * starting at `ptr` and finishing at or before `end`
  */
@@ -467,7 +416,6 @@ VALUE watchman_load(char **ptr, char *end) {
             *ptr += 1;
             return Qnil;
         case WATCHMAN_TEMPLATE_MARKER:
-            return watchman_load_template(ptr, end);
         default:
             abort(); // Unsupported type.
     }
