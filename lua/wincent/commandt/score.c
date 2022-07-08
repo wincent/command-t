@@ -4,8 +4,8 @@
  */
 
 #include <stdbool.h> /* for bool */
+#include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for NULL */
-#include <string.h> /* for strlen() */
 
 #include "debug.h"
 #include "score.h"
@@ -14,9 +14,8 @@
 typedef struct {
     haystack_t *haystack;
     const char *needle_p;
-    // TODO: consider changing some of these to size_t (stddef.h)
-    long needle_length;
-    long *rightmost_match_p; // Rightmost match for each char in needle.
+    size_t needle_length;
+    size_t *rightmost_match_p; // Rightmost match for each char in needle.
     float max_score_per_char;
     bool always_show_dot_files;
     bool never_show_dot_files;
@@ -28,20 +27,19 @@ typedef struct {
 
 static float recursive_match(
     matchinfo_t *m, // Sharable meta-data.
-    long haystack_idx, // Where in the path string to start.
-    long needle_idx, // Where in the needle string to start.
-    long last_idx, // Location of last matched character.
+    size_t haystack_idx, // Where in the path string to start.
+    size_t needle_idx, // Where in the needle string to start.
+    size_t last_idx, // Location of last matched character.
     float score // Cumulative score so far.
 ) {
-    long distance, i, j;
     float *memoized = NULL;
     float score_for_char;
     float seen_score = 0;
 
     // Iterate over needle.
-    for (i = needle_idx; i < m->needle_length; i++) {
+    for (size_t i = needle_idx; i < m->needle_length; i++) {
         // Iterate over (valid range of) haystack.
-        for (j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
+        for (size_t j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
             char c, d;
 
             // Do we have a memoized result we can return?
@@ -69,7 +67,7 @@ static float recursive_match(
                 // Calculate score.
                 float sub_score = 0;
                 score_for_char = m->max_score_per_char;
-                distance = j - last_idx;
+                size_t distance = j - last_idx;
 
                 if (distance > 1) {
                     float factor = 1.0;
@@ -124,8 +122,7 @@ static float recursive_match(
 
 float commandt_score(haystack_t *haystack, matcher_t *matcher) {
     matchinfo_t m;
-    float score = 1.0;
-    int compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
+    bool compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
     m.needle_p = matcher->needle;
     m.needle_length = matcher->needle_length;
@@ -148,12 +145,6 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             }
         }
     } else {
-        long haystack_limit;
-        size_t memo_size;
-        long needle_idx;
-        long mask;
-        long rightmost_match_p[m.needle_length];
-
         if (haystack->bitmask != UNSET_BITMASK) {
             if ((matcher->needle_bitmask & haystack->bitmask) != matcher->needle_bitmask) {
                 return 0.0;
@@ -164,15 +155,14 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
         // - Bail if it can't match at all.
         // - Record rightmost match for each character (prune search space).
         // - Record bitmask for haystack to speed up future searches.
+        size_t rightmost_match_p[m.needle_length];
         m.rightmost_match_p = rightmost_match_p;
-        needle_idx = m.needle_length - 1;
-        mask = 0;
+        size_t needle_idx = m.needle_length - 1;
+        long mask = 0;
         if (m.haystack->candidate->length > 0) {
-            // Meh, use of (signed) size_t here makes this loop awkward, because
-            // I can't do the natural `for` with `i >= 0` condition.
-            size_t i = m.haystack->candidate->length - 1;
-            while (1) {
-                char c = m.haystack->candidate->contents[i];
+            size_t haystack_idx = m.haystack->candidate->length - 1;
+            while (haystack_idx >= needle_idx) {
+                char c = m.haystack->candidate->contents[haystack_idx];
                 char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
                 if (!m.case_sensitive) {
                     c = lower;
@@ -181,39 +171,39 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
                     mask |= (1 << (lower - 'a'));
                 }
 
-                if (needle_idx >= 0) {
-                    char d = m.needle_p[needle_idx];
-                    if (c == d) {
-                        rightmost_match_p[needle_idx] = i;
+                char d = m.needle_p[needle_idx];
+                if (c == d) {
+                    rightmost_match_p[needle_idx] = haystack_idx;
+                    if (needle_idx == 0) {
+                        break;
+                    } else {
                         needle_idx--;
                     }
                 }
 
-                if (i == 0) {
+                if (haystack_idx == 0) {
                     break;
                 } else {
-                    i--;
+                    haystack_idx--;
                 }
             }
         }
         if (compute_bitmasks) {
             haystack->bitmask = mask;
         }
-        if (needle_idx != -1) {
+        if (needle_idx > 0) {
             return 0.0;
         }
 
         // Prepare for memoization.
-        haystack_limit = rightmost_match_p[m.needle_length - 1] + 1;
-        memo_size = m.needle_length * haystack_limit;
-        {
-            float memo[memo_size];
-            for (size_t i = 0; i < memo_size; i++) {
-                memo[i] = UNSET_SCORE;
-            }
-            m.memo = memo;
-            score = recursive_match(&m, 0, 0, 0, 0.0);
+        size_t haystack_limit = rightmost_match_p[m.needle_length - 1] + 1;
+        size_t memo_size = m.needle_length * haystack_limit;
+        float memo[memo_size];
+        for (size_t i = 0; i < memo_size; i++) {
+            memo[i] = UNSET_SCORE;
         }
+        m.memo = memo;
+        return recursive_match(&m, 0, 0, 0, 0.0);
     }
-    return score;
+    return 1.0;
 }

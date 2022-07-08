@@ -18,10 +18,10 @@
  */
 #define DEFAULT_CAPACITY (1 << 14)
 
-scanner_t *scanner_new_copy(const char **candidates, size_t count) {
+scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xmalloc(sizeof(scanner_t));
     scanner->candidates = xmalloc(count * sizeof(str_t *));
-    for (size_t i = 0; i < count; i++) {
+    for (unsigned i = 0; i < count; i++) {
         size_t length = strlen(candidates[i]);
         scanner->candidates[i] = str_new_copy(candidates[i], length);
     }
@@ -31,7 +31,7 @@ scanner_t *scanner_new_copy(const char **candidates, size_t count) {
     return scanner;
 }
 
-scanner_t *scanner_new(size_t capacity) {
+scanner_t *scanner_new(unsigned capacity) {
     scanner_t *scanner = xmalloc(sizeof(scanner_t));
     if (!capacity) {
         capacity = DEFAULT_CAPACITY;
@@ -54,7 +54,7 @@ str_t *scanner_dump(scanner_t *scanner) {
     str_t *dump = str_new();
     str_append(dump, L_BRACE, 1);
     str_append(dump, NEWLINE, 1);
-    for (size_t i = 0; i < scanner->count; i++) {
+    for (unsigned i = 0; i < scanner->count; i++) {
         str_append(dump, INDENT, strlen(INDENT));
         str_append(
             dump,
@@ -69,10 +69,10 @@ str_t *scanner_dump(scanner_t *scanner) {
     return dump;
 }
 
-void scanner_push_str(scanner_t *scanner, str_t **candidates, size_t count) {
+void scanner_push_str(scanner_t *scanner, str_t **candidates, unsigned count) {
     if (scanner->capacity < scanner->count + count ) {
-        size_t new_capacity = scanner->count + count;
-        scanner->candidates = xrealloc(scanner->candidates, new_capacity);
+        unsigned new_capacity = scanner->count + count;
+        scanner->candidates = xrealloc(scanner->candidates, new_capacity * sizeof(str_t *));
         scanner->capacity = new_capacity;
     }
     memcpy(

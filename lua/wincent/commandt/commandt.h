@@ -7,6 +7,7 @@
 #define COMMANDT_H
 
 #include <stdbool.h> /* for bool */
+#include <stddef.h> /* for size_t */
 
 #include "str.h" /* for str_t */
 
@@ -26,13 +27,12 @@ typedef struct {
     /**
      * Number of candidates currently stored in the scanner.
      */
-    // TODO: use size_t for things that are measured in byte sizes.
-    size_t count;
+    unsigned count;
 
     /**
      * Available capacity in the scanner.
      */
-    size_t capacity;
+    unsigned capacity;
 
     /**
      * Counter that increments any time the candidates change.
@@ -60,7 +60,7 @@ typedef struct {
      * Limit the number of returned results. Must be non-zero.
      */
     unsigned limit;
-    int threads;
+    unsigned threads;
 
     /**
      * Note that the matcher doesn't take ownership of the `needle` (ie. it
@@ -70,11 +70,11 @@ typedef struct {
      * and friends.
      */
     const char *needle;
-    unsigned long needle_length;
+    size_t needle_length;
     long needle_bitmask;
 
     const char *last_needle;
-    unsigned long last_needle_length;
+    size_t last_needle_length;
 } matcher_t;
 
 #endif

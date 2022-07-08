@@ -3,9 +3,4 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stddef.h> /* for size_t */
-
-/* #include "heap.h" */
-#include "xmalloc.h"
-
 // TODO: find something to put here, if anything...

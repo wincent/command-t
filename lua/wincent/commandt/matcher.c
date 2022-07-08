@@ -6,6 +6,7 @@
 #include <assert.h> /* for assert */
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #include <stdbool.h> /* for bool */
+#include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for qsort(), NULL */
 #include <string.h> /* for strncmp() */
 
@@ -49,7 +50,7 @@ matcher_t *commandt_matcher_new(
     matcher->scanner = scanner;
     matcher->haystacks = xmalloc(scanner->count * sizeof(haystack_t));
 
-    for (size_t i = 0; i < scanner->count; i++) {
+    for (unsigned i = 0; i < scanner->count; i++) {
         matcher->haystacks[i].candidate = scanner->candidates[i];
         matcher->haystacks[i].bitmask = UNSET_BITMASK;
         matcher->haystacks[i].score = UNSET_SCORE;
@@ -82,17 +83,17 @@ void commandt_matcher_free(matcher_t *matcher) {
 // TODO: fix bug where I can't _unextend_ a needle...
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
-    long candidate_count = scanner->count;
+    unsigned candidate_count = scanner->count;
     unsigned limit = matcher->limit;
-    long matches_count = 0;
+    unsigned matches_count = 0;
 
-    unsigned long needle_length = strlen(needle);
+    size_t needle_length = strlen(needle);
     char *needle_copy = xmalloc(needle_length + 1);
     strcpy(needle_copy, needle);
 
     // Downcase needle if required.
     if (!matcher->case_sensitive) {
-        for (unsigned long i = 0; i < needle_length; i++) {
+        for (size_t i = 0; i < needle_length; i++) {
             char c = needle_copy[i];
             if (c >= 'A' && c <= 'Z') {
                 needle_copy[i] = c + 'a' - 'A'; // Add 32 to downcase.
@@ -102,8 +103,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     // Delete spaces from needle if required.
     if (matcher->ignore_spaces) {
-        unsigned long src = 0;
-        unsigned long dest = 0;
+        size_t src = 0;
+        size_t dest = 0;
         while (src < needle_length) {
             char c = needle[src];
             if (c != ' ') {
@@ -153,7 +154,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     pthread_t *threads = xmalloc(worker_count * sizeof(pthread_t));
     worker_args_t *worker_args = xmalloc(worker_count * sizeof(worker_args_t));
 
-    for (long i = 0; i < worker_count; i++) {
+    for (unsigned i = 0; i < worker_count; i++) {
         worker_args[i].worker_count = worker_count;
         worker_args[i].worker_index = i;
         worker_args[i].matcher = matcher;
@@ -277,7 +278,7 @@ static void *get_matches(void *worker_args) {
     // TODO benchmark different thread partitioning method
     // (intead of every nth item to a thread, break into blocks)
     // to see if cache characteristics improve the speed)
-    for (size_t i = worker_index; i < matcher->scanner->count; i += worker_count) {
+    for (unsigned i = worker_index; i < matcher->scanner->count; i += worker_count) {
         haystack_t *haystack = matcher->haystacks + i;
         if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;

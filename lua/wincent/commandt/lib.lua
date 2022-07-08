@@ -25,8 +25,8 @@ setmetatable(c, {
 
       typedef struct {
           str_t **candidates;
-          size_t count;
-          size_t capacity;
+          unsigned count;
+          unsigned capacity;
           unsigned clock;
       } scanner_t;
 
@@ -39,12 +39,12 @@ setmetatable(c, {
           bool never_show_dot_files;
           bool recurse;
           unsigned limit;
-          int threads;
+          unsigned threads;
           const char *needle;
-          unsigned long needle_length;
+          size_t needle_length;
           long needle_bitmask;
           const char *last_needle;
-          unsigned long last_needle_length;
+          size_t last_needle_length;
       } matcher_t;
 
       typedef struct {
@@ -70,7 +70,7 @@ setmetatable(c, {
 
       // Scanner methods.
 
-      scanner_t *scanner_new_copy(const char **candidates, size_t count);
+      scanner_t *scanner_new_copy(const char **candidates, unsigned count);
       void scanner_free(scanner_t *scanner);
       void commandt_print_scanner(scanner_t *scanner);
     ]]

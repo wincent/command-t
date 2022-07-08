@@ -6,8 +6,6 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include <stddef.h> /* for size_t */
-
 #include "commandt.h" /* for scanner_t */
 #include "str.h"
 
@@ -17,13 +15,13 @@
  * Copies are made of `candidates`. The caller should call `scanner_free()` when
  * done.
  */
-scanner_t *scanner_new_copy(const char **candidates, size_t count);
+scanner_t *scanner_new_copy(const char **candidates, unsigned count);
 
 /**
  * Create a new `scanner_t` struct initialized with `capacity`. If `capacity` is
  * 0, the default capacity is used.
  */
-scanner_t *scanner_new(size_t capacity);
+scanner_t *scanner_new(unsigned capacity);
 
 /**
  * For debugging, a human-readable string representation of the scanner.
@@ -32,7 +30,7 @@ scanner_t *scanner_new(size_t capacity);
  */
 str_t *scanner_dump(scanner_t *scanner);
 
-void scanner_push_str(scanner_t *scanner, str_t **candidates, size_t count);
+void scanner_push_str(scanner_t *scanner, str_t **candidates, unsigned count);
 
 /**
  * Frees a previously created `scanner_t` structure.
