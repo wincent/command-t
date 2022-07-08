@@ -294,15 +294,6 @@ static void *get_matches(void *worker_args) {
         if (haystack->score == 0.0f) {
             continue;
         }
-        if (haystack->score < 0.0000009f) {
-            DEBUG_LOG("almost zero %.60f for %s\n", haystack->score, haystack->candidate->contents);
-            // almost zero 0.000000000000000000000000000000000000000000002802596928649634 for hl-DiagnosticFloatingError
-            // almost zero 0.000000000000000000000000000000000000000000001401298464324817 for hl-DiagnosticUnderlineInfo
-            // etc...
-            // where is this imprecision coming from?
-            continue;
-        }
-        else DEBUG_LOG("score %f mask %x for %s\n", haystack->score, haystack->bitmask, haystack->candidate->contents);
 
         if (heap->count == matcher->limit) {
             float score = ((haystack_t *)HEAP_PEEK(heap))->score;

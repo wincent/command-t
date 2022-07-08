@@ -159,6 +159,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
         size_t haystack_len = m.haystack->candidate->length;
         size_t haystack_idx = haystack_len ? haystack_len - 1 : 0;
         long mask = 0;
+        bool found_needle = false;
         if (haystack_len) {
             while (haystack_idx >= needle_idx) {
                 char c = m.haystack->candidate->contents[haystack_idx];
@@ -174,6 +175,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
                 if (c == d) {
                     rightmost_match_p[needle_idx] = haystack_idx;
                     if (needle_idx == 0) {
+                        found_needle = true;
                         break;
                     } else {
                         needle_idx--;
@@ -201,7 +203,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             }
             haystack->bitmask = mask;
         }
-        if (needle_idx > 0) {
+        if (!found_needle) {
             return 0.0f;
         }
 
