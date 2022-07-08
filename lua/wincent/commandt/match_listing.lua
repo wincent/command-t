@@ -15,6 +15,7 @@ match_listing.show = function()
     if buffer == 0 then
       error('wincent.commandt.match_listing.show(): nvim_create_buf() failed')
     end
+    vim.api.nvim_buf_set_option(buffer, 'filetype', 'CommandTMatchListing')
   end
   if window == nil then
     local width = vim.o.columns
