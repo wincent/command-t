@@ -294,6 +294,7 @@ static void *get_matches(void *worker_args) {
         if (haystack->score == 0.0) {
             continue;
         }
+        DEBUG_LOG("score %f for %s\n", haystack->score, haystack->candidate->contents);
 
         if (heap->count == matcher->limit) {
             float score = ((haystack_t *)HEAP_PEEK(heap))->score;
