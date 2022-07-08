@@ -6,6 +6,8 @@ vim.cmd([[
   command! KommandTBuffer lua require'wincent.commandt'.buffer_finder()
   command! -nargs=? -complete=dir KommandT call luaeval("require'wincent.commandt'.file_finder(_A)", <q-args>)
 
+  command! KommandTPrompt lua require'wincent.commandt'.prompt()
+
   augroup WincentCommandT
     autocmd!
 

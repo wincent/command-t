@@ -123,6 +123,10 @@ commandt.file_finder = function(arg)
   -- optional directory parameter goes
 end
 
+commandt.prompt = function()
+  require'wincent.commandt.prompt'.show()
+end
+
 commandt.select_next = function()
 end
 
