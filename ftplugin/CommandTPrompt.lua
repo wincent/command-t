@@ -1,0 +1,2 @@
+-- Not sure what i'll be putting in here yet, but we need a filetype so we can
+-- turn off nvim-cmp (etc) in the prompt area.

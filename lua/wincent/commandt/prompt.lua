@@ -16,6 +16,7 @@ prompt.show = function(options)
     if buffer == 0 then
       error('wincent.commandt.prompt.show(): nvim_create_buf() failed')
     end
+    vim.api.nvim_buf_set_option(buffer, 'filetype', 'CommandTPrompt')
     vim.api.nvim_create_autocmd('TextChanged', {
       buffer =  buffer,
       callback = function()
