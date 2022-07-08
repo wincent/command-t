@@ -96,23 +96,16 @@ commandt.demo = function(query)
   local lib = require('wincent.commandt.lib')
   if matcher == nil then
     local options = {}
-    --[[local--]] scanner = require('wincent.commandt.scanner.help').scanner()
-    --[[local--]] matcher = lib.commandt_matcher_new(scanner, options)
+    scanner = require('wincent.commandt.scanner.help').scanner()
+    matcher = lib.commandt_matcher_new(scanner, options)
   end
-  print('query: ' .. query)
 
-  -- Using help scanner, a needle like "tag" returns a bunch of results (eg.
-  -- `tag`, `-tag`, `:tag`, `tags` etc).
-  -- local results = lib.commandt_matcher_run(matcher, "tag")
-  -- local results = lib.commandt_matcher_run(matcher, "")
   local results = lib.commandt_matcher_run(matcher, query)
   local strings = {}
-  print(results.count)
   for i = 0, results.count - 1 do
     local str = results.matches[i]
     table.insert(strings, ffi.string(str.contents, str.length))
   end
-  print(vim.inspect(strings))
   return strings
 end
 
@@ -124,8 +117,14 @@ commandt.file_finder = function(arg)
 end
 
 commandt.prompt = function()
-  require'wincent.commandt.match_listing'.show()
-  require'wincent.commandt.prompt'.show()
+  local match_listing = require'wincent.commandt.match_listing'
+  match_listing.show()
+  require'wincent.commandt.prompt'.show({
+    onchange = function(query)
+      local results = commandt.demo(query)
+      match_listing.update(results)
+    end
+  })
 end
 
 commandt.select_next = function()

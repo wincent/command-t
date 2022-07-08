@@ -6,7 +6,8 @@ local prompt = {}
 local buffer = nil
 local window = nil
 
-prompt.show = function()
+prompt.show = function(options)
+  -- TODO: merge
   if buffer == nil then
     buffer = vim.api.nvim_create_buf(
       false, -- listed
@@ -18,15 +19,17 @@ prompt.show = function()
     vim.api.nvim_create_autocmd('TextChanged', {
       buffer =  buffer,
       callback = function()
-        -- TODO update match listing
-        print('matches... (TextChanged): ' .. vim.inspect(vim.api.nvim_get_current_line()))
+        if options and options.onchange then
+          options.onchange(vim.api.nvim_get_current_line())
+        end
       end,
     })
     vim.api.nvim_create_autocmd('TextChangedI', {
       buffer =  buffer,
       callback = function()
-        -- TODO update match listing
-        print('matches... (TextChangedI): ' .. vim.inspect(vim.api.nvim_get_current_line()))
+        if options and options.onchange then
+          options.onchange(vim.api.nvim_get_current_line())
+        end
       end,
     })
   end

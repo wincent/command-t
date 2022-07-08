@@ -55,4 +55,16 @@ match_listing.show = function()
   )
 end
 
+match_listing.update = function(results)
+  if buffer then
+    vim.api.nvim_buf_set_lines(
+      buffer,
+      0, -- start
+      -1, -- end
+      false, -- strict indexing
+      results -- replacement lines
+    )
+  end
+end
+
 return match_listing
