@@ -403,16 +403,21 @@ VALUE watchman_load(char **ptr, char *end) {
         case WATCHMAN_INT16_MARKER:
         case WATCHMAN_INT32_MARKER:
         case WATCHMAN_INT64_MARKER:
+            // TODO: skip over numbers (never expect to see any of these...)
             return LL2NUM(watchman_load_int(ptr, end));
         case WATCHMAN_FLOAT_MARKER:
+            // TODO: skip over numbers (never expect to see any of these...)
             return rb_float_new(watchman_load_double(ptr, end));
         case WATCHMAN_TRUE:
+            // TODO: skip over bools (never expect to see any of these...)
             *ptr += 1;
             return Qtrue;
         case WATCHMAN_FALSE:
+            // TODO: skip over bools (never expect to see any of these...)
             *ptr += 1;
             return Qfalse;
         case WATCHMAN_NIL:
+            // TODO: skip over nils/nulls (never expect to see any of these...)
             *ptr += 1;
             return Qnil;
         case WATCHMAN_TEMPLATE_MARKER:
