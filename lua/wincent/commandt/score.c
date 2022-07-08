@@ -33,8 +33,7 @@ static float recursive_match(
     float score // Cumulative score so far.
 ) {
     float *memoized = NULL;
-    float score_for_char;
-    float seen_score = 0;
+    float seen_score = 0.0f;
 
     // Iterate over needle.
     for (size_t i = needle_idx; i < m->needle_length; i++) {
@@ -56,7 +55,7 @@ static float recursive_match(
                         m->never_show_dot_files ||
                         (!dot_search && !m->always_show_dot_files)
                     ) {
-                        return *memoized = 0.0;
+                        return *memoized = 0.0f;
                     }
                 }
             } else if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
@@ -65,40 +64,39 @@ static float recursive_match(
 
             if (c == d) {
                 // Calculate score.
-                float sub_score = 0;
-                score_for_char = m->max_score_per_char;
+                float score_for_char = m->max_score_per_char;
                 size_t distance = j - last_idx;
 
                 if (distance > 1) {
-                    float factor = 1.0;
+                    float factor = 1.0f;
                     char last = m->haystack->candidate->contents[j - 1];
                     char curr = m->haystack->candidate->contents[j]; // Case matters, so get again.
                     if (last == '/') {
-                        factor = 0.9;
+                        factor = 0.9f;
                     } else if (
                         last == '-' ||
                         last == '_' ||
                         last == ' ' ||
                         (last >= '0' && last <= '9')
                     ) {
-                        factor = 0.8;
+                        factor = 0.8f;
                     } else if (
                         last >= 'a' && last <= 'z' &&
                         curr >= 'A' && curr <= 'Z'
                     ) {
-                        factor = 0.8;
+                        factor = 0.8f;
                     } else if (last == '.') {
-                        factor = 0.7;
+                        factor = 0.7f;
                     } else {
                         // If no "special" chars behind char, factor diminishes
                         // as distance from last matched char increases.
-                        factor = (1.0 / distance) * 0.75;
+                        factor = (1.0f / distance) * 0.75f;
                     }
                     score_for_char *= factor;
                 }
 
                 if (j < m->rightmost_match_p[i] && m->recurse) {
-                    sub_score = recursive_match(m, j + 1, i, last_idx, score);
+                    float sub_score = recursive_match(m, j + 1, i, last_idx, score);
                     if (sub_score > seen_score) {
                         seen_score = sub_score;
                     }
@@ -127,7 +125,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
     m.needle_p = matcher->needle;
     m.needle_length = matcher->needle_length;
     m.rightmost_match_p = NULL;
-    m.max_score_per_char = (1.0 / m.haystack->candidate->length + 1.0 / m.needle_length) / 2;
+    m.max_score_per_char = (1.0f / m.haystack->candidate->length + 1.0f / m.needle_length) / 2;
     m.always_show_dot_files = matcher->always_show_dot_files;
     m.never_show_dot_files = matcher->never_show_dot_files;
     m.case_sensitive = matcher->case_sensitive;
@@ -140,14 +138,14 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             for (size_t i = 0; i < m.haystack->candidate->length; i++) {
                 char c = m.haystack->candidate->contents[i];
                 if (c == '.' && (i == 0 || m.haystack->candidate->contents[i - 1] == '/')) {
-                    return -1.0;
+                    return -1.0f;
                 }
             }
         }
     } else {
         if (haystack->bitmask != UNSET_BITMASK) {
             if ((matcher->needle_bitmask & haystack->bitmask) != matcher->needle_bitmask) {
-                return 0.0;
+                return 0.0f;
             }
         }
 
@@ -204,7 +202,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             haystack->bitmask = mask;
         }
         if (needle_idx > 0) {
-            return 0.0;
+            return 0.0f;
         }
 
         // Prepare for memoization.
@@ -215,7 +213,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             memo[i] = UNSET_SCORE;
         }
         m.memo = memo;
-        return recursive_match(&m, 0, 0, 0, 0.0);
+        return recursive_match(&m, 0, 0, 0, 0.0f);
     }
-    return 1.0;
+    return 1.0f;
 }

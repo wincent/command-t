@@ -200,7 +200,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     results->count = 0;
 
     for (long i = 0; i < count && results->count <= limit; i++) {
-        if (matches[i]->score > 0.0) {
+        if (matches[i]->score > 0.0f) {
             results->matches[results->count++] = matches[i]->candidate;
         }
     }
@@ -283,7 +283,7 @@ static void *get_matches(void *worker_args) {
         if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;
         }
-        if (matcher->last_needle != NULL && haystack->score == 0.0) {
+        if (matcher->last_needle != NULL && haystack->score == 0.0f) {
             // Skip over this candidate because it didn't match last
             // time and it can't match this time either.
             continue;
@@ -291,10 +291,18 @@ static void *get_matches(void *worker_args) {
 
         haystack->score = commandt_score(haystack, matcher);
 
-        if (haystack->score == 0.0) {
+        if (haystack->score == 0.0f) {
             continue;
         }
-        DEBUG_LOG("score %f for %s\n", haystack->score, haystack->candidate->contents);
+        if (haystack->score < 0.0000009f) {
+            DEBUG_LOG("almost zero %.60f for %s\n", haystack->score, haystack->candidate->contents);
+            // almost zero 0.000000000000000000000000000000000000000000002802596928649634 for hl-DiagnosticFloatingError
+            // almost zero 0.000000000000000000000000000000000000000000001401298464324817 for hl-DiagnosticUnderlineInfo
+            // etc...
+            // where is this imprecision coming from?
+            continue;
+        }
+        else DEBUG_LOG("score %f mask %x for %s\n", haystack->score, haystack->bitmask, haystack->candidate->contents);
 
         if (heap->count == matcher->limit) {
             float score = ((haystack_t *)HEAP_PEEK(heap))->score;
