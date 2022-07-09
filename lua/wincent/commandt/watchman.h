@@ -26,19 +26,6 @@ typedef struct {
     const char *relative_path; /** May be NULL. */
 } watchman_watch_project_result_t;
 
-// TODO: may need to make this way less flexible so that I can pass structs back
-// and forth across the FFI boundary.
-//
-// In practice, Command-T needs to send queries that look as follows (assuming a
-// recent, or not even all that recent, version of Watchman):
-//
-// raw_sockname = `watchman --output-encoding=bser get-sockname`
-// result (rendered as JSON, but it's actually BSER) = {
-//    "version": "2022.03.21.00",
-//    "sockname": "/opt/homebrew/var/run/watchman/wincent-state/sock",
-//    "unix_domain": "/opt/homebrew/var/run/watchman/wincent-state/sock"
-// }
-// sockname = result['sockname']
 //
 // query = ['watch-project', '/root/path/string']
 // result = {...}
@@ -46,7 +33,6 @@ typedef struct {
 // relative_path = result['relative_path'] (if it has that key)
 // other fields:
 //   version: "..."
-//   watch: "..."
 //   watcher: "..."
 //   error: "..." if there was one (Ruby implementation raises)
 //
@@ -80,6 +66,9 @@ watchman_query_result_t *commandt_watchman_query(
 
 void commandt_watchman_query_result_free(watchman_query_result_t *result);
 
+/**
+ * Equivalent to `watchman watch-project /path/to/root`.
+ */
 watchman_watch_project_result_t *commandt_watchman_watch_project(
     const char *root,
     int socket

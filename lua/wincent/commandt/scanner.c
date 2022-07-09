@@ -43,12 +43,12 @@ scanner_t *scanner_new(unsigned capacity) {
     return scanner;
 }
 
-const char *NUL_BYTE = "\0";
-const char *L_BRACE = "{";
-const char *R_BRACE = "}";
-const char *COMMA = ",";
-const char *INDENT = "  ";
-const char *NEWLINE = "\n";
+static const char *NUL_BYTE = "\0";
+static const char *L_BRACE = "{";
+static const char *R_BRACE = "}";
+static const char *COMMA = ",";
+static const char *INDENT = "  ";
+static const char *NEWLINE = "\n";
 
 str_t *scanner_dump(scanner_t *scanner) {
     str_t *dump = str_new();
