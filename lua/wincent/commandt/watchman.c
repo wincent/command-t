@@ -55,13 +55,11 @@ void watchman_dump(watchman_payload_t *w, VALUE serializable);
         "\x00\x00\x00\x00\x00\x00\x00\x00"
 
 // How far we have to look to figure out the size of the PDU header.
-#define WATCHMAN_SNIFF_BUFFER_SIZE sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
+#define WATCHMAN_SNIFF_BUFFER_SIZE (sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t))
 
 // How far we have to peek, at most, to figure out the size of the PDU itself.
 #define WATCHMAN_PEEK_BUFFER_SIZE \
-    sizeof(WATCHMAN_BINARY_MARKER) - 1 + \
-    sizeof(WATCHMAN_INT64_MARKER) + \
-    sizeof(int64_t)
+    (sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(typeof(WATCHMAN_INT64_MARKER)) + sizeof(int64_t))
 
 static const char watchman_array_marker  = WATCHMAN_ARRAY_MARKER;
 static const char watchman_hash_marker   = WATCHMAN_HASH_MARKER;
