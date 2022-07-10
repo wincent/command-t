@@ -7,6 +7,7 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for strlen() */
 
+#include "debug.h"
 #include "scanner.h"
 #include "xmalloc.h"
 

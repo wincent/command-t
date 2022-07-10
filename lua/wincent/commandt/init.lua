@@ -96,8 +96,9 @@ commandt.demo = function(query)
   local lib = require('wincent.commandt.lib')
   if matcher == nil then
     local options = {}
+    scanner = require('wincent.commandt.scanner.buffer').scanner()
     -- scanner = require('wincent.commandt.scanner.help').scanner()
-    scanner = require('wincent.commandt.scanner.watchman').scanner()
+    -- scanner = require('wincent.commandt.scanner.watchman').scanner()
     matcher = lib.commandt_matcher_new(scanner, options)
   end
 
