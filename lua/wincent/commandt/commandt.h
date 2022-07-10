@@ -8,6 +8,7 @@
 
 #include <stdbool.h> /* for bool */
 #include <stddef.h> /* for size_t */
+#include <stdint.h> /* for uint32_t */
 
 #include "str.h" /* for str_t */
 
@@ -76,5 +77,20 @@ typedef struct {
     const char *last_needle;
     size_t last_needle_length;
 } matcher_t;
+
+typedef struct {
+    // Will roll-over in 2038, and as we're only using this for benchmarks, we
+    // don't care.
+    uint32_t seconds;
+    uint32_t microseconds;
+} benchmark_t;
+
+/**
+ * For benchmarking, returns number of seconds and microseconds since the epoch.
+ *
+ * Wrapper around `clock_gettime()`, because Lua's own `os.time()` only returns
+ * integral numbers of seconds.
+ */
+benchmark_t commandt_epoch();
 
 #endif

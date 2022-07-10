@@ -11,9 +11,6 @@ local c = {}
 setmetatable(c, {
   __index = function(table, key)
     ffi.cdef[[
-      // Standard library.
-      void free(void *ptr);
-
       // Types.
 
       typedef struct {
@@ -67,6 +64,11 @@ setmetatable(c, {
           const char *relative_path;
       } watchman_watch_project_result_t;
 
+      typedef struct {
+        uint32_t seconds;
+        uint32_t microseconds;
+      } benchmark_t;
+
       // Matcher methods.
 
       matcher_t *commandt_matcher_new(
@@ -106,6 +108,13 @@ setmetatable(c, {
       void commandt_watchman_watch_project_result_free(
           watchman_watch_project_result_t *result
       );
+
+      // Benchmarking.
+
+      benchmark_t commandt_epoch();
+
+      // Standard library.
+      void free(void *ptr);
     ]]
 
     local dirname = debug.getinfo(1).source:match('@?(.*/)')
@@ -140,6 +149,12 @@ local merge = function(...)
   return final
 end
 
+lib.commandt_epoch = function()
+  local result = c.commandt_epoch()
+
+  return result['seconds'], result['microseconds']
+end
+
 lib.commandt_matcher_new = function(scanner, options)
   options = merge({
     always_show_dot_files = false,
@@ -169,6 +184,7 @@ lib.commandt_matcher_run = function(matcher, needle)
   return c.commandt_matcher_run(matcher, needle)
 end
 
+-- TODO: order this file
 lib.print_scanner = function(scanner)
   c.commandt_print_scanner(scanner)
 end

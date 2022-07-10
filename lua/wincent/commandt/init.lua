@@ -111,6 +111,11 @@ commandt.demo = function(query)
   return strings
 end
 
+commandt.epoch = function()
+  local lib = require('wincent.commandt.lib')
+  return lib.commandt_epoch()
+end
+
 commandt.file_finder = function(arg)
   local directory = vim.trim(arg)
 
