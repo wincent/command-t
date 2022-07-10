@@ -338,15 +338,47 @@ watchman_query_result_t *commandt_watchman_query(
         watchman_write_string(w, "relative_root", sizeof("relative_root") - 1);
         watchman_write_string(w, relative_root, strlen(relative_root));
     }
+    watchman_response_t *r = watchman_send(w, socket);
 
-    watchman_response_t *response = watchman_send(w, socket);
+    // Process the response:
+    //
+    watchman_query_result_t *result = xcalloc(1, sizeof(watchman_query_result_t));
 
-    // 2. extract "files"
-    // 3. return NULL if "error"
+    uint64_t count = watchman_read_object(r);
+    DEBUG_LOG("object count is %d\n", count);
+    for (uint64_t i = 0; i < count; i++) {
+        // logging shows us read "files", "debug", then die when i == 2
+        DEBUG_LOG("loop i %d\n", i);
+        str_t *key = watchman_read_string(r);
+        DEBUG_LOG("read key %s\n", key->contents);
+        if (
+            key->length == sizeof("files") - 1 &&
+            strncmp(key->contents, "files", key->length) == 0
+        ) {
+            assert(!result->files);
+            uint64_t file_count = watchman_read_array(r);
+            result->files = xmalloc(sizeof(str_t *) * file_count);
+            for (uint64_t j = 0; j < file_count; j++) {
+                result->files[j] = watchman_read_string(r);
+            }
+            result->count = file_count;
+        } else if (
+            key->length == sizeof("error") - 1 &&
+            strncmp(key->contents, "error", key->length) == 0
+        ) {
+            abort();
+        } else {
+            // Skip over values we don't care about.
+            watchman_skip_value(r);
+        }
+        str_free(key);
+    }
+    if (!result->files) {
+        abort();
+    }
+    assert(r->ptr == r->end);
 
-    watchman_response_free(response);
-
-    watchman_query_result_t *result = xmalloc(sizeof(watchman_query_result_t));
+    watchman_response_free(r);
 
     return result;
 }
@@ -554,7 +586,8 @@ static void watchman_skip_value(watchman_response_t *r) {
             {
                 uint64_t count = watchman_read_object(r);
                 for (uint64_t i = 0; i < count; i++) {
-                    watchman_skip_value(r);
+                    watchman_skip_value(r); // Skip key.
+                    watchman_skip_value(r); // Skip value.
                 }
             }
             break;

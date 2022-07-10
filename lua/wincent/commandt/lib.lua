@@ -198,9 +198,18 @@ lib.commandt_watchman_disconnect = function(socket)
 end
 
 lib.commandt_watchman_query = function(root, relative_root, socket)
-  local result
-  -- TODO: some stuff
-  c.commandt_watchman_query_result_free(result)
+  local result = c.commandt_watchman_query(root, relative_root, socket)
+
+  -- DEMO ONLY, don't want these to all go through ffi.string
+  for i = 0, result['count'] - 1 do
+    local str = result['files'][i]
+    print(vim.inspect(ffi.string(str['contents'], str['length'])))
+  end
+
+  -- TODO: later...
+  -- c.commandt_watchman_query_result_free(result)
+
+  return result
 end
 
 lib.commandt_watchman_watch_project = function(root, socket)

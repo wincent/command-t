@@ -53,7 +53,16 @@ end
 -- If `relative_root` is `nil`, it will be omitted from the query.
 watchman.query = function(root, relative_root)
   local socket = watchman.get_socket() -- TODO: when to clean up?
-  -- TODO: call...
+  local lib = require('wincent.commandt.lib')
+
+  -- To see this, run:
+  --
+  --     llvm --file nvim
+  --     r
+  --     :lua my_watch = require'wincent.commandt.scanner.watchman'.watch_project('/Users/wincent/code/command-t')
+  --     :lua require'wincent.commandt.scanner.watchman'.query(my_watch['watch'])
+  --
+  return lib.commandt_watchman_query(root, relative_root, socket)
 end
 
 -- Equivalent to `watchman watch-project $root`.
