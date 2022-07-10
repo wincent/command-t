@@ -11,6 +11,9 @@ local c = {}
 setmetatable(c, {
   __index = function(table, key)
     ffi.cdef[[
+      // Standard library.
+      void free(void *ptr);
+
       // Types.
 
       typedef struct {
@@ -183,7 +186,7 @@ end
 
 lib.scanner_new_str = function(candidates, count)
   local scanner = c.scanner_new_str(candidates, count)
-  -- ffi.gc(scanner, ffi.C.free) -- Free struct but not candidates.
+  ffi.gc(scanner, ffi.C.free) -- Free struct but not candidates.
   return scanner
 end
 
