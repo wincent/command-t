@@ -46,7 +46,7 @@ static int64_t watchman_read_int(watchman_response_t *r);
 static uint64_t watchman_read_object(watchman_response_t *r);
 static str_t *watchman_read_string(watchman_response_t *r);
 static void watchman_response_free(watchman_response_t *r);
-static watchman_response_t *watchman_send_query(watchman_request_t *w, int socket);
+static watchman_response_t *watchman_send(watchman_request_t *w, int socket);
 static void watchman_skip_value(watchman_response_t *r);
 static void watchman_write_array(watchman_request_t *w, unsigned length);
 static void watchman_write_int(watchman_request_t *w, int64_t num);
@@ -339,7 +339,7 @@ watchman_query_result_t *commandt_watchman_query(
         watchman_write_string(w, relative_root, strlen(relative_root));
     }
 
-    watchman_response_t *response = watchman_send_query(w, socket);
+    watchman_response_t *response = watchman_send(w, socket);
 
     // 2. extract "files"
     // 3. return NULL if "error"
@@ -423,7 +423,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     watchman_write_array(w, 2);
     watchman_write_string(w, "watch-project", sizeof("watch-project"));
     watchman_write_string(w, root, strlen(root));
-    watchman_response_t *r = watchman_send_query(w, socket);
+    watchman_response_t *r = watchman_send(w, socket);
 
     // Process the response:
     //
@@ -480,7 +480,7 @@ static void watchman_response_free(watchman_response_t *r) {
     free(r);
 }
 
-static watchman_response_t *watchman_send_query(watchman_request_t *w, int socket) {
+static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
     watchman_response_t *r = xmalloc(sizeof(watchman_response_t));
     r->capacity = WATCHMAN_DEFAULT_STORAGE;
     r->payload = xmalloc(WATCHMAN_DEFAULT_STORAGE);
