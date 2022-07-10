@@ -345,12 +345,8 @@ watchman_query_result_t *commandt_watchman_query(
     watchman_query_result_t *result = xcalloc(1, sizeof(watchman_query_result_t));
 
     uint64_t count = watchman_read_object(r);
-    DEBUG_LOG("object count is %d\n", count);
     for (uint64_t i = 0; i < count; i++) {
-        // logging shows us read "files", "debug", then die when i == 2
-        DEBUG_LOG("loop i %d\n", i);
         str_t *key = watchman_read_string(r);
-        DEBUG_LOG("read key %s\n", key->contents);
         if (
             key->length == sizeof("files") - 1 &&
             strncmp(key->contents, "files", key->length) == 0
