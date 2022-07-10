@@ -3,8 +3,10 @@
 # SPDX-FileCopyrightText: Copyright 2014-present Greg Hurrell and contributors.
 # SPDX-License-Identifier: BSD-2-Clause
 
-lib  = File.expand_path('../../ruby', File.dirname(__FILE__))
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+%w[ext lib].each do |dir|
+  path  = File.expand_path("../../ruby/command-t/#{dir}", File.dirname(__FILE__))
+  $LOAD_PATH.unshift(path) unless $LOAD_PATH.include?(path)
+end
 
 require 'command-t/ext'
 require 'benchmark'
