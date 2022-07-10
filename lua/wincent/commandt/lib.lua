@@ -166,7 +166,6 @@ lib.commandt_matcher_new = function(scanner, options)
 end
 
 lib.commandt_matcher_run = function(matcher, needle)
-  print('searching for: ' .. needle)
   return c.commandt_matcher_run(matcher, needle)
 end
 
@@ -209,12 +208,6 @@ end
 
 lib.commandt_watchman_query = function(root, relative_root, socket)
   local result = c.commandt_watchman_query(root, relative_root, socket)
-
-  -- DEMO ONLY, don't want these to all go through ffi.string
-  for i = 0, result['count'] - 1 do
-    local str = result['files'][i]
-    print(vim.inspect(ffi.string(str['contents'], str['length'])))
-  end
 
   -- TODO: later...
   -- c.commandt_watchman_query_result_free(result)
