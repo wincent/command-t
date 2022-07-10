@@ -39,7 +39,8 @@ typedef struct {
 // Forward declarations of static functions.
 
 static void watchman_append(watchman_request_t *w, const char *data, size_t length);
-static watchman_request_t *watchman_init();
+static void watchman_request_free(watchman_request_t *w);
+static watchman_request_t *watchman_request_init();
 static uint64_t watchman_read_array(watchman_response_t *r);
 static double watchman_read_double(watchman_response_t *r);
 static int64_t watchman_read_int(watchman_response_t *r);
@@ -106,7 +107,7 @@ static void watchman_append(watchman_request_t *w, const char *data, size_t leng
  * The struct has a small amount of extra capacity preallocated, and a blank
  * header that can be filled in later to describe the PDU.
  */
-static watchman_request_t *watchman_init() {
+static watchman_request_t *watchman_request_init() {
     watchman_request_t *w = xmalloc(sizeof(watchman_request_t));
     w->capacity = WATCHMAN_DEFAULT_STORAGE;
     w->length = 0;
@@ -117,9 +118,9 @@ static watchman_request_t *watchman_init() {
 
 /**
  * Free a watchman_request_t struct `w` that was previously allocated with
- * `watchman_init`
+ * `watchman_request_init`
  */
-void watchman_free(watchman_request_t *w) {
+static void watchman_request_free(watchman_request_t *w) {
     free(w->payload);
     free(w);
 }
@@ -322,7 +323,7 @@ watchman_query_result_t *commandt_watchman_query(
     //       }
     //     ]
     //
-    watchman_request_t *w = watchman_init();
+    watchman_request_t *w = watchman_request_init();
     watchman_write_array(w, 3);
     watchman_write_string(w, "query", sizeof("query") - 1);
     watchman_write_string(w, root, strlen(root));
@@ -339,6 +340,7 @@ watchman_query_result_t *commandt_watchman_query(
         watchman_write_string(w, relative_root, strlen(relative_root));
     }
     watchman_response_t *r = watchman_send(w, socket);
+    watchman_request_free(w);
 
     // Process the response:
     //
@@ -447,11 +449,12 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     //
     //     ["watch-project", "/path/to/root"]
     //
-    watchman_request_t *w = watchman_init();
+    watchman_request_t *w = watchman_request_init();
     watchman_write_array(w, 2);
     watchman_write_string(w, "watch-project", sizeof("watch-project") - 1);
     watchman_write_string(w, root, strlen(root));
     watchman_response_t *r = watchman_send(w, socket);
+    watchman_request_free(w);
 
     // Process the response:
     //
