@@ -607,7 +607,7 @@ static void watchman_skip_value(watchman_response_t *r) {
             break;
         case WATCHMAN_TEMPLATE_MARKER:
             {
-                // Skip: marker, array of key names, array of alternating key-value pairs.
+                // Skip: marker, array of key names, array of value tuples.
                 // See: https://github.com/facebook/watchman/blob/main/website/_docs/BSER.markdown
                 r->ptr++;
                 uint64_t key_count = watchman_read_array(r);
