@@ -39,11 +39,14 @@ typedef struct {
 
 static void watchman_append(watchman_request_t *w, const char *data, size_t length);
 static watchman_request_t *watchman_init();
-static double watchman_read_double(char **ptr, char *end);
+static uint64_t watchman_read_array(watchman_response_t *r);
+static double watchman_read_double(watchman_response_t *r);
 static int64_t watchman_read_int(watchman_response_t *r);
+static uint64_t watchman_read_object(watchman_response_t *r);
 static str_t *watchman_read_string(watchman_response_t *r);
 static void watchman_response_free(watchman_response_t *r);
 static watchman_response_t *watchman_send_query(watchman_request_t *w, int socket);
+static void watchman_skip_value(watchman_response_t *r);
 static void watchman_write_array(watchman_request_t *w, unsigned length);
 static void watchman_write_int(watchman_request_t *w, int64_t num);
 static void watchman_write_object(watchman_request_t *w, unsigned size);
@@ -59,7 +62,7 @@ static void watchman_write_string(watchman_request_t *w, const char *string, siz
 #define WATCHMAN_INT16_MARKER       0x04
 #define WATCHMAN_INT32_MARKER       0x05
 #define WATCHMAN_INT64_MARKER       0x06
-#define WATCHMAN_FLOAT_MARKER       0x07
+#define WATCHMAN_DOUBLE_MARKER      0x07
 #define WATCHMAN_TRUE               0x08
 #define WATCHMAN_FALSE              0x09
 #define WATCHMAN_NIL                0x0a
@@ -81,9 +84,6 @@ static void watchman_write_string(watchman_request_t *w, const char *string, siz
 static const char watchman_array_marker  = WATCHMAN_ARRAY_MARKER;
 static const char watchman_object_marker = WATCHMAN_OBJECT_MARKER;
 static const char watchman_string_marker = WATCHMAN_STRING_MARKER;
-static const char watchman_true          = WATCHMAN_TRUE;
-static const char watchman_false         = WATCHMAN_FALSE;
-static const char watchman_nil           = WATCHMAN_NIL;
 
 /**
  * Appends `length` bytes, starting at `data`, to the watchman_request_t struct `w`
@@ -224,7 +224,7 @@ static str_t *watchman_read_string(watchman_response_t *r) {
     }
 
     if (r->ptr[0] != WATCHMAN_STRING_MARKER) {
-        abort(); // Not a number.
+        abort(); // Not a string.
     }
 
     r->ptr += sizeof(int8_t);
@@ -248,124 +248,26 @@ static str_t *watchman_read_string(watchman_response_t *r) {
  * Reads and returns a double encoded in the Watchman binary protocol format,
  * starting at `ptr` and finishing at or before `end`
  */
-static double watchman_read_double(char **ptr, char *end) {
-    double val;
-    *ptr += sizeof(int8_t); // Caller has already verified the marker.
-    if (*ptr + sizeof(double) > end) {
+static double watchman_read_double(watchman_response_t *r) {
+    double val = 0.0;
+
+    if (r->ptr + sizeof(typeof(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) > r->end) {
         abort(); // Insufficient double storage.
     }
-    val = *(double *)*ptr;
-    *ptr += sizeof(double);
+
+    // Verify and consume marker.
+    if (r->ptr[0] == WATCHMAN_DOUBLE_MARKER) {
+        r->ptr += sizeof(typeof(WATCHMAN_DOUBLE_MARKER));
+        val = *(double *)r->ptr;
+        r->ptr += sizeof(double);
+    } else {
+        abort(); // Not an object.
+    }
+
     return val;
 }
 
 #if 0
-
-/**
- * Reads and returns an array encoded in the Watchman binary protocol format,
- * starting at `ptr` and finishing at or before `end`
- */
-VALUE watchman_read_array(char **ptr, char *end) {
-    int64_t count, i;
-    VALUE array;
-
-    if (*ptr >= end) {
-        abort(); // Unexpected end of input.
-    }
-
-    // Verify and consume marker.
-    if (*ptr[0] != WATCHMAN_ARRAY_MARKER) {
-        abort(); // Not an array.
-    }
-    *ptr += sizeof(int8_t);
-
-    // Expect a count.
-    if (*ptr + sizeof(int8_t) * 2 > end) {
-        abort(); // Incomplete array header.
-    }
-
-    int64_t count = watchman_read_int(ptr, end);
-
-    array = rb_ary_new2(count);
-
-    for (i = 0; i < count; i++) {
-        rb_ary_push(array, watchman_load(ptr, end));
-    }
-
-    return array;
-}
-
-/**
- * Reads and returns a hash encoded in the Watchman binary protocol format,
- * starting at `ptr` and finishing at or before `end`
- */
-VALUE watchman_read_hash(char **ptr, char *end) {
-    int64_t count, i;
-    VALUE hash, key, value;
-
-    *ptr += sizeof(int8_t); // caller has already verified the marker
-
-    // expect a count
-    if (*ptr + sizeof(int8_t) * 2 > end) {
-        rb_raise(rb_eArgError, "incomplete hash header");
-    }
-    count = watchman_read_int(ptr, end);
-
-    hash = rb_hash_new();
-
-    for (i = 0; i < count; i++) {
-        key = watchman_read_string(ptr, end);
-        value = watchman_load(ptr, end);
-        rb_hash_aset(hash, key, value);
-    }
-
-    return hash;
-}
-
-/**
- * Reads and returns an object encoded in the Watchman binary protocol format,
- * starting at `ptr` and finishing at or before `end`
- */
-VALUE watchman_load(char **ptr, char *end) {
-    if (*ptr >= end) {
-        abort(); // Unexpected end of input.
-    }
-
-    switch (*ptr[0]) {
-        case WATCHMAN_ARRAY_MARKER:
-            return watchman_read_array(ptr, end);
-        case WATCHMAN_OBJECT_MARKER:
-            return watchman_read_hash(ptr, end);
-        case WATCHMAN_STRING_MARKER:
-            return watchman_read_string(ptr, end);
-        case WATCHMAN_INT8_MARKER:
-        case WATCHMAN_INT16_MARKER:
-        case WATCHMAN_INT32_MARKER:
-        case WATCHMAN_INT64_MARKER:
-            // TODO: skip over numbers (never expect to see any of these...)
-            return LL2NUM(watchman_read_int(ptr, end));
-        case WATCHMAN_FLOAT_MARKER:
-            // TODO: skip over numbers (never expect to see any of these...)
-            return rb_float_new(watchman_read_double(ptr, end));
-        case WATCHMAN_TRUE:
-            // TODO: skip over bools (never expect to see any of these...)
-            *ptr += 1;
-            return Qtrue;
-        case WATCHMAN_FALSE:
-            // TODO: skip over bools (never expect to see any of these...)
-            *ptr += 1;
-            return Qfalse;
-        case WATCHMAN_NIL:
-            // TODO: skip over nils/nulls (never expect to see any of these...)
-            *ptr += 1;
-            return Qnil;
-        case WATCHMAN_TEMPLATE_MARKER:
-        default:
-            abort(); // Unsupported type.
-    }
-
-    return Qnil; // keep the compiler happy
-}
 
 /**
  * CommandT::Watchman::Utils.load(serialized)
@@ -518,13 +420,40 @@ static void watchman_write_array(watchman_request_t *w, unsigned length) {
 }
 
 /**
- * Returns count of key/value pairs in the object.
+ * Returns count of values in the array.
  */
-static int watchman_read_object(watchman_response_t *r) {
-    int count = 0;
+static uint64_t watchman_read_array(watchman_response_t *r) {
+    int64_t count = 0;
     if (r->ptr >= r->end) {
         abort(); // Unexpected end of input.
     }
+
+    // Verify and consume marker.
+    if (r->ptr[0] == WATCHMAN_ARRAY_MARKER) {
+        r->ptr++;
+        if (r->ptr + 2 > r->end) {
+            abort(); // Incomplete array header.
+        }
+        count = watchman_read_int(r);
+    } else {
+        abort(); // Not an array.
+    }
+    if (count < 0) {
+        abort(); // Negative count.
+    }
+    return count;
+}
+
+/**
+ * Returns count of key/value pairs in the object.
+ */
+static uint64_t watchman_read_object(watchman_response_t *r) {
+    int64_t count = 0;
+    if (r->ptr >= r->end) {
+        abort(); // Unexpected end of input.
+    }
+
+    // Verify and consume marker.
     if (r->ptr[0] == WATCHMAN_OBJECT_MARKER) {
         r->ptr++;
         if (r->ptr + 2 > r->end) {
@@ -532,7 +461,10 @@ static int watchman_read_object(watchman_response_t *r) {
         }
         count = watchman_read_int(r);
     } else {
-        abort();
+        abort(); // Not an object.
+    }
+    if (count < 0) {
+        abort(); // Negative count.
     }
     return count;
 }
@@ -541,7 +473,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     const char *root,
     int socket
 ) {
-    // Prepare the message.
+    // Prepare and send the message:
     //
     //     ["watch-project", "/path/to/root"]
     //
@@ -549,26 +481,53 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     watchman_write_array(w, 2);
     watchman_write_string(w, "watch-project", sizeof("watch-project"));
     watchman_write_string(w, root, strlen(root));
+    watchman_response_t *r = watchman_send_query(w, socket);
 
-    watchman_response_t *response = watchman_send_query(w, socket);
-    // TODO: do something with response
-    // ruby did this:
-    // loaded = watchman_load(&payload, payload + payload_size);
-    // we'll do this:
-    // ...
-    // 2. extract "watch"
-    // 3. extract "relative_path", if present
-    // 4. return NULL if "error" is present
-
-    int count = watchman_read_object(response);
-
-    // TODO: read `count` key/value pairs, looking for the keys we care
-    // about...
-
-    watchman_response_free(response);
-
+    // Process the response:
+    //
+    //     {
+    //       "watch": "/path/to/root",
+    //       "relative_path": "optional/relative/path",
+    //       "error": "If present, someting went wrong",
+    //       ...
+    //     }
+    //
     watchman_watch_project_result_t *result =
-        xmalloc(sizeof(watchman_watch_project_result_t));
+        xcalloc(1, sizeof(watchman_watch_project_result_t));
+
+    uint64_t count = watchman_read_object(r);
+    for (uint64_t i = 0; i < count; i++) {
+        str_t *key = watchman_read_string(r);
+        if (
+            key->length == sizeof("watch") &&
+            strncmp(key->contents, "watch", key->length) == 0
+        ) {
+            str_t *watch = watchman_read_string(r);
+            result->watch = watch->contents;
+            free(watch);
+        } else if (
+            key->length == sizeof("relative_path") &&
+            strncmp(key->contents, "relative_path", key->length) == 0
+        ) {
+            str_t *relative_path = watchman_read_string(r);
+            result->relative_path = relative_path->contents;
+            free(relative_path);
+        } else if (
+            key->length == sizeof("error") &&
+            strncmp(key->contents, "error", key->length) == 0
+        ) {
+            abort();
+        } else {
+            // Skip over values we don't care about.
+            watchman_skip_value(r);
+        }
+        str_free(key);
+    }
+    if (!result->watch) {
+        abort();
+    }
+
+    watchman_response_free(r);
 
     return result;
 }
@@ -632,6 +591,68 @@ static watchman_response_t *watchman_send_query(watchman_request_t *w, int socke
     r->capacity = payload_size;
 
     return r;
+}
+
+static void watchman_skip_value(watchman_response_t *r) {
+    if (r->ptr >= r->end) {
+        abort(); // Unexpected end of input.
+    }
+
+    switch (r->ptr[0]) {
+        case WATCHMAN_ARRAY_MARKER:
+            {
+                uint64_t count = watchman_read_array(r);
+                for (uint64_t i = 0; i < count; i++) {
+                    watchman_skip_value(r);
+                }
+            }
+            break;
+        case WATCHMAN_OBJECT_MARKER:
+            {
+                uint64_t count = watchman_read_object(r);
+                for (uint64_t i = 0; i < count; i++) {
+                    watchman_skip_value(r);
+                }
+            }
+            break;
+        case WATCHMAN_STRING_MARKER:
+            (void)watchman_read_string(r);
+            break;
+        case WATCHMAN_INT8_MARKER:
+        case WATCHMAN_INT16_MARKER:
+        case WATCHMAN_INT32_MARKER:
+        case WATCHMAN_INT64_MARKER:
+            (void)watchman_read_int(r);
+            break;
+        case WATCHMAN_DOUBLE_MARKER:
+            (void)watchman_read_double(r);
+            break;
+        case WATCHMAN_TRUE:
+        case WATCHMAN_FALSE:
+        case WATCHMAN_NIL:
+        case WATCHMAN_SKIP_MARKER: // Should only appear in templates.
+            r->ptr++;
+            break;
+        case WATCHMAN_TEMPLATE_MARKER:
+            {
+                // Skip: marker, array of key names, array of alternating key-value pairs.
+                // See: https://github.com/facebook/watchman/blob/main/website/_docs/BSER.markdown
+                r->ptr++;
+                uint64_t key_count = watchman_read_array(r);
+                for (uint64_t i = 0; i < key_count; i++) {
+                    watchman_skip_value(r);
+                }
+                uint64_t object_count = watchman_read_array(r);
+                for (uint64_t i = 0; i < object_count; i++) {
+                    for (uint64_t j = 0; j < key_count; j++) {
+                        watchman_skip_value(r);
+                    }
+                }
+            }
+            break;
+        default:
+            abort(); // Unsupported type.
+    }
 }
 
 void commandt_watchman_watch_project_result_free(
