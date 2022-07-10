@@ -17,6 +17,9 @@ local commandt = require'wincent.commandt'
 --  $user-cpu-time $system-cpu-time ($wall-clock-time) -- rehearsal
 --  $user-cpu-time $system-cpu-time ($wall-clock-time) -- actual
 
+
+commandt.epoch() -- Force eager loading of C library.
+
 local start_cpu = os.clock()
 local start_wall_s, start_wall_us = commandt.epoch()
 
