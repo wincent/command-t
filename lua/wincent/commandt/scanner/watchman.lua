@@ -7,6 +7,13 @@ local sockname = nil
 
 local socket = nil
 
+local files = nil
+
+watchman.get = function(force)
+  -- TODO impl; note that we don't want this to return a list of (Lua) strings
+  -- but rather a scanner handle
+end
+
 watchman.get_socket = function()
   if socket == nil then
     local name = watchman.get_sockname()
@@ -63,6 +70,15 @@ watchman.query = function(root, relative_root)
   --     :lua require'wincent.commandt.scanner.watchman'.query(my_watch['watch'])
   --
   return lib.commandt_watchman_query(root, relative_root, socket)
+end
+
+-- temporary function
+watchman.scanner = function()
+  local lib = require('wincent.commandt.lib')
+  local project = watchman.watch_project('/Users/wincent/code/command-t')
+  local result = watchman.query(project.watch, project.relative_root)
+  local scanner = lib.scanner_new_str(result.files, result.count)
+  return scanner
 end
 
 -- Equivalent to `watchman watch-project $root`.

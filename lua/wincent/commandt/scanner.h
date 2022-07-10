@@ -18,6 +18,14 @@
 scanner_t *scanner_new_copy(const char **candidates, unsigned count);
 
 /**
+ * Create a new `scanner_t` struct initialized with `candidates`.
+ *
+ * The caller should not call `scanner_free()` when done, because copies of the
+ * candidates are not made.
+ */
+scanner_t *scanner_new_str(str_t **candidates, unsigned count);
+
+/**
  * Create a new `scanner_t` struct initialized with `capacity`. If `capacity` is
  * 0, the default capacity is used.
  */

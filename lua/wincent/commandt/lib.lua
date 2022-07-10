@@ -82,6 +82,7 @@ setmetatable(c, {
       // Scanner methods.
 
       scanner_t *scanner_new_copy(const char **candidates, unsigned count);
+      scanner_t *scanner_new_str(str_t **candidates, unsigned count);
       void scanner_free(scanner_t *scanner);
       void commandt_print_scanner(scanner_t *scanner);
 
@@ -177,6 +178,12 @@ lib.scanner_new_copy = function(candidates)
     count
   )
   ffi.gc(scanner, c.scanner_free)
+  return scanner
+end
+
+lib.scanner_new_str = function(candidates, count)
+  local scanner = c.scanner_new_str(candidates, count)
+  -- ffi.gc(scanner, ffi.C.free) -- Free struct but not candidates.
   return scanner
 end
 

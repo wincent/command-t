@@ -43,6 +43,14 @@ scanner_t *scanner_new(unsigned capacity) {
     return scanner;
 }
 
+scanner_t *scanner_new_str(str_t **candidates, unsigned count) {
+    scanner_t *scanner = xmalloc(sizeof(scanner_t));
+    scanner->candidates = candidates;
+    scanner->count = count;
+    scanner->capacity = count;
+    return scanner;
+}
+
 static const char *NUL_BYTE = "\0";
 static const char *L_BRACE = "{";
 static const char *R_BRACE = "}";
