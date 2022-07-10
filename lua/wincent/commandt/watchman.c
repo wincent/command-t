@@ -14,6 +14,7 @@
 #include <sys/un.h> /* for sockaddr_un */
 #include <unistd.h> /* for close() */
 
+#include "debug.h"
 #include "str.h"
 #include "watchman.h"
 #include "xmalloc.h" /* for xmalloc() */
@@ -496,6 +497,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
         xcalloc(1, sizeof(watchman_watch_project_result_t));
 
     uint64_t count = watchman_read_object(r);
+    DEBUG_LOG("reading object with key count: %d\n", count);
     for (uint64_t i = 0; i < count; i++) {
         str_t *key = watchman_read_string(r);
         if (
@@ -518,6 +520,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
         ) {
             abort();
         } else {
+            DEBUG_LOG("skipping key: %s\n", key->contents);
             // Skip over values we don't care about.
             watchman_skip_value(r);
         }

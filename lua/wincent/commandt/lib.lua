@@ -198,12 +198,15 @@ lib.commandt_watchman_disconnect = function(socket)
 end
 
 lib.commandt_watchman_query = function(root, relative_root, socket)
+  -- TODO: some stuff
 end
 
 lib.commandt_watchman_query_result_free = function(result)
+  -- TODO: ...
 end
 
 lib.commandt_watchman_watch_project = function(root, socket)
+  return c.commandt_watchman_watch_project(root, socket)
 end
 
 lib.commandt_watchman_watch_project_result_free = function(result)
