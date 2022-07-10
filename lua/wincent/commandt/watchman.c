@@ -497,30 +497,28 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
         xcalloc(1, sizeof(watchman_watch_project_result_t));
 
     uint64_t count = watchman_read_object(r);
-    DEBUG_LOG("reading object with key count: %d\n", count);
     for (uint64_t i = 0; i < count; i++) {
         str_t *key = watchman_read_string(r);
         if (
-            key->length == sizeof("watch") &&
+            key->length == sizeof("watch") - 1 &&
             strncmp(key->contents, "watch", key->length) == 0
         ) {
             str_t *watch = watchman_read_string(r);
             result->watch = watch->contents;
             free(watch);
         } else if (
-            key->length == sizeof("relative_path") &&
+            key->length == sizeof("relative_path") - 1 &&
             strncmp(key->contents, "relative_path", key->length) == 0
         ) {
             str_t *relative_path = watchman_read_string(r);
             result->relative_path = relative_path->contents;
             free(relative_path);
         } else if (
-            key->length == sizeof("error") &&
+            key->length == sizeof("error") - 1 &&
             strncmp(key->contents, "error", key->length) == 0
         ) {
             abort();
         } else {
-            DEBUG_LOG("skipping key: %s\n", key->contents);
             // Skip over values we don't care about.
             watchman_skip_value(r);
         }

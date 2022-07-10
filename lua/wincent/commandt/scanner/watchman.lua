@@ -63,7 +63,6 @@ end
 watchman.watch_project = function(root)
   local socket = watchman.get_socket() -- TODO: when to clean up?
   local lib = require('wincent.commandt.lib')
-  local result = lib.commandt_watchman_watch_project(root, socket)
 
   -- To see this, run:
   --
@@ -71,13 +70,7 @@ watchman.watch_project = function(root)
   --     r
   --     :lua require'wincent.commandt.scanner.watchman'.watch_project('/Users/wincent/code/command-t')
   --
-  print(vim.inspect(result))
-  print(vim.inspect(result['watch']))
-  print(vim.inspect(result['relative_path']))
-  return {
-    watch = result['watch'],
-    relative_path = result['relative_path'],
-  }
+  return lib.commandt_watchman_watch_project(root, socket)
 end
 
 return watchman

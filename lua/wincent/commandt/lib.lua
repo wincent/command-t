@@ -206,7 +206,15 @@ lib.commandt_watchman_query_result_free = function(result)
 end
 
 lib.commandt_watchman_watch_project = function(root, socket)
-  return c.commandt_watchman_watch_project(root, socket)
+  local result = c.commandt_watchman_watch_project(root, socket)
+  local project = {
+    watch = ffi.string(result['watch']),
+  }
+  if result['relative_path'] ~= nil then
+    project['relative_path'] = ffi.string(result['relative_path'])
+  end
+  print(vim.inspect(project))
+  return project
 end
 
 lib.commandt_watchman_watch_project_result_free = function(result)
