@@ -9,3 +9,13 @@ For returning results back, we only ever have a small number (say, 10), and coul
 To avoid copying:
 
 Watchman scanner could just keep the BSER block and overwrite it in place, setting NULL bytes to terminate the strings (there is room for this). And return str_t with special field to indicate that these strings aren't to be freed. Not clear whether the overhead would be worth it, but it might be.
+
+## Benchmarks
+
+On Apple Silicon, where the `luajit` package is not currently available in Homebrew, but `neovim` itself requires `luajit-openresty` package, you can add a working `luajit` executable to your `$PATH` with:
+
+```
+export PATH="/opt/homebrew/opt/luajit-openresty/bin:$PATH"
+```
+
+After which, `bin/benchmarks/matcher.lua` will work.
