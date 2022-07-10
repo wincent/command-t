@@ -324,18 +324,18 @@ watchman_query_result_t *commandt_watchman_query(
     //
     watchman_request_t *w = watchman_init();
     watchman_write_array(w, 3);
-    watchman_write_string(w, "query", sizeof("query"));
+    watchman_write_string(w, "query", sizeof("query") - 1);
     watchman_write_string(w, root, strlen(root));
     watchman_write_object(w, relative_root ? 3 : 2);
-    watchman_write_string(w, "expression", sizeof("expression"));
+    watchman_write_string(w, "expression", sizeof("expression") - 1);
     watchman_write_array(w, 2);
-    watchman_write_string(w, "type", sizeof("type"));
-    watchman_write_string(w, "f", sizeof("f"));
-    watchman_write_string(w, "fields", sizeof("fields"));
+    watchman_write_string(w, "type", sizeof("type") - 1);
+    watchman_write_string(w, "f", sizeof("f") - 1);
+    watchman_write_string(w, "fields", sizeof("fields") - 1);
     watchman_write_array(w, 1);
-    watchman_write_string(w, "name", sizeof("name"));
+    watchman_write_string(w, "name", sizeof("name") - 1);
     if (relative_root) {
-        watchman_write_string(w, "relative_root", sizeof("relative_root"));
+        watchman_write_string(w, "relative_root", sizeof("relative_root") - 1);
         watchman_write_string(w, relative_root, strlen(relative_root));
     }
 
@@ -421,7 +421,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     //
     watchman_request_t *w = watchman_init();
     watchman_write_array(w, 2);
-    watchman_write_string(w, "watch-project", sizeof("watch-project"));
+    watchman_write_string(w, "watch-project", sizeof("watch-project") - 1);
     watchman_write_string(w, root, strlen(root));
     watchman_response_t *r = watchman_send(w, socket);
 
