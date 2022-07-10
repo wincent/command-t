@@ -268,65 +268,6 @@ static double watchman_read_double(watchman_response_t *r) {
     return val;
 }
 
-#if 0
-
-/**
- * CommandT::Watchman::Utils.load(serialized)
- *
- * Converts the binary object, `serialized`, from the Watchman binary protocol
- * format into a normal Ruby object.
- */
-VALUE CommandTWatchmanUtils_load(VALUE self, VALUE serialized) {
-    char *ptr, *end;
-    long length;
-    uint64_t payload_size;
-    VALUE loaded;
-    serialized = StringValue(serialized);
-    length = RSTRING_LEN(serialized);
-    ptr = RSTRING_PTR(serialized);
-    end = ptr + length;
-
-    // expect at least the binary marker and a int8_t length counter
-    if ((size_t)length < sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) * 2) {
-        rb_raise(rb_eArgError, "undersized header");
-    }
-
-    if (memcmp(ptr, WATCHMAN_BINARY_MARKER, sizeof(WATCHMAN_BINARY_MARKER) - 1)) {
-        rb_raise(rb_eArgError, "missing binary marker");
-    }
-
-    // get size marker
-    ptr += sizeof(WATCHMAN_BINARY_MARKER) - 1;
-    payload_size = watchman_read_int(&ptr, end);
-    if (!payload_size) {
-        rb_raise(rb_eArgError, "empty payload");
-    }
-
-    // sanity check length
-    if (ptr + payload_size != end) {
-        rb_raise(
-            rb_eArgError,
-            "payload size mismatch (%lu)",
-            (unsigned long)(end - (ptr + payload_size))
-        );
-    }
-
-    loaded = watchman_load(&ptr, end);
-
-    // one more sanity check
-    if (ptr != end) {
-        rb_raise(
-            rb_eArgError,
-            "payload termination mismatch (%lu)",
-            (unsigned long)(end - ptr)
-        );
-    }
-
-    return loaded;
-}
-
-#endif
-
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
     if (fd == -1) {
@@ -527,6 +468,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     if (!result->watch) {
         abort();
     }
+    assert(r->ptr == r->end);
 
     watchman_response_free(r);
 
@@ -588,7 +530,7 @@ static watchman_response_t *watchman_send_query(watchman_request_t *w, int socke
     }
 
     r->ptr = r->payload + peek_size;
-    r->end = r->payload + peek_size + payload_size;
+    r->end = r->payload + payload_size;
     r->capacity = payload_size;
 
     return r;
