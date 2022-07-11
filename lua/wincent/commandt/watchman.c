@@ -39,13 +39,13 @@ typedef struct {
 // Forward declarations of static functions.
 
 static void watchman_append(watchman_request_t *w, const char *data, size_t length);
-static void watchman_request_free(watchman_request_t *w);
-static watchman_request_t *watchman_request_init();
 static uint64_t watchman_read_array(watchman_response_t *r);
 static double watchman_read_double(watchman_response_t *r);
 static int64_t watchman_read_int(watchman_response_t *r);
 static uint64_t watchman_read_object(watchman_response_t *r);
 static str_t *watchman_read_string(watchman_response_t *r);
+static void watchman_request_free(watchman_request_t *w);
+static watchman_request_t *watchman_request_init();
 static void watchman_response_free(watchman_response_t *r);
 static watchman_response_t *watchman_send(watchman_request_t *w, int socket);
 static void watchman_skip_value(watchman_response_t *r);
