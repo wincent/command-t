@@ -78,7 +78,8 @@ setmetatable(c, {
           bool ignore_spaces,
           unsigned limit,
           bool never_show_dot_files,
-          bool recurse
+          bool recurse,
+          unsigned threads
       );
       void commandt_matcher_free(matcher_t *matcher);
       result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);
@@ -167,6 +168,7 @@ lib.commandt_matcher_new = function(scanner, options)
     limit = 15,
     never_show_dot_files = false,
     recurse = true,
+    threads = lib.commandt_processors(),
   }, options)
   if options.limit < 1 then
     error("limit must be > 0")
@@ -178,7 +180,8 @@ lib.commandt_matcher_new = function(scanner, options)
     options.ignore_spaces,
     options.limit,
     options.never_show_dot_files,
-    options.recurse
+    options.recurse,
+    options.threads
    )
   ffi.gc(matcher, c.commandt_matcher_free)
   return matcher

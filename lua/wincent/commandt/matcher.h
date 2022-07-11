@@ -30,7 +30,8 @@ matcher_t *commandt_matcher_new(
     bool ignore_spaces,
     unsigned limit,
     bool never_show_dot_files,
-    bool recurse
+    bool recurse,
+    unsigned threads
 );
 
 /**

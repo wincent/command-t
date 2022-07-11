@@ -44,9 +44,11 @@ matcher_t *commandt_matcher_new(
     bool ignore_spaces,
     unsigned limit,
     bool never_show_dot_files,
-    bool recurse
+    bool recurse,
+    unsigned threads
 ) {
     assert(limit > 0);
+    assert(threads > 0);
 
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
@@ -64,7 +66,7 @@ matcher_t *commandt_matcher_new(
     matcher->never_show_dot_files = never_show_dot_files;
     matcher->recurse = recurse;
     matcher->limit = limit;
-    matcher->threads = 4; // TODO: base on core count
+    matcher->threads = threads;
     matcher->needle = NULL;
     matcher->needle_length = 0;
     matcher->needle_bitmask = UNSET_BITMASK;
