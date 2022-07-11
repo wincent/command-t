@@ -13,7 +13,6 @@ package.path = lua .. '?.lua;' .. package.path
 package.path = lua .. '?/init.lua;' .. package.path
 package.path = pwd .. '/' .. benchmarks_directory .. '../../data/?.lua;' .. package.path
 
--- Note, may need to modify package.cpath too.
 local commandt = require'wincent.commandt'
 
 -- Using a Lua module for benchmark data so that we don't need to pull in a JSON

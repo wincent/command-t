@@ -19,3 +19,7 @@ export PATH="/opt/homebrew/opt/luajit-openresty/bin:$PATH"
 ```
 
 After which, `bin/benchmarks/matcher.lua` will work.
+
+## TODO
+
+- Keep adding tests.

@@ -87,6 +87,7 @@ setmetatable(c, {
 
       // Scanner methods.
 
+      scanner_t *scanner_new(unsigned capacity);
       scanner_t *scanner_new_copy(const char **candidates, unsigned count);
       scanner_t *scanner_new_str(str_t **candidates, unsigned count);
       void scanner_free(scanner_t *scanner);
@@ -198,6 +199,12 @@ end
 -- TODO: order this file
 lib.print_scanner = function(scanner)
   c.commandt_print_scanner(scanner)
+end
+
+lib.scanner_new = function(capacity)
+  local scanner = c.scanner_new(capacity or 0);
+  ffi.gc(scanner, c.scanner_free)
+  return scanner
 end
 
 lib.scanner_new_copy = function(candidates)
