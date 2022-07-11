@@ -87,188 +87,6 @@ static const char watchman_array_marker  = WATCHMAN_ARRAY_MARKER;
 static const char watchman_object_marker = WATCHMAN_OBJECT_MARKER;
 static const char watchman_string_marker = WATCHMAN_STRING_MARKER;
 
-/**
- * Appends `length` bytes, starting at `data`, to the watchman_request_t struct `w`
- *
- * Will attempt to reallocate the underlying storage if it is not sufficient.
- */
-static void watchman_append(watchman_request_t *w, const char *data, size_t length) {
-    if (w->length + length > w->capacity) {
-        w->capacity += w->length + WATCHMAN_DEFAULT_STORAGE;
-        xrealloc(w->payload, sizeof(uint8_t) * w->capacity);
-    }
-    memcpy(w->payload + w->length, data, length);
-    w->length += length;
-}
-
-/**
- * Allocate a new watchman_request_t struct
- *
- * The struct has a small amount of extra capacity preallocated, and a blank
- * header that can be filled in later to describe the PDU.
- */
-static watchman_request_t *watchman_request_init() {
-    watchman_request_t *w = xmalloc(sizeof(watchman_request_t));
-    w->capacity = WATCHMAN_DEFAULT_STORAGE;
-    w->length = 0;
-    w->payload = xcalloc(WATCHMAN_DEFAULT_STORAGE, sizeof(uint8_t));
-    watchman_append(w, WATCHMAN_HEADER, sizeof(WATCHMAN_HEADER) - 1);
-    return w;
-}
-
-/**
- * Free a watchman_request_t struct `w` that was previously allocated with
- * `watchman_request_init`
- */
-static void watchman_request_free(watchman_request_t *w) {
-    free(w->payload);
-    free(w);
-}
-
-/**
- * Encodes and appends the integer `num` to `w`
- */
-static void watchman_write_int(watchman_request_t *w, int64_t num) {
-    char encoded[1 + sizeof(int64_t)];
-    if (num == (int8_t)num) {
-        encoded[0] = WATCHMAN_INT8_MARKER;
-        encoded[1] = (int8_t)num;
-        watchman_append(w, encoded, 1 + sizeof(int8_t));
-    } else if (num == (int16_t)num) {
-        encoded[0] = WATCHMAN_INT16_MARKER;
-        *(int16_t *)(encoded + 1) = (int16_t)num;
-        watchman_append(w, encoded, 1 + sizeof(int16_t));
-    } else if (num == (int32_t)num) {
-        encoded[0] = WATCHMAN_INT32_MARKER;
-        *(int32_t *)(encoded + 1) = (int32_t)num;
-        watchman_append(w, encoded, 1 + sizeof(int32_t));
-    } else {
-        encoded[0] = WATCHMAN_INT64_MARKER;
-        *(int64_t *)(encoded + 1) = (int64_t)num;
-        watchman_append(w, encoded, 1 + sizeof(int64_t));
-    }
-}
-
-/**
- * Encodes and appends the string `string` to `w`
- */
-static void watchman_write_string(watchman_request_t *w, const char *string, size_t length) {
-    watchman_append(w, &watchman_string_marker, sizeof(watchman_string_marker));
-    watchman_write_int(w, length);
-    watchman_append(w, string, length);
-}
-
-/**
- * Prepares to encode an object of `size` key/value pairs.
- *
- * After calling this, the caller should call, for each key/value pair, first
- * `watchman_write_string()` (for the key), then some other `watchman_write`
- * function for the value.
- */
-static void watchman_write_object(watchman_request_t *w, unsigned size) {
-    watchman_append(w, &watchman_object_marker, sizeof(watchman_object_marker));
-    watchman_write_int(w, size);
-}
-
-static int64_t watchman_read_int(watchman_response_t *r) {
-    char *val_ptr = r->ptr + sizeof(int8_t);
-    int64_t val = 0;
-
-    if (val_ptr >= r->end) {
-        abort(); // Insufficient int storage.
-    }
-
-    switch (r->ptr[0]) {
-        case WATCHMAN_INT8_MARKER:
-            if (val_ptr + sizeof(int8_t) > r->end) {
-                abort(); // Overrun extracting int8_t.
-            }
-            val = *(int8_t *)val_ptr;
-            r->ptr = val_ptr + sizeof(int8_t);
-            break;
-        case WATCHMAN_INT16_MARKER:
-            if (val_ptr + sizeof(int16_t) > r->end) {
-                abort(); // Overrun extracting int16_t.
-            }
-            val = *(int16_t *)val_ptr;
-            r->ptr = val_ptr + sizeof(int16_t);
-            break;
-        case WATCHMAN_INT32_MARKER:
-            if (val_ptr + sizeof(int32_t) > r->end) {
-                abort(); // Overrun extracting int32_t.
-            }
-            val = *(int32_t *)val_ptr;
-            r->ptr = val_ptr + sizeof(int32_t);
-            break;
-        case WATCHMAN_INT64_MARKER:
-            if (val_ptr + sizeof(int64_t) > r->end) {
-                abort(); // Overrun extracting int64_t.
-            }
-            val = *(int64_t *)val_ptr;
-            r->ptr = val_ptr + sizeof(int64_t);
-            break;
-        default:
-            abort(); // Bad integer marker.
-            break;
-    }
-
-    return val;
-}
-
-/**
- * Reads and returns a string encoded in the Watchman binary protocol format,
- * starting at `ptr` and finishing at or before `end`
- */
-static str_t *watchman_read_string(watchman_response_t *r) {
-    int64_t length;
-    if (r->ptr >= r->end) {
-        abort(); // Unexpected end of input.
-    }
-
-    if (r->ptr[0] != WATCHMAN_STRING_MARKER) {
-        abort(); // Not a string.
-    }
-
-    r->ptr += sizeof(int8_t);
-    if (r->ptr >= r->end) {
-        abort(); // Invalid string header.
-    }
-
-    length = watchman_read_int(r);
-    if (length == 0) { // Special case for zero-length strings.
-        return str_new_copy("", 0);
-    } else if (r->ptr + length > r->end) {
-        abort(); // Insufficient string storage.
-    }
-
-    str_t *string = str_new_copy(r->ptr, length);
-    r->ptr += length;
-    return string;
-}
-
-/**
- * Reads and returns a double encoded in the Watchman binary protocol format,
- * starting at `ptr` and finishing at or before `end`
- */
-static double watchman_read_double(watchman_response_t *r) {
-    double val = 0.0;
-
-    if (r->ptr + sizeof(typeof(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) > r->end) {
-        abort(); // Insufficient double storage.
-    }
-
-    // Verify and consume marker.
-    if (r->ptr[0] == WATCHMAN_DOUBLE_MARKER) {
-        r->ptr += sizeof(typeof(WATCHMAN_DOUBLE_MARKER));
-        val = *(double *)r->ptr;
-        r->ptr += sizeof(double);
-    } else {
-        abort(); // Not an object.
-    }
-
-    return val;
-}
-
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
     if (fd == -1) {
@@ -381,66 +199,6 @@ watchman_query_result_t *commandt_watchman_query(
     return result;
 }
 
-void commandt_watchman_query_result_free(watchman_query_result_t *result) {
-    // TODO: free more stuff...
-    free(result);
-}
-
-static void watchman_write_array(watchman_request_t *w, unsigned length) {
-    watchman_append(w, &watchman_array_marker, sizeof(watchman_array_marker));
-    watchman_write_int(w, length);
-}
-
-/**
- * Returns count of values in the array.
- */
-static uint64_t watchman_read_array(watchman_response_t *r) {
-    int64_t count = 0;
-    if (r->ptr >= r->end) {
-        abort(); // Unexpected end of input.
-    }
-
-    // Verify and consume marker.
-    if (r->ptr[0] == WATCHMAN_ARRAY_MARKER) {
-        r->ptr++;
-        if (r->ptr + 2 > r->end) {
-            abort(); // Incomplete array header.
-        }
-        count = watchman_read_int(r);
-    } else {
-        abort(); // Not an array.
-    }
-    if (count < 0) {
-        abort(); // Negative count.
-    }
-    return count;
-}
-
-/**
- * Returns count of key/value pairs in the object.
- */
-static uint64_t watchman_read_object(watchman_response_t *r) {
-    int64_t count = 0;
-    if (r->ptr >= r->end) {
-        abort(); // Unexpected end of input.
-    }
-
-    // Verify and consume marker.
-    if (r->ptr[0] == WATCHMAN_OBJECT_MARKER) {
-        r->ptr++;
-        if (r->ptr + 2 > r->end) {
-            abort(); // Incomplete hash header.
-        }
-        count = watchman_read_int(r);
-    } else {
-        abort(); // Not an object.
-    }
-    if (count < 0) {
-        abort(); // Negative count.
-    }
-    return count;
-}
-
 watchman_watch_project_result_t *commandt_watchman_watch_project(
     const char *root,
     int socket
@@ -504,6 +262,206 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     watchman_response_free(r);
 
     return result;
+}
+
+void commandt_watchman_watch_project_result_free(
+    watchman_watch_project_result_t *result
+) {
+    free((void *)result->watch);
+    free((void *)result->relative_path);
+    free(result);
+}
+
+void commandt_watchman_query_result_free(watchman_query_result_t *result) {
+    // TODO: free more stuff...
+    free(result);
+}
+
+/**
+ * Appends `length` bytes, starting at `data`, to the watchman_request_t struct `w`
+ *
+ * Will attempt to reallocate the underlying storage if it is not sufficient.
+ */
+static void watchman_append(watchman_request_t *w, const char *data, size_t length) {
+    if (w->length + length > w->capacity) {
+        w->capacity += w->length + WATCHMAN_DEFAULT_STORAGE;
+        xrealloc(w->payload, sizeof(uint8_t) * w->capacity);
+    }
+    memcpy(w->payload + w->length, data, length);
+    w->length += length;
+}
+
+/**
+ * Returns count of values in the array.
+ */
+static uint64_t watchman_read_array(watchman_response_t *r) {
+    int64_t count = 0;
+    if (r->ptr >= r->end) {
+        abort(); // Unexpected end of input.
+    }
+
+    // Verify and consume marker.
+    if (r->ptr[0] == WATCHMAN_ARRAY_MARKER) {
+        r->ptr++;
+        if (r->ptr + 2 > r->end) {
+            abort(); // Incomplete array header.
+        }
+        count = watchman_read_int(r);
+    } else {
+        abort(); // Not an array.
+    }
+    if (count < 0) {
+        abort(); // Negative count.
+    }
+    return count;
+}
+
+/**
+ * Reads and returns a double encoded in the Watchman binary protocol format,
+ * starting at `ptr` and finishing at or before `end`
+ */
+static double watchman_read_double(watchman_response_t *r) {
+    double val = 0.0;
+
+    if (r->ptr + sizeof(typeof(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) > r->end) {
+        abort(); // Insufficient double storage.
+    }
+
+    // Verify and consume marker.
+    if (r->ptr[0] == WATCHMAN_DOUBLE_MARKER) {
+        r->ptr += sizeof(typeof(WATCHMAN_DOUBLE_MARKER));
+        val = *(double *)r->ptr;
+        r->ptr += sizeof(double);
+    } else {
+        abort(); // Not an object.
+    }
+
+    return val;
+}
+
+static int64_t watchman_read_int(watchman_response_t *r) {
+    char *val_ptr = r->ptr + sizeof(int8_t);
+    int64_t val = 0;
+
+    if (val_ptr >= r->end) {
+        abort(); // Insufficient int storage.
+    }
+
+    switch (r->ptr[0]) {
+        case WATCHMAN_INT8_MARKER:
+            if (val_ptr + sizeof(int8_t) > r->end) {
+                abort(); // Overrun extracting int8_t.
+            }
+            val = *(int8_t *)val_ptr;
+            r->ptr = val_ptr + sizeof(int8_t);
+            break;
+        case WATCHMAN_INT16_MARKER:
+            if (val_ptr + sizeof(int16_t) > r->end) {
+                abort(); // Overrun extracting int16_t.
+            }
+            val = *(int16_t *)val_ptr;
+            r->ptr = val_ptr + sizeof(int16_t);
+            break;
+        case WATCHMAN_INT32_MARKER:
+            if (val_ptr + sizeof(int32_t) > r->end) {
+                abort(); // Overrun extracting int32_t.
+            }
+            val = *(int32_t *)val_ptr;
+            r->ptr = val_ptr + sizeof(int32_t);
+            break;
+        case WATCHMAN_INT64_MARKER:
+            if (val_ptr + sizeof(int64_t) > r->end) {
+                abort(); // Overrun extracting int64_t.
+            }
+            val = *(int64_t *)val_ptr;
+            r->ptr = val_ptr + sizeof(int64_t);
+            break;
+        default:
+            abort(); // Bad integer marker.
+            break;
+    }
+
+    return val;
+}
+
+/**
+ * Returns count of key/value pairs in the object.
+ */
+static uint64_t watchman_read_object(watchman_response_t *r) {
+    int64_t count = 0;
+    if (r->ptr >= r->end) {
+        abort(); // Unexpected end of input.
+    }
+
+    // Verify and consume marker.
+    if (r->ptr[0] == WATCHMAN_OBJECT_MARKER) {
+        r->ptr++;
+        if (r->ptr + 2 > r->end) {
+            abort(); // Incomplete hash header.
+        }
+        count = watchman_read_int(r);
+    } else {
+        abort(); // Not an object.
+    }
+    if (count < 0) {
+        abort(); // Negative count.
+    }
+    return count;
+}
+
+/**
+ * Reads and returns a string encoded in the Watchman binary protocol format,
+ * starting at `ptr` and finishing at or before `end`
+ */
+static str_t *watchman_read_string(watchman_response_t *r) {
+    int64_t length;
+    if (r->ptr >= r->end) {
+        abort(); // Unexpected end of input.
+    }
+
+    if (r->ptr[0] != WATCHMAN_STRING_MARKER) {
+        abort(); // Not a string.
+    }
+
+    r->ptr += sizeof(int8_t);
+    if (r->ptr >= r->end) {
+        abort(); // Invalid string header.
+    }
+
+    length = watchman_read_int(r);
+    if (length == 0) { // Special case for zero-length strings.
+        return str_new_copy("", 0);
+    } else if (r->ptr + length > r->end) {
+        abort(); // Insufficient string storage.
+    }
+
+    str_t *string = str_new_copy(r->ptr, length);
+    r->ptr += length;
+    return string;
+}
+
+/**
+ * Free a watchman_request_t struct `w` that was previously allocated with
+ * `watchman_request_init`
+ */
+static void watchman_request_free(watchman_request_t *w) {
+    free(w->payload);
+    free(w);
+}
+
+/**
+ * Allocate a new watchman_request_t struct
+ *
+ * The struct has a small amount of extra capacity preallocated, and a blank
+ * header that can be filled in later to describe the PDU.
+ */
+static watchman_request_t *watchman_request_init() {
+    watchman_request_t *w = xmalloc(sizeof(watchman_request_t));
+    w->capacity = WATCHMAN_DEFAULT_STORAGE;
+    w->length = 0;
+    w->payload = xcalloc(WATCHMAN_DEFAULT_STORAGE, sizeof(uint8_t));
+    watchman_append(w, WATCHMAN_HEADER, sizeof(WATCHMAN_HEADER) - 1);
+    return w;
 }
 
 static void watchman_response_free(watchman_response_t *r) {
@@ -630,12 +588,52 @@ static void watchman_skip_value(watchman_response_t *r) {
     }
 }
 
-void commandt_watchman_watch_project_result_free(
-    watchman_watch_project_result_t *result
-) {
-    free((void *)result->watch);
-    free((void *)result->relative_path);
-    free(result);
+static void watchman_write_array(watchman_request_t *w, unsigned length) {
+    watchman_append(w, &watchman_array_marker, sizeof(watchman_array_marker));
+    watchman_write_int(w, length);
 }
 
-// TODO: sort contents of this file
+/**
+ * Encodes and appends the integer `num` to `w`
+ */
+static void watchman_write_int(watchman_request_t *w, int64_t num) {
+    char encoded[1 + sizeof(int64_t)];
+    if (num == (int8_t)num) {
+        encoded[0] = WATCHMAN_INT8_MARKER;
+        encoded[1] = (int8_t)num;
+        watchman_append(w, encoded, 1 + sizeof(int8_t));
+    } else if (num == (int16_t)num) {
+        encoded[0] = WATCHMAN_INT16_MARKER;
+        *(int16_t *)(encoded + 1) = (int16_t)num;
+        watchman_append(w, encoded, 1 + sizeof(int16_t));
+    } else if (num == (int32_t)num) {
+        encoded[0] = WATCHMAN_INT32_MARKER;
+        *(int32_t *)(encoded + 1) = (int32_t)num;
+        watchman_append(w, encoded, 1 + sizeof(int32_t));
+    } else {
+        encoded[0] = WATCHMAN_INT64_MARKER;
+        *(int64_t *)(encoded + 1) = (int64_t)num;
+        watchman_append(w, encoded, 1 + sizeof(int64_t));
+    }
+}
+
+/**
+ * Prepares to encode an object of `size` key/value pairs.
+ *
+ * After calling this, the caller should call, for each key/value pair, first
+ * `watchman_write_string()` (for the key), then some other `watchman_write`
+ * function for the value.
+ */
+static void watchman_write_object(watchman_request_t *w, unsigned size) {
+    watchman_append(w, &watchman_object_marker, sizeof(watchman_object_marker));
+    watchman_write_int(w, size);
+}
+
+/**
+ * Encodes and appends the string `string` to `w`
+ */
+static void watchman_write_string(watchman_request_t *w, const char *string, size_t length) {
+    watchman_append(w, &watchman_string_marker, sizeof(watchman_string_marker));
+    watchman_write_int(w, length);
+    watchman_append(w, string, length);
+}
