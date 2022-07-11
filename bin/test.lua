@@ -80,6 +80,7 @@ _G.expect = function(value)
   return {
     to_equal = function(other)
       if not equal(value, other) then
+        -- TODO: say how it was different
         error('not equal', 2)
       end
     end,
@@ -140,21 +141,33 @@ local stats = {
   failed = 0,
 }
 
+local setup = {}
+local teardown = {}
+
 local run = nil
 
 run = function(runnable, indent)
   if runnable.kind == 'context' then
     print(indent .. bold(runnable.description))
     for _, child in ipairs(runnable.children) do
-      for _, setup in ipairs(runnable.before) do
-        setup()
+      for _, callback in ipairs(runnable.before) do
+        table.insert(setup, callback)
+      end
+      for _, callback in ipairs(runnable.after) do
+        table.insert(teardown, 1, callback)
       end
       run(child, indent .. INDENT)
-      for _, teardown in ipairs(runnable.after) do
-        teardown()
+      for _ = 1, #(runnable.before) do
+        table.remove(setup)
+      end
+      for _ = 1, #(runnable.after) do
+        table.remove(teardown, 1)
       end
     end
   elseif runnable.kind == 'test' then
+    for _, callback in ipairs(setup) do
+      callback()
+    end
     local status, err = pcall(runnable.callback)
     if status then
       stats.passed = stats.passed + 1
@@ -162,6 +175,9 @@ run = function(runnable, indent)
     else
       stats.failed = stats.failed + 1
       print(indent .. red_bg(' FAIL ') .. ': ' .. err)
+    end
+    for _, callback in ipairs(teardown) do
+      callback()
     end
   else
     error('run(): unrecognized runnable.kind ' .. runnable.kind)
