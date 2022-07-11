@@ -12,7 +12,8 @@ end
 
 local pwd = os.getenv('PWD')
 local bin_directory  = debug.getinfo(1).source:match('@?(.*/)')
-local lua = pwd .. '/' .. bin_directory .. '../lua/'
+assert(bin_directory == 'bin/')
+local lua = pwd .. '/lua/'
 
 package.path = lua .. '?.lua;' .. package.path
 package.path = lua .. '?/init.lua;' .. package.path
@@ -78,9 +79,10 @@ end
 _G.expect = function(value)
   return {
     to_equal = function(other)
-      -- TODO: use debug.getinfo() to print right file info
       if not equal(value, other) then
-        error('not equal')
+        local info = debug.getinfo(2, 'Sl')
+        local source = info.source:sub(#('@' .. pwd) + 2, -1)
+        error('not equal: ' .. source .. ':' .. info.currentline)
       end
     end,
   }
