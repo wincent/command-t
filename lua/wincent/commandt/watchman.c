@@ -10,7 +10,7 @@
 #include <stdlib.h> /* for abort(), free() */
 #include <string.h> /* for memset(), strncpy() */
 #include <sys/errno.h> /* for errno */
-#include <sys/socket.h> /* for AF_LOCAL, recv(), MSG_PEEK */
+#include <sys/socket.h> /* for AF_LOCAL, MSG_PEEK, MSG_WAITALL, recv() */
 #include <sys/un.h> /* for sockaddr_un */
 #include <unistd.h> /* for close() */
 
@@ -39,6 +39,7 @@ typedef struct {
 // Forward declarations of static functions.
 
 static void watchman_append(watchman_request_t *w, const char *data, size_t length);
+static void watchman_append_char(watchman_request_t *w, char c);
 static uint64_t watchman_read_array(watchman_response_t *r);
 static double watchman_read_double(watchman_response_t *r);
 static int64_t watchman_read_int(watchman_response_t *r);
@@ -82,10 +83,6 @@ static void watchman_write_string(watchman_request_t *w, const char *string, siz
 // How far we have to peek, at most, to figure out the size of the PDU itself.
 #define WATCHMAN_PEEK_BUFFER_SIZE \
     (sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(typeof(WATCHMAN_INT64_MARKER)) + sizeof(int64_t))
-
-static const char watchman_array_marker  = WATCHMAN_ARRAY_MARKER;
-static const char watchman_object_marker = WATCHMAN_OBJECT_MARKER;
-static const char watchman_string_marker = WATCHMAN_STRING_MARKER;
 
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -285,10 +282,23 @@ void commandt_watchman_query_result_free(watchman_query_result_t *result) {
 static void watchman_append(watchman_request_t *w, const char *data, size_t length) {
     if (w->length + length > w->capacity) {
         w->capacity += w->length + WATCHMAN_DEFAULT_STORAGE;
-        xrealloc(w->payload, sizeof(uint8_t) * w->capacity);
+        xrealloc(w->payload, w->capacity);
     }
     memcpy(w->payload + w->length, data, length);
     w->length += length;
+}
+
+/**
+ * Appends a single char, `c`, to the watchman_request_t struct `w`
+ *
+ * Will attempt to reallocate the underlying storage if it is not sufficient.
+ */
+static void watchman_append_char(watchman_request_t *w, char c) {
+    if (w->length + 1 > w->capacity) {
+        w->capacity += w->length + WATCHMAN_DEFAULT_STORAGE;
+        xrealloc(w->payload, w->capacity);
+    }
+    w->payload[w->length++] = c;
 }
 
 /**
@@ -589,7 +599,7 @@ static void watchman_skip_value(watchman_response_t *r) {
 }
 
 static void watchman_write_array(watchman_request_t *w, unsigned length) {
-    watchman_append(w, &watchman_array_marker, sizeof(watchman_array_marker));
+    watchman_append_char(w, WATCHMAN_ARRAY_MARKER);
     watchman_write_int(w, length);
 }
 
@@ -625,7 +635,7 @@ static void watchman_write_int(watchman_request_t *w, int64_t num) {
  * function for the value.
  */
 static void watchman_write_object(watchman_request_t *w, unsigned size) {
-    watchman_append(w, &watchman_object_marker, sizeof(watchman_object_marker));
+    watchman_append_char(w, WATCHMAN_OBJECT_MARKER);
     watchman_write_int(w, size);
 }
 
@@ -633,7 +643,7 @@ static void watchman_write_object(watchman_request_t *w, unsigned size) {
  * Encodes and appends the string `string` to `w`
  */
 static void watchman_write_string(watchman_request_t *w, const char *string, size_t length) {
-    watchman_append(w, &watchman_string_marker, sizeof(watchman_string_marker));
+    watchman_append_char(w, WATCHMAN_STRING_MARKER);
     watchman_write_int(w, length);
     watchman_append(w, string, length);
 }
