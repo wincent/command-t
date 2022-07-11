@@ -113,6 +113,10 @@ setmetatable(c, {
 
       benchmark_t commandt_epoch();
 
+      // Utilities.
+
+      unsigned commandt_processors();
+
       // Standard library.
       void free(void *ptr);
     ]]
@@ -182,6 +186,10 @@ end
 
 lib.commandt_matcher_run = function(matcher, needle)
   return c.commandt_matcher_run(matcher, needle)
+end
+
+lib.commandt_processors = function()
+  return c.commandt_processors()
 end
 
 -- TODO: order this file

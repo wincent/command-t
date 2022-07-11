@@ -93,4 +93,9 @@ typedef struct {
  */
 benchmark_t commandt_epoch();
 
+/**
+ * Return number of processors on the current machine.
+ */
+unsigned commandt_processors();
+
 #endif

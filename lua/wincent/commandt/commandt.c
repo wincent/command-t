@@ -3,10 +3,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <limits.h> /* for UINT_MAX */
 #include <stdio.h> /* for perror() */
 #include <string.h> /* for strerror() */
 #include <sys/errno.h> /* for errno */
 #include <time.h> /* for CLOCK_REALTIME, clock_gettime() */
+#include <unistd.h> /* for _SC_NPROCESSORS_CONF, sysconf() */
 
 #include "commandt.h"
 
@@ -20,6 +22,19 @@ benchmark_t commandt_epoch() {
         perror(strerror(errno));
         result.seconds = 0;
         result.microseconds = 0;
+    }
+    return result;
+}
+
+static unsigned DEFAULT_PROCESSOR_COUNT = 4;
+
+unsigned commandt_processors() {
+    long result = sysconf(_SC_NPROCESSORS_CONF);
+    if (result == -1) {
+        perror(strerror(errno));
+        result = DEFAULT_PROCESSOR_COUNT;
+    } else if (result <= 0 || result > UINT_MAX) {
+        result = DEFAULT_PROCESSOR_COUNT;
     }
     return result;
 }
