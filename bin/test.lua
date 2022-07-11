@@ -80,9 +80,7 @@ _G.expect = function(value)
   return {
     to_equal = function(other)
       if not equal(value, other) then
-        local info = debug.getinfo(2, 'Sl')
-        local source = info.source:sub(#('@' .. pwd) + 2, -1)
-        error('not equal: ' .. source .. ':' .. info.currentline)
+        error('not equal', 2)
       end
     end,
   }
