@@ -24,10 +24,13 @@ local lib = require'wincent.commandt.lib'
 commandt.epoch() -- Force eager loading of C library.
 
 local options = {
+  recurse = os.getenv('RECURSE') == nil or os.getenv('RECURSE') == '1',
   -- TODO may want to put something in here (like a high limit) to make this an
   -- apples-to-apples comparison
   -- although in reality, no client will (or should) ever ask for more than,
   -- say, 100 matches...
+  -- TODO figure out why RECURSE makes a big difference in Lua port but almost
+  -- none in Ruby one
 }
 
 for i = 1, tonumber(os.getenv('TIMES') or 20) do
