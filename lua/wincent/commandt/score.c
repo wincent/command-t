@@ -195,9 +195,6 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
                 for (size_t i = 0; i <= haystack_idx; i++) {
                     char c = m.haystack->candidate->contents[i];
                     char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
-                    if (!m.case_sensitive) {
-                        c = lower;
-                    }
                     mask |= (1 << (lower - 'a'));
                 }
             }
