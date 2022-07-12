@@ -23,4 +23,4 @@ After which, `bin/benchmarks/matcher.lua` will work.
 ## TODO
 
 - Keep adding tests.
-- Consider formatting with `stylua` (see what would be changed with `stylua --check --indent-type Spaces --indent-width 2 --quote-style AutoPreferSingle **/*lua`).
+- Consider formatting with `stylua` (see what would be changed with `stylua --check .`).
