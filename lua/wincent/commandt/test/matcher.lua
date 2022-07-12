@@ -296,7 +296,7 @@ describe('matcher.c', function()
     end)
 
     it("doesn't show a dotfile just because there was a match at index 0", function()
-      pending 'fix' -- Note: This is pending in the Ruby implementation as well.
+      pending 'fix: see ed01bc6' -- Bug exists in Ruby implementation as well.
       local matcher = get_matcher({'src/.flowconfig'})
       expect(matcher.match('s')).to_equal({})
     end)

@@ -273,7 +273,7 @@ describe CommandT::Matcher do
     end
 
     it "doesn't show a dotfile just because there was a match at index 0" do
-      pending 'fix'
+      pending 'fix: see ed01bc6'
       matcher = matcher(*%w[src/.flowconfig])
       expect(matcher.sorted_matches_for('s')).to eq([])
     end
