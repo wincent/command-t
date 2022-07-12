@@ -20,8 +20,12 @@ package.path = lua .. '?/init.lua;' .. package.path
 
 local contexts = {}
 local current_context = nil
+local current_test = nil
 
 _G.context = function(description, callback)
+  if current_test then
+    error('cannot nest a `context()` inside an `it()`')
+  end
   assert(current_context)
   local context = {
     kind = 'context',
@@ -37,19 +41,33 @@ _G.context = function(description, callback)
   current_context = previous_context
 end
 
-_G.describe = _G.context
+_G.describe = function(description, callback)
+  if current_test then
+    error('cannot nest a `describe()` inside an `it()`')
+  end
+  return _G.context(description, callback)
+end
 
 _G.before = function(callback)
+  if current_test then
+    error('cannot nest a `before()` inside an `it()`')
+  end
   assert(current_context)
   table.insert(current_context.before, callback)
 end
 
 _G.after = function(callback)
+  if current_test then
+    error('cannot nest an `after()` inside an `it()`')
+  end
   assert(current_context)
   table.insert(current_context.after, callback)
 end
 
 _G.it = function(description, callback)
+  if current_test then
+    error('cannot nest an `it()` inside another `it()`')
+  end
   assert(current_context)
   local test = {
     kind = 'test',
@@ -57,6 +75,18 @@ _G.it = function(description, callback)
     callback = callback,
   }
   table.insert(current_context.children, test)
+end
+
+_G.pending = function(description)
+  if current_test == nil then
+    error('`pending` can only be used inside an `it()`')
+  end
+  -- TODO: could potentially use this to mark context/describe blocks as pending
+  -- too if `current_context` is set
+  error({
+    kind = 'skipped',
+    description = description,
+  })
 end
 
 local equal = nil
@@ -134,11 +164,21 @@ local red_bg = function(str)
   return '\027[41m\027[30m' .. str .. '\027[0m'
 end
 
+-- (Bold) yellow.
+local yellow = function(str)
+  return '\027[1;33m' .. str .. '\027[0m'
+end
+
+local yellow_bg = function(str)
+  return '\027[43m\027[30m' .. str .. '\027[0m'
+end
+
 local INDENT = '  '
 
 local stats = {
   passed = 0,
   failed = 0,
+  skipped = 0,
 }
 
 local setup = {}
@@ -168,14 +208,23 @@ run = function(runnable, indent)
     for _, callback in ipairs(setup) do
       callback()
     end
+    current_test = runnable
     local status, err = pcall(runnable.callback)
     if status then
       stats.passed = stats.passed + 1
-      print(indent .. green_bg(' PASS ') .. ': ' .. runnable.description)
+      print(indent .. green_bg(' PASS ') .. ' ' .. runnable.description)
+    elseif type(err) == 'table' and err.kind == 'skipped' then
+      stats.skipped = stats.skipped + 1
+      local description = runnable.description
+      if err.description then
+        description = description .. ' (' .. err.description .. ')'
+      end
+      print(indent .. yellow_bg(' SKIP ') .. ' ' .. description)
     else
       stats.failed = stats.failed + 1
-      print(indent .. red_bg(' FAIL ') .. ': ' .. err)
+      print(indent .. red_bg(' FAIL ') .. ' ' .. err)
     end
+    current_test = nil
     for _, callback in ipairs(teardown) do
       callback()
     end
@@ -194,7 +243,8 @@ end
 
 local end_wall_s, end_wall_us = commandt.epoch()
 
-local delta = (function ()
+-- TODO: probably eliminate this duplication (also in benchmarks/matcher.lua)
+local delta = (function()
   if end_wall_us >= start_wall_s then
     end_wall_us = end_wall_us + 1000000
     end_wall_s = end_wall_s - 1
@@ -204,7 +254,7 @@ end)()
 
 local format_passed = function(passed)
   if passed > 0 then
-    return bold(green(passed .. ' passed'))
+    return green(passed .. ' passed')
   else
     return '0 passed'
   end
@@ -212,9 +262,17 @@ end
 
 local format_failed = function(failed)
   if failed > 0 then
-    return bold(red(failed .. ' failed'))
+    return red(failed .. ' failed')
   else
     return '0 failed'
+  end
+end
+
+local format_skipped = function(skipped)
+  if skipped > 0 then
+    return yellow(skipped .. ' skipped')
+  else
+    return '0 skipped'
   end
 end
 
@@ -224,6 +282,7 @@ print(
   '\n' ..
   format_passed(stats.passed) .. ', ' ..
   format_failed(stats.failed) .. ', ' ..
-  (stats.passed + stats.failed) .. ' total in ' ..
+  format_skipped(stats.skipped) .. ', ' ..
+  (stats.passed + stats.failed + stats.skipped) .. ' total in ' ..
   time
 )

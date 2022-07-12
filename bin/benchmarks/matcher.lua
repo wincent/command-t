@@ -57,7 +57,7 @@ for i = 1, tonumber(os.getenv('TIMES') or 20) do
 
       local end_cpu = os.clock()
       local end_wall_s, end_wall_us = commandt.epoch()
-      local wall_delta = (function ()
+      local wall_delta = (function()
         if end_wall_us >= start_wall_s then
           end_wall_us = end_wall_us + 1000000
           end_wall_s = end_wall_s - 1
