@@ -34,7 +34,7 @@ results = TIMES.times.map do
       b.report(test['name']) do
         test['times'].times do
           test['queries'].each do |query|
-            query.split(//).reduce('') do |acc, char|
+            ([''] + query.split(//)).reduce('') do |acc, char|
               query = acc + char
               matcher.sorted_matches_for(
                 query,
