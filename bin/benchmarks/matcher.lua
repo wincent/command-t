@@ -46,7 +46,7 @@ for i = 1, tonumber(os.getenv('TIMES') or 20) do
           local input = ''
           for letter in query:gmatch('.') do
             input = input .. letter
-            local results = lib.commandt_matcher_run(matcher, query)
+            local results = lib.commandt_matcher_run(matcher, input)
             for k = 0, results.count - 1 do
               local str = results.matches[k]
               ffi.string(str.contents, str.length) -- Neovim would do something here...
