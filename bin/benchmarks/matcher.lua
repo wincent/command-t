@@ -41,10 +41,15 @@ local results = {
   timings = {},
 }
 
-for i = 1, tonumber(os.getenv('TIMES') or 20) do
+local times = tonumber(os.getenv('TIMES') or 20)
+for i = 1, times do
   for _, rehearsal in ipairs({true, false}) do
-    local mode = rehearsal and 'Rehearsal' or 'Final----'
-    print('\n' .. mode .. '------------      total         wall')
+    local mode = rehearsal and 'Rehearsal' or 'Final'
+    local progress = ' ' .. i .. ' of ' .. times .. ' '
+    local gap = (' '):rep(27 - #mode - #progress)
+    local header = mode .. progress .. gap .. 'total         wall'
+    print('\n' .. header)
+    print(('-'):rep(#header))
 
     for _, config in ipairs(data.tests) do
       local scanner = lib.scanner_new_copy(config.paths)
