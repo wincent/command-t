@@ -327,20 +327,36 @@ local summary = {{
   center('p'),
 }}
 
-for label, data in pairs(results.timings) do
-  table.insert(summary, {
+local reduce = function(list, initial, cb)
+  local acc = initial
+  for i, value in ipairs(list) do
+    acc = cb(acc, value, i)
+  end
+  return acc
+end
+
+for label, timings in pairs(results.timings) do
+  local position = reduce(data.tests, nil, function(acc, config, i)
+    if acc == nil then
+      if config.name == label then
+        return i + 1
+      end
+    end
+    return acc
+  end)
+  summary[position] = {
     label,
-    float(data['cpu (best)']),
-    float(data['cpu (avg)']),
-    float(data['cpu (sd)']),
-    string.format('[%+0.1f%%]', data['cpu (+/-)']),
-    data['cpu (significance)'] > 0 and trim(data['cpu (significance)']) or '',
-    float(data['wall (best)']),
-    float(data['wall (avg)']),
-    float(data['wall (sd)']),
-    string.format('[%+0.1f%%]', data['wall (+/-)']),
-    data['wall (significance)'] > 0 and trim(data['wall (significance)']) or '',
-  })
+    float(timings['cpu (best)']),
+    float(timings['cpu (avg)']),
+    float(timings['cpu (sd)']),
+    string.format('[%+0.1f%%]', timings['cpu (+/-)']),
+    timings['cpu (significance)'] > 0 and trim(timings['cpu (significance)']) or '',
+    float(timings['wall (best)']),
+    float(timings['wall (avg)']),
+    float(timings['wall (sd)']),
+    string.format('[%+0.1f%%]', timings['wall (+/-)']),
+    timings['wall (significance)'] > 0 and trim(timings['wall (significance)']) or '',
+  }
 end
 
 local round = function(number)
@@ -363,14 +379,6 @@ local align = function(stringish, width)
   else
     return string.format('%' .. width .. 's', stringish.text)
   end
-end
-
-local reduce = function(list, initial, cb)
-  local acc = initial
-  for i, value in ipairs(list) do
-    acc = cb(acc, value, i)
-  end
-  return acc
 end
 
 local print_table = function(rows)
