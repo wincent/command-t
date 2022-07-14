@@ -15,6 +15,7 @@ package.path = lua_directory .. '?/init.lua;' .. package.path
 package.path = data_directory .. '?.lua;' .. package.path
 
 local commandt = require'wincent.commandt'
+local time = require'wincent.commandt.time'
 
 -- We use Lua modules for benchmark data so that we don't need to pull in a JSON
 -- or YAML dependency.
@@ -110,41 +111,31 @@ for i = 1, times do
       local scanner = lib.scanner_new_copy(config.paths)
       local matcher = lib.commandt_matcher_new(scanner, options)
 
-      local start_cpu = os.clock()
-      local start_wall_s, start_wall_us = commandt.epoch()
-
-      for j = 1, config.times do
-        for _, query in ipairs(config.queries) do
-          local input = ''
-          for letter in query:gmatch('.') do
-            local matches = lib.commandt_matcher_run(matcher, input)
-            for k = 0, matches.count - 1 do
-              local str = matches.matches[k]
-              ffi.string(str.contents, str.length)
+      local wall_delta
+      local cpu_delta = time.cpu(function()
+        wall_delta = time.wall(function()
+          for j = 1, config.times do
+            for _, query in ipairs(config.queries) do
+              local input = ''
+              for letter in query:gmatch('.') do
+                local matches = lib.commandt_matcher_run(matcher, input)
+                for k = 0, matches.count - 1 do
+                  local str = matches.matches[k]
+                  ffi.string(str.contents, str.length)
+                end
+                input = input .. letter
+              end
+              local matches = lib.commandt_matcher_run(matcher, input)
+              for k = 0, matches.count - 1 do
+                local str = matches.matches[k]
+                ffi.string(str.contents, str.length)
+              end
             end
-            input = input .. letter
           end
-          local matches = lib.commandt_matcher_run(matcher, input)
-          for k = 0, matches.count - 1 do
-            local str = matches.matches[k]
-            ffi.string(str.contents, str.length)
-          end
-        end
-      end
+        end)
+      end)
 
-      local end_cpu = os.clock()
-      local end_wall_s, end_wall_us = commandt.epoch()
-
-      local cpu_delta = end_cpu - start_cpu
       cumulative_cpu_delta = cumulative_cpu_delta + cpu_delta
-
-      local wall_delta = (function()
-        if end_wall_us >= start_wall_s then
-          end_wall_us = end_wall_us + 1000000
-          end_wall_s = end_wall_s - 1
-        end
-        return (end_wall_s - start_wall_s) + (end_wall_us - start_wall_us) / 1000000
-      end)()
       cumulative_wall_delta = cumulative_wall_delta + wall_delta
 
       print(string.format('%-22s  %9s    %s', config.name, float(cpu_delta), parens(float(wall_delta))))

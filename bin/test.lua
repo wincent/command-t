@@ -233,24 +233,13 @@ run = function(runnable, indent)
   end
 end
 
-local commandt = require'wincent.commandt'
+local time = require'wincent.commandt.time'
 
-local start_wall_s, start_wall_us = commandt.epoch()
-
-for _, runnable in ipairs(contexts) do
-  run(runnable, '')
-end
-
-local end_wall_s, end_wall_us = commandt.epoch()
-
--- TODO: probably eliminate this duplication (also in benchmarks/matcher.lua)
-local delta = (function()
-  if end_wall_us >= start_wall_s then
-    end_wall_us = end_wall_us + 1000000
-    end_wall_s = end_wall_s - 1
+local wall = time.wall(function()
+  for _, runnable in ipairs(contexts) do
+    run(runnable, '')
   end
-  return (end_wall_s - start_wall_s) + (end_wall_us - start_wall_us) / 1000000
-end)()
+end)
 
 local format_passed = function(passed)
   if passed > 0 then
@@ -276,13 +265,11 @@ local format_skipped = function(skipped)
   end
 end
 
-local time = string.format('%.6fs', delta)
-
 print(
   '\n' ..
   format_passed(stats.passed) .. ', ' ..
   format_failed(stats.failed) .. ', ' ..
   format_skipped(stats.skipped) .. ', ' ..
   (stats.passed + stats.failed + stats.skipped) .. ' total in ' ..
-  time
+  string.format('%.6fs', wall)
 )
