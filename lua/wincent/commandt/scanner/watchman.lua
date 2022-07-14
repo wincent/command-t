@@ -73,10 +73,10 @@ watchman.query = function(root, relative_root)
 end
 
 -- temporary function
-watchman.scanner = function()
+watchman.scanner = function(dir)
   local lib = require('wincent.commandt.lib')
-  local project = watchman.watch_project('/Users/wincent/code/command-t')
-  local result = watchman.query(project.watch, project.relative_root)
+  local project = watchman.watch_project(dir)
+  local result = watchman.query(project.watch, project.relative_path)
   local scanner = lib.scanner_new_str(result.files, result.count)
   return scanner
 end
