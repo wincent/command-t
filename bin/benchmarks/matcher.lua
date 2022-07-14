@@ -41,16 +41,19 @@ local results = {
   timings = {},
 }
 
+-- TODO: if TIMES > 1 then there is probably no point in doing 20 rehearsals
 local times = tonumber(os.getenv('TIMES') or 20)
 for i = 1, times do
   for _, rehearsal in ipairs({true, false}) do
     local mode = rehearsal and 'Rehearsal' or 'Final'
     local progress = ' ' .. i .. ' of ' .. times .. ' '
-    local gap = (' '):rep(27 - #mode - #progress)
-    local header = mode .. progress .. gap .. 'total         wall'
+    local gap = (' '):rep(29 - #mode - #progress)
+    local header = mode .. progress .. gap .. 'cpu         wall'
     print('\n' .. header)
     print(('-'):rep(#header))
 
+    local cumulative_cpu_delta = 0
+    local cumulative_wall_delta = 0
     for _, config in ipairs(data.tests) do
       local scanner = lib.scanner_new_copy(config.paths)
       local matcher = lib.commandt_matcher_new(scanner, options)
@@ -81,6 +84,8 @@ for i = 1, times do
       local end_wall_s, end_wall_us = commandt.epoch()
 
       local cpu_delta = end_cpu - start_cpu
+      cumulative_cpu_delta = cumulative_cpu_delta + cpu_delta
+
       local wall_delta = (function()
         if end_wall_us >= start_wall_s then
           end_wall_us = end_wall_us + 1000000
@@ -88,6 +93,7 @@ for i = 1, times do
         end
         return (end_wall_s - start_wall_s) + (end_wall_us - start_wall_us) / 1000000
       end)()
+      cumulative_wall_delta = cumulative_wall_delta + wall_delta
 
       print(string.format('%-22s  %.6f   (%.6f)', config.name, cpu_delta, wall_delta))
 
@@ -99,6 +105,17 @@ for i = 1, times do
         table.insert(results.timings[config.name].cpu, cpu_delta)
         table.insert(results.timings[config.name].wall, wall_delta)
       end
+    end
+
+    print(string.format('%-22s  %.6f   (%.6f)', 'total', cumulative_cpu_delta, cumulative_wall_delta))
+
+    if not rehearsal then
+      results.timings.total = results.timings.total or {
+        cpu = {},
+        wall = {},
+      }
+      table.insert(results.timings.total.cpu, cumulative_cpu_delta)
+      table.insert(results.timings.total.wall, cumulative_wall_delta)
     end
   end
 end
@@ -352,6 +369,10 @@ for label, timings in pairs(results.timings) do
     end
     return acc
   end)
+  if position == nil then
+    -- Entries for "total" timing go at the end.
+    position = #(data.tests) + 2
+  end
   summary[position] = {
     label,
     float(timings['cpu (best)']),
@@ -411,5 +432,4 @@ local print_table = function(rows)
   end
 end
 
--- TODO: sort rows to use same order as benchmark input data
 print_table(summary)
