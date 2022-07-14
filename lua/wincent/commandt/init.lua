@@ -25,7 +25,7 @@ local mappings = {
 
 local set_up_mappings = function()
   for lhs, rhs in pairs(mappings) do
-    vim.api.nvim_set_keymap('c', lhs, rhs, {silent = true})
+    vim.api.nvim_set_keymap('c', lhs, rhs, { silent = true })
   end
 end
 
@@ -119,20 +119,18 @@ commandt.file_finder = function(arg)
 end
 
 commandt.prompt = function()
-  local match_listing = require'wincent.commandt.private.match_listing'
+  local match_listing = require('wincent.commandt.private.match_listing')
   match_listing.show()
-  require'wincent.commandt.private.prompt'.show({
+  require('wincent.commandt.private.prompt').show({
     onchange = function(query)
       local results = commandt.demo(query)
       match_listing.update(results)
-    end
+    end,
   })
 end
 
-commandt.select_next = function()
-end
+commandt.select_next = function() end
 
-commandt.select_previous = function()
-end
+commandt.select_previous = function() end
 
 return commandt

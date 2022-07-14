@@ -18,7 +18,7 @@ prompt.show = function(options)
     end
     vim.api.nvim_buf_set_option(buffer, 'filetype', 'CommandTPrompt')
     vim.api.nvim_create_autocmd('TextChanged', {
-      buffer =  buffer,
+      buffer = buffer,
       callback = function()
         if options and options.onchange then
           options.onchange(vim.api.nvim_get_current_line())
@@ -26,7 +26,7 @@ prompt.show = function(options)
       end,
     })
     vim.api.nvim_create_autocmd('TextChangedI', {
-      buffer =  buffer,
+      buffer = buffer,
       callback = function()
         if options and options.onchange then
           options.onchange(vim.api.nvim_get_current_line())

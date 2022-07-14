@@ -36,7 +36,10 @@ watchman.get_sockname = function()
       local output = vim.fn.systemlist('watchman get-sockname')
       local decoded = vim.fn.json_decode(output)
       if decoded['error'] then
-        error('wincent.commandt.scanner.watchman.get_sockname(): watchman get-sockname error = ' .. tostring(decoded['error']))
+        error(
+          'wincent.commandt.scanner.watchman.get_sockname(): watchman get-sockname error = '
+            .. tostring(decoded['error'])
+        )
       else
         sockname = decoded['sockname']
       end

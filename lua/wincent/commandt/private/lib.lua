@@ -10,7 +10,7 @@ local c = {}
 
 setmetatable(c, {
   __index = function(table, key)
-    ffi.cdef[[
+    ffi.cdef([[
       // Types.
 
       typedef struct {
@@ -121,7 +121,7 @@ setmetatable(c, {
 
       // Standard library.
       void free(void *ptr);
-    ]]
+    ]])
 
     local dirname = debug.getinfo(1).source:match('@?(.*/)')
     local extension = (function()
@@ -133,7 +133,7 @@ setmetatable(c, {
     end)()
     c = ffi.load(dirname .. '../lib/commandt' .. extension)
     return c[key]
-  end
+  end,
 })
 
 -- Utility function for working with functions that take optional arguments.
@@ -145,7 +145,7 @@ setmetatable(c, {
 -- `t3` into a new table, then return the new table.
 local merge = function(...)
   local final = {}
-  for _, t in ipairs({...}) do
+  for _, t in ipairs({ ... }) do
     if t ~= nil then
       for k, v in pairs(t) do
         final[k] = v
@@ -172,7 +172,7 @@ lib.commandt_matcher_new = function(scanner, options)
     threads = lib.commandt_processors(),
   }, options)
   if options.limit < 1 then
-    error("limit must be > 0")
+    error('limit must be > 0')
   end
   local matcher = c.commandt_matcher_new(
     scanner,
@@ -183,7 +183,7 @@ lib.commandt_matcher_new = function(scanner, options)
     options.never_show_dot_files,
     options.recurse,
     options.threads
-   )
+  )
   ffi.gc(matcher, c.commandt_matcher_free)
   return matcher
 end
@@ -202,17 +202,14 @@ lib.print_scanner = function(scanner)
 end
 
 lib.scanner_new = function(capacity)
-  local scanner = c.scanner_new(capacity or 0);
+  local scanner = c.scanner_new(capacity or 0)
   ffi.gc(scanner, c.scanner_free)
   return scanner
 end
 
 lib.scanner_new_copy = function(candidates)
   local count = #candidates
-  local scanner = c.scanner_new_copy(
-    ffi.new('const char *[' .. count .. ']', candidates),
-    count
-  )
+  local scanner = c.scanner_new_copy(ffi.new('const char *[' .. count .. ']', candidates), count)
   ffi.gc(scanner, c.scanner_free)
   return scanner
 end

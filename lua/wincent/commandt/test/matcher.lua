@@ -4,7 +4,7 @@
 local ffi = require('ffi')
 
 describe('matcher.c', function()
-  local lib = require'wincent.commandt.private.lib'
+  local lib = require('wincent.commandt.private.lib')
 
   local get_matcher = function(paths, options)
     local scanner = lib.scanner_new_copy(paths)
@@ -42,35 +42,35 @@ describe('matcher.c', function()
 
   context('with a non-empty scanner', function()
     it('returns matching paths', function()
-      local matcher = get_matcher({'foo/bar', 'foo/baz', 'bing'})
-      expect(matcher.match('z')).to_equal({'foo/baz'})
-      expect(matcher.match('bg')).to_equal({'bing'})
+      local matcher = get_matcher({ 'foo/bar', 'foo/baz', 'bing' })
+      expect(matcher.match('z')).to_equal({ 'foo/baz' })
+      expect(matcher.match('bg')).to_equal({ 'bing' })
     end)
 
     it('returns an empty list when nothing matches', function()
-      local matcher = get_matcher({'foo/bar', 'foo/baz', 'bing'})
+      local matcher = get_matcher({ 'foo/bar', 'foo/baz', 'bing' })
       expect(matcher.match('xyz')).to_equal({})
     end)
 
     it('considers the empty string to match everything', function()
-      local matcher = get_matcher({'foo'})
-      expect(matcher.match('')).to_equal({'foo'})
+      local matcher = get_matcher({ 'foo' })
+      expect(matcher.match('')).to_equal({ 'foo' })
     end)
 
     it('performs case-insensitive matching', function()
-      local matcher = get_matcher({'Foo'})
-      expect(matcher.match('f')).to_equal({'Foo'})
+      local matcher = get_matcher({ 'Foo' })
+      expect(matcher.match('f')).to_equal({ 'Foo' })
     end)
 
     -- We don't expect to see these in practice, but we still want to test it.
     it('gracefully handles empty haystacks', function()
-      local matcher = get_matcher({'', 'foo'})
-      expect(matcher.match('')).to_equal({'', 'foo'})
-      expect(matcher.match('f')).to_equal({'foo'})
+      local matcher = get_matcher({ '', 'foo' })
+      expect(matcher.match('')).to_equal({ '', 'foo' })
+      expect(matcher.match('f')).to_equal({ 'foo' })
     end)
 
     it('does not consider mere substrings of the query string to be a match', function()
-      local matcher = get_matcher({'foo'})
+      local matcher = get_matcher({ 'foo' })
       expect(matcher.match('foo...')).to_equal({})
     end)
 
@@ -86,84 +86,84 @@ describe('matcher.c', function()
     end)
 
     it('prioritizes matches after "/"', function()
-      local matcher = get_matcher({'fooobar', 'foo/bar'})
-      expect(matcher.match('b')).to_equal({'foo/bar', 'fooobar'})
+      local matcher = get_matcher({ 'fooobar', 'foo/bar' })
+      expect(matcher.match('b')).to_equal({ 'foo/bar', 'fooobar' })
 
       -- Note that "/" beats "_".
-      matcher = get_matcher({'foo_bar', 'foo/bar'})
-      expect(matcher.match('b')).to_equal({'foo/bar', 'foo_bar'})
+      matcher = get_matcher({ 'foo_bar', 'foo/bar' })
+      expect(matcher.match('b')).to_equal({ 'foo/bar', 'foo_bar' })
 
       -- "/" also beats "-".
-      matcher = get_matcher({'foo-bar', 'foo/bar'})
-      expect(matcher.match('b')).to_equal({'foo/bar', 'foo-bar'})
+      matcher = get_matcher({ 'foo-bar', 'foo/bar' })
+      expect(matcher.match('b')).to_equal({ 'foo/bar', 'foo-bar' })
 
       -- And numbers.
-      matcher = get_matcher({'foo9bar', 'foo/bar'})
-      expect(matcher.match('b')).to_equal({'foo/bar', 'foo9bar'})
+      matcher = get_matcher({ 'foo9bar', 'foo/bar' })
+      expect(matcher.match('b')).to_equal({ 'foo/bar', 'foo9bar' })
 
       -- And periods.
-      matcher = get_matcher({'foo.bar', 'foo/bar'})
-      expect(matcher.match('b')).to_equal({'foo/bar', 'foo.bar'})
+      matcher = get_matcher({ 'foo.bar', 'foo/bar' })
+      expect(matcher.match('b')).to_equal({ 'foo/bar', 'foo.bar' })
 
       -- And spaces.
-      matcher = get_matcher({'foo bar', 'foo/bar'})
-      expect(matcher.match('b')).to_equal({'foo/bar', 'foo bar'})
+      matcher = get_matcher({ 'foo bar', 'foo/bar' })
+      expect(matcher.match('b')).to_equal({ 'foo/bar', 'foo bar' })
     end)
 
     it('prioritizes matches after "-"', function()
-      local matcher = get_matcher({'fooobar', 'foo-bar'})
-      expect(matcher.match('b')).to_equal({'foo-bar', 'fooobar'})
+      local matcher = get_matcher({ 'fooobar', 'foo-bar' })
+      expect(matcher.match('b')).to_equal({ 'foo-bar', 'fooobar' })
 
       -- "-" also beats ".".
-      matcher = get_matcher({'foo.bar', 'foo-bar'})
-      expect(matcher.match('b')).to_equal({'foo-bar', 'foo.bar'})
+      matcher = get_matcher({ 'foo.bar', 'foo-bar' })
+      expect(matcher.match('b')).to_equal({ 'foo-bar', 'foo.bar' })
     end)
 
     it('prioritizes matches after "_"', function()
-      local matcher = get_matcher({'fooobar', 'foo_bar'})
-      expect(matcher.match('b')).to_equal({'foo_bar', 'fooobar'})
+      local matcher = get_matcher({ 'fooobar', 'foo_bar' })
+      expect(matcher.match('b')).to_equal({ 'foo_bar', 'fooobar' })
 
       -- "_" also beats ".".
-      matcher = get_matcher({'foo.bar', 'foo_bar'})
-      expect(matcher.match('b')).to_equal({'foo_bar', 'foo.bar'})
+      matcher = get_matcher({ 'foo.bar', 'foo_bar' })
+      expect(matcher.match('b')).to_equal({ 'foo_bar', 'foo.bar' })
     end)
 
     it('prioritizes matches after " "', function()
-      local matcher = get_matcher({'fooobar', 'foo bar'})
-      expect(matcher.match('b')).to_equal({'foo bar', 'fooobar'})
+      local matcher = get_matcher({ 'fooobar', 'foo bar' })
+      expect(matcher.match('b')).to_equal({ 'foo bar', 'fooobar' })
 
       -- " " also beats ".".
-      matcher = get_matcher({'foo.bar', 'foo bar'})
-      expect(matcher.match('b')).to_equal({'foo bar', 'foo.bar'})
+      matcher = get_matcher({ 'foo.bar', 'foo bar' })
+      expect(matcher.match('b')).to_equal({ 'foo bar', 'foo.bar' })
     end)
 
     it('prioritizes matches after numbers', function()
-      local matcher = get_matcher({'fooobar', 'foo9bar'})
-      expect(matcher.match('b')).to_equal({'foo9bar', 'fooobar'})
+      local matcher = get_matcher({ 'fooobar', 'foo9bar' })
+      expect(matcher.match('b')).to_equal({ 'foo9bar', 'fooobar' })
 
       -- Numbers also beat ".".
-      matcher = get_matcher({'foo.bar', 'foo9bar'})
-      expect(matcher.match('b')).to_equal({'foo9bar', 'foo.bar'})
+      matcher = get_matcher({ 'foo.bar', 'foo9bar' })
+      expect(matcher.match('b')).to_equal({ 'foo9bar', 'foo.bar' })
     end)
 
     it('prioritizes matches after periods', function()
-      local matcher = get_matcher({'fooobar', 'foo.bar'})
-      expect(matcher.match('b')).to_equal({'foo.bar', 'fooobar'})
+      local matcher = get_matcher({ 'fooobar', 'foo.bar' })
+      expect(matcher.match('b')).to_equal({ 'foo.bar', 'fooobar' })
     end)
 
     it('prioritizes matching capitals following lowercase', function()
-      local matcher = get_matcher({'foobar', 'fooBar'})
-      expect(matcher.match('b')).to_equal({'fooBar', 'foobar'})
+      local matcher = get_matcher({ 'foobar', 'fooBar' })
+      expect(matcher.match('b')).to_equal({ 'fooBar', 'foobar' })
     end)
 
     it('prioritizes matches earlier in the string', function()
-      local matcher = get_matcher({'******b*', '**b*****'})
-      expect(matcher.match('b')).to_equal({'**b*****', '******b*'})
+      local matcher = get_matcher({ '******b*', '**b*****' })
+      expect(matcher.match('b')).to_equal({ '**b*****', '******b*' })
     end)
 
     it('prioritizes matches closer to previous matches', function()
-      local matcher = get_matcher({'**b***c*', '**bc****'})
-      expect(matcher.match('bc')).to_equal({'**bc****', '**b***c*'})
+      local matcher = get_matcher({ '**b***c*', '**bc****' })
+      expect(matcher.match('bc')).to_equal({ '**bc****', '**b***c*' })
     end)
 
     it('scores alternative matches of same path differently', function()
@@ -260,44 +260,44 @@ describe('matcher.c', function()
 
     it("doesn't incorrectly accept repeats of the last-matched character", function()
       -- https://github.com/wincent/Command-T/issues/82
-      local matcher = get_matcher({'ash/system/user/config.h'})
+      local matcher = get_matcher({ 'ash/system/user/config.h' })
       expect(matcher.match('usercc')).to_equal({})
 
       -- Simpler test case.
-      matcher = get_matcher({'foobar'})
+      matcher = get_matcher({ 'foobar' })
       expect(matcher.match('fooooo')).to_equal({})
 
       -- Minimal repro.
-      matcher = get_matcher({'ab'})
+      matcher = get_matcher({ 'ab' })
       expect(matcher.match('aa')).to_equal({})
     end)
 
     it('ignores dotfiles by default', function()
-      local matcher = get_matcher({'.foo', '.bar'})
+      local matcher = get_matcher({ '.foo', '.bar' })
       expect(matcher.match('foo')).to_equal({})
     end)
 
     it('shows dotfiles if the query starts with a dot', function()
-      local matcher = get_matcher({'.foo', '.bar'})
-      expect(matcher.match('.fo')).to_equal({'.foo'})
+      local matcher = get_matcher({ '.foo', '.bar' })
+      expect(matcher.match('.fo')).to_equal({ '.foo' })
     end)
 
     it("doesn't show dotfiles if the query contains a non-leading dot", function()
-      local matcher = get_matcher({'.foo.txt', '.bar.txt'})
+      local matcher = get_matcher({ '.foo.txt', '.bar.txt' })
       expect(matcher.match('f.t')).to_equal({})
 
       -- Counter-example.
-      expect(matcher.match('.f.t')).to_equal({'.foo.txt'})
+      expect(matcher.match('.f.t')).to_equal({ '.foo.txt' })
     end)
 
-    it("shows dotfiles when there is a non-leading dot that matches a leading dot within a path component", function()
-      local matcher = get_matcher({'this/.secret/stuff.txt', 'something.else'})
-      expect(matcher.match('t.sst')).to_equal({'this/.secret/stuff.txt'})
+    it('shows dotfiles when there is a non-leading dot that matches a leading dot within a path component', function()
+      local matcher = get_matcher({ 'this/.secret/stuff.txt', 'something.else' })
+      expect(matcher.match('t.sst')).to_equal({ 'this/.secret/stuff.txt' })
     end)
 
     it("doesn't show a dotfile just because there was a match at index 0", function()
-      pending 'fix: see ed01bc6' -- Bug exists in Ruby implementation as well.
-      local matcher = get_matcher({'src/.flowconfig'})
+      pending('fix: see ed01bc6') -- Bug exists in Ruby implementation as well.
+      local matcher = get_matcher({ 'src/.flowconfig' })
       expect(matcher.match('s')).to_equal({})
     end)
 
@@ -308,7 +308,7 @@ describe('matcher.c', function()
         'app/assets/components/App/index.jsx',
         'app/assets/components/PrivacyPage/index.jsx',
         'app/views/api/docs/pagination/_index.md',
-      }, {recurse = false})
+      }, { recurse = false })
 
       -- You might want the second match here to come first, but in the
       -- non-recursive case we greedily match the "app" in "app", the "a" in
@@ -323,7 +323,7 @@ describe('matcher.c', function()
     end)
 
     describe('the `ignore_spaces` option', function()
-      local paths = {'path_no_space', 'path with/space'}
+      local paths = { 'path_no_space', 'path with/space' }
 
       it('ignores the space character by default', function()
         local matcher = get_matcher(paths)
@@ -332,15 +332,15 @@ describe('matcher.c', function()
 
       context('when `ignore_spaces` is `true`', function()
         it('ignores the space character', function()
-          local matcher = get_matcher(paths, {ignore_spaces = true})
+          local matcher = get_matcher(paths, { ignore_spaces = true })
           expect(matcher.match('path space')).to_equal(paths)
         end)
       end)
 
       context('when `ignore_spaces` is `false`', function()
         it('considers the space character to match a literal space', function()
-          local matcher = get_matcher(paths, {ignore_spaces = false})
-          expect(matcher.match('path space')).to_equal({'path with/space'})
+          local matcher = get_matcher(paths, { ignore_spaces = false })
+          expect(matcher.match('path space')).to_equal({ 'path with/space' })
         end)
       end)
     end)

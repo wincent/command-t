@@ -11,7 +11,7 @@ if #arg == 0 then
 end
 
 local pwd = os.getenv('PWD')
-local bin_directory  = debug.getinfo(1).source:match('@?(.*/)')
+local bin_directory = debug.getinfo(1).source:match('@?(.*/)')
 assert(bin_directory == 'bin/')
 local lua_directory = pwd .. '/lua/'
 
@@ -92,7 +92,7 @@ end
 local equal = nil
 
 equal = function(a, b)
-  if (type(a) == 'table' and type(b) == 'table') then
+  if type(a) == 'table' and type(b) == 'table' then
     if #a == #b then
       for k, v in pairs(a) do
         if not equal(v, b[k]) then
@@ -197,10 +197,10 @@ run = function(runnable, indent)
         table.insert(teardown, 1, callback)
       end
       run(child, indent .. INDENT)
-      for _ = 1, #(runnable.before) do
+      for _ = 1, #runnable.before do
         table.remove(setup)
       end
-      for _ = 1, #(runnable.after) do
+      for _ = 1, #runnable.after do
         table.remove(teardown, 1)
       end
     end
@@ -233,7 +233,7 @@ run = function(runnable, indent)
   end
 end
 
-local time = require'wincent.commandt.private.time'
+local time = require('wincent.commandt.private.time')
 
 local wall = time.wall(function()
   for _, runnable in ipairs(contexts) do
@@ -266,10 +266,14 @@ local format_skipped = function(skipped)
 end
 
 print(
-  '\n' ..
-  format_passed(stats.passed) .. ', ' ..
-  format_failed(stats.failed) .. ', ' ..
-  format_skipped(stats.skipped) .. ', ' ..
-  (stats.passed + stats.failed + stats.skipped) .. ' total in ' ..
-  string.format('%.6fs', wall)
+  '\n'
+    .. format_passed(stats.passed)
+    .. ', '
+    .. format_failed(stats.failed)
+    .. ', '
+    .. format_skipped(stats.skipped)
+    .. ', '
+    .. (stats.passed + stats.failed + stats.skipped)
+    .. ' total in '
+    .. string.format('%.6fs', wall)
 )

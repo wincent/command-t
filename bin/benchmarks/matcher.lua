@@ -3,10 +3,10 @@
 -- SPDX-FileCopyrightText: Copyright 2014-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local ffi = require'ffi'
+local ffi = require('ffi')
 
 local pwd = os.getenv('PWD')
-local benchmarks_directory  = debug.getinfo(1).source:match('@?(.*/)')
+local benchmarks_directory = debug.getinfo(1).source:match('@?(.*/)')
 local data_directory = pwd .. '/' .. benchmarks_directory .. '../../data/'
 local lua_directory = pwd .. '/' .. benchmarks_directory .. '../../lua/'
 
@@ -14,16 +14,16 @@ package.path = lua_directory .. '?.lua;' .. package.path
 package.path = lua_directory .. '?/init.lua;' .. package.path
 package.path = data_directory .. '?.lua;' .. package.path
 
-local commandt = require'wincent.commandt'
-local time = require'wincent.commandt.private.time'
+local commandt = require('wincent.commandt')
+local time = require('wincent.commandt.private.time')
 
 -- We use Lua modules for benchmark data so that we don't need to pull in a JSON
 -- or YAML dependency.
-local data = require'wincent.benchmark'
+local data = require('wincent.benchmark')
 local ok, log = pcall(require, 'wincent.benchmark.log')
 log = ok and log or {}
 
-local lib = require'wincent.commandt.private.lib'
+local lib = require('wincent.commandt.private.lib')
 
 lib.commandt_epoch() -- Force eager loading of C library.
 
@@ -35,13 +35,8 @@ local align = function(stringish, width)
   if type(stringish) == 'string' then
     return string.format('%' .. width .. 's', stringish)
   elseif stringish.align == 'center' then
-    local padding = round((width - #(stringish.text)) / 2)
-    return string.format(
-      '%' .. padding .. 's%s%' .. padding .. 's',
-      '',
-      stringish.text,
-      ''
-    ):sub(1, width)
+    local padding = round((width - #stringish.text) / 2)
+    return string.format('%' .. padding .. 's%s%' .. padding .. 's', '', stringish.text, ''):sub(1, width)
   elseif stringish.align == 'left' then
     return string.format('%-' .. width .. 's', stringish.text)
   else
@@ -97,7 +92,7 @@ local results = {
 -- TODO: if TIMES > 1 then there is probably no point in doing 20 rehearsals
 local times = tonumber(os.getenv('TIMES') or 20)
 for i = 1, times do
-  for _, rehearsal in ipairs({true, false}) do
+  for _, rehearsal in ipairs({ true, false }) do
     local mode = rehearsal and 'Rehearsal' or 'Final'
     local progress = ' ' .. i .. ' of ' .. times .. ' '
     local gap = (' '):rep(30 - #mode - #progress)
@@ -141,15 +136,15 @@ for i = 1, times do
       print(string.format('%-22s  %9s    %s', config.name, float(cpu_delta), parens(float(wall_delta))))
 
       if not rehearsal then
-        results.timings[config.name] = results.timings[config.name] or {
-          cpu = {},
-          wall = {},
-        }
+        results.timings[config.name] = results.timings[config.name]
+          or {
+            cpu = {},
+            wall = {},
+          }
         table.insert(results.timings[config.name].cpu, cpu_delta)
         table.insert(results.timings[config.name].wall, wall_delta)
       end
     end
-
 
     print(string.format('%-22s  %9s    %s', 'total', float(cumulative_cpu_delta), parens(float(cumulative_wall_delta))))
 
@@ -193,7 +188,7 @@ local significance = function(last, current)
     if difference ~= 0 then
       local absolute_difference = math.abs(difference)
       local signedness = difference / absolute_difference -- 1 or -1.
-      table.insert(zipped, {difference, absolute_difference, signedness})
+      table.insert(zipped, { difference, absolute_difference, signedness })
     end
   end
 
@@ -218,7 +213,7 @@ local significance = function(last, current)
       row[DIFFERENCE],
       row[ABSOLUTE_DIFFERENCE],
       row[SIGNEDNESS],
-      row[SIGNEDNESS] * rank
+      row[SIGNEDNESS] * rank,
     })
   end
 
@@ -237,11 +232,11 @@ local significance = function(last, current)
       {},
       {},
       {},
-      {{15, 0.05}},
-      {{17, 0.05}, {21, 0.025}},
-      {{22, 0.05}, {25, 0.025}, {28, 0.01}},
-      {{26, 0.05}, {30, 0.025}, {34, 0.01}, {36, 0.005}},
-      {{29, 0.05}, {35, 0.025}, {39, 0.01}, {43, 0.005}},
+      { { 15, 0.05 } },
+      { { 17, 0.05 }, { 21, 0.025 } },
+      { { 22, 0.05 }, { 25, 0.025 }, { 28, 0.01 } },
+      { { 26, 0.05 }, { 30, 0.025 }, { 34, 0.01 }, { 36, 0.005 } },
+      { { 29, 0.05 }, { 35, 0.025 }, { 39, 0.01 }, { 43, 0.005 } },
     })[n + 1]
     while true do
       local limit = table.remove(thresholds, #thresholds)
@@ -304,7 +299,6 @@ for label, metrics in pairs(results.timings) do
 
     metrics['cpu (significance)'] = significance(previous_cpu, metrics.cpu)
     metrics['wall (significance)'] = significance(previous_wall, metrics.wall)
-
   else
     metrics['cpu (+/-)'] = 0
     metrics['wall (+/-)'] = 0
@@ -341,9 +335,7 @@ dump = function(value, indent)
     else
       local output = '{\n'
       for key, item in pairs(value) do
-        output = output .. indent .. '  ' ..
-          '[' .. dump(key) .. '] = ' ..
-          dump(item, indent .. '  ') .. ',\n'
+        output = output .. indent .. '  ' .. '[' .. dump(key) .. '] = ' .. dump(item, indent .. '  ') .. ',\n'
       end
       return output .. indent .. '}'
     end
@@ -367,19 +359,21 @@ end
 
 print('\n\nSummary of cpu time and (wall time):\n')
 
-local summary = {{
-  '',
-  center('best'),
-  center('avg'),
-  center('sd'),
-  center('+/-'),
-  center('p'),
-  center('(best)'),
-  center('(avg)'),
-  center('(sd)'),
-  center('+/-'),
-  center('p'),
-}}
+local summary = {
+  {
+    '',
+    center('best'),
+    center('avg'),
+    center('sd'),
+    center('+/-'),
+    center('p'),
+    center('(best)'),
+    center('(avg)'),
+    center('(sd)'),
+    center('+/-'),
+    center('p'),
+  },
+}
 
 local reduce = function(list, initial, cb)
   local acc = initial
@@ -400,7 +394,7 @@ for label, timings in pairs(results.timings) do
   end)
   if position == nil then
     -- Entries for "total" timing go at the end.
-    position = #(data.tests) + 2
+    position = #data.tests + 2
   end
   summary[position] = {
     label,
@@ -422,7 +416,7 @@ local print_table = function(rows)
     local output = ''
     for i, cell in ipairs(row) do
       local width = reduce(rows, 0, function(acc, value)
-        local length = type(value[i]) == 'string' and #(value[i]) or #(value[i].text)
+        local length = type(value[i]) == 'string' and #value[i] or #value[i].text
         if length > acc then
           return length
         else

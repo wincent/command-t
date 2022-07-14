@@ -10,7 +10,7 @@ time.cpu = function(callback)
 end
 
 time.wall = function(callback)
-  local lib = require'wincent.commandt.private.lib'
+  local lib = require('wincent.commandt.private.lib')
   local start_wall_s, start_wall_us = lib.commandt_epoch()
   callback()
   local end_wall_s, end_wall_us = lib.commandt_epoch()

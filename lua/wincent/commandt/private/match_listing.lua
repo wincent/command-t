@@ -52,7 +52,7 @@ match_listing.show = function()
     0, -- start
     -1, -- end
     false, -- strict indexing
-    {'match', 'listing'} -- replacement lines
+    { 'match', 'listing' } -- replacement lines
   )
 end
 
