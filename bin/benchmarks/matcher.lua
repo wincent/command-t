@@ -296,7 +296,10 @@ dump = function(value, indent)
 end
 
 table.insert(log, results)
-local file = io.open(pwd .. '/' .. benchmarks_directory .. '../../data/wincent/benchmark/log.lua', 'w')
+local file, err = io.open(pwd .. '/' .. benchmarks_directory .. '../../data/wincent/benchmark/log.lua', 'w+')
+if file == nil then
+  error(err)
+end
 file:write('-- @generated\nreturn ' .. dump(log) .. '\n')
 file:close()
 

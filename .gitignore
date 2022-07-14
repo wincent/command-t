@@ -5,7 +5,6 @@
 .un~
 /.bundle
 /data/log.yml
-/data/wincent/benchmark/log.lua
 /media
 commandt-debug.log
 vendor/bundle
