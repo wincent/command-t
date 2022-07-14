@@ -158,20 +158,16 @@ local significance = function(last, current)
   end)
 
   local rank = 1
-  local values = {}
   local ranked = {}
 
   for i, row in ipairs(zipped) do
+    local acc = 0
     local count = 0
     for j, inner_row in ipairs(zipped) do
       if inner_row[ABSOLUTE_DIFFERENCE] == row[ABSOLUTE_DIFFERENCE] then
         count = count + 1
-        table.insert(values, j)
+        acc = acc + j
       end
-    end
-    local acc = 0
-    for _, value in ipairs(values) do
-      acc = acc + value
     end
     rank = acc / count
     table.insert(ranked, {
