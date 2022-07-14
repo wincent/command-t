@@ -7,11 +7,12 @@ local ffi = require'ffi'
 
 local pwd = os.getenv('PWD')
 local benchmarks_directory  = debug.getinfo(1).source:match('@?(.*/)')
-local lua = pwd .. '/' .. benchmarks_directory .. '../../lua/'
+local data_directory = pwd .. '/' .. benchmarks_directory .. '../../data/'
+local lua_directory = pwd .. '/' .. benchmarks_directory .. '../../lua/'
 
-package.path = lua .. '?.lua;' .. package.path
-package.path = lua .. '?/init.lua;' .. package.path
-package.path = pwd .. '/' .. benchmarks_directory .. '../../data/?.lua;' .. package.path
+package.path = lua_directory .. '?.lua;' .. package.path
+package.path = lua_directory .. '?/init.lua;' .. package.path
+package.path = data_directory .. '?.lua;' .. package.path
 
 local commandt = require'wincent.commandt'
 
@@ -309,7 +310,7 @@ dump = function(value, indent)
 end
 
 table.insert(log, results)
-local file, err = io.open(pwd .. '/' .. benchmarks_directory .. '../../data/wincent/benchmark/log.lua', 'w+')
+local file, err = io.open(data_directory .. 'wincent/benchmark/log.lua', 'w+')
 if file == nil then
   error(err)
 end

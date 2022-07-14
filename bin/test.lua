@@ -13,10 +13,10 @@ end
 local pwd = os.getenv('PWD')
 local bin_directory  = debug.getinfo(1).source:match('@?(.*/)')
 assert(bin_directory == 'bin/')
-local lua = pwd .. '/lua/'
+local lua_directory = pwd .. '/lua/'
 
-package.path = lua .. '?.lua;' .. package.path
-package.path = lua .. '?/init.lua;' .. package.path
+package.path = lua_directory .. '?.lua;' .. package.path
+package.path = lua_directory .. '?/init.lua;' .. package.path
 
 local contexts = {}
 local current_context = nil
