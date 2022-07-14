@@ -24,4 +24,4 @@ jobs:
           popd
       - name: Run tests
         run: |
-          PATH="/home/runner/work/command-t/command-t/.lua/bin:$PATH" bin/test.sh
+          env PATH="/home/runner/work/command-t/command-t/.lua/bin:$PATH" bin/test.sh
