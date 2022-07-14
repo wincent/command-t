@@ -25,7 +25,7 @@ log = ok and log or {}
 
 local lib = require'wincent.commandt.private.lib'
 
-commandt.epoch() -- Force eager loading of C library.
+lib.commandt_epoch() -- Force eager loading of C library.
 
 local round = function(number)
   return math.floor(number + 0.5)
