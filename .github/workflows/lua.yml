@@ -1,0 +1,26 @@
+name: lua
+on: [push, pull_request]
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: JohnnyMorganz/stylua-action@1.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --check .
+          version: "0.14.0"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: luajit-2.1.0-beta3
+      - name: Build extension
+        run: |
+          pushd lua/wincent/commandt/lib
+          make
+          popd
+      - name: Run tests
+        run: bin/test.sh

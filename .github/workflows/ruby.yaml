@@ -1,4 +1,4 @@
-name: tests
+name: ruby
 on: [push, pull_request]
 jobs:
   test:
