@@ -26,6 +26,57 @@ local lib = require'wincent.commandt.lib'
 
 commandt.epoch() -- Force eager loading of C library.
 
+local round = function(number)
+  return math.floor(number + 0.5)
+end
+
+local align = function(stringish, width)
+  if type(stringish) == 'string' then
+    return string.format('%' .. width .. 's', stringish)
+  elseif stringish.align == 'center' then
+    local padding = round((width - #(stringish.text)) / 2)
+    return string.format(
+      '%' .. padding .. 's%s%' .. padding .. 's',
+      '',
+      stringish.text,
+      ''
+    ):sub(1, width)
+  elseif stringish.align == 'left' then
+    return string.format('%-' .. width .. 's', stringish.text)
+  else
+    return string.format('%' .. width .. 's', stringish.text)
+  end
+end
+
+local center = function(text)
+  return {
+    align = 'center',
+    text = text,
+  }
+end
+
+local left = function(text)
+  return {
+    align = 'left',
+    text = text,
+  }
+end
+
+local right = function(text)
+  return {
+    align = 'left',
+    text = text,
+  }
+end
+
+local float = function(number)
+  return string.format('%.5f', number)
+end
+
+local parens = function(text)
+  return '(' .. text .. ')'
+end
+
 local options = {
   recurse = os.getenv('RECURSE') == nil or os.getenv('RECURSE') == '1',
   threads = tonumber(os.getenv('THREADS')),
@@ -48,7 +99,7 @@ for i = 1, times do
   for _, rehearsal in ipairs({true, false}) do
     local mode = rehearsal and 'Rehearsal' or 'Final'
     local progress = ' ' .. i .. ' of ' .. times .. ' '
-    local gap = (' '):rep(29 - #mode - #progress)
+    local gap = (' '):rep(30 - #mode - #progress)
     local header = mode .. progress .. gap .. 'cpu         wall'
     print('\n' .. header)
     print(('-'):rep(#header))
@@ -96,7 +147,7 @@ for i = 1, times do
       end)()
       cumulative_wall_delta = cumulative_wall_delta + wall_delta
 
-      print(string.format('%-22s  %.6f   (%.6f)', config.name, cpu_delta, wall_delta))
+      print(string.format('%-22s  %9s    %s', config.name, float(cpu_delta), parens(float(wall_delta))))
 
       if not rehearsal then
         results.timings[config.name] = results.timings[config.name] or {
@@ -108,7 +159,8 @@ for i = 1, times do
       end
     end
 
-    print(string.format('%-22s  %.6f   (%.6f)', 'total', cumulative_cpu_delta, cumulative_wall_delta))
+
+    print(string.format('%-22s  %9s    %s', 'total', float(cumulative_cpu_delta), parens(float(cumulative_wall_delta))))
 
     if not rehearsal then
       results.timings.total = results.timings.total or {
@@ -317,17 +369,6 @@ end
 file:write('-- @generated\nreturn ' .. dump(log) .. '\n')
 file:close()
 
-local center = function(text)
-  return {
-    align = 'center',
-    text = text,
-  }
-end
-
-local float = function(number)
-  return string.format('%.5f', number)
-end
-
 -- Remove trailing zeros.
 local trim = function(number)
   return tostring(number):gsub('0+$', '')
@@ -383,28 +424,6 @@ for label, timings in pairs(results.timings) do
     string.format('[%+0.1f%%]', timings['wall (+/-)']),
     timings['wall (significance)'] > 0 and trim(timings['wall (significance)']) or '',
   }
-end
-
-local round = function(number)
-  return math.floor(number + 0.5)
-end
-
-local align = function(stringish, width)
-  if type(stringish) == 'string' then
-    return string.format('%' .. width .. 's', stringish)
-  elseif stringish.align == 'center' then
-    local padding = round((width - #(stringish.text)) / 2)
-    return string.format(
-      '%' .. padding .. 's%s%' .. padding .. 's',
-      '',
-      stringish.text,
-      ''
-    ):sub(1, width)
-  elseif stringish.align == 'left' then
-    return string.format('%-' .. width .. 's', stringish.text)
-  else
-    return string.format('%' .. width .. 's', stringish.text)
-  end
 end
 
 local print_table = function(rows)
