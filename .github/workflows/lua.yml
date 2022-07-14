@@ -17,11 +17,15 @@ jobs:
       - uses: leafo/gh-actions-lua@v9
         with:
           luaVersion: luajit-2.1.0-beta3
+      - name: Symlink luajit
+        run: |
+          pushd .lua/bin
+          ln -s lua luajit
+          popd
       - name: Build extension
         run: |
           pushd lua/wincent/commandt/lib
           make
           popd
       - name: Run tests
-        run: |
-          env PATH="/home/runner/work/command-t/command-t/.lua/bin:$PATH" bin/test.sh
+        run: bin/test.sh
