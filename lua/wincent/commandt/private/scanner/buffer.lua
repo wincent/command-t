@@ -22,7 +22,7 @@ buffer.get = function()
 end
 
 buffer.scanner = function()
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
   -- TODO: decide whether we need to keep `scanner` around... it will get gc'd
   -- as soon as another scanner comes along.
   scanner = lib.scanner_new_copy(buffer.get())

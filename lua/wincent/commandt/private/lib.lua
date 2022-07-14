@@ -131,7 +131,7 @@ setmetatable(c, {
       end
       return '.so'
     end)()
-    c = ffi.load(dirname .. 'commandt' .. extension)
+    c = ffi.load(dirname .. '../lib/commandt' .. extension)
     return c[key]
   end
 })

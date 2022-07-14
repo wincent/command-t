@@ -20,7 +20,7 @@ watchman.get_socket = function()
     if name == nil then
       error('wincent.commandt.scanner.watchman.get_socket(): no sockname')
     end
-    local lib = require('wincent.commandt.lib')
+    local lib = require('wincent.commandt.private.lib')
     socket = lib.commandt_watchman_connect(name)
   end
   return socket
@@ -60,21 +60,21 @@ end
 -- If `relative_root` is `nil`, it will be omitted from the query.
 watchman.query = function(root, relative_root)
   local socket = watchman.get_socket() -- TODO: when to clean up?
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
 
   -- To see this, run:
   --
   --     llvm --file nvim
   --     r
-  --     :lua my_watch = require'wincent.commandt.scanner.watchman'.watch_project('/Users/wincent/code/command-t')
-  --     :lua require'wincent.commandt.scanner.watchman'.query(my_watch['watch'])
+  --     :lua my_watch = require'wincent.commandt.private.scanner.watchman'.watch_project('/Users/wincent/code/command-t')
+  --     :lua require'wincent.commandt.private.scanner.watchman'.query(my_watch['watch'])
   --
   return lib.commandt_watchman_query(root, relative_root, socket)
 end
 
 -- temporary function
 watchman.scanner = function(dir)
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
   local project = watchman.watch_project(dir)
   local result = watchman.query(project.watch, project.relative_path)
   local scanner = lib.scanner_new_str(result.files, result.count)
@@ -87,13 +87,13 @@ end
 -- my be `nil`.
 watchman.watch_project = function(root)
   local socket = watchman.get_socket() -- TODO: when to clean up?
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
 
   -- To see this, run:
   --
   --     llvm --file nvim
   --     r
-  --     :lua require'wincent.commandt.scanner.watchman'.watch_project('/Users/wincent/code/command-t')
+  --     :lua require'wincent.commandt.private.scanner.watchman'.watch_project('/Users/wincent/code/command-t')
   --
   return lib.commandt_watchman_watch_project(root, socket)
 end

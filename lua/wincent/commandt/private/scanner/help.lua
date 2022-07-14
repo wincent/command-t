@@ -41,10 +41,10 @@ end
 
 -- temporary function
 -- see me run with:
--- :lua print(require('wincent.commandt.scanner.help').scanner())
+-- :lua print(require('wincent.commandt.private.scanner.help').scanner())
 help.scanner = function()
   local paths = help.get()
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
   local scanner = lib.scanner_new_copy(paths)
 
   -- DEMO

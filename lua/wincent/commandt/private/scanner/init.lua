@@ -4,7 +4,7 @@
 local scanner = {}
 
 -- TODO: think about lazy-loading these when actually needed
-scanner.buffer = require('wincent.commandt.scanner.buffer')
-scanner.help = require('wincent.commandt.scanner.help')
+scanner.buffer = require('wincent.commandt.private.scanner.buffer')
+scanner.help = require('wincent.commandt.private.scanner.help')
 
 return scanner

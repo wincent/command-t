@@ -9,9 +9,9 @@ local chooser_buffer = nil
 local chooser_selected_index = nil
 local chooser_window = nil
 
--- require('wincent.commandt.finder') -- TODO: decide whether we need this, or
+-- require('wincent.commandt.private.finder') -- TODO: decide whether we need this, or
 -- only scanners
--- local scanner = require('wincent.commandt.scanner')
+-- local scanner = require('wincent.commandt.private.scanner')
 
 -- print('scanner ' .. vim.inspect(scanner.buffer.get()))
 
@@ -93,12 +93,12 @@ local matcher = nil
 local scanner = nil
 
 commandt.demo = function(query)
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
   if matcher == nil then
     local options = {}
-    -- scanner = require('wincent.commandt.scanner.buffer').scanner()
-    -- scanner = require('wincent.commandt.scanner.help').scanner()
-    scanner = require('wincent.commandt.scanner.watchman').scanner(os.getenv('PWD'))
+    -- scanner = require('wincent.commandt.private.scanner.buffer').scanner()
+    -- scanner = require('wincent.commandt.private.scanner.help').scanner()
+    scanner = require('wincent.commandt.private.scanner.watchman').scanner(os.getenv('PWD'))
     matcher = lib.commandt_matcher_new(scanner, options)
   end
 
@@ -112,7 +112,7 @@ commandt.demo = function(query)
 end
 
 commandt.epoch = function()
-  local lib = require('wincent.commandt.lib')
+  local lib = require('wincent.commandt.private.lib')
   return lib.commandt_epoch()
 end
 
@@ -124,9 +124,9 @@ commandt.file_finder = function(arg)
 end
 
 commandt.prompt = function()
-  local match_listing = require'wincent.commandt.match_listing'
+  local match_listing = require'wincent.commandt.private.match_listing'
   match_listing.show()
-  require'wincent.commandt.prompt'.show({
+  require'wincent.commandt.private.prompt'.show({
     onchange = function(query)
       local results = commandt.demo(query)
       match_listing.update(results)

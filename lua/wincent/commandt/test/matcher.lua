@@ -4,7 +4,7 @@
 local ffi = require('ffi')
 
 describe('matcher.c', function()
-  local lib = require'wincent.commandt.lib'
+  local lib = require'wincent.commandt.private.lib'
 
   local get_matcher = function(paths, options)
     local scanner = lib.scanner_new_copy(paths)

@@ -233,7 +233,7 @@ run = function(runnable, indent)
   end
 end
 
-local time = require'wincent.commandt.time'
+local time = require'wincent.commandt.private.time'
 
 local wall = time.wall(function()
   for _, runnable in ipairs(contexts) do

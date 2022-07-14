@@ -15,7 +15,7 @@ package.path = lua_directory .. '?/init.lua;' .. package.path
 package.path = data_directory .. '?.lua;' .. package.path
 
 local commandt = require'wincent.commandt'
-local time = require'wincent.commandt.time'
+local time = require'wincent.commandt.private.time'
 
 -- We use Lua modules for benchmark data so that we don't need to pull in a JSON
 -- or YAML dependency.
@@ -23,7 +23,7 @@ local data = require'wincent.benchmark'
 local ok, log = pcall(require, 'wincent.benchmark.log')
 log = ok and log or {}
 
-local lib = require'wincent.commandt.lib'
+local lib = require'wincent.commandt.private.lib'
 
 commandt.epoch() -- Force eager loading of C library.
 

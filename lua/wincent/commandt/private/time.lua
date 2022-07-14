@@ -10,6 +10,7 @@ time.cpu = function(callback)
 end
 
 time.wall = function(callback)
+  -- TODO: make commandt.epoch() private
   local commandt = require'wincent.commandt'
   local start_wall_s, start_wall_us = commandt.epoch()
   callback()
