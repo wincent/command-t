@@ -23,4 +23,5 @@ jobs:
           make
           popd
       - name: Run tests
-        run: bin/test.sh
+        run: |
+          PATH="/home/runner/work/command-t/command-t/.lua/bin:$PATH" bin/test.sh
