@@ -35,7 +35,7 @@ jobs:
         run: bin/test.sh
 
       - name: Run stress tests (release, benchmarks)
-        run: TIMES=1 bin/benchmark/matcher.lua
+        run: TIMES=1 bin/benchmarks/matcher.lua
 
       # Repeat the tests in DEBUG mode (ie. with `assert()` calls active).
       - name: Build extension (debug)
@@ -48,4 +48,4 @@ jobs:
         run: bin/test.sh
 
       - name: Run stress tests (debug, benchmarks)
-        run: TIMES=1 bin/benchmark/matcher.lua
+        run: TIMES=1 bin/benchmarks/matcher.lua
