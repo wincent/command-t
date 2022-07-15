@@ -26,7 +26,7 @@ else
     endif
     ifeq ($(UNAME),Linux)
         CC ?= gcc
-        CCFLAGS += -DLINUX
+        CCFLAGS += -DLINUX -pthread
     endif
 endif
 
