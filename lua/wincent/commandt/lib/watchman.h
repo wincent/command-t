@@ -16,9 +16,21 @@
 
 #include "str.h" /* for str_t */
 
+// TODO: Either use uint8_t for both requests and responses, or char for both.
+/**
+ * @internal
+ */
 typedef struct {
-    str_t **files;
+    size_t capacity;
+    char *payload;
+    char *ptr;
+    char *end;
+} watchman_response_t;
+
+typedef struct {
+    str_t *files;
     unsigned count;
+    watchman_response_t *__response; /** @internal */
 } watchman_query_result_t;
 
 typedef struct {
@@ -43,6 +55,13 @@ int commandt_watchman_disconnect(int socket);
  *              }
  *          ]
  *      JSON
+ *
+ * As a performance optimization, the slab of memory allocated to hold
+ * the response from the Watchman server is preserved and the returned
+ * `watchman_query_result_t` struct contains `str_t` structs that
+ * reference the underlying memory in the slab, rather than allocating new
+ * copies.  As such, if you need to access those strings after a call to
+ * `commandt_watchman_query_result_free()`, you must make a copy.
  */
 watchman_query_result_t *commandt_watchman_query(
     const char *root,

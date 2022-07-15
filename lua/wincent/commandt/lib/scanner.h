@@ -18,12 +18,18 @@
 scanner_t *scanner_new_copy(const char **candidates, unsigned count);
 
 /**
+ * Create a new `scanner_t` struct that will be populated by executing the
+ * NUL-terminated `command` string.
+ */
+scanner_t *scanner_new_command(const char *command);
+
+/**
  * Create a new `scanner_t` struct initialized with `candidates`.
  *
- * The caller should not call `scanner_free()` when done, because copies of the
- * candidates are not made.
+ * Copies of the candidates are _not_ made, as they are assumed to belong to a
+ * slab allocation and initialized with `str_init()`.
  */
-scanner_t *scanner_new_str(str_t **candidates, unsigned count);
+scanner_t *scanner_new_str(str_t *candidates, unsigned count);
 
 /**
  * Create a new `scanner_t` struct initialized with `capacity`. If `capacity` is
@@ -37,8 +43,6 @@ scanner_t *scanner_new(unsigned capacity);
  * Caller should call `str_free()` on the returned string.
  */
 str_t *scanner_dump(scanner_t *scanner);
-
-void scanner_push_str(scanner_t *scanner, str_t **candidates, unsigned count);
 
 /**
  * Frees a previously created `scanner_t` structure.

@@ -61,6 +61,9 @@ end
 --    JSON
 --
 -- If `relative_root` is `nil`, it will be omitted from the query.
+--
+-- TODO: no need to export this function
+--
 watchman.query = function(root, relative_root)
   local socket = watchman.get_socket() -- TODO: when to clean up?
   local lib = require('wincent.commandt.private.lib')
@@ -75,11 +78,17 @@ watchman.query = function(root, relative_root)
   return lib.commandt_watchman_query(root, relative_root, socket)
 end
 
+-- BUG: we leak this forever, but I want its lifetime to be bonded to that of
+-- the scanner object
+local result = nil
+
 -- temporary function
 watchman.scanner = function(dir)
   local lib = require('wincent.commandt.private.lib')
   local project = watchman.watch_project(dir)
-  local result = watchman.query(project.watch, project.relative_path)
+  -- Result needs to persist until scanner is garbage collected.
+  -- TODO: figure out the right way to do that...
+  result = watchman.query(project.watch, project.relative_path)
   local scanner = lib.scanner_new_str(result.files, result.count)
   return scanner
 end

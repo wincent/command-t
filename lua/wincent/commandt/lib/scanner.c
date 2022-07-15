@@ -21,10 +21,10 @@
 
 scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xmalloc(sizeof(scanner_t));
-    scanner->candidates = xmalloc(count * sizeof(str_t *));
+    scanner->candidates = xmalloc(count * sizeof(str_t));
     for (unsigned i = 0; i < count; i++) {
         size_t length = strlen(candidates[i]);
-        scanner->candidates[i] = str_new_copy(candidates[i], length);
+        str_init_copy(&scanner->candidates[i], candidates[i], length);
     }
     scanner->count = count;
     scanner->capacity = count;
@@ -37,14 +37,14 @@ scanner_t *scanner_new(unsigned capacity) {
     if (!capacity) {
         capacity = DEFAULT_CAPACITY;
     }
-    scanner->candidates = xcalloc(capacity, sizeof(str_t *));
+    scanner->candidates = xcalloc(capacity, sizeof(str_t));
     scanner->count = 0;
     scanner->capacity = capacity;
     scanner->clock = 0;
     return scanner;
 }
 
-scanner_t *scanner_new_str(str_t **candidates, unsigned count) {
+scanner_t *scanner_new_str(str_t *candidates, unsigned count) {
     scanner_t *scanner = xmalloc(sizeof(scanner_t));
     scanner->candidates = candidates;
     scanner->count = count;
@@ -67,8 +67,8 @@ str_t *scanner_dump(scanner_t *scanner) {
         str_append(dump, INDENT, strlen(INDENT));
         str_append(
             dump,
-            scanner->candidates[i]->contents,
-            scanner->candidates[i]->length
+            scanner->candidates[i].contents,
+            scanner->candidates[i].length
         );
         str_append(dump, COMMA, 1);
         str_append(dump, NEWLINE, 1);
@@ -78,21 +78,13 @@ str_t *scanner_dump(scanner_t *scanner) {
     return dump;
 }
 
-void scanner_push_str(scanner_t *scanner, str_t **candidates, unsigned count) {
-    if (scanner->capacity < scanner->count + count ) {
-        unsigned new_capacity = scanner->count + count;
-        scanner->candidates = xrealloc(scanner->candidates, new_capacity * sizeof(str_t *));
-        scanner->capacity = new_capacity;
-    }
-    memcpy(
-        scanner->candidates + sizeof(str_t *) * scanner->count,
-        candidates,
-        sizeof(str_t *) * count
-    );
-    scanner->count += count;
-}
-
 void scanner_free(scanner_t *scanner) {
+    for (unsigned i = 0; i < scanner->count; i++) {
+        str_t str = scanner->candidates[i];
+        if (str.capacity >= 0) {
+            free((void *)str.contents);
+        }
+    }
     free(scanner->candidates);
     free(scanner);
 }

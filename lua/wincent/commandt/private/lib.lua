@@ -26,7 +26,7 @@ setmetatable(c, {
       } haystack_t;
 
       typedef struct {
-          str_t **candidates;
+          str_t *candidates;
           unsigned count;
           unsigned capacity;
           unsigned clock;
@@ -55,7 +55,7 @@ setmetatable(c, {
       } result_t;
 
       typedef struct {
-          str_t **files;
+          str_t *files;
           unsigned count;
       } watchman_query_result_t;
 
@@ -88,8 +88,9 @@ setmetatable(c, {
       // Scanner methods.
 
       scanner_t *scanner_new(unsigned capacity);
+      scanner_t *scanner_new_command(const char *command);
       scanner_t *scanner_new_copy(const char **candidates, unsigned count);
-      scanner_t *scanner_new_str(str_t **candidates, unsigned count);
+      scanner_t *scanner_new_str(str_t *candidates, unsigned count);
       void scanner_free(scanner_t *scanner);
       void commandt_print_scanner(scanner_t *scanner);
 
@@ -216,7 +217,7 @@ end
 
 lib.scanner_new_str = function(candidates, count)
   local scanner = c.scanner_new_str(candidates, count)
-  ffi.gc(scanner, ffi.C.free) -- Free struct but not candidates.
+  ffi.gc(scanner, c.scanner_free)
   return scanner
 end
 
@@ -239,10 +240,7 @@ end
 
 lib.commandt_watchman_query = function(root, relative_root, socket)
   local result = c.commandt_watchman_query(root, relative_root, socket)
-
-  -- TODO: later...
-  -- c.commandt_watchman_query_result_free(result)
-
+  ffi.gc(result, c.commandt_watchman_query_result_free)
   return result
 end
 

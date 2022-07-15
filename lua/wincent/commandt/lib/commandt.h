@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
     // TODO: const
-    str_t **candidates;
+    str_t *candidates;
 
     /**
      * Number of candidates currently stored in the scanner.

@@ -55,7 +55,7 @@ matcher_t *commandt_matcher_new(
     matcher->haystacks = xmalloc(scanner->count * sizeof(haystack_t));
 
     for (unsigned i = 0; i < scanner->count; i++) {
-        matcher->haystacks[i].candidate = scanner->candidates[i];
+        matcher->haystacks[i].candidate = &scanner->candidates[i];
         matcher->haystacks[i].bitmask = UNSET_BITMASK;
         matcher->haystacks[i].score = UNSET_SCORE;
     }

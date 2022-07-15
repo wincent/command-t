@@ -28,14 +28,6 @@ typedef struct {
     size_t length;
 } watchman_request_t;
 
-// TODO: Either use uint8_t for both requests and responses, or char for both.
-typedef struct {
-    size_t capacity;
-    char *payload;
-    char *ptr;
-    char *end;
-} watchman_response_t;
-
 // Forward declarations of static functions.
 
 static void watchman_append(watchman_request_t *w, const char *data, size_t length);
@@ -45,6 +37,7 @@ static double watchman_read_double(watchman_response_t *r);
 static int64_t watchman_read_int(watchman_response_t *r);
 static uint64_t watchman_read_object(watchman_response_t *r);
 static str_t *watchman_read_string(watchman_response_t *r);
+static void watchman_read_string_no_copy(watchman_response_t *r, str_t *str);
 static void watchman_request_free(watchman_request_t *w);
 static watchman_request_t *watchman_request_init();
 static void watchman_response_free(watchman_response_t *r);
@@ -160,6 +153,7 @@ watchman_query_result_t *commandt_watchman_query(
     // Process the response:
     //
     watchman_query_result_t *result = xcalloc(1, sizeof(watchman_query_result_t));
+    result->__response = r;
 
     uint64_t count = watchman_read_object(r);
     for (uint64_t i = 0; i < count; i++) {
@@ -170,9 +164,9 @@ watchman_query_result_t *commandt_watchman_query(
         ) {
             assert(!result->files);
             uint64_t file_count = watchman_read_array(r);
-            result->files = xmalloc(sizeof(str_t *) * file_count);
+            result->files = xmalloc(sizeof(str_t) * file_count);
             for (uint64_t j = 0; j < file_count; j++) {
-                result->files[j] = watchman_read_string(r);
+                watchman_read_string_no_copy(r, &result->files[j]);
             }
             result->count = file_count;
         } else if (
@@ -190,8 +184,6 @@ watchman_query_result_t *commandt_watchman_query(
         abort();
     }
     assert(r->ptr == r->end);
-
-    watchman_response_free(r);
 
     return result;
 }
@@ -270,7 +262,8 @@ void commandt_watchman_watch_project_result_free(
 }
 
 void commandt_watchman_query_result_free(watchman_query_result_t *result) {
-    // TODO: free more stuff...
+    free(result->files);
+    free(result->__response);
     free(result);
 }
 
@@ -421,10 +414,9 @@ static uint64_t watchman_read_object(watchman_response_t *r) {
 
 /**
  * Reads and returns a string encoded in the Watchman binary protocol format,
- * starting at `ptr` and finishing at or before `end`
+ * starting at `r->ptr` and finishing at or before `r->end`
  */
 static str_t *watchman_read_string(watchman_response_t *r) {
-    int64_t length;
     if (r->ptr >= r->end) {
         abort(); // Unexpected end of input.
     }
@@ -438,7 +430,7 @@ static str_t *watchman_read_string(watchman_response_t *r) {
         abort(); // Invalid string header.
     }
 
-    length = watchman_read_int(r);
+    int64_t length = watchman_read_int(r);
     if (length == 0) { // Special case for zero-length strings.
         return str_new_copy("", 0);
     } else if (r->ptr + length > r->end) {
@@ -448,6 +440,44 @@ static str_t *watchman_read_string(watchman_response_t *r) {
     str_t *string = str_new_copy(r->ptr, length);
     r->ptr += length;
     return string;
+}
+
+/**
+ * Reads and returns a string encoded in the Watchman binary protocol format,
+ * starting at `r->ptr` and finishing at or before `r->end` into the `str_t`
+ * struct indicated by `str`.
+ *
+ * Note that unlike `watchman_read_string()`, this function does not create a
+ * copy of the bytes but rather uses a pointer directly into the response's
+ * payload buffer, as a performance optimization. The downstream consumer of
+ * this information (typically, the caller of `commandt_watchman_query()`)
+ * will be responsible for freeing the payload all at once via a call to
+ * `commandt_watchman_query_result_free()`.
+ *
+ * The strings will _not_ be NUL-terminated, so callers should be careful not to
+ * assume that any `str_t` `contents` field points at a NUL-terminated string.
+ */
+static void watchman_read_string_no_copy(watchman_response_t *r, str_t *str) {
+    if (r->ptr >= r->end) {
+        abort(); // Unexpected end of input.
+    }
+
+    if (r->ptr[0] != WATCHMAN_STRING_MARKER) {
+        abort(); // Not a string.
+    }
+
+    r->ptr += sizeof(int8_t);
+    if (r->ptr >= r->end) {
+        abort(); // Invalid string header.
+    }
+
+    int64_t length = watchman_read_int(r);
+    if (r->ptr + length > r->end) {
+        abort(); // Insufficient string storage.
+    }
+
+    str_init(str, r->ptr, length);
+    r->ptr += length;
 }
 
 /**
