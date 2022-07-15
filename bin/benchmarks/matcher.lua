@@ -403,9 +403,9 @@ for label, timings in pairs(results.timings) do
     float(timings['cpu (sd)']),
     string.format('[%+0.1f%%]', timings['cpu (+/-)']),
     timings['cpu (significance)'] > 0 and trim(timings['cpu (significance)']) or '',
-    float(timings['wall (best)']),
-    float(timings['wall (avg)']),
-    float(timings['wall (sd)']),
+    parens(float(timings['wall (best)'])),
+    parens(float(timings['wall (avg)'])),
+    parens(float(timings['wall (sd)'])),
     string.format('[%+0.1f%%]', timings['wall (+/-)']),
     timings['wall (significance)'] > 0 and trim(timings['wall (significance)']) or '',
   }
