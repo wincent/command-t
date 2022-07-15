@@ -10,6 +10,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --check .
           version: "0.14.0"
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -17,15 +18,34 @@ jobs:
       - uses: leafo/gh-actions-lua@v9
         with:
           luaVersion: luajit-2.1.0-beta3
+
       - name: Symlink luajit
         run: |
           pushd .lua/bin
           ln -s lua luajit
           popd
-      - name: Build extension
+
+      - name: Build extension (release)
         run: |
           pushd lua/wincent/commandt/lib
           make
           popd
-      - name: Run tests
+
+      - name: Run unit tests (release)
         run: bin/test.sh
+
+      - name: Run stress tests (release, benchmarks)
+        run: TIMES=1 bin/benchmark/matcher.lua
+
+      # Repeat the tests in DEBUG mode (ie. with `assert()` calls active).
+      - name: Build extension (debug)
+        run: |
+          pushd lua/wincent/commandt/lib
+          DEBUG=1 make
+          popd
+
+      - name: Run unit tests (debug)
+        run: bin/test.sh
+
+      - name: Run stress tests (debug, benchmarks)
+        run: TIMES=1 bin/benchmark/matcher.lua
