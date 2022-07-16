@@ -1,5 +1,5 @@
 # "Too Big To ~~Fail~~ Format".
-/data/wincent/commandt/benchmark/data.lua
+/data/wincent/commandt/benchmark/configs/matcher.lua
 
 # Generated.
 /data/wincent/commandt/benchmark/logs/*.lua
