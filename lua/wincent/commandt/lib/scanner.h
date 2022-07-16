@@ -26,8 +26,8 @@ scanner_t *scanner_new_command(const char *command);
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.
  *
- * Copies of the candidates are _not_ made, as they are assumed to belong to a
- * slab allocation and initialized with `str_init()`.
+ * Copies of the candidates are _not_ made, as they are assumed to belong to an
+ * `mmap()`-ed slab allocation and initialized with `str_init()`.
  */
 scanner_t *scanner_new_str(str_t *candidates, unsigned count);
 
@@ -35,6 +35,8 @@ scanner_t *scanner_new_str(str_t *candidates, unsigned count);
  * For debugging, a human-readable string representation of the scanner.
  *
  * Caller should call `str_free()` on the returned string.
+ *
+ * @internal
  */
 str_t *scanner_dump(scanner_t *scanner);
 
