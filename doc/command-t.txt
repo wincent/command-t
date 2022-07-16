@@ -1453,9 +1453,9 @@ This list produced with:
 
     :read !git shortlog -s HEAD | grep -v 'Greg Hurrell' | cut -f 2-3 | column -c 72 | expand | sed -e 's/^/  /'
 
-Additionally, Hanson Wang, Jacek Wysocki and Yiding Jia wrote patches which
-were not directly included but which served as a model for changes that did
-end up making it in.
+Additionally, Hanson Wang, Jacek Wysocki, Kevin Cox, and Yiding Jia wrote
+patches which were not directly included but which served as a model for
+changes that did end up making it in.
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
