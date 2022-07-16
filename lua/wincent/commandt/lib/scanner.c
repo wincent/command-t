@@ -26,10 +26,12 @@ static size_t buffer_size = 137438953472; // 128 GB.
 scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = count * sizeof(str_t);
-    scanner->candidates = xmap(scanner->candidates_size);
-    for (unsigned i = 0; i < count; i++) {
-        size_t length = strlen(candidates[i]);
-        str_init_copy(&scanner->candidates[i], candidates[i], length);
+    if (count) {
+        scanner->candidates = xmap(scanner->candidates_size);
+        for (unsigned i = 0; i < count; i++) {
+            size_t length = strlen(candidates[i]);
+            str_init_copy(&scanner->candidates[i], candidates[i], length);
+        }
     }
     scanner->count = count;
     return scanner;
@@ -129,7 +131,9 @@ void scanner_free(scanner_t *scanner) {
         }
     }
 
-    assert(munmap(scanner->candidates, scanner->candidates_size) == 0);
+    if (scanner->candidates) {
+        assert(munmap(scanner->candidates, scanner->candidates_size) == 0);
+    }
 
     if (scanner->buffer) {
         assert(munmap(scanner->buffer, scanner->buffer_size) == 0);
