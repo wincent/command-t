@@ -247,6 +247,7 @@ local benchmark = function(options)
   assert(type(options.log) == 'string')
   assert(type(options.run) == 'function')
   assert(options.setup == nil or type(options.setup) == 'function')
+  assert(options.skip == nil or type(options.skip) == 'function')
 
   -- We use Lua modules for benchmark config and logs so that we don't need to
   -- pull in a JSON or YAML dependency.
@@ -272,29 +273,33 @@ local benchmark = function(options)
       local cumulative_cpu_delta = 0
       local cumulative_wall_delta = 0
       for _, variant in ipairs(config.variants) do
-        local setup = options.setup and options.setup(variant)
-        local wall_delta
-        local cpu_delta = time.cpu(function()
-          wall_delta = time.wall(function()
-            for j = 1, variant.times do
-              options.run(variant, setup)
-            end
+        if variant.skip and variant.skip(variant) then
+          print('Skipping: ' .. variant.name)
+        else
+          local setup = options.setup and options.setup(variant)
+          local wall_delta
+          local cpu_delta = time.cpu(function()
+            wall_delta = time.wall(function()
+              for j = 1, variant.times do
+                options.run(variant, setup)
+              end
+            end)
           end)
-        end)
 
-        cumulative_cpu_delta = cumulative_cpu_delta + cpu_delta
-        cumulative_wall_delta = cumulative_wall_delta + wall_delta
+          cumulative_cpu_delta = cumulative_cpu_delta + cpu_delta
+          cumulative_wall_delta = cumulative_wall_delta + wall_delta
 
-        print(string.format('%-22s  %9s    %s', variant.name, float(cpu_delta), parens(float(wall_delta))))
+          print(string.format('%-22s  %9s    %s', variant.name, float(cpu_delta), parens(float(wall_delta))))
 
-        if not rehearsal then
-          results.timings[variant.name] = results.timings[variant.name]
-            or {
-              cpu = {},
-              wall = {},
-            }
-          table.insert(results.timings[variant.name].cpu, cpu_delta)
-          table.insert(results.timings[variant.name].wall, wall_delta)
+          if not rehearsal then
+            results.timings[variant.name] = results.timings[variant.name]
+              or {
+                cpu = {},
+                wall = {},
+              }
+            table.insert(results.timings[variant.name].cpu, cpu_delta)
+            table.insert(results.timings[variant.name].wall, wall_delta)
+          end
         end
       end
 

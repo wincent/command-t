@@ -50,6 +50,16 @@ watchman.get_sockname = function()
   return sockname
 end
 
+-- Internal: Used by the benchmark suite so that we can identify this scanner
+-- from among others.
+watchman.name = 'watchman'
+
+-- Internal: Used by the benchmark suite so that we can avoid calling `vim` functions
+-- inside `get_sockname()` from our pure-C benchmark harness.
+watchman.set_sockname = function(name)
+  sockname = name
+end
+
 -- Equivalent to:
 --
 --    watchman -j <<-JSON
