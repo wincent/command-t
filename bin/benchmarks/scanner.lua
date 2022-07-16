@@ -21,8 +21,13 @@ benchmark({
   setup = function(config)
     local scanner = require(config.source)
     if scanner.name == 'watchman' then
-      -- TODO: don't hardcode this, obviously...
-      scanner.set_sockname('/opt/homebrew/var/run/watchman/wincent-state/sock')
+      -- We don't have a real JSON parser here, so we fake it.
+      local fallback = '/opt/homebrew/var/run/watchman/wincent-state/sock'
+      local file = assert(io.popen('watchman get-sockname', 'r'))
+      local output = file:read('*all')
+      file:close()
+      local name = output:match('"sockname":%s*"([^"]+)"') or fallback
+      scanner.set_sockname(name)
     end
     if config.stub_candidates then
       -- For scanners that otherwise depend on Neovim for a list of candidates.
