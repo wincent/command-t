@@ -6,21 +6,21 @@
 local ffi = require('ffi')
 
 local pwd = os.getenv('PWD')
-local benchmarks_directory = debug.getinfo(1).source:match('@?(.*/)')
-local data_directory = pwd .. '/' .. benchmarks_directory .. '../../data/'
-local lua_directory = pwd .. '/' .. benchmarks_directory .. '../../lua/'
+local root_directory = pwd .. '/' .. debug.getinfo(1).source:match('@?(.*/)') .. '../..'
+local data_directory = root_directory .. '/data'
+local lua_directory = root_directory .. '/lua'
 
-package.path = lua_directory .. '?.lua;' .. package.path
-package.path = lua_directory .. '?/init.lua;' .. package.path
-package.path = data_directory .. '?.lua;' .. package.path
+package.path = lua_directory .. '/?.lua;' .. package.path
+package.path = lua_directory .. '/?/init.lua;' .. package.path
+package.path = data_directory .. '/?.lua;' .. package.path
 
 local commandt = require('wincent.commandt')
 local time = require('wincent.commandt.private.time')
 
 -- We use Lua modules for benchmark data so that we don't need to pull in a JSON
 -- or YAML dependency.
-local data = require('wincent.benchmark')
-local ok, log = pcall(require, 'wincent.benchmark.log')
+local data = require('wincent.commandt.benchmark.data')
+local ok, log = pcall(require, 'wincent.commandt.benchmark.logs.matcher')
 log = ok and log or {}
 
 local lib = require('wincent.commandt.private.lib')
@@ -345,7 +345,7 @@ dump = function(value, indent)
 end
 
 table.insert(log, results)
-local file, err = io.open(data_directory .. 'wincent/benchmark/log.lua', 'w+')
+local file, err = io.open(data_directory .. '/wincent/commandt/benchmark/logs/matcher.lua', 'w+')
 if file == nil then
   error(err)
 end

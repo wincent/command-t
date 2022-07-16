@@ -1,2 +1,2 @@
-data/wincent/benchmark.lua export-ignore
 data/benchmark.yml export-ignore
+data/wincent/commandt/benchmark/data.lua export-ignore
