@@ -47,13 +47,6 @@ match_listing.show = function()
     })
     vim.api.nvim_win_set_option(window, 'wrap', false)
   end
-  vim.api.nvim_buf_set_lines(
-    buffer,
-    0, -- start
-    -1, -- end
-    false, -- strict indexing
-    { 'match', 'listing' } -- replacement lines
-  )
 end
 
 match_listing.update = function(results)

@@ -8,7 +8,7 @@
 #include <stdio.h> /* for fileno(), fprintf(), pclose(), popen(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
-#include <sys/mman.h> /* for mmap(), munmap() */
+#include <sys/mman.h> /* for munmap() */
 #include <unistd.h> /* read() */
 
 #include "debug.h"
@@ -27,6 +27,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = count * sizeof(str_t);
     if (count) {
+        DEBUG_LOG("xmap() %d\n", scanner->candidates_size);
         scanner->candidates = xmap(scanner->candidates_size);
         for (unsigned i = 0; i < count; i++) {
             size_t length = strlen(candidates[i]);
@@ -132,6 +133,7 @@ void scanner_free(scanner_t *scanner) {
     }
 
     if (scanner->candidates) {
+        DEBUG_LOG("munmap() %d\n", scanner->candidates_size);
         assert(munmap(scanner->candidates, scanner->candidates_size) == 0);
     }
 
