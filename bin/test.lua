@@ -108,10 +108,30 @@ end
 
 _G.expect = function(value)
   return {
+    to_be = function(other)
+      if value ~= other then
+        error('not ==', 2)
+      end
+    end,
+
     to_equal = function(other)
       if not equal(value, other) then
         -- TODO: say how it was different
         error('not equal', 2)
+      end
+    end,
+
+    -- `not` matchers are duplicated for now; if we start to have lots of them,
+    -- will refactor.
+    not_to_be = function(other)
+      if value == other then
+        error('==', 2)
+      end
+    end,
+
+    not_to_equal = function(other)
+      if equal(value, other) then
+        error('equal', 2)
       end
     end,
   }

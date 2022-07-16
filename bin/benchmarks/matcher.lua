@@ -33,7 +33,7 @@ benchmark({
   setup = function(config)
     local scanner = lib.scanner_new_copy(config.paths)
     local matcher = lib.commandt_matcher_new(scanner, options)
-    return {matcher, scanner}
+    return { matcher, scanner }
   end,
 
   run = function(config, setup)

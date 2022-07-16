@@ -1,12 +1,12 @@
 -- SPDX-FileCopyrightText: Copyright 2014-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
--- TODO: make some helpers for this stuff (path manipulation, debug hacks etc)
-local this_directory = debug.getinfo(1).source:match('@?(.*/)')
-assert(this_directory:sub(1, 1) == '/')
-local data_directory = this_directory .. '../../../../data'
+local path = require('wincent.commandt.private.path').caller()
+local data_directory = (path + '../../../../../data')
 
-package.path = data_directory .. '/?.lua;' .. package.path
+data_directory:prepend_to_package_path()
+
+local log_file = (data_directory + 'wincent/commandt/benchmark/logs/matcher.lua'):normalize()
 
 local time = require('wincent.commandt.private.time')
 local lib = require('wincent.commandt.private.lib')
@@ -298,7 +298,9 @@ local benchmark = function(options)
         end
       end
 
-      print(string.format('%-22s  %9s    %s', 'total', float(cumulative_cpu_delta), parens(float(cumulative_wall_delta))))
+      print(
+        string.format('%-22s  %9s    %s', 'total', float(cumulative_cpu_delta), parens(float(cumulative_wall_delta)))
+      )
 
       if not rehearsal then
         results.timings.total = results.timings.total or {
@@ -350,7 +352,7 @@ local benchmark = function(options)
   end
 
   table.insert(log, results)
-  local file, err = io.open(data_directory .. '/wincent/commandt/benchmark/logs/matcher.lua', 'w+')
+  local file, err = io.open(log_file, 'w+')
   if file == nil then
     error(err)
   end
