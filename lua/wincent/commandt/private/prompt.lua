@@ -16,12 +16,19 @@ prompt.show = function(options)
     if buffer == 0 then
       error('wincent.commandt.prompt.show(): nvim_create_buf() failed')
     end
+    local ps1 = '> '
+    vim.api.nvim_buf_set_option(buffer, 'buftype', 'prompt')
+    vim.fn.prompt_setprompt(buffer, ps1)
     vim.api.nvim_buf_set_option(buffer, 'filetype', 'CommandTPrompt')
     vim.api.nvim_create_autocmd('TextChanged', {
       buffer = buffer,
       callback = function()
         if options and options.onchange then
-          options.onchange(vim.api.nvim_get_current_line())
+          -- Should be able to use `prompt_getprompt()`, but it only returns the
+          -- prompt prefix for some reason...
+          -- local query = vim.fn.prompt_getprompt(buffer)
+          local query = vim.api.nvim_get_current_line():sub(#ps1 + 1)
+          options.onchange(query)
         end
       end,
     })
@@ -29,7 +36,8 @@ prompt.show = function(options)
       buffer = buffer,
       callback = function()
         if options and options.onchange then
-          options.onchange(vim.api.nvim_get_current_line())
+          local query = vim.api.nvim_get_current_line():sub(#ps1 + 1)
+          options.onchange(query)
         end
       end,
     })
