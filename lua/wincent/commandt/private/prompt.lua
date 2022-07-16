@@ -93,23 +93,22 @@ prompt.show = function(options)
     vim.api.nvim_buf_set_option(title_buffer, 'buftype', 'nofile')
     vim.api.nvim_buf_set_option(title_buffer, 'filetype', 'CommandTTitle')
   end
-  local prompt_title = 'Command-T [type]'
+  local prompt_title = ' Command-T [type] '
   if title_window == nil then
     title_window = vim.api.nvim_open_win(
       title_buffer,
       false, -- enter
       {
-        col = 2,
+        col = 3,
         focusable = false,
         height = 1,
         noautocmd = true,
-        relative = 'win',
-        row = 0, -- BUG: can't show it above the border, only on top of the contents
-        -- BUG: also a bug, doesn't appear immediately
+        relative = 'editor',
+        row = vim.o.lines - 4,
         style = 'minimal',
         width = #prompt_title,
         win = prompt_window,
-        zindex = 160, -- Default for floats is 50
+        zindex = 60, -- Default for floats is 50
       }
     )
     if title_window == 0 then
