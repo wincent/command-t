@@ -19,3 +19,4 @@ After which, `bin/benchmarks/matcher.lua` will work.
 ## TODO
 
 - Keep adding tests.
+- Add scanner benchmarks.
