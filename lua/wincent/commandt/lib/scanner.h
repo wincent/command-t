@@ -32,12 +32,6 @@ scanner_t *scanner_new_command(const char *command);
 scanner_t *scanner_new_str(str_t *candidates, unsigned count);
 
 /**
- * Create a new `scanner_t` struct initialized with `capacity`. If `capacity` is
- * 0, the default capacity is used.
- */
-scanner_t *scanner_new(unsigned capacity);
-
-/**
  * For debugging, a human-readable string representation of the scanner.
  *
  * Caller should call `str_free()` on the returned string.

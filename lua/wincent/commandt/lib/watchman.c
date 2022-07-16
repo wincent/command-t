@@ -10,6 +10,7 @@
 #include <stdlib.h> /* for abort(), free() */
 #include <string.h> /* for memset(), strncpy() */
 #include <sys/errno.h> /* for errno */
+#include <sys/mman.h> /* for mmap(), munmap() */
 #include <sys/socket.h> /* for AF_LOCAL, MSG_PEEK, MSG_WAITALL, recv() */
 #include <sys/un.h> /* for sockaddr_un */
 #include <unistd.h> /* for close() */
@@ -17,7 +18,8 @@
 #include "debug.h"
 #include "str.h"
 #include "watchman.h"
-#include "xmalloc.h" /* for xmalloc() */
+#include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
+#include "xmap.h" /* for xmap() */
 
 // TODO: mark most of these functions as static (internal only)
 // TODO: use setjmp()/longjmp() to implement exception-like semantics when processing responses (we don't really want to be calling abort() for everything unexpected).
@@ -153,7 +155,7 @@ watchman_query_result_t *commandt_watchman_query(
     // Process the response:
     //
     watchman_query_result_t *result = xcalloc(1, sizeof(watchman_query_result_t));
-    result->__response = r;
+    result->response = r;
 
     uint64_t count = watchman_read_object(r);
     for (uint64_t i = 0; i < count; i++) {
@@ -164,7 +166,8 @@ watchman_query_result_t *commandt_watchman_query(
         ) {
             assert(!result->files);
             uint64_t file_count = watchman_read_array(r);
-            result->files = xmalloc(sizeof(str_t) * file_count);
+            result->files_size = sizeof(str_t) * file_count;
+            result->files = xmap(result->files_size);
             for (uint64_t j = 0; j < file_count; j++) {
                 watchman_read_string_no_copy(r, &result->files[j]);
             }
@@ -262,8 +265,8 @@ void commandt_watchman_watch_project_result_free(
 }
 
 void commandt_watchman_query_result_free(watchman_query_result_t *result) {
-    free(result->files);
-    free(result->__response);
+    assert(munmap(result->files, result->files_size) == 0);
+    free(result->response);
     free(result);
 }
 

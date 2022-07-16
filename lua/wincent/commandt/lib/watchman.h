@@ -14,6 +14,8 @@
 #ifndef WATCHMAN_H
 #define WATCHMAN_H
 
+#include <stddef.h> /* for size_t */
+
 #include "str.h" /* for str_t */
 
 // TODO: Either use uint8_t for both requests and responses, or char for both.
@@ -28,9 +30,22 @@ typedef struct {
 } watchman_response_t;
 
 typedef struct {
-    str_t *files;
     unsigned count;
-    watchman_response_t *__response; /** @internal */
+    str_t *files;
+
+    /**
+     * @internal
+     *
+     * Book-keeping needed for call to `munmap()`.
+     */
+    size_t files_size;
+
+    /**
+     * @internal
+     *
+     * Book-keeping needed for call to `free()`.
+     */
+    watchman_response_t *response;
 } watchman_query_result_t;
 
 typedef struct {

@@ -98,7 +98,9 @@ commandt.demo = function(query)
     local options = {}
     -- scanner = require('wincent.commandt.private.scanner.buffer').scanner()
     -- scanner = require('wincent.commandt.private.scanner.help').scanner()
-    scanner = require('wincent.commandt.private.scanner.watchman').scanner(os.getenv('PWD'))
+    -- scanner = require('wincent.commandt.private.scanner.watchman').scanner(os.getenv('PWD'))
+    -- TODO: test this one
+    scanner = require('wincent.commandt.private.scanner.git').scanner()
     matcher = lib.commandt_matcher_new(scanner, options)
   end
 

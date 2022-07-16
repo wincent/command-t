@@ -26,9 +26,11 @@ setmetatable(c, {
       } haystack_t;
 
       typedef struct {
-          str_t *candidates;
           unsigned count;
-          unsigned capacity;
+          str_t *candidates;
+          size_t candidates_size;
+          char *buffer;
+          size_t buffer_size;
           unsigned clock;
       } scanner_t;
 
@@ -55,8 +57,17 @@ setmetatable(c, {
       } result_t;
 
       typedef struct {
-          str_t *files;
+          size_t capacity;
+          char *payload;
+          char *ptr;
+          char *end;
+      } watchman_response_t;
+
+      typedef struct {
           unsigned count;
+          str_t *files;
+          size_t files_size;
+          watchman_response_t *response;
       } watchman_query_result_t;
 
       typedef struct {
@@ -87,7 +98,6 @@ setmetatable(c, {
 
       // Scanner methods.
 
-      scanner_t *scanner_new(unsigned capacity);
       scanner_t *scanner_new_command(const char *command);
       scanner_t *scanner_new_copy(const char **candidates, unsigned count);
       scanner_t *scanner_new_str(str_t *candidates, unsigned count);
@@ -202,9 +212,9 @@ lib.print_scanner = function(scanner)
   c.commandt_print_scanner(scanner)
 end
 
-lib.scanner_new = function(capacity)
-  local scanner = c.scanner_new(capacity or 0)
-  ffi.gc(scanner, c.scanner_free)
+lib.scanner_new_command = function(command)
+  local scanner = c.scanner_new_command(command)
+  -- ffi.gc(scanner, c.scanner_free)
   return scanner
 end
 

@@ -3,52 +3,98 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stdio.h> /* for fprintf(), stderr */
+#include <assert.h> /* for assert() */
+#include <stddef.h> /* for NULL */
+#include <stdio.h> /* for fileno(), fprintf(), pclose(), popen(), stderr */
 #include <stdlib.h> /* for free() */
-#include <string.h> /* for strlen() */
+#include <string.h> /* for memchr(), strlen() */
+#include <sys/mman.h> /* for mmap(), munmap() */
+#include <unistd.h> /* read() */
 
 #include "debug.h"
 #include "scanner.h"
 #include "xmalloc.h"
+#include "xmap.h"
 
 // TODO: make this capable of producing asynchronously?
 
-/**
- * Default scanner capacity, suitable for most scanner types (eg. up to and
- * including help tags scanner).
- */
-#define DEFAULT_CAPACITY (1 << 14)
+// TODO make this configurable
+static long MAX_FILES = 134217728; // 128 M candiates.
+
+static size_t buffer_size = 137438953472; // 128 GB.
 
 scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
-    scanner_t *scanner = xmalloc(sizeof(scanner_t));
-    scanner->candidates = xmalloc(count * sizeof(str_t));
+    scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
+    scanner->candidates_size = count * sizeof(str_t);
+    scanner->candidates = xmap(scanner->candidates_size);
     for (unsigned i = 0; i < count; i++) {
         size_t length = strlen(candidates[i]);
         str_init_copy(&scanner->candidates[i], candidates[i], length);
     }
     scanner->count = count;
-    scanner->capacity = count;
-    scanner->clock = 0;
     return scanner;
 }
 
-scanner_t *scanner_new(unsigned capacity) {
-    scanner_t *scanner = xmalloc(sizeof(scanner_t));
-    if (!capacity) {
-        capacity = DEFAULT_CAPACITY;
+scanner_t *scanner_new_command(const char *command) {
+    FILE *file = popen(command, "r");
+    if (!file) {
+        // Something failed.
+        abort();
     }
-    scanner->candidates = xcalloc(capacity, sizeof(str_t));
-    scanner->count = 0;
-    scanner->capacity = capacity;
-    scanner->clock = 0;
+    int fd = fileno(file);
+
+    scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
+
+    scanner->candidates_size = sizeof(str_t) * MAX_FILES;
+    scanner->candidates = xmap(scanner->candidates_size);
+    scanner->buffer = xmap(buffer_size);
+
+    char *start = scanner->buffer;
+    char *end = scanner->buffer;
+    ssize_t read_count;
+    long candidate_count = 0;
+    while ((read_count = read(fd, end, 4096)) != 0) {
+        if (read_count < 0) {
+            // A read error, but we may as well try and proceed gracefully.
+            break;
+        }
+        end += read_count;
+        while (start < end) {
+            if  (start[0] == 0) { // TODO: may not always be -z
+                start++;
+                continue;
+            }
+            char *next_end = memchr(start, 0, end - start);
+            if (!next_end) {
+                break;
+            }
+            char *path = start + 0; // drop;
+            int length = next_end - start - 0; // drop
+            start = next_end + 1;
+            str_init(&scanner->candidates[candidate_count], path, length);
+            candidate_count++;
+
+            if (candidate_count >= MAX_FILES) {
+                // TODO: make this real
+            }
+        }
+    }
+
+    int status = pclose(file);
+    if (status == -1) {
+        // Internal `wait4()` call failed.
+    } else if (status != 0) {
+        // Something else went wrong.
+    }
+
+    scanner->count = candidate_count;
     return scanner;
 }
 
 scanner_t *scanner_new_str(str_t *candidates, unsigned count) {
-    scanner_t *scanner = xmalloc(sizeof(scanner_t));
+    scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates = candidates;
     scanner->count = count;
-    scanner->capacity = count;
     return scanner;
 }
 
@@ -85,7 +131,13 @@ void scanner_free(scanner_t *scanner) {
             free((void *)str.contents);
         }
     }
-    free(scanner->candidates);
+
+    assert(munmap(scanner->candidates, scanner->candidates_size) == 0);
+
+    if (scanner->buffer) {
+        assert(munmap(scanner->buffer, scanner->buffer_size) == 0);
+    }
+
     free(scanner);
 }
 

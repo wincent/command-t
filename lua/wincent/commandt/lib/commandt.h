@@ -22,20 +22,37 @@ typedef struct {
 } haystack_t;
 
 typedef struct {
-    // TODO: const
-    str_t *candidates;
-
     /**
      * Number of candidates currently stored in the scanner.
      */
     unsigned count;
 
-    /**
-     * Available capacity in the scanner.
-     */
-    unsigned capacity;
+    str_t *candidates;
 
     /**
+     * @internal
+     *
+     * Book-keeping detail, needed for call to `munmap()`.
+     */
+    size_t candidates_size;
+
+    /**
+     * @internal
+     *
+     * Book-keeping detail, needed for call to `munmap()`.
+     */
+    char *buffer;
+
+    /**
+     * @internal
+     *
+     * Book-keeping detail, needed for call to `munmap()`.
+     */
+    size_t buffer_size;
+
+    /**
+     * @internal
+     *
      * Counter that increments any time the candidates change.
      */
     unsigned clock; // TODO: figure out whether I need this
