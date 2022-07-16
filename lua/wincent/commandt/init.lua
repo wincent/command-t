@@ -94,15 +94,15 @@ local scanner = nil
 
 commandt.demo = function(query)
   local lib = require('wincent.commandt.private.lib')
-  -- if matcher == nil then
-  local options = {}
-  scanner = require('wincent.commandt.private.scanner.buffer').scanner()
-  -- scanner = require('wincent.commandt.private.scanner.help').scanner()
-  -- scanner = require('wincent.commandt.private.scanner.watchman').scanner(os.getenv('PWD'))
-  -- scanner = require('wincent.commandt.private.scanner.git').scanner()
-  -- scanner = require('wincent.commandt.private.scanner.rg').scanner()
-  matcher = lib.commandt_matcher_new(scanner, options)
-  -- end
+  if matcher == nil then
+    local options = {}
+    -- scanner = require('wincent.commandt.private.scanner.buffer').scanner()
+    -- scanner = require('wincent.commandt.private.scanner.help').scanner()
+    scanner = require('wincent.commandt.private.scanner.watchman').scanner(os.getenv('PWD'))
+    -- scanner = require('wincent.commandt.private.scanner.git').scanner()
+    -- scanner = require('wincent.commandt.private.scanner.rg').scanner()
+    matcher = lib.commandt_matcher_new(scanner, options)
+  end
 
   local results = lib.commandt_matcher_run(matcher, query)
   local strings = {}
