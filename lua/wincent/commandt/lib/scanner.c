@@ -36,23 +36,21 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
 }
 
 scanner_t *scanner_new_command(const char *command) {
-    FILE *file = popen(command, "r");
-    if (!file) {
-        // Something failed.
-        abort();
-    }
-    int fd = fileno(file);
-
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
-
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
     scanner->candidates = xmap(scanner->candidates_size);
     scanner->buffer = xmap(buffer_size);
 
+    FILE *file = popen(command, "r");
+    if (!file) {
+        // Rather than crashing the process, act like we got an empty result.
+        goto out;
+    }
+    int fd = fileno(file);
+
     char *start = scanner->buffer;
     char *end = scanner->buffer;
     ssize_t read_count;
-    long candidate_count = 0;
     while ((read_count = read(fd, end, 4096)) != 0) {
         if (read_count < 0) {
             // A read error, but we may as well try and proceed gracefully.
@@ -71,10 +69,9 @@ scanner_t *scanner_new_command(const char *command) {
             char *path = start + 0; // drop;
             int length = next_end - start - 0; // drop
             start = next_end + 1;
-            str_init(&scanner->candidates[candidate_count], path, length);
-            candidate_count++;
+            str_init(&scanner->candidates[scanner->count++], path, length);
 
-            if (candidate_count >= MAX_FILES) {
+            if (scanner->count >= MAX_FILES) {
                 // TODO: make this real
             }
         }
@@ -82,12 +79,12 @@ scanner_t *scanner_new_command(const char *command) {
 
     int status = pclose(file);
     if (status == -1) {
-        // Internal `wait4()` call failed.
+        // Probably a `wait4()` call failed.
     } else if (status != 0) {
-        // Something else went wrong.
+        // Command exited with non-zero status. Again we degrade.
     }
 
-    scanner->count = candidate_count;
+out:
     return scanner;
 }
 
