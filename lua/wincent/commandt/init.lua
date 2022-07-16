@@ -135,4 +135,8 @@ commandt.select_next = function() end
 
 commandt.select_previous = function() end
 
+commandt.setup = function(options)
+  -- TODO add setup customization here
+end
+
 return commandt

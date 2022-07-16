@@ -24,6 +24,10 @@ benchmark({
       -- TODO: don't hardcode this, obviously...
       scanner.set_sockname('/opt/homebrew/var/run/watchman/wincent-state/sock')
     end
+    if config.stub_candidates then
+      -- For scanners that otherwise depend on Neovim for a list of candidates.
+      config.stub_candidates(scanner)
+    end
     return scanner
   end,
 
