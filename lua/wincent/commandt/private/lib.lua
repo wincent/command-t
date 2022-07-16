@@ -3,6 +3,8 @@
 
 local ffi = require('ffi')
 
+local merge = require('wincent.commandt.private.merge')
+
 local lib = {}
 
 -- Lazy-load dynamic (C) library code on first access.
@@ -146,25 +148,6 @@ setmetatable(c, {
     return c[key]
   end,
 })
-
--- Utility function for working with functions that take optional arguments.
---
--- Creates a merged table containing items from the supplied tables, working
--- from left to right.
---
--- ie. `merge(t1, t2, t3)` will insert elements from `t1`, then `t2`, then
--- `t3` into a new table, then return the new table.
-local merge = function(...)
-  local final = {}
-  for _, t in ipairs({ ... }) do
-    if t ~= nil then
-      for k, v in pairs(t) do
-        final[k] = v
-      end
-    end
-  end
-  return final
-end
 
 lib.commandt_epoch = function()
   local result = c.commandt_epoch()

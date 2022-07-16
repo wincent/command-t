@@ -3,6 +3,8 @@
 
 local prompt = {}
 
+local window = require('wincent.commandt.private.window')
+
 local input_buffer = nil
 local input_window = nil
 local title_buffer = nil
