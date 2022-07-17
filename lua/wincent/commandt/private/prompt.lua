@@ -18,6 +18,9 @@ prompt.show = function(options)
           options.onchange(contents)
         end
       end,
+      onclose = function()
+        window = nil
+      end,
       title = 'CommandT [type]', -- TODO make real
     })
   end
