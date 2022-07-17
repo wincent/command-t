@@ -118,6 +118,13 @@ function Window:show()
         callback = callback,
       })
     end
+    vim.api.nvim_create_autocmd('VimResized', {
+      buffer = self._main_buffer,
+      callback = function()
+        -- This will resposition title, too, so no need for a separate autocmd.
+        self:_reposition()
+      end,
+    })
   end
   local position = self:_calculate_position()
   if self._main_window == nil then
@@ -220,29 +227,33 @@ function Window:replace_lines(lines, options)
     -- TODO: rather than overwriting height, distinguish maxheight and height
     -- maxheight will stay fixed, but height can fluctuate with content
     self._height = math.max(1, #lines)
-    local position = merge(
-      self:_calculate_position(),
-      -- Need `relative` to avoid:
-      --
-      --    non-float cannot have 'row' [C]: in function 'nvim_win_set_config'
-      --
-      -- See: https://github.com/neovim/neovim/issues/18368
-      { relative = 'editor' }
+    self:_reposition()
+  end
+end
+
+function Window:_reposition()
+  local position = merge(
+    self:_calculate_position(),
+    -- Need `relative` to avoid:
+    --
+    --    non-float cannot have 'row' [C]: in function 'nvim_win_set_config'
+    --
+    -- See: https://github.com/neovim/neovim/issues/18368
+    { relative = 'editor' }
+  )
+  if self._main_window ~= nil then
+    vim.api.nvim_win_set_config(self._main_window, position)
+  end
+  if self._title_window ~= nil then
+    vim.api.nvim_win_set_config(
+      self._title_window,
+      merge(position, {
+        col = 2,
+        height = 1,
+        row = math.max(0, position.row),
+        width = #(' ' .. self._title .. ' '),
+      })
     )
-    if self._main_window ~= nil then
-      vim.api.nvim_win_set_config(self._main_window, position)
-    end
-    if self._title_window ~= nil then
-      vim.api.nvim_win_set_config(
-        self._title_window,
-        merge(position, {
-          col = 2,
-          height = 1,
-          row = math.max(0, position.row),
-          width = #(' ' .. self._title .. ' '),
-        })
-      )
-    end
   end
 end
 
