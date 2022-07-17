@@ -125,6 +125,7 @@ end
 commandt.prompt = function()
   local match_listing = require('wincent.commandt.private.match_listing')
   match_listing.show({
+    height = commandt._options.height,
     position = commandt._options.position,
   })
   require('wincent.commandt.private.prompt').show({
@@ -142,17 +143,24 @@ commandt.select_previous = function() end
 
 -- TODO: make public accessor version of this (that will deal with a copy)
 commandt._options = {
+  height = 15,
+  order = 'reverse',
   position = 'bottom',
 }
 
 commandt.setup = function(options)
   -- TODO add setup customization here
   options = merge({
-    position = 'bottom', -- can also be top
+    height = 15,
+    order = 'reverse', -- 'forward', 'reverse'.
+    position = 'bottom', -- 'bottom', 'center', 'top'.
   }, options or {})
 
-  if options.position ~= 'bottom' and options.position ~= 'top' then
-    error("commandt.setup(): `position` must be 'bottom' or 'top'")
+  if options.order ~= 'forward' and options.order ~= 'reverse' then
+    error("commandt.setup(): `order` must be 'forward' or 'reverse'")
+  end
+  if options.position ~= 'bottom' and options.position ~= 'center' and options.position ~= 'top' then
+    error("commandt.setup(): `position` must be 'bottom', 'center' or 'top'")
   end
   commandt.options.position = options.position
 end

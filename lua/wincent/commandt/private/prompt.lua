@@ -12,10 +12,18 @@ prompt.show = function(options)
   options = merge({
     position = 'bottom',
   }, options or {})
+  -- TODO: allow left/right margins to be set as well
 
   local bottom = nil
   local top = nil
-  if options.position == 'bottom' then
+  if options.position == 'center' then
+    local available_height = vim.o.lines - vim.o.cmdheight
+    local used_height = 15 -- note we need to know how high the match listing is going to be
+      + 2 -- match listing border
+      + 3 -- our height
+    local remaining_height = available_height - used_height -- TODO deal with overflow
+    top = math.floor(remaining_height / 2)
+  elseif options.position == 'bottom' then
     bottom = 0
   else
     top = 0
