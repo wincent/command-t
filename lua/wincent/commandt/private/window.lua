@@ -48,7 +48,7 @@ end
 
 function Window.new(options)
   options = merge({
-    bottom = 0,
+    bottom = nil,
     buftype = 'nofile', -- Also, 'prompt'.
     filetype = nil,
     height = 1,
@@ -227,12 +227,17 @@ end
 function Window:_calculate_position()
   local editor_width = vim.o.columns
   local editor_height = vim.o.lines
-  local cmdheight = vim.o.cmdheight
+  local border_height = 2
+  local usable_height = editor_height - vim.o.cmdheight
   if type(self._top) == 'number' then
-    error('not yet implemented')
+    local height = clamp(self._height, 1, usable_height - self._top - border_height)
+    return {
+      col = 0,
+      height = height,
+      row = self._top,
+      width = editor_width,
+    }
   elseif type(self._bottom) == 'number' then
-    local border_height = 2
-    local usable_height = editor_height - cmdheight
     local height = clamp(self._height, 1, usable_height - self._bottom - border_height)
     return {
       col = 0,
