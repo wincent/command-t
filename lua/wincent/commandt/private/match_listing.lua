@@ -14,6 +14,7 @@ local prompt_height = 1 + border_height
 match_listing.show = function(options)
   options = merge({
     height = 15,
+    margin = 0,
     order = 'reverse',
     position = 'bottom',
   }, options or {})
@@ -39,6 +40,7 @@ match_listing.show = function(options)
       bottom = bottom,
       filetype = 'CommandTMatchListing',
       height = options.height,
+      margin = options.margin,
       onclose = function()
         window = nil
       end,

@@ -10,6 +10,7 @@ local window = nil
 
 prompt.show = function(options)
   options = merge({
+    margin = 0,
     position = 'bottom',
   }, options or {})
   -- TODO: allow left/right margins to be set as well
@@ -34,6 +35,7 @@ prompt.show = function(options)
       bottom = bottom,
       buftype = 'prompt',
       filetype = 'CommandTPrompt',
+      margin = options.margin,
       onchange = function(contents)
         if options and options.onchange then
           options.onchange(contents)

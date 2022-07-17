@@ -128,9 +128,11 @@ commandt.prompt = function()
   local match_listing = require('wincent.commandt.private.match_listing')
   match_listing.show({
     height = commandt._options.height,
+    -- margin = 10,
     position = commandt._options.position,
   })
   require('wincent.commandt.private.prompt').show({
+    -- margin = 10,
     onchange = function(query)
       local results = commandt.demo(query)
       match_listing.update(results)
@@ -146,6 +148,7 @@ commandt.select_previous = function() end
 -- TODO: make public accessor version of this (that will deal with a copy)
 commandt._options = {
   height = 15,
+  margin = 0,
   order = 'reverse',
   position = 'bottom',
 }
@@ -154,6 +157,7 @@ commandt.setup = function(options)
   -- TODO add setup customization here
   options = merge({
     height = 15,
+    margin = 0,
     order = 'reverse', -- 'forward', 'reverse'.
     position = 'bottom', -- 'bottom', 'center', 'top'.
   }, options or {})

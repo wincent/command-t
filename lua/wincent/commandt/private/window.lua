@@ -35,6 +35,9 @@ local validate_options = function(options)
   if options.buftype ~= 'nofile' and options.buftype ~= 'prompt' then
     error("Window.new(): `buftype` must be 'nofile' or 'prompt'")
   end
+  if not is_integer(options.margin) or options.margin < 0 then
+    error('Window.new(): `margin` must be a non-negative integer')
+  end
   if options.onchange ~= nil and type(options.onchange) ~= 'function' then
     error('Window.new(): `onchange` must be a function')
   end
@@ -52,6 +55,7 @@ function Window.new(options)
     buftype = 'nofile', -- Also, 'prompt'.
     filetype = nil,
     height = 1,
+    margin = 0,
     onclose = nil,
     onchange = nil,
     prompt = '> ', -- Has no effect unless `buftype` is 'prompt'.
@@ -66,8 +70,10 @@ function Window.new(options)
     _height = options.height,
     _main_buffer = nil,
     _main_window = nil,
+    _margin = options.margin,
     _onchange = options.onchange,
     _onclose = options.onclose,
+    _padded_title = options.title ~= '' and (' ' .. options.title .. ' ') or '',
     _prompt = options.prompt,
     _title = options.title,
     _title_buffer = nil,
@@ -164,7 +170,7 @@ function Window:show()
       {} -- replacement lines
     )
   end
-  if self._title ~= '' then
+  if self._padded_title ~= '' then
     if self._title_buffer == nil then
       self._title_buffer = vim.api.nvim_create_buf(
         false, -- listed = false
@@ -177,7 +183,6 @@ function Window:show()
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide
-    local title = ' ' .. self._title .. ' '
     if self._title_window == nil then
       self._title_window = vim.api.nvim_open_win(
         self._title_buffer,
@@ -192,10 +197,10 @@ function Window:show()
           },
           position,
           {
-            col = 2,
+            col = position.col + #self._prompt,
             height = 1,
             row = math.max(0, position.row),
-            width = #title,
+            width = #self._padded_title,
           }
         )
       )
@@ -208,7 +213,7 @@ function Window:show()
       0, -- start
       -1, -- end
       false, -- strict indexing
-      { title } -- TODO: put actual type
+      { self._padded_title } -- TODO: put actual type
     )
   end
 end
@@ -248,7 +253,7 @@ function Window:_reposition()
     vim.api.nvim_win_set_config(
       self._title_window,
       merge(position, {
-        col = 2,
+        col = position.col + #self._prompt,
         height = 1,
         row = math.max(0, position.row),
         width = #(' ' .. self._title .. ' '),
@@ -267,24 +272,26 @@ end
 -- off.
 function Window:_calculate_position()
   local editor_width = vim.o.columns
+  local width = math.max(1, #self._padded_title, editor_width - 2 * self._margin)
+  local col = math.floor((editor_width - width) / 2)
   local editor_height = vim.o.lines
   local border_height = 2
   local usable_height = editor_height - vim.o.cmdheight
   if type(self._top) == 'number' then
     local height = clamp(self._height, 1, usable_height - self._top - border_height)
     return {
-      col = 0,
+      col = col,
       height = height,
       row = self._top,
-      width = editor_width,
+      width = width,
     }
   elseif type(self._bottom) == 'number' then
     local height = clamp(self._height, 1, usable_height - self._bottom - border_height)
     return {
-      col = 0,
+      col = col,
       height = height,
       row = usable_height - self._bottom - height - border_height,
-      width = editor_width,
+      width = width,
     }
   end
 end
