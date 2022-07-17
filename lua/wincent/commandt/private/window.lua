@@ -54,8 +54,8 @@ function Window.new(options)
     height = 1,
     onclose = nil,
     onchange = nil,
-    prompt = '> ',
-    title = 'Command-T',
+    prompt = '> ', -- Has no effect unless `buftype` is 'prompt'.
+    title = 'Command-T', -- Set to '' to suppress.
     top = nil,
   }, options)
   validate_options(options)
@@ -157,52 +157,53 @@ function Window:show()
       {} -- replacement lines
     )
   end
-  if self._title_buffer == nil then
-    self._title_buffer = vim.api.nvim_create_buf(
-      false, -- listed = false
-      true -- scratch = true
-    )
-    if self._title_buffer == 0 then
-      error('Window:show(): nvim_create_buf() failed')
-    end
-    vim.api.nvim_buf_set_option(self._title_buffer, 'buftype', 'nofile')
-    vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
-  end
-  -- TODO: trim title if too wide
-  local prompt_title = ' ' .. self._title .. ' '
-  if self._title_window == nil then
-    self._title_window = vim.api.nvim_open_win(
-      self._title_buffer,
-      false, -- enter = false
-      merge(
-        {
-          focusable = false,
-          noautocmd = true,
-          relative = 'editor',
-          style = 'minimal',
-          zindex = 60, -- Default for floats is 50
-        },
-        position,
-        {
-          col = 2,
-          height = 1,
-          row = math.max(1, position.row - 1),
-          width = #prompt_title,
-        }
+  if self._title ~= '' then
+    if self._title_buffer == nil then
+      self._title_buffer = vim.api.nvim_create_buf(
+        false, -- listed = false
+        true -- scratch = true
       )
-    )
-    if self._title_window == 0 then
-      error('Window:show(): nvim_open_win() failed')
+      if self._title_buffer == 0 then
+        error('Window:show(): nvim_create_buf() failed')
+      end
+      vim.api.nvim_buf_set_option(self._title_buffer, 'buftype', 'nofile')
+      vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
+    -- TODO: trim title if too wide
+    local prompt_title = ' ' .. self._title .. ' '
+    if self._title_window == nil then
+      self._title_window = vim.api.nvim_open_win(
+        self._title_buffer,
+        false, -- enter = false
+        merge(
+          {
+            focusable = false,
+            noautocmd = true,
+            relative = 'editor',
+            style = 'minimal',
+            zindex = 60, -- Default for floats is 50
+          },
+          position,
+          {
+            col = 2,
+            height = 1,
+            row = math.max(0, position.row),
+            width = #prompt_title,
+          }
+        )
+      )
+      if self._title_window == 0 then
+        error('Window:show(): nvim_open_win() failed')
+      end
+    end
+    vim.api.nvim_buf_set_lines(
+      self._title_buffer,
+      0, -- start
+      -1, -- end
+      false, -- strict indexing
+      { prompt_title } -- TODO: put actual type
+    )
   end
-  -- TODO: position title autoatically
-  vim.api.nvim_buf_set_lines(
-    self._title_buffer,
-    0, -- start
-    -1, -- end
-    false, -- strict indexing
-    { prompt_title } -- TODO: put actual type
-  )
 end
 
 function Window:replace_lines(lines)
@@ -226,15 +227,17 @@ end
 function Window:_calculate_position()
   local editor_width = vim.o.columns
   local editor_height = vim.o.lines
+  local cmdheight = vim.o.cmdheight
   if type(self._top) == 'number' then
     error('not yet implemented')
   elseif type(self._bottom) == 'number' then
     local border_height = 2
-    local height = clamp(self._height, 1, editor_height - self._bottom - border_height)
+    local usable_height = editor_height - cmdheight
+    local height = clamp(self._height, 1, usable_height - self._bottom - border_height)
     return {
       col = 0,
       height = height,
-      row = editor_height - height - self._bottom,
+      row = usable_height - self._bottom - height - border_height,
       width = editor_width,
     }
   end
