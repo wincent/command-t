@@ -172,6 +172,12 @@ return {
       end,
     },
     {
+      name = 'find',
+      source = 'wincent.commandt.private.scanner.find',
+      times = 100,
+      skip_in_ci = false,
+    },
+    {
       name = 'git',
       source = 'wincent.commandt.private.scanner.git',
       times = 100,

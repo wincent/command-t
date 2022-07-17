@@ -19,6 +19,7 @@ benchmark({
   log = 'wincent.commandt.benchmark.logs.scanner',
 
   setup = function(config)
+    collectgarbage()
     local scanner = require(config.source)
     if scanner.name == 'watchman' then
       -- We don't have a real JSON parser here, so we fake it.
