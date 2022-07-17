@@ -6,8 +6,6 @@ local data_directory = (path + '../../../../../data')
 
 data_directory:prepend_to_package_path()
 
-local log_file = (data_directory + 'wincent/commandt/benchmark/logs/matcher.lua'):normalize()
-
 local time = require('wincent.commandt.private.time')
 local lib = require('wincent.commandt.private.lib')
 
@@ -357,6 +355,11 @@ local benchmark = function(options)
   end
 
   table.insert(log, results)
+
+  -- Turn 'wincent.commandt.benchmark.logs.name' into
+  -- 'wincent/commandt/benchmark/logs/name.lua', then into absolute path.
+  local log_file = (data_directory + (options.log:gsub('%.', '/') .. '.lua')):normalize()
+
   local file, err = io.open(log_file, 'w+')
   if file == nil then
     error(err)
