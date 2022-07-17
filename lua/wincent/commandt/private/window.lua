@@ -120,7 +120,6 @@ function Window:show()
     end
   end
   local position = self:_calculate_position()
-  print('window: ' .. vim.inspect(position))
   if self._main_window == nil then
     self._main_window = vim.api.nvim_open_win(
       self._main_buffer,
@@ -172,13 +171,6 @@ function Window:show()
   -- TODO: trim title if too wide
   local prompt_title = ' ' .. self._title .. ' '
   if self._title_window == nil then
-    local pos = merge({}, position, {
-      col = 2,
-      height = 1,
-      row = math.max(1, position.row - 1),
-      width = #prompt_title,
-    })
-    print('title: ' .. vim.inspect(pos))
     self._title_window = vim.api.nvim_open_win(
       self._title_buffer,
       false, -- enter = false
