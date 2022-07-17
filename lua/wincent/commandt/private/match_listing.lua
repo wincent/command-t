@@ -21,7 +21,7 @@ match_listing.show = function(options)
       onclose = function()
         window = nil
       end,
-      title = 'Results',
+      title = '',
     })
   end
   window:show()
