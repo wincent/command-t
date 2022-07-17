@@ -170,7 +170,7 @@ function Window:show()
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide
-    local prompt_title = ' ' .. self._title .. ' '
+    local title = ' ' .. self._title .. ' '
     if self._title_window == nil then
       self._title_window = vim.api.nvim_open_win(
         self._title_buffer,
@@ -188,7 +188,7 @@ function Window:show()
             col = 2,
             height = 1,
             row = math.max(0, position.row),
-            width = #prompt_title,
+            width = #title,
           }
         )
       )
@@ -201,19 +201,49 @@ function Window:show()
       0, -- start
       -1, -- end
       false, -- strict indexing
-      { prompt_title } -- TODO: put actual type
+      { title } -- TODO: put actual type
     )
   end
 end
 
-function Window:replace_lines(lines)
-  vim.api.nvim_buf_set_lines(
-    self._main_buffer,
-    0, -- start
-    -1, -- end
-    false, -- strict indexing
-    lines -- replacement lines
-  )
+function Window:replace_lines(lines, options)
+  if self._main_buffer ~= nil then
+    vim.api.nvim_buf_set_lines(
+      self._main_buffer,
+      0, -- start
+      -1, -- end
+      false, -- strict indexing
+      lines -- replacement lines
+    )
+  end
+  if options and options.adjust_height then
+    -- TODO: rather than overwriting height, distinguish maxheight and height
+    -- maxheight will stay fixed, but height can fluctuate with content
+    self._height = math.max(1, #lines)
+    local position = merge(
+      self:_calculate_position(),
+      -- Need `relative` to avoid:
+      --
+      --    non-float cannot have 'row' [C]: in function 'nvim_win_set_config'
+      --
+      -- See: https://github.com/neovim/neovim/issues/18368
+      { relative = 'editor' }
+    )
+    if self._main_window ~= nil then
+      vim.api.nvim_win_set_config(self._main_window, position)
+    end
+    if self._title_window ~= nil then
+      vim.api.nvim_win_set_config(
+        self._title_window,
+        merge(position, {
+          col = 2,
+          height = 1,
+          row = math.max(0, position.row),
+          width = #(' ' .. self._title .. ' '),
+        })
+      )
+    end
+  end
 end
 
 -- Return a clamped `value` (restricted to range `minimum, maximum`).

@@ -51,7 +51,7 @@ end
 
 match_listing.update = function(results)
   if window then
-    window:replace_lines(results)
+    window:replace_lines(results, { adjust_height = true })
   end
 end
 
