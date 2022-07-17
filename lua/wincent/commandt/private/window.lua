@@ -173,7 +173,7 @@ function Window:show()
   local prompt_title = ' ' .. self._title .. ' '
   if self._title_window == nil then
     local pos = merge({}, position, {
-      col = 3,
+      col = 2,
       height = 1,
       row = math.max(1, position.row - 1),
       width = #prompt_title,
@@ -192,7 +192,7 @@ function Window:show()
         },
         position,
         {
-          col = 3,
+          col = 2,
           height = 1,
           row = math.max(1, position.row - 1),
           width = #prompt_title,
