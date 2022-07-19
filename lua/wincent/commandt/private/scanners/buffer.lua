@@ -5,6 +5,8 @@ local buffer = {}
 
 -- Returns the list of paths currently loaded into buffers.
 buffer.get = function()
+  -- TODO: don't include unlisted buffers unless user wants them (need some way
+  -- for them to signal that)
   local handles = vim.api.nvim_list_bufs()
   local paths = {}
   for _, handle in ipairs(handles) do

@@ -15,6 +15,7 @@ local Window = {}
 local mt = {
   __index = Window,
 }
+
 local is_integer = function(numberish)
   return type(numberish) == 'number' and math.floor(numberish) == numberish
 end
@@ -38,11 +39,17 @@ local validate_options = function(options)
   if not is_integer(options.margin) or options.margin < 0 then
     error('Window.new(): `margin` must be a non-negative integer')
   end
-  if options.onchange ~= nil and type(options.onchange) ~= 'function' then
-    error('Window.new(): `onchange` must be a function')
+  if options.on_change ~= nil and type(options.on_change) ~= 'function' then
+    error('Window.new(): `on_change` must be a function')
   end
-  if options.onclose ~= nil and type(options.onclose) ~= 'function' then
-    error('Window.new(): `onclose` must be a function')
+  if options.on_close ~= nil and type(options.on_close) ~= 'function' then
+    error('Window.new(): `on_close` must be a function')
+  end
+  if options.on_leave ~= nil and type(options.on_leave) ~= 'function' then
+    error('Window.new(): `on_leave` must be a function')
+  end
+  if options.selection_highlight ~= nil and type(options.selection_highlight) ~= 'string' then
+    error('Window.new(): `selection_highlight` must be a string')
   end
   if options.top ~= nil and (not is_integer(options.top) or options.top < 0) then
     error('Window.new(): `top` must be a non-negative integer')
@@ -56,9 +63,11 @@ function Window.new(options)
     filetype = nil,
     height = 1,
     margin = 0,
-    onclose = nil,
-    onchange = nil,
+    on_change = nil,
+    on_close = nil,
+    on_leave = nil,
     prompt = '> ', -- Has no effect unless `buftype` is 'prompt'.
+    selection_highlight = 'PMenuSel',
     title = 'Command-T', -- Set to '' to suppress.
     top = nil,
   }, options)
@@ -71,17 +80,25 @@ function Window.new(options)
     _main_buffer = nil,
     _main_window = nil,
     _margin = options.margin,
-    _onchange = options.onchange,
-    _onclose = options.onclose,
+    _namespace = vim.api.nvim_create_namespace(''),
+    _on_change = options.on_change,
+    _on_close = options.on_close,
+    _on_leave = options.on_leave,
     _padded_title = options.title ~= '' and (' ' .. options.title .. ' ') or '',
     _prompt = options.prompt,
+    _selection_highlight = options.selection_highlight,
     _title = options.title,
     _title_buffer = nil,
     _title_window = nil,
     _top = options.top,
+    _width = nil,
   }
   setmetatable(w, mt)
   return w
+end
+
+function Window:close()
+  vim.api.nvim_win_close(self._main_window, true)
 end
 
 -- Focus the window and enter insert mode, ready to receive input.
@@ -89,6 +106,76 @@ function Window:focus()
   -- TODO: if not shown, show first automatically?, then...
   vim.api.nvim_set_current_win(self._main_window)
   vim.cmd('startinsert')
+end
+
+function Window:highlight_line(index)
+  if self._main_window then
+    vim.api.nvim_win_set_cursor(self._main_window, { index, 0 })
+  end
+  if self._main_buffer then
+    vim.api.nvim_buf_add_highlight(
+      self._main_buffer,
+      self._namespace,
+      self._selection_highlight,
+      index - 1, -- line (0-indexed)
+      0, -- col_start
+      -1 -- col_end (end-of-line)
+    )
+  end
+end
+
+function Window:imap(lhs, rhs, options)
+  self:map('i', lhs, rhs, options)
+end
+
+function Window:map(modes, lhs, rhs, options)
+  if self._main_buffer then
+    if type(modes) == 'string' then
+      modes = { modes }
+    end
+    for _, mode in ipairs(modes) do
+      if type(lhs) == 'string' then
+        lhs = { lhs }
+      end
+      for _, l in ipairs(lhs) do
+        vim.keymap.set(mode, l, rhs, options)
+      end
+    end
+  end
+end
+
+function Window:nmap(lhs, rhs, options)
+  self:map('n', lhs, rhs, options)
+end
+
+function Window:replace_line(line, index)
+  if self._main_buffer ~= nil then
+    vim.api.nvim_buf_set_lines(
+      self._main_buffer,
+      index - 1, -- start (0-based)
+      index, -- end (end-exclusive)
+      false, -- strict indexing
+      { line } -- replacement lines
+    )
+  end
+end
+
+function Window:replace_lines(lines, options)
+  if self._main_buffer ~= nil then
+    vim.api.nvim_buf_set_lines(
+      self._main_buffer,
+      0, -- start
+      -1, -- end
+      false, -- strict indexing
+      lines -- replacement lines
+    )
+  end
+  if options and options.adjust_height then
+    -- TODO: rather than overwriting height, distinguish maxheight and height
+    -- maxheight will stay fixed, but height can fluctuate with content
+    self._height = math.max(1, #lines)
+    self:_reposition()
+  end
 end
 
 function Window:show()
@@ -108,12 +195,12 @@ function Window:show()
     if self._filetype ~= nil then
       vim.api.nvim_buf_set_option(self._main_buffer, 'filetype', self._filetype)
     end
-    if self._onchange then
+    if self._on_change then
       local callback = function()
         -- Should be able to use `vim.fn.prompt_getprompt(self._main_buffer)`,
         -- but it only returns the prompt prefix for some reason...
         local query = vim.api.nvim_get_current_line():sub(#ps1 + 1)
-        self._onchange(query)
+        self._on_change(query)
       end
       vim.api.nvim_create_autocmd('TextChanged', {
         buffer = self._main_buffer,
@@ -129,6 +216,13 @@ function Window:show()
       callback = function()
         -- This will resposition title, too, so no need for a separate autocmd.
         self:_reposition()
+      end,
+    })
+    vim.api.nvim_create_autocmd('BufWipeout', {
+      buffer = self._main_buffer,
+      callback = function()
+        print('BufWipeout')
+        self._main_buffer = nil
       end,
     })
   end
@@ -148,18 +242,40 @@ function Window:show()
     if self._main_window == 0 then
       error('Window:show(): nvim_open_win() failed')
     end
+    self._width = position.width
     -- TODO: maybe watch for buffer destruction too
     -- then nvim_win_close
-    -- TODO: watch for VimResized events then nvim_win_get_position and adjust
-    -- not: nvim_win_set_height
-    -- not: nvim_win_set_width (requires vertical split)
-    -- this one: nvim_win_set_config
     vim.api.nvim_create_autocmd('WinClosed', {
+      buffer = self._main_buffer,
+      nested = true,
       once = true,
       callback = function()
         self._main_window = nil
+        if self._main_buffer then
+          vim.api.nvim_buf_delete(self._main_buffer, { force = true })
+          self._main_buffer = nil
+        end
+        if self._title_window then
+          vim.api.nvim_win_close(self._title_window, true)
+        end
+        if self._on_close then
+          self._on_close()
+        end
       end,
     })
+    -- vim.api.nvim_create_autocmd('WinLeave', {
+    --   buffer = self._main_buffer,
+    --   once = true,
+    --   callback = function()
+    --     vim.api.nvim_win_close(self._main_window, true)
+    --     if self._on_leave then
+    --       self._on_leave()
+    --     end
+    --     if self._title_window then
+    --       vim.api.nvim_win_close(self._title_window, true)
+    --     end
+    --   end,
+    -- })
     vim.api.nvim_win_set_option(self._main_window, 'wrap', false)
     -- TODO: decide whether I need to clear lines here.
     vim.api.nvim_buf_set_lines(
@@ -207,6 +323,21 @@ function Window:show()
       if self._title_window == 0 then
         error('Window:show(): nvim_open_win() failed')
       end
+      vim.api.nvim_create_autocmd('WinClosed', {
+        buffer = self._title_buffer,
+        nested = true,
+        once = true,
+        callback = function()
+          self._main_window = nil
+          if self._main_buffer then
+            print('destroy buffer')
+            -- vim.api.nvim_buf_delete(self._main_buffer, { force = true })
+          end
+          if self._on_close then
+            self._on_close()
+          end
+        end,
+      })
     end
     vim.api.nvim_buf_set_lines(
       self._title_buffer,
@@ -218,22 +349,32 @@ function Window:show()
   end
 end
 
-function Window:replace_lines(lines, options)
-  if self._main_buffer ~= nil then
-    vim.api.nvim_buf_set_lines(
+-- Remove highlighting from a specific line.
+function Window:unhighlight_line(index)
+  if self._main_buffer then
+    vim.api.nvim_buf_clear_namespace(
       self._main_buffer,
-      0, -- start
-      -1, -- end
-      false, -- strict indexing
-      lines -- replacement lines
+      self._namespace,
+      index - 1, -- start (0-indexed)
+      index -- end (end-exclusive)
     )
   end
-  if options and options.adjust_height then
-    -- TODO: rather than overwriting height, distinguish maxheight and height
-    -- maxheight will stay fixed, but height can fluctuate with content
-    self._height = math.max(1, #lines)
-    self:_reposition()
+end
+
+-- Clear highlighting from entire buffer.
+function Window:unhighlight()
+  if self._main_buffer then
+    vim.api.nvim_buf_clear_namespace(
+      self._main_buffer,
+      self._namespace,
+      0, -- start (0-indexed)
+      -1 -- end (end-exclusive)
+    )
   end
+end
+
+function Window:width()
+  return self._width
 end
 
 function Window:_reposition()
@@ -248,6 +389,7 @@ function Window:_reposition()
   )
   if self._main_window ~= nil then
     vim.api.nvim_win_set_config(self._main_window, position)
+    self._width = position.width
   end
   if self._title_window ~= nil then
     vim.api.nvim_win_set_config(

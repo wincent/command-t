@@ -4,9 +4,9 @@
 local scanner = {}
 
 -- TODO: lazy-load these when actually needed
--- scanner.buffer = require('wincent.commandt.private.scanner.buffer')
--- scanner.help = require('wincent.commandt.private.scanner.help')
+-- scanner.buffer = require('wincent.commandt.private.scanners.buffer')
+-- scanner.help = require('wincent.commandt.private.scanners.help')
 --
--- TODO: maybe delete this file
+-- TODO: maybe delete this file; probably
 
 return scanner

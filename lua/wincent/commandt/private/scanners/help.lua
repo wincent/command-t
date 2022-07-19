@@ -39,9 +39,9 @@ help.get = function(force)
   return helptags
 end
 
--- temporary function
+-- temporary function: TODO: decide how to make these not temporary
 -- see me run with:
--- :lua print(require('wincent.commandt.private.scanner.help').scanner())
+-- :lua print(require('wincent.commandt.private.scanners.help').scanner())
 help.scanner = function()
   local paths = help.get()
   local lib = require('wincent.commandt.private.lib')
