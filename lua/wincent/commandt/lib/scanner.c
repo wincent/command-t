@@ -94,6 +94,7 @@ out:
 scanner_t *scanner_new_str(str_t *candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates = candidates;
+    scanner->candidates_size = count * sizeof(str_t);
     scanner->count = count;
     return scanner;
 }
