@@ -10,6 +10,7 @@ return function(dir)
   dir = dir or os.getenv('PWD')
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
+  -- TODO pass through options like `threads` etc
   local options = {}
   -- TODO: make `dir` actually do something here
   finder.scanner = require('wincent.commandt.private.scanners.command').scanner(dir, 'rg --files --null')
@@ -24,6 +25,7 @@ return function(dir)
     return strings
   end
   finder.select = function(item)
+    -- TODO: support open in tab, open in split etc
     vim.cmd('edit ' .. vim.fn.fnameescape(item))
   end
   return finder

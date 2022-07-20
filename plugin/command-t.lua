@@ -1,11 +1,24 @@
 -- SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-vim.cmd([[
-  command! KommandTBuffer lua require'wincent.commandt'.buffer_finder()
-  command! -nargs=? -complete=dir KommandT call luaeval("require'wincent.commandt'.file_finder(_A)", <q-args>)
+vim.api.nvim_create_user_command('KommandT', function(command)
+  require('wincent.commandt').file_finder(command.args)
+end, {
+  complete = 'dir',
+  nargs = '?',
+})
 
-  augroup WincentCommandT
-    autocmd!
-  augroup END
-]])
+vim.api.nvim_create_user_command('KommandTBuffer', function()
+  require('wincent.commandt').buffer_finder()
+end, {})
+
+vim.api.nvim_create_user_command('KommandTHelp', function()
+  require('wincent.commandt').help_finder()
+end, {})
+
+vim.api.nvim_create_user_command('KommandTWatchman', function(command)
+  require('wincent.commandt').watchman_finder(command.args)
+end, {
+  complete = 'dir',
+  nargs = '?',
+})

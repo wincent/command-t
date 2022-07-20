@@ -27,7 +27,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = count * sizeof(str_t);
     if (count) {
-        DEBUG_LOG("xmap() %d\n", scanner->candidates_size);
+        DEBUG_LOG("scanner_new_copy() -> xmap() %llu\n", scanner->candidates_size);
         scanner->candidates = xmap(scanner->candidates_size);
         for (unsigned i = 0; i < count; i++) {
             size_t length = strlen(candidates[i]);
@@ -41,8 +41,11 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
 scanner_t *scanner_new_command(const char *command) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
+    DEBUG_LOG("scanner_new_command() -> xmap() candidates %llu\n", scanner->candidates_size);
     scanner->candidates = xmap(scanner->candidates_size);
-    scanner->buffer = xmap(buffer_size);
+    scanner->buffer_size = buffer_size;
+    DEBUG_LOG("scanner_new_command() -> xmap() buffer %llu\n", scanner->buffer_size);
+    scanner->buffer = xmap(scanner->buffer_size);
 
     FILE *file = popen(command, "r");
     if (!file) {
@@ -134,11 +137,12 @@ void scanner_free(scanner_t *scanner) {
     }
 
     if (scanner->candidates) {
-        DEBUG_LOG("munmap() %d\n", scanner->candidates_size);
+        DEBUG_LOG("scanner_free() -> munmap() candidates %llu\n", scanner->candidates_size);
         assert(munmap(scanner->candidates, scanner->candidates_size) == 0);
     }
 
     if (scanner->buffer) {
+        DEBUG_LOG("scanner_free() -> munmap() buffer %llu\n", scanner->buffer_size);
         assert(munmap(scanner->buffer, scanner->buffer_size) == 0);
     }
 

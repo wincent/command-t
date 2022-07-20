@@ -246,6 +246,7 @@ local benchmark = function(options)
   assert(type(options.run) == 'function')
   assert(options.setup == nil or type(options.setup) == 'function')
   assert(options.skip == nil or type(options.skip) == 'function')
+  assert(options.teardown == nil or type(options.teardown) == 'function')
 
   -- We use Lua modules for benchmark config and logs so that we don't need to
   -- pull in a JSON or YAML dependency.
@@ -283,6 +284,9 @@ local benchmark = function(options)
               end
             end)
           end)
+          if options.teardown then
+            options.teardown(variant)
+          end
 
           cumulative_cpu_delta = cumulative_cpu_delta + cpu_delta
           cumulative_wall_delta = cumulative_wall_delta + wall_delta

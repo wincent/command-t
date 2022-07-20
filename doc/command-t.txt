@@ -42,6 +42,13 @@ filename itself.
 
 REQUIREMENTS                                    *command-t-requirements*
 
+The core of Command-T is written in C for speed, and it optionally makes use
+of a number of external executables -- such as `git`, `rg`, and `watchman` --
+for finding files.
+
+Run `:checkhealth wincent.commandt` to confirm that the C library has been
+built, and check for the presence of the optional executable helpers.
+
 See also |command-t-ruby-requirements| for older requirements.
 
 

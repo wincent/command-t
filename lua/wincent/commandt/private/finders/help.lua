@@ -9,7 +9,7 @@ return function()
   -- TODO pass through options like `threads` etc
   local options = {}
   -- TODO: make `dir` actually do something here
-  finder.scanner = require('wincent.commandt.private.scanners.buffer').scanner()
+  finder.scanner = require('wincent.commandt.private.scanners.help').scanner()
   finder.matcher = lib.commandt_matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.commandt_matcher_run(finder.matcher, query)
@@ -21,8 +21,9 @@ return function()
     return strings
   end
   finder.select = function(item)
-    -- TODO: something more sophisticated here (eg. switchbuf and all that)
-    vim.cmd('edit ' .. vim.fn.fnameescape(item))
+    -- E434 "Can't find tag pattern" is innocuous, so swallow it. For more
+    -- context, see: https://github.com/autozimu/LanguageClient-neovim/pull/731
+    vim.cmd('try | help ' .. item .. ' | catch /E434/ | endtry')
   end
   return finder
 end

@@ -2,3 +2,4 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 vim.bo.textwidth = 0
+vim.wo.wrap = false

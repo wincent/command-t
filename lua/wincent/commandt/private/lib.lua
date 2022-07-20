@@ -155,6 +155,17 @@ lib.commandt_epoch = function()
   return result['seconds'], result['microseconds']
 end
 
+-- For the first 8 cores, use 1 thread per core.
+-- Beyond the first 8 cores, use 1 additional thread per 4 cores.
+local default_thread_count = function()
+  local count = lib.commandt_processors()
+  if count < 8 then
+    return count
+  else
+    return 8 + math.floor((count - 8) / 4)
+  end
+end
+
 lib.commandt_matcher_new = function(scanner, options)
   options = merge({
     always_show_dot_files = false,
@@ -163,7 +174,7 @@ lib.commandt_matcher_new = function(scanner, options)
     limit = 15,
     never_show_dot_files = false,
     recurse = true,
-    threads = lib.commandt_processors(),
+    threads = default_thread_count(),
   }, options)
   if options.limit < 1 then
     error('limit must be > 0')
@@ -197,7 +208,7 @@ end
 
 lib.scanner_new_command = function(command)
   local scanner = c.scanner_new_command(command)
-  -- ffi.gc(scanner, c.scanner_free)
+  ffi.gc(scanner, c.scanner_free)
   return scanner
 end
 

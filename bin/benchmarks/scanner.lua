@@ -47,4 +47,10 @@ benchmark({
       ffi.string(scanner.candidates[i - 1].contents)
     end
   end,
+
+  teardown = function(config)
+    if config.unstub_candidates then
+      config.unstub_candidates()
+    end
+  end,
 })

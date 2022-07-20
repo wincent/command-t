@@ -9,7 +9,7 @@ local helptags = nil
 --
 -- Will return a cached value unless `force` is truthy (or there is no cached
 -- value).
-help.get = function(force)
+local get = function(force)
   if helptags == nil or force then
     -- Neovim doesn't provide an easy way to get a list of all help tags.
     -- `tagfiles()` only shows the tagfiles for the current buffer, so you need
@@ -20,9 +20,8 @@ help.get = function(force)
     -- So, we look for "doc/tags" files at every location in the `'runtimepath'`
     -- and try to manually parse it.
     helptags = {}
+
     local tagfiles = vim.api.nvim_get_runtime_file('doc/tags', true)
-    local handles = vim.api.nvim_list_bufs()
-    local names = {}
 
     for _, tagfile in ipairs(tagfiles) do
       if vim.fn.filereadable(tagfile) then
@@ -39,17 +38,10 @@ help.get = function(force)
   return helptags
 end
 
--- temporary function: TODO: decide how to make these not temporary
--- see me run with:
--- :lua print(require('wincent.commandt.private.scanners.help').scanner())
 help.scanner = function()
-  local paths = help.get()
+  local paths = get()
   local lib = require('wincent.commandt.private.lib')
   local scanner = lib.scanner_new_copy(paths)
-
-  -- DEMO
-  -- lib.print_scanner(scanner)
-
   return scanner
 end
 

@@ -1,4 +1,5 @@
-local health = vim.health or require'health'
+local health = vim.health -- after: https://github.com/neovim/neovim/pull/18720
+  or require('health') -- before: v0.8.x
 
 return {
   -- Run with `:checkhealth wincent.commandt`
@@ -22,8 +23,22 @@ return {
         'Try running `make` from:\n' .. build_directory,
       })
     end
-    -- health.report_warn('example', { 'advice' })
 
-    -- TODO: check for Watchman, Git, rg etc.
+    health.report_start('Checking for optional external dependencies')
+
+    for executable, finder in pairs({
+      find = 'commandt.find_finder',
+      git = 'commandt.git_finder',
+      rg = 'commandt.rg_finder',
+      watchman = 'commandt.watchman_finder',
+    }) do
+      if vim.fn.executable(executable) == 1 then
+        health.report_ok(string.format('(optional) `%s` binary found', executable))
+      else
+        health.report_warn(string.format('(optional) `%s` binary is not in $PATH', executable), {
+          string.format('%s requires `%s`', finder, executable),
+        })
+      end
+    end
   end,
 }

@@ -48,6 +48,9 @@ local validate_options = function(options)
   if options.on_leave ~= nil and type(options.on_leave) ~= 'function' then
     error('Window.new(): `on_leave` must be a function')
   end
+  if options.on_resize ~= nil and type(options.on_resize) ~= 'function' then
+    error('Window.new(): `on_resize` must be a function')
+  end
   if options.selection_highlight ~= nil and type(options.selection_highlight) ~= 'string' then
     error('Window.new(): `selection_highlight` must be a string')
   end
@@ -66,6 +69,7 @@ function Window.new(options)
     on_change = nil,
     on_close = nil,
     on_leave = nil,
+    on_resize = nil,
     prompt = '> ', -- Has no effect unless `buftype` is 'prompt'.
     selection_highlight = 'PMenuSel',
     title = 'Command-T', -- Set to '' to suppress.
@@ -84,6 +88,7 @@ function Window.new(options)
     _on_change = options.on_change,
     _on_close = options.on_close,
     _on_leave = options.on_leave,
+    _on_resize = options.on_resize,
     _padded_title = options.title ~= '' and (' ' .. options.title .. ' ') or '',
     _prompt = options.prompt,
     _selection_highlight = options.selection_highlight,
@@ -98,7 +103,15 @@ function Window.new(options)
 end
 
 function Window:close()
-  vim.api.nvim_win_close(self._main_window, true)
+  if self._main_window then
+    vim.api.nvim_win_close(self._main_window, true)
+    self._main_window = nil
+  end
+  if self._title_window then
+    vim.api.nvim_win_close(self._title_window, true)
+    self._title_window = nil
+  end
+  -- TODO: deal with buffers?
 end
 
 -- Focus the window and enter insert mode, ready to receive input.
@@ -130,6 +143,7 @@ end
 
 function Window:map(modes, lhs, rhs, options)
   if self._main_buffer then
+    options = merge({ buffer = self._main_buffer }, options or {})
     if type(modes) == 'string' then
       modes = { modes }
     end
@@ -192,9 +206,6 @@ function Window:show()
       vim.api.nvim_buf_set_option(self._main_buffer, 'buftype', 'prompt')
       vim.fn.prompt_setprompt(self._main_buffer, ps1)
     end
-    if self._filetype ~= nil then
-      vim.api.nvim_buf_set_option(self._main_buffer, 'filetype', self._filetype)
-    end
     if self._on_change then
       local callback = function()
         -- Should be able to use `vim.fn.prompt_getprompt(self._main_buffer)`,
@@ -216,12 +227,14 @@ function Window:show()
       callback = function()
         -- This will resposition title, too, so no need for a separate autocmd.
         self:_reposition()
+        if self._on_resize() then
+          self._on_resize()
+        end
       end,
     })
     vim.api.nvim_create_autocmd('BufWipeout', {
       buffer = self._main_buffer,
       callback = function()
-        print('BufWipeout')
         self._main_buffer = nil
       end,
     })
@@ -263,20 +276,20 @@ function Window:show()
         end
       end,
     })
-    -- vim.api.nvim_create_autocmd('WinLeave', {
-    --   buffer = self._main_buffer,
-    --   once = true,
-    --   callback = function()
-    --     vim.api.nvim_win_close(self._main_window, true)
-    --     if self._on_leave then
-    --       self._on_leave()
-    --     end
-    --     if self._title_window then
-    --       vim.api.nvim_win_close(self._title_window, true)
-    --     end
-    --   end,
-    -- })
-    vim.api.nvim_win_set_option(self._main_window, 'wrap', false)
+    if self._on_leave then
+      vim.api.nvim_create_autocmd('WinLeave', {
+        buffer = self._main_buffer,
+        callback = self._on_leave,
+      })
+    end
+
+    -- Note we do this _after_ putting buffer in window, so that `ftplugin`
+    -- can set window-level options based on `'filetype'` instead of just
+    -- buffer-level ones.
+    if self._filetype ~= nil then
+      vim.api.nvim_buf_set_option(self._main_buffer, 'filetype', self._filetype)
+    end
+
     -- TODO: decide whether I need to clear lines here.
     vim.api.nvim_buf_set_lines(
       self._main_buffer,
@@ -330,7 +343,6 @@ function Window:show()
         callback = function()
           self._main_window = nil
           if self._main_buffer then
-            print('destroy buffer')
             -- vim.api.nvim_buf_delete(self._main_buffer, { force = true })
           end
           if self._on_close then

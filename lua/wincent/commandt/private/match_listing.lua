@@ -28,6 +28,7 @@ function MatchListing.new(options)
     _margin = options.margin,
     _position = options.position,
     _lines = nil,
+    _results = nil,
     _selected = nil,
     _selection_highlight = options.selection_highlight,
     _window = nil,
@@ -82,12 +83,18 @@ function MatchListing:show()
       height = self._height,
       margin = self._margin,
       on_close = function()
-        print('got on_close for match listing')
+        -- print('got on_close for match listing')
         self._window = nil
         -- TODO: shouldn't really get this first, but close prompt
       end,
       on_leave = function()
-        print('got on_leave for match listing')
+        -- print('got on_leave for match listing')
+      end,
+      on_resize = function()
+        if self._results then
+          -- Cause paddings to be re-rendered.
+          self:update(self._results, { selected = self._selected })
+        end
       end,
       selection_highlight = self._selection_highlight,
       title = '',
@@ -99,20 +106,27 @@ end
 
 function MatchListing:update(results, options)
   self._selected = options.selected
+  self._results = results
   if self._window then
-    local width = self._window:width() or vim.o.width
+    local width = self._window:width() or vim.o.columns
     self._lines = {}
     for i, result in ipairs(results) do
       local prefix = i == self._selected and '> ' or '  '
       local line = nil
 
       -- Right pad so that selection highlighting is shown across full width.
-      if width < 102 then
-        line = prefix .. string.format('%-' .. (width - 2) .. 's', result)
+      if width < 104 then
+        if #result > 99 then
+          -- No padding needed.
+          line = prefix .. result
+        else
+          -- Subtract 2 for prefix, 2 more for borders.
+          line = prefix .. string.format('%-' .. (width - 4) .. 's', result)
+        end
       else
-        -- Avoid: "invalid format (width or precision too long)"
+        -- Avoid: "invalid option" caused by format argument > 99.
         line = prefix .. string.format('%-99s', result)
-        local diff = width - line:len()
+        local diff = width - line:len() - 2
         if diff > 0 then
           line = line .. string.rep(' ', diff)
         end

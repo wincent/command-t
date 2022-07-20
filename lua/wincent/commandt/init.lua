@@ -1,8 +1,6 @@
 -- SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local ffi = require('ffi')
-
 local merge = require('wincent.commandt.private.merge')
 
 local commandt = {}
@@ -21,6 +19,7 @@ commandt.buffer_finder = function()
   local finder = require('wincent.commandt.private.finders.buffer')()
   ui.show(finder, {
     height = commandt._options.height,
+    name = 'buffer',
     order = commandt._options.order,
     position = commandt._options.position,
     selection_highlight = commandt._options.selection_highlight,
@@ -33,6 +32,20 @@ commandt.file_finder = function(arg)
   local finder = require('wincent.commandt.private.finders.file')(directory)
   ui.show(finder, {
     height = commandt._options.height,
+    name = 'file',
+    order = commandt._options.order,
+    position = commandt._options.position,
+    selection_highlight = commandt._options.selection_highlight,
+  })
+end
+
+commandt.help_finder = function()
+  -- TODO: refactor to avoid duplication
+  local ui = require('wincent.commandt.private.ui')
+  local finder = require('wincent.commandt.private.finders.help')()
+  ui.show(finder, {
+    height = commandt._options.height,
+    name = 'help',
     order = commandt._options.order,
     position = commandt._options.position,
     selection_highlight = commandt._options.selection_highlight,
@@ -50,16 +63,17 @@ commandt._options = {
   order = 'reverse',
   position = 'bottom',
   selection_highlight = 'PMenuSel',
+  threads = nil,
 }
 
 commandt.setup = function(options)
-  -- TODO add setup customization here
   options = merge({
     height = 15,
     margin = 0,
     order = 'reverse', -- 'forward', 'reverse'.
     position = 'bottom', -- 'bottom', 'center', 'top'.
     selection_highlight = 'PMenuSel',
+    threads = nil, -- Let heuristic apply.
   }, options or {})
 
   if options.order ~= 'forward' and options.order ~= 'reverse' then
@@ -70,6 +84,19 @@ commandt.setup = function(options)
   end
   commandt.options.position = options.position
   commandt.options.selection_highlight = options.selection_highlight
+end
+
+commandt.watchman_finder = function(arg)
+  local directory = vim.trim(arg)
+  local ui = require('wincent.commandt.private.ui')
+  local finder = require('wincent.commandt.private.finders.watchman')(directory)
+  ui.show(finder, {
+    height = commandt._options.height,
+    name = 'watchman',
+    order = commandt._options.order,
+    position = commandt._options.position,
+    selection_highlight = commandt._options.selection_highlight,
+  })
 end
 
 return commandt

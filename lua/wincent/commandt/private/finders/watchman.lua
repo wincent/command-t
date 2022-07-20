@@ -3,13 +3,16 @@
 
 local ffi = require('ffi')
 
-return function()
+return function(dir)
+  if dir == nil or dir == '' then
+    dir = os.getenv('PWD')
+  end
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   -- TODO pass through options like `threads` etc
   local options = {}
   -- TODO: make `dir` actually do something here
-  finder.scanner = require('wincent.commandt.private.scanners.buffer').scanner()
+  finder.scanner = require('wincent.commandt.private.scanners.watchman').scanner(dir)
   finder.matcher = lib.commandt_matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.commandt_matcher_run(finder.matcher, query)
@@ -21,7 +24,7 @@ return function()
     return strings
   end
   finder.select = function(item)
-    -- TODO: something more sophisticated here (eg. switchbuf and all that)
+    -- TODO: support open in tab, open in split etc
     vim.cmd('edit ' .. vim.fn.fnameescape(item))
   end
   return finder

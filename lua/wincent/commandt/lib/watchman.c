@@ -10,7 +10,7 @@
 #include <stdlib.h> /* for abort(), free() */
 #include <string.h> /* for memset(), strncpy() */
 #include <sys/errno.h> /* for errno */
-#include <sys/mman.h> /* for mmap(), munmap() */
+#include <sys/mman.h> /* for munmap() */
 #include <sys/socket.h> /* for AF_LOCAL, MSG_PEEK, MSG_WAITALL, recv() */
 #include <sys/un.h> /* for sockaddr_un */
 #include <unistd.h> /* for close() */
@@ -167,6 +167,7 @@ watchman_query_result_t *commandt_watchman_query(
             assert(!result->files);
             uint64_t file_count = watchman_read_array(r);
             result->files_size = sizeof(str_t) * file_count;
+            DEBUG_LOG("commandt_watchman_query() -> xmap() %llu\n", result->files_size);
             result->files = xmap(result->files_size);
             for (uint64_t j = 0; j < file_count; j++) {
                 watchman_read_string_no_copy(r, &result->files[j]);
@@ -195,6 +196,9 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     const char *root,
     int socket
 ) {
+#ifdef DEBUG
+    DEBUG_LOG("watch-project %s\n", root);
+#endif
     // Prepare and send the message:
     //
     //     ["watch-project", "/path/to/root"]
@@ -239,6 +243,13 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
             key->length == sizeof("error") - 1 &&
             strncmp(key->contents, "error", key->length) == 0
         ) {
+#ifdef DEBUG
+            // Try to log error message, which could be something like:
+            // "std::system_error: open: : No such file or directory"
+            str_t *error = watchman_read_string(r);
+            DEBUG_LOG("%s\n", error->contents);
+            str_free(error);
+#endif
             abort();
         } else {
             // Skip over values we don't care about.
@@ -265,6 +276,7 @@ void commandt_watchman_watch_project_result_free(
 }
 
 void commandt_watchman_query_result_free(watchman_query_result_t *result) {
+    DEBUG_LOG("commandt_watchman_query_result_free() -> munmap() %llu\n", result->files_size);
     assert(munmap(result->files, result->files_size) == 0);
     free(result->response);
     free(result);

@@ -15,7 +15,9 @@ local mt = {
 function Prompt.new(options)
   options = merge({
     margin = 0,
+    name = nil,
     on_change = nil,
+    on_leave = nil,
     on_next = nil,
     on_previous = nil,
     on_select = nil,
@@ -24,7 +26,9 @@ function Prompt.new(options)
   -- TODO validate options
   local p = {
     _margin = options.margin,
+    _name = options.name,
     _on_change = options.on_change,
+    _on_leave = options.on_leave,
     _on_next = options.on_next,
     _on_select = options.on_select,
     _on_previous = options.on_previous,
@@ -58,6 +62,7 @@ function Prompt:show()
   end
 
   if self._window == nil then
+    local title = self._name and ('CommandT [' .. self._name .. ']') or 'CommandT'
     self._window = Window.new({
       bottom = bottom,
       buftype = 'prompt',
@@ -69,16 +74,10 @@ function Prompt:show()
         end
       end,
       on_close = function()
-        print('got on_close for prompt')
         self._window = nil
       end,
-      on_leave = function()
-        print('got on_leave for prompt')
-        if self._window then
-          self._window:close()
-        end
-      end,
-      title = 'CommandT [type]', -- TODO make real
+      on_leave = self._on_leave,
+      title = title,
       top = top,
     })
   end

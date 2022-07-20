@@ -21,6 +21,25 @@ local reverse = function(list)
   end
 end
 
+-- TODO: reasons to delete a window
+-- 1. [DONE] user explicitly closes it with ESC
+-- 2. [DONE] user explicitly accepts a selection
+-- 3. [DONE] user navigates out of the window (WinLeave)
+-- 4. [DONE] user uses a Vim command to close the window or the buffer
+-- (we get this "for free" kind of thanks to WinLeave happening as soon as you
+-- do anything that would move you out)
+
+local close = function()
+  if match_listing then
+    match_listing:close()
+    match_listing = nil
+  end
+  if prompt then
+    prompt:close()
+    prompt = nil
+  end
+end
+
 ui.show = function(finder, options)
   -- TODO validate options
   current_finder = finder
@@ -37,6 +56,7 @@ ui.show = function(finder, options)
   local selected = nil
   prompt = Prompt.new({
     -- margin = 10,
+    name = options.name,
     on_change = function(query)
       results = finder.run(query)
       if #results == 0 then
@@ -51,7 +71,7 @@ ui.show = function(finder, options)
       end
       match_listing:update(results, { selected = selected })
     end,
-    -- TODO: rename all "on" callbacks to use an underscore
+    on_leave = close,
     on_next = function()
       if results and #results then
         selected = math.min(selected + 1, #results)
@@ -68,14 +88,7 @@ ui.show = function(finder, options)
     -- our notion of current selection
     on_select = function()
       if results and #results then
-        if match_listing then
-          match_listing:close()
-          match_listing = nil
-        end
-        if prompt then
-          prompt:close()
-          prompt = nil
-        end
+        close()
         finder.select(results[selected])
       end
     end,
