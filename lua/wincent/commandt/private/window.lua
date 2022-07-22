@@ -245,7 +245,7 @@ function Window:show()
       self._main_buffer,
       true, -- enter = true
       merge({
-        border = 'single',
+        border = 'rounded', -- TODO make configurable
         focusable = false,
         noautocmd = true,
         relative = 'editor',
@@ -423,11 +423,17 @@ end
 
 -- Tries to fit window within existing dimensions. If the editor window is too
 -- small, then shrinks to fit inside it. If it is still too small, all bets are
--- off.
+-- off, although Neovim will draw what it can inside the viewport.
 function Window:_calculate_position()
   local editor_width = vim.o.columns
-  local width = math.max(1, #self._padded_title, editor_width - 2 * self._margin)
-  local col = math.floor((editor_width - width) / 2)
+  local border_width = 2
+  local minimum_width = 1
+  local width = math.max(
+    border_width + minimum_width,
+    border_width + #self._padded_title,
+    editor_width - 2 * self._margin
+  ) - border_width
+  local col = math.floor((editor_width - width + border_width) / 2)
   local editor_height = vim.o.lines
   local border_height = 2
   local usable_height = editor_height - vim.o.cmdheight

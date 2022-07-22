@@ -120,13 +120,12 @@ function MatchListing:update(results, options)
           -- No padding needed.
           line = prefix .. result
         else
-          -- Subtract 2 for prefix, 2 more for borders.
-          line = prefix .. string.format('%-' .. (width - 4) .. 's', result)
+          line = prefix .. string.format('%-' .. (width - #prefix) .. 's', result)
         end
       else
         -- Avoid: "invalid option" caused by format argument > 99.
         line = prefix .. string.format('%-99s', result)
-        local diff = width - line:len() - 2
+        local diff = width - line:len()
         if diff > 0 then
           line = line .. string.rep(' ', diff)
         end

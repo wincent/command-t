@@ -46,7 +46,7 @@ ui.show = function(finder, options)
   assert(current_finder) -- Avoid Lua warning about unused local.
   match_listing = MatchListing.new({
     height = options.height,
-    -- margin = 10,
+    margin = options.margin,
     position = options.position,
     selection_highlight = options.selection_highlight,
   })
@@ -55,7 +55,7 @@ ui.show = function(finder, options)
   local results = nil
   local selected = nil
   prompt = Prompt.new({
-    -- margin = 10,
+    margin = options.margin,
     name = options.name,
     on_change = function(query)
       results = finder.run(query)

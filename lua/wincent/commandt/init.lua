@@ -19,6 +19,7 @@ commandt.buffer_finder = function()
   local finder = require('wincent.commandt.private.finders.buffer')()
   ui.show(finder, {
     height = commandt._options.height,
+    margin = commandt._options.margin,
     name = 'buffer',
     order = commandt._options.order,
     position = commandt._options.position,
@@ -32,6 +33,7 @@ commandt.file_finder = function(arg)
   local finder = require('wincent.commandt.private.finders.file')(directory)
   ui.show(finder, {
     height = commandt._options.height,
+    margin = commandt._options.margin,
     name = 'file',
     order = commandt._options.order,
     position = commandt._options.position,
@@ -45,6 +47,7 @@ commandt.help_finder = function()
   local finder = require('wincent.commandt.private.finders.help')()
   ui.show(finder, {
     height = commandt._options.height,
+    margin = commandt._options.margin,
     name = 'help',
     order = commandt._options.order,
     position = commandt._options.position,
@@ -59,9 +62,9 @@ commandt.select_previous = function() end
 -- TODO: make public accessor version of this (that will deal with a copy)
 commandt._options = {
   height = 15,
-  margin = 0,
-  order = 'reverse',
-  position = 'bottom',
+  margin = 10,
+  order = 'forward',
+  position = 'center',
   selection_highlight = 'PMenuSel',
   threads = nil,
 }
@@ -69,9 +72,9 @@ commandt._options = {
 commandt.setup = function(options)
   options = merge({
     height = 15,
-    margin = 0,
-    order = 'reverse', -- 'forward', 'reverse'.
-    position = 'bottom', -- 'bottom', 'center', 'top'.
+    margin = 10,
+    order = 'forward', -- 'forward', 'reverse'.
+    position = 'center', -- 'bottom', 'center', 'top'.
     selection_highlight = 'PMenuSel',
     threads = nil, -- Let heuristic apply.
   }, options or {})
@@ -92,6 +95,7 @@ commandt.watchman_finder = function(arg)
   local finder = require('wincent.commandt.private.finders.watchman')(directory)
   ui.show(finder, {
     height = commandt._options.height,
+    margin = commandt._options.margin,
     name = 'watchman',
     order = commandt._options.order,
     position = commandt._options.position,
