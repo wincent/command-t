@@ -82,7 +82,11 @@ to micromanaging windows, buffers and splits, so that it could create the
 illusion of rendering a separate a match listing interface without interfering
 with existing buffers, splits, and settings. Most of this code was written in
 Ruby (a "real" programming language), which was a bit more pleasant to work
-with than Vimscript (infamous for its quirks).
+with than Vimscript (infamous for its quirks), but the design was still fairly
+unorthodox; for example, the decision to capture query inputs by setting up
+mappings for individual keys (given that there was no actual input buffer)
+meant that some things that you might reasonably expect to work, like being
+able to copy and paste a query, did not work.
 
 Since then, a number of things have occurred: competitive pressure from Neovim
 has lead to a proliferation of features in both editors, including floating
@@ -103,7 +107,10 @@ This, combined with the low overhead of calling into C from Lua via the FFI
 means that the performance critical parts of the code are even faster than
 before, up to twice as fast according to the benchmarks. In addition, by
 targeting newer APIs and writing the UI code in Lua, that portion of the core
-is also significantly more responsive and robust.
+is also significantly more responsive and robust. Various UI quirks have been
+eliminated in this way, including the aforementioned inability to paste
+queries (Command-T uses a real buffer for input now, which means that all
+standard Vim editing commands can be used inside the prompt area).
 
 There is a cost, however. Most notably, the rewrite is not yet a
 feature-complete copy of the original Ruby-powered version, and filling in
