@@ -34,6 +34,19 @@ commandt.help_finder = function()
   ui.show(finder, merge(options, { name = 'help' }))
 end
 
+-- "Smart" open that will switch to an already open window containing the
+-- specified `buffer`, if one exists; otherwise, it will open a new window using
+-- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
+commandt.open = function(buffer, command)
+  local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
+  if is_visible then
+    -- In order to be useful, `:sbuffer` needs `vim.o.switchbuf = 'usetab'`.
+    vim.cmd('sbuffer ' .. buffer)
+  else
+    vim.cmd(command .. ' ' .. buffer)
+  end
+end
+
 local default_options = {
   always_show_dot_files = false,
   height = 15,
@@ -43,15 +56,33 @@ local default_options = {
   -- `false` (`nil` won't work, because Lua will just skip over it).
   mappings = {
     i = {
+      ['<C-c>'] = 'close',
       ['<C-j>'] = 'next',
       ['<C-k>'] = 'previous',
+      ['<C-n>'] = 'next',
+      ['<C-p>'] = 'previous',
+      ['<C-s>'] = 'select_split',
+      ['<C-t>'] = 'select_tab',
+      ['<C-v>'] = 'select_vsplit',
       ['<CR>'] = 'select',
       ['<Down>'] = 'next',
       ['<Up>'] = 'previous',
+
+      -- TODO:
+      -- c-h to cursor left
+      -- c-l to cursor right
+      -- c-e to end
+      -- c-a to start
     },
     n = {
+      ['<C-c>'] = 'close',
       ['<C-j>'] = 'next',
       ['<C-k>'] = 'previous',
+      ['<C-n>'] = 'next',
+      ['<C-p>'] = 'previous',
+      ['<C-s>'] = 'select_split',
+      ['<C-t>'] = 'select_tab',
+      ['<C-v>'] = 'select_vsplit',
       ['<CR>'] = 'select',
       ['<Down>'] = 'next',
       ['<Esc>'] = 'close', -- Only in normal mode by default.
@@ -62,6 +93,9 @@ local default_options = {
   never_show_dotfiles = false,
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
+  select = function(item, kind)
+    commandt.open(item, kind)
+  end,
   selection_highlight = 'PMenuSel',
   threads = nil, -- Let heuristic apply.
 }

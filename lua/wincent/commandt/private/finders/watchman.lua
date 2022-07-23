@@ -21,9 +21,8 @@ return function(dir, options)
     end
     return strings
   end
-  finder.select = function(item)
-    -- TODO: support open in tab, open in split etc
-    vim.cmd('edit ' .. vim.fn.fnameescape(item))
+  finder.select = function(item, kind)
+    options.select(vim.fn.fnameescape(item), kind)
   end
   return finder
 end

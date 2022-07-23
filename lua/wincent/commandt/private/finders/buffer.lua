@@ -18,9 +18,8 @@ return function(options)
     end
     return strings
   end
-  finder.select = function(item)
-    -- TODO: something more sophisticated here (eg. switchbuf and all that)
-    vim.cmd('edit ' .. vim.fn.fnameescape(item))
+  finder.select = function(item, kind)
+    options.select(vim.fn.fnameescape(item), kind)
   end
   return finder
 end

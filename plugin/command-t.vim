@@ -41,7 +41,6 @@ if has('nvim') && !s:has_preference
     echo "\n"
   endfor
   echohl none
-else
   let s:prefers_ruby=1
 endif
 
@@ -62,7 +61,7 @@ if s:prefers_ruby
   command! CommandTMRU call commandt#MRUFinder()
   command! CommandTSearch call commandt#SearchFinder()
   command! CommandTTag call commandt#TagFinder()
-  command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)'
+  command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)
 else
   command! -nargs=? -complete=dir KommandT call commandt#FileFinder(<q-args>)
   command! KommandTBuffer call commandt#BufferFinder()
@@ -79,7 +78,7 @@ else
   command! CommandTSearch call commandt#SearchFinder()
   command! CommandTTag call commandt#TagFinder()
 
-  command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)'
+  command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)
 endif
 
 " These ones not implemented on the Lua side yet:

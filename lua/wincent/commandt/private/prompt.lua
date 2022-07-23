@@ -106,7 +106,22 @@ function Prompt:show()
     end,
     select = function()
       if self._on_select then
-        self._on_select()
+        self._on_select('edit')
+      end
+    end,
+    select_split = function()
+      if self._on_select then
+        self._on_select('split')
+      end
+    end,
+    select_tab = function()
+      if self._on_select then
+        self._on_select('tabedit')
+      end
+    end,
+    select_vsplit = function()
+      if self._on_select then
+        self._on_select('vsplit')
       end
     end,
   }
@@ -114,6 +129,8 @@ function Prompt:show()
     for lhs, rhs in pairs(mappings) do
       if rhs then
         self._window:map(mode, lhs, callbacks[rhs])
+      else
+        error('Prompt:show(): bad rhs in mapping')
       end
     end
   end

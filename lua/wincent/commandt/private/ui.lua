@@ -92,10 +92,10 @@ ui.show = function(finder, options)
     end,
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
-    on_select = function()
+    on_select = function(kind)
       if results and #results then
         close()
-        finder.select(results[selected])
+        finder.select(results[selected], kind)
       end
     end,
     position = options.position,
