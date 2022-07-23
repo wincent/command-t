@@ -56,9 +56,13 @@ local default_options = {
   -- `false` (`nil` won't work, because Lua will just skip over it).
   mappings = {
     i = {
+      ['<C-a>'] = '<Home>',
       ['<C-c>'] = 'close',
+      ['<C-e>'] = '<End>',
+      ['<C-h>'] = '<Left>',
       ['<C-j>'] = 'next',
       ['<C-k>'] = 'previous',
+      ['<C-l>'] = '<Right>',
       ['<C-n>'] = 'next',
       ['<C-p>'] = 'previous',
       ['<C-s>'] = 'select_split',
@@ -67,17 +71,15 @@ local default_options = {
       ['<CR>'] = 'select',
       ['<Down>'] = 'next',
       ['<Up>'] = 'previous',
-
-      -- TODO:
-      -- c-h to cursor left
-      -- c-l to cursor right
-      -- c-e to end
-      -- c-a to start
     },
     n = {
+      ['<C-a>'] = '<Home>',
       ['<C-c>'] = 'close',
+      ['<C-e>'] = '<End>',
+      ['<C-h>'] = '<Left>',
       ['<C-j>'] = 'next',
       ['<C-k>'] = 'previous',
+      ['<C-l>'] = '<Right>',
       ['<C-n>'] = 'next',
       ['<C-p>'] = 'previous',
       ['<C-s>'] = 'select_split',

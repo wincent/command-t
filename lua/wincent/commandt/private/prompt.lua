@@ -128,9 +128,7 @@ function Prompt:show()
   for mode, mappings in pairs(self._mappings) do
     for lhs, rhs in pairs(mappings) do
       if rhs then
-        self._window:map(mode, lhs, callbacks[rhs])
-      else
-        error('Prompt:show(): bad rhs in mapping')
+        self._window:map(mode, lhs, callbacks[rhs] or rhs)
       end
     end
   end
