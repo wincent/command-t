@@ -10,7 +10,7 @@ cd "$REPO_ROOT"
 
 stylua .
 
+npx prettier --write "**/*.md"
+
 # TODO: Figure out how to use: /System/Volumes/Data/opt/homebrew/Cellar/llvm/13.0.1_1/bin/clang-format
 # ... it has a ridiculous number of options
-# TODO: make check-format.sh
-# TODO: use prettier to check/format Markdown

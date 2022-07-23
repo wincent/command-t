@@ -9,3 +9,5 @@ REPO_ROOT="${BASH_SOURCE%/*}/.."
 cd "$REPO_ROOT"
 
 stylua --check .
+
+npx prettier --check "**/*.md"

@@ -112,7 +112,7 @@ Here the fastest value was seen at `n = 8` (`3.00s`), but there is very little s
 From, [the horse's mouth](https://www.amd.com/en/products/cpu/amd-ryzen-9-5950x):
 
 | Item                               | Specification   |
-| ---------------------------------- | -------------   |
+| ---------------------------------- | --------------- |
 | # of CPU Cores                     | 16              |
 | # of Threads                       | 32              |
 | Base Clock                         | 3.4GHz          |
