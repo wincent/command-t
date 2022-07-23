@@ -10,4 +10,4 @@ cd "$REPO_ROOT"
 
 stylua --check .
 
-npx prettier --list-different "**/*.md"
+npx -y prettier --list-different "**/*.md"
