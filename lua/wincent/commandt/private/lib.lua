@@ -175,7 +175,7 @@ lib.commandt_matcher_new = function(scanner, options)
     never_show_dot_files = false,
     recurse = true,
     threads = default_thread_count(),
-  }, options)
+  }, { limit = options.height }, options)
   if options.limit < 1 then
     error('limit must be > 0')
   end

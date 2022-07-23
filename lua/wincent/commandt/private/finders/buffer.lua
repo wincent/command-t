@@ -3,11 +3,9 @@
 
 local ffi = require('ffi')
 
-return function()
+return function(options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  -- TODO pass through options like `threads` etc
-  local options = {}
   -- TODO: make `dir` actually do something here
   finder.scanner = require('wincent.commandt.private.scanners.buffer').scanner()
   finder.matcher = lib.commandt_matcher_new(finder.scanner, options)

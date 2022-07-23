@@ -1,106 +1,104 @@
 -- SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
+local copy = require('wincent.commandt.private.copy')
+local is_integer = require('wincent.commandt.private.is_integer')
 local merge = require('wincent.commandt.private.merge')
 
 local commandt = {}
 
--- TODO: make mappings configurable again
-local mappings = {
-  ['<C-j>'] = "<Cmd>lua require'wincent.commandt'.select_next()<CR>",
-  ['<C-k>'] = "<Cmd>lua require'wincent.commandt'.select_previous()<CR>",
-  ['<Down>'] = "<Cmd>lua require'wincent.commandt'.select_next()<CR>",
-  ['<Up>'] = "<Cmd>lua require'wincent.commandt'.select_previous()<CR>",
-}
-
 commandt.buffer_finder = function()
   -- TODO: refactor to avoid duplication
   local ui = require('wincent.commandt.private.ui')
-  local finder = require('wincent.commandt.private.finders.buffer')()
-  ui.show(finder, {
-    height = commandt._options.height,
-    margin = commandt._options.margin,
-    name = 'buffer',
-    order = commandt._options.order,
-    position = commandt._options.position,
-    selection_highlight = commandt._options.selection_highlight,
-  })
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.buffer')(options)
+  ui.show(finder, merge(options, { name = 'buffer' }))
 end
 
 commandt.file_finder = function(arg)
   local directory = vim.trim(arg)
   local ui = require('wincent.commandt.private.ui')
-  local finder = require('wincent.commandt.private.finders.file')(directory)
-  ui.show(finder, {
-    height = commandt._options.height,
-    margin = commandt._options.margin,
-    name = 'file',
-    order = commandt._options.order,
-    position = commandt._options.position,
-    selection_highlight = commandt._options.selection_highlight,
-  })
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.file')(directory, options)
+  ui.show(finder, merge(options, { name = 'file' }))
 end
 
 commandt.help_finder = function()
   -- TODO: refactor to avoid duplication
   local ui = require('wincent.commandt.private.ui')
-  local finder = require('wincent.commandt.private.finders.help')()
-  ui.show(finder, {
-    height = commandt._options.height,
-    margin = commandt._options.margin,
-    name = 'help',
-    order = commandt._options.order,
-    position = commandt._options.position,
-    selection_highlight = commandt._options.selection_highlight,
-  })
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.help')(options)
+  ui.show(finder, merge(options, { name = 'help' }))
 end
 
-commandt.select_next = function() end
-
-commandt.select_previous = function() end
-
--- TODO: make public accessor version of this (that will deal with a copy)
-commandt._options = {
+local default_options = {
   height = 15,
+
+  -- Note that because of the way we merge mappings recursively, you can _add_
+  -- or _replace_ a mapping easily, but to _remove_ it you have to assign it to
+  -- `false` (`nil` won't work, because Lua will just skip over it).
+  mappings = {
+    i = {
+      ['<C-j>'] = 'next',
+      ['<C-k>'] = 'previous',
+      ['<CR>'] = 'select',
+      ['<Down>'] = 'next',
+      ['<Up>'] = 'previous',
+    },
+    n = {
+      ['<C-j>'] = 'next',
+      ['<C-k>'] = 'previous',
+      ['<CR>'] = 'select',
+      ['<Down>'] = 'next',
+      ['<Esc>'] = 'close', -- Only in normal mode by default.
+      ['<Up>'] = 'previous',
+    },
+  },
   margin = 10,
-  order = 'forward',
-  position = 'center',
+  order = 'forward', -- 'forward', 'reverse'.
+  position = 'center', -- 'bottom', 'center', 'top'.
   selection_highlight = 'PMenuSel',
-  threads = nil,
+  threads = nil, -- Let heuristic apply.
 }
 
-commandt.setup = function(options)
-  options = merge({
-    height = 15,
-    margin = 10,
-    order = 'forward', -- 'forward', 'reverse'.
-    position = 'center', -- 'bottom', 'center', 'top'.
-    selection_highlight = 'PMenuSel',
-    threads = nil, -- Let heuristic apply.
-  }, options or {})
+local _options = copy(default_options)
 
-  if options.order ~= 'forward' and options.order ~= 'reverse' then
+commandt.options = function()
+  return copy(_options)
+end
+
+commandt.setup = function(options)
+  if vim.g.command_t_loaded == 1 then
+    error('commandt.setup(): Lua setup was called too late, after Ruby plugin setup has already run')
+  elseif vim.g.CommandTPreferredImplementation == 'ruby' then
+    print('commandt.setup(): was called, but g:CommandTPreferredImplementation is set to "ruby"')
+    return
+  else
+    vim.g.CommandTPreferredImplementation = 'lua'
+  end
+
+  _options = merge(_options, options or {})
+
+  if not is_integer(_options.margin) or _options.margin < 0 then
+    error('commandt.setup(): `margin` must be a non-negative integer')
+  end
+  if _options.order ~= 'forward' and _options.order ~= 'reverse' then
     error("commandt.setup(): `order` must be 'forward' or 'reverse'")
   end
-  if options.position ~= 'bottom' and options.position ~= 'center' and options.position ~= 'top' then
+  if _options.position ~= 'bottom' and _options.position ~= 'center' and _options.position ~= 'top' then
     error("commandt.setup(): `position` must be 'bottom', 'center' or 'top'")
   end
-  commandt.options.position = options.position
-  commandt.options.selection_highlight = options.selection_highlight
+  if _options.selection_highlight ~= nil and type(_options.selection_highlight) ~= 'string' then
+    error('commandt.setup(): `selection_highlight` must be a string')
+  end
 end
 
 commandt.watchman_finder = function(arg)
   local directory = vim.trim(arg)
   local ui = require('wincent.commandt.private.ui')
-  local finder = require('wincent.commandt.private.finders.watchman')(directory)
-  ui.show(finder, {
-    height = commandt._options.height,
-    margin = commandt._options.margin,
-    name = 'watchman',
-    order = commandt._options.order,
-    position = commandt._options.position,
-    selection_highlight = commandt._options.selection_highlight,
-  })
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.watchman')(directory, options)
+  ui.show(finder, merge(options, { name = 'watchman' }))
 end
 
 return commandt

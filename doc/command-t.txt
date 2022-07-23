@@ -5,19 +5,21 @@ CONTENTS                                        *command-t-contents*
  1. Introduction                    |command-t-intro|
  2. Requirements                    |command-t-requirements|
  3. Installation                    |command-t-installation|
- 4. Trouble-shooting                |command-t-trouble-shooting|
- 5. Usage                           |command-t-usage|
- 6. Commands                        |command-t-commands|
- 7. Mappings                        |command-t-mappings|
- 8. Options                         |command-t-options|
-10. FAQ                             |command-t-faq|
-11. Tips                            |command-t-tips|
-12. Authors                         |command-t-authors|
-13. Development                     |command-t-development|
-14. Website                         |command-t-website|
-15. Related projects                |command-t-related-projects|
-16. License                         |command-t-license|
-17. History                         |command-t-history|
+ 4. Upgrading                       |command-t-upgrading|
+ 5. Trouble-shooting                |command-t-trouble-shooting|
+ 6. Usage                           |command-t-usage|
+ 7. Commands                        |command-t-commands|
+ 8. Functions                       |command-t-functions|
+ 9. Mappings                        |command-t-mappings|
+10. Options                         |command-t-options|
+11. FAQ                             |command-t-faq|
+12. Tips                            |command-t-tips|
+13. Authors                         |command-t-authors|
+14. Development                     |command-t-development|
+15. Website                         |command-t-website|
+16. Related projects                |command-t-related-projects|
+17. License                         |command-t-license|
+18. History                         |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -54,7 +56,160 @@ See also |command-t-ruby-requirements| for older requirements.
 
 INSTALLATION                                    *command-t-installation*
 
-See also |command-t-ruby-installation| for older installation instructions.
+You'll need a C compiler. `cd` into the `lua/wincent/commandt/lib/` directory
+and type:
+>
+    make
+<
+See also |command-t-ruby-installation| for older installation instructions
+(relevant if you wish to continue using the Ruby implementation as a
+fallback, as described in |command-t-upgrading| below).
+
+
+UPGRADING                                       *command-t-upgrading*
+
+Until version 5.0, Command-T was written in a combination Ruby, Vimscript, and
+C, and was compatible with a range of versions of both Vim and Neovim. Back
+when the project started in 2010, Vim was at version 7 and Neovim did not
+exist yet. At that time, Ruby provided a convenient means of packaging
+high-performance C code inside a library that could be called from Vim,
+making Command-T the fastest fuzzy-finder by far. The downside was that it
+was hard to install because it required that care be taken to compile both
+Vim and Command-T with the exact same version of Ruby. Additionally, Vim did
+not yet provide handy abstractions for things like floating windows, which
+meant that a large fraction of the Command-T codebase was actually dedicated
+to micromanaging windows, buffers and splits, so that it could create the
+illusion of rendering a separate a match listing interface without interfering
+with existing buffers, splits, and settings. Most of this code was written in
+Ruby (a "real" programming language), which was a bit more pleasant to work
+with than Vimscript (infamous for its quirks).
+
+Since then, a number of things have occurred: competitive pressure from Neovim
+has lead to a proliferation of features in both editors, including floating
+windows which make building plug-in UIs like the one needed by Command-T
+much easier than before. While Vim has doubled down on its bespoke scripting
+language in the form of "Vim9 script", Neovim has leveraged Lua, which is
+broadly used across a range of technology ecosystems and offers excellent
+performance. Many core editor APIs are now easily accessible from Lua, and for
+those that aren't, running pieces of Vimscript from Lua is possible, albeit
+ugly. Interestingly, from the perspective of Command-T, interfacing with a
+C library from Lua is relatively straightforward due to the excellent FFI
+support.
+
+From version 6.0, as the result of a complete rewrite, the core of Command-T
+is now written in Lua and C, and it only supports Neovim. The C library is now
+pure POSIX-compliant C, free from any references to the Ruby virtual machine.
+This, combined with the low overhead of calling into C from Lua via the FFI
+means that the performance critical parts of the code are even faster than
+before, up to twice as fast according to the benchmarks. In addition, by
+targeting newer APIs and writing the UI code in Lua, that portion of the core
+is also significantly more responsive and robust.
+
+There is a cost, however. Most notably, the rewrite is not yet a
+feature-complete copy of the original Ruby-powered version, and filling in
+the gaps is dependent on seeing adequate demand from users. Additionally,
+as a ground-up rewrite, there is the possibility that new bugs have been
+introduced. The other obvious cost is that this is a breaking change, in a
+sense. No attempt has been made at providing Windows support for instance, nor
+for Vim. In my judgment, Neovim has won the war, and I have no interest in
+investing in projects that require me to master a custom programming language
+usuable in only one environment.
+
+In recognition of the fact that many plug-in users in the Vim/Neovim ecosystem
+use plug-in managers to track the `HEAD` of the default branch of a Git
+repository, we can use SemVer (https://semver.org/) but not expect it to serve
+much communicative purpose nor shield users from inconvenience. As such, the
+initial plan is to keep the Ruby code exactly where it is inside the plug-in
+and print a deprecation warning prompting people to either opt-in to continue
+using the old implementation, or otherwise opt-in to the new one.
+
+How to opt-in to remaining on the Ruby implementation ~
+
+Set:
+>
+    let g:CommandTPreferredImplementation='ruby'
+<
+early on in your |vimrc|, before the Lua code in the plug-in has had a chance
+to execute. This will cause the Ruby code to set up its commands, options,
+and mappings as it always has done. That is, a command like |:CommandT| will
+open the Ruby-powered file finder, and a mapping like `<Leader>t` will trigger
+that command. Likewise, options such as |g:CommandTMaxFiles| will continue to
+operate as before. The behavior of these commands, options, and mappings is
+described in |command-t-ruby.txt| (the bulk of the documentation in this file,
+|command-t.txt|, refers to the Lua-powered facilities).
+
+The Lua implementation is still available for testing even when
+|g:CommandTPreferredImplementation| is set to `"ruby"`. For example, to use
+the Lua-powered version of |:CommandT| when Ruby is selected, invoke the
+command with the `:KommandT` alias instead.
+
+How to opt-in to switching to the Lua implementation ~
+
+Call:
+>
+    require('wincent.commandt').setup()
+<
+early on in your |vimrc|,  before the Ruby plug-in code has had a chance to
+execute. Alternatively, if you wish to defer calling |commandt.setup()| until
+later on in the |startup| process, you can instead define early on:
+>
+    let g:CommandTPreferredImplementation='lua'
+<
+In order to make a clean break, and avoid confusion about the capabilities
+and behavior of the different implementations, the Lua version does not make
+any use of the |g:| options variables from the Ruby implementation. That is,
+instead of setting a variable like |g:CommandTMaxHeight| to control the height
+of the match listing, you would instead pass a `height` value in your
+|commandt.setup()| call:
+>
+    require('wincent.commandt').setup({
+      height = 30,
+    })
+<
+Upon opting in to use the Lua implementation, it will set up commands such as
+|:CommandT|, |:CommandTBuffer|, and |:CommandTHelp|. As noted previously, not
+all commands in the Ruby implementation have equivalents in the Lua
+implementation yet.
+
+The Ruby implementation, which continues to exist, will take the call to
+|commandt.setup()| as a cue to define alternate versions of its commands under
+different aliases, that can be used as a fallback in the event that something
+is faulty or insufficient with the Lua versions. For example, the Ruby
+versions of the above will be available as `:KommandT`, `:KommandTBuffer`, and
+`:KommandTHelp`, respectively. At some point in the future, once the new
+version is considered sufficiently stable and complete, these fallbacks
+won't be defined any more. Expect that change to be made with the release of
+version 7.0.
+
+Unlike the Ruby version, the Lua version does not define any mappings out of
+the box. In order to set up the equivalent mappings for Lua, you would add the
+following to your |vimrc| or some other file that gets loaded during
+|startup|:
+>
+    vim.keymap.set('n', '<Leader>b', '<Plug>(CommandTBuffer)', { remap = true })
+    vim.keymap.set('n', '<Leader>j', '<Plug>(CommandTJump)', { remap  = true })
+    vim.keymap.set('n', '<Leader>t', '<Plug>(CommandT)', { remap = true })
+<
+
+What happens if you don't explicitly opt-in to either implementation ~
+
+The first time you open Neovim, Command-T will show a message prompting you to
+choose an implementation via one of the above means. You can either follow
+this prompt, or elect to suppress it in the future by settings:
+>
+    let g:CommandTSuppressRubyDeprecationWarning=1
+<
+If you don't opt-in explicitly, Command-T version 6.0 will behave as though
+you had chosen Ruby. Starting with version 7.0, it will behave as though you
+had chosen Lua.
+
+If you are running Vim instead of Neovim, Command-T will behave as though you
+had chosen Ruby.
+
+If you wish to ignore the entire business of upgrading, you can set up your
+plug-in manager to track the Command-T `5-x-release` branch instead of `main`.
+That branch only contains the Ruby code, and none of the Lua changes that
+started with the 6.0 release.
 
 
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
@@ -88,6 +243,30 @@ COMMANDS                                        *command-t-commands*
 
 See also |command-t-ruby-commands| for commands that exist specifically within
 the Ruby-powered version of Command-T.
+
+
+FUNCTIONS                                       *command-t-functions*
+
+All Lua functions defined by Command-T are namespaced under `wincent` in
+order to avoid collisions with other plug-ins and with built-in functionality
+provided by Neovim. That is, to require and use a function like
+|commandt.setup()| you would use a `require` statement like:
+>
+    require('wincent.commandt').setup()
+<
+The are a number of private functions that are defined inside the plug-in that
+are for internal use only. To make clear where the public/private boundary
+falls, all internal functions are nested under `wincent.commandt.private`. As
+such, if you were to require one of these, be aware that none of these APIs
+are documented and they could change without notice at any time; for example:
+>
+    local Window = require('wincent.commandt.private.window').Window
+<
+
+                                                *commandt.setup()*
+|commandt.setup()|
+
+...
 
 
 MAPPINGS                                        *command-t-mappings*

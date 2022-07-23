@@ -64,7 +64,7 @@ function MatchListing:show()
   local top = nil
   if self._position == 'center' then
     local available_height = vim.o.lines - vim.o.cmdheight
-    local used_height = 15 -- note we need to know how high the match listing is going to be
+    local used_height = self._height -- note we need to know how high the match listing is going to be
       + 2 -- match listing border
       + 3 -- our height
     local remaining_height = available_height - used_height -- TODO deal with overflow

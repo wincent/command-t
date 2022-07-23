@@ -7,6 +7,7 @@ describe('matcher.c', function()
   local lib = require('wincent.commandt.private.lib')
 
   local get_matcher = function(paths, options)
+    options = options or {}
     local scanner = lib.scanner_new_copy(paths)
     local matcher = lib.commandt_matcher_new(scanner, options)
     return {

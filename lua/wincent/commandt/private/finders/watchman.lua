@@ -3,14 +3,12 @@
 
 local ffi = require('ffi')
 
-return function(dir)
+return function(dir, options)
   if dir == nil or dir == '' then
     dir = os.getenv('PWD')
   end
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  -- TODO pass through options like `threads` etc
-  local options = {}
   -- TODO: make `dir` actually do something here
   finder.scanner = require('wincent.commandt.private.scanners.watchman').scanner(dir)
   finder.matcher = lib.commandt_matcher_new(finder.scanner, options)

@@ -8,6 +8,7 @@
 
 local window = {}
 
+local is_integer = require('wincent.commandt.private.is_integer')
 local merge = require('wincent.commandt.private.merge')
 
 local Window = {}
@@ -15,10 +16,6 @@ local Window = {}
 local mt = {
   __index = Window,
 }
-
-local is_integer = function(numberish)
-  return type(numberish) == 'number' and math.floor(numberish) == numberish
-end
 
 local validate_options = function(options)
   if
@@ -144,16 +141,11 @@ end
 function Window:map(modes, lhs, rhs, options)
   if self._main_buffer then
     options = merge({ buffer = self._main_buffer }, options or {})
-    if type(modes) == 'string' then
-      modes = { modes }
+    if type(lhs) == 'string' then
+      lhs = { lhs }
     end
-    for _, mode in ipairs(modes) do
-      if type(lhs) == 'string' then
-        lhs = { lhs }
-      end
-      for _, l in ipairs(lhs) do
-        vim.keymap.set(mode, l, rhs, options)
-      end
+    for _, l in ipairs(lhs) do
+      vim.keymap.set(modes, l, rhs, options)
     end
   end
 end

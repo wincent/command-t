@@ -14,7 +14,9 @@ local mt = {
 
 function Prompt.new(options)
   options = merge({
+    mappings = {},
     margin = 0,
+    height = 15,
     name = nil,
     on_change = nil,
     on_leave = nil,
@@ -25,6 +27,8 @@ function Prompt.new(options)
   }, options or {})
   -- TODO validate options
   local p = {
+    _height = options.height,
+    _mappings = options.mappings,
     _margin = options.margin,
     _name = options.name,
     _on_change = options.on_change,
@@ -50,7 +54,7 @@ function Prompt:show()
   local top = nil
   if self._position == 'center' then
     local available_height = vim.o.lines - vim.o.cmdheight
-    local used_height = 15 -- note we need to know how high the match listing is going to be
+    local used_height = self._height -- note we need to know how high the match listing is going to be
       + 2 -- match listing border
       + 3 -- our height
     local remaining_height = available_height - used_height -- TODO deal with overflow
@@ -83,28 +87,36 @@ function Prompt:show()
   end
 
   self._window:show()
-  -- Probably don't want INSERT mode mapping (ie. so user can navigate prompt in
-  -- normal mode).
-  self._window:nmap('<Esc>', function()
-    if self._window then
-      self._window:close()
+
+  local callbacks = {
+    close = function()
+      if self._window then
+        self._window:close()
+      end
+    end,
+    ['next'] = function()
+      if self._on_next then
+        self._on_next()
+      end
+    end,
+    previous = function()
+      if self._on_previous then
+        self._on_previous()
+      end
+    end,
+    select = function()
+      if self._on_select then
+        self._on_select()
+      end
+    end,
+  }
+  for mode, mappings in pairs(self._mappings) do
+    for lhs, rhs in pairs(mappings) do
+      if rhs then
+        self._window:map(mode, lhs, callbacks[rhs])
+      end
     end
-  end)
-  self._window:map({ 'i', 'n' }, { '<Down>', '<C-j>' }, function()
-    if self._on_next then
-      self._on_next()
-    end
-  end)
-  self._window:map({ 'i', 'n' }, { '<Up>', '<C-k>' }, function()
-    if self._on_previous then
-      self._on_previous()
-    end
-  end)
-  self._window:map({ 'i', 'n' }, { '<CR>' }, function()
-    if self._on_select then
-      self._on_select()
-    end
-  end)
+  end
   self._window:focus()
 end
 

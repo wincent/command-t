@@ -40,6 +40,10 @@ local close = function()
   end
 end
 
+-- TODO save/restore global options, like `hlsearch' (which we want to turn off
+-- temporarily when our windows are visible) — either that, or figure out how to
+-- make the highlighting not utterly suck.
+-- in any case, review the list at ruby/command-t/lib/command-t/match_window.rb
 ui.show = function(finder, options)
   -- TODO validate options
   current_finder = finder
@@ -55,6 +59,8 @@ ui.show = function(finder, options)
   local results = nil
   local selected = nil
   prompt = Prompt.new({
+    height = options.height,
+    mappings = options.mappings,
     margin = options.margin,
     name = options.name,
     on_change = function(query)
