@@ -10,11 +10,18 @@ let s:prefers_ruby=get(g:, 'CommandTPreferredImplementation', 'unset') ==? 'ruby
 let s:prefers_lua=get(g:, 'CommandTPreferredImplementation', 'unset') ==? 'lua'
 let s:has_preference=s:prefers_ruby || s:prefers_lua
 
-if has('nvim') &&
-      \ !s:has_preference &&
-      \ !get(g:, 'CommandTSuppressRubyDeprecationWarning', 0)
-  let s:lua_suppression = 'vim.g.CommandTSuppressRubyDeprecationWarning = 1'
-  let s:vimscript_suppression = 'let g:CommandTSuppressRubyDeprecationWarning=1'
+if has('nvim') && !s:has_preference
+  let s:lua_suppression=[
+        \   ['To select Ruby (for the v6.0 series, the default):', "vim.g.CommandTPreferredImplementation = 'ruby'"],
+        \   ['To select Lua (from v7.0, will be the new default):', "require('wincent.commandt').setup()"]
+        \ ]
+  let s:vimscript_suppression=[
+        \   ['To select Ruby (for the v6.0 series, the default):', "let g:CommandTPreferredImplementation='ruby'"],
+        \   ['To select Lua (from v7.0, will be the new default):', "let g:CommandTPreferredImplementation='lua'"]
+        \ ]
+  let s:suppression=exists('$MYVIMRC') && match($MYVIMRC, '\c\.lua') > 0
+        \ ? s:lua_suppression
+        \ : s:vimscript_suppression
   echohl WarningMsg
   echo 'Notice'
   echo '------'
@@ -26,32 +33,14 @@ if has('nvim') &&
   echo 'See `:help command-t-upgrading` for information on how to choose'
   echo 'between the Lua and the Ruby implementations.'
   echo "\n"
-  echo 'To suppress this warning, add this to your vimrc:'
+  echo 'To suppress this warning, add one of these to your vimrc:'
   echo "\n"
-  if exists('$MYVIMRC') && match($MYVIMRC, '\c\.lua') > 0
-    echo '    ' . s:lua_suppression
-  else
-    echo '    ' . s:vimscript_suppression
-  endif
-  echo "\n"
-  if exists('$MYVIMRC')
-    echo 'Your vimrc is currently at:'
+  for [s:label, s:instruction] in s:suppression
+    echo '  ' . s:label
+    echo '    ' . s:instruction
     echo "\n"
-    echo '   ' . $MYVIMRC
-    echo "\n"
-    let s:response=trim(input('Would you like to add this line to it now? (y/n) '))
-    echo "\n"
-    if s:response ==? 'y' || s:response ==? 'ye' || s:response ==? 'yes'
-      if match($MYVIMRC, '\c\.lua') > 0
-        call writefile([s:lua_suppression], $MYVIMRC, 'a')
-      else
-        call writefile([s:vimscript_suppression], $MYVIMRC, 'a')
-      end
-    endif
-  endif
+  endfor
   echohl none
-  " BUG: highlighting is all messed up after this... (until next focus-gained
-  " event; probably specific to my local set-up)
 else
   let s:prefers_ruby=1
 endif
