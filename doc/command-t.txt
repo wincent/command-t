@@ -462,7 +462,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+5.0.5 (24 July 2022) ~
 
 - Teach watchman scanner to favor `watch-project` over `watch` when
   available (#390, patch from Todd Derr).
