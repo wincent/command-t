@@ -11,7 +11,7 @@ module CommandT
       "Vim Ruby version: #{actual}"
     ]
     @@load_error << "Expected version: #{expected}" if actual != expected
-    @@load_error << 'For more information type:    :help command-t'
+    @@load_error << 'For more information type:    :help command-t-ruby'
 
     [
       :flush,
