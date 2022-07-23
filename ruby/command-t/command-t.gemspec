@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email = 'greg@hurrell.net'
 
   s.files =
-    ['../../README.md', '../../LICENSE', '../../Gemfile', '../../Rakefile'] +
+    ['../../README.md', '../../LICENSE.md', '../../Gemfile', '../../Rakefile'] +
     `git ls-files -z ./bin ./ext ./lib ../../doc`.split("\x0")
 
   s.license = 'BSD-2-Clause'
