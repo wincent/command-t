@@ -104,11 +104,18 @@ function Window:close()
     vim.api.nvim_win_close(self._main_window, true)
     self._main_window = nil
   end
+  -- if self._main_buffer then
+  --   vim.api.nvim_buf_delete(self._main_buffer, { force = true })
+  --   self._main_buffer = nil
+  -- end
   if self._title_window then
     vim.api.nvim_win_close(self._title_window, true)
     self._title_window = nil
   end
-  -- TODO: deal with buffers?
+  -- if self._title_buffer then
+  --   vim.api.nvim_buf_delete(self._title_buffer, { force = true })
+  --   self._title_buffer = nil
+  -- end
 end
 
 -- Focus the window and enter insert mode, ready to receive input.
@@ -204,6 +211,7 @@ function Window:show()
         -- but it only returns the prompt prefix for some reason...
         local query = vim.api.nvim_get_current_line():sub(#ps1 + 1)
         self._on_change(query)
+        vim.api.nvim_buf_set_option(self._main_buffer, 'modified', false)
       end
       vim.api.nvim_create_autocmd('TextChanged', {
         buffer = self._main_buffer,
