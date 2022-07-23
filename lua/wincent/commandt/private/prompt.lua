@@ -57,7 +57,7 @@ function Prompt:show()
     local used_height = self._height -- note we need to know how high the match listing is going to be
       + 2 -- match listing border
       + 3 -- our height
-    local remaining_height = available_height - used_height -- TODO deal with overflow
+    local remaining_height = math.max(1, available_height - used_height)
     top = math.floor(remaining_height / 2)
   elseif self._position == 'bottom' then
     bottom = 0
