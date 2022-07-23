@@ -1,9 +1,14 @@
+-- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
+-- SPDX-License-Identifier: BSD-2-Clause
+
 local health = vim.health -- after: https://github.com/neovim/neovim/pull/18720
   or require('health') -- before: v0.8.x
 
 return {
   -- Run with `:checkhealth wincent.commandt`
   check = function()
+    health.report_info('Command-T version: ' .. require('wincent.commandt.version').version)
+
     health.report_start('Checking that C library has been built')
 
     local path = require('wincent.commandt.private.path')
