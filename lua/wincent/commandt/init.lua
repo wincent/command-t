@@ -1,8 +1,11 @@
 -- SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
+local concat = require('wincent.commandt.private.concat')
+local contains = require('wincent.commandt.private.contains')
 local copy = require('wincent.commandt.private.copy')
 local is_integer = require('wincent.commandt.private.is_integer')
+local keys = require('wincent.commandt.private.keys')
 local merge = require('wincent.commandt.private.merge')
 
 local commandt = {}
@@ -32,6 +35,7 @@ commandt.help_finder = function()
 end
 
 local default_options = {
+  always_show_dot_files = false,
   height = 15,
 
   -- Note that because of the way we merge mappings recursively, you can _add_
@@ -55,11 +59,16 @@ local default_options = {
     },
   },
   margin = 10,
+  never_show_dotfiles = false,
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
   selection_highlight = 'PMenuSel',
   threads = nil, -- Let heuristic apply.
 }
+
+-- Have to add some of these explicitly otherwise the ones with `nil` defaults
+-- won't come through (eg. `threads`).
+local allowed_options = concat(keys(default_options), { 'threads' })
 
 local _options = copy(default_options)
 
@@ -77,19 +86,40 @@ commandt.setup = function(options)
     vim.g.CommandTPreferredImplementation = 'lua'
   end
 
-  _options = merge(_options, options or {})
+  local errors = {}
+  options = options or {}
+  for k, _ in pairs(options) do
+    -- `n` is small, so not worried about `O(n)` check.
+    if not contains(allowed_options, k) then
+      -- TODO: suggest near-matches for misspelled option names
+      table.insert(errors, '  unrecognized option: ' .. k)
+    end
+  end
 
+  _options = merge(_options, options)
+
+  if _options.always_show_dot_files == true and _options.never_show_dot_files == true then
+    table.insert(errors, '`always_show_dot_files` and `never_show_dot_files` should not both be true')
+  end
   if not is_integer(_options.margin) or _options.margin < 0 then
-    error('commandt.setup(): `margin` must be a non-negative integer')
+    table.insert(errors, '`margin` must be a non-negative integer')
   end
   if _options.order ~= 'forward' and _options.order ~= 'reverse' then
-    error("commandt.setup(): `order` must be 'forward' or 'reverse'")
+    table.insert(errors, "`order` must be 'forward' or 'reverse'")
   end
   if _options.position ~= 'bottom' and _options.position ~= 'center' and _options.position ~= 'top' then
-    error("commandt.setup(): `position` must be 'bottom', 'center' or 'top'")
+    table.insert(errors, "`position` must be 'bottom', 'center' or 'top'")
   end
   if _options.selection_highlight ~= nil and type(_options.selection_highlight) ~= 'string' then
-    error('commandt.setup(): `selection_highlight` must be a string')
+    table.insert(errors, '`selection_highlight` must be a string')
+  end
+
+  if #errors > 0 then
+    table.insert(errors, 1, 'commandt.setup():')
+    for i, message in ipairs(errors) do
+      errors[i] = { message .. '\n', 'WarningMsg' }
+    end
+    vim.api.nvim_echo(errors, true, {})
   end
 end
 
