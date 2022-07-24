@@ -1,3 +1,0 @@
-[submodule "vendor/vimscriptuploader"]
-	path = vendor/vimscriptuploader
-	url = https://github.com/tomtom/vimscriptuploader.rb.git

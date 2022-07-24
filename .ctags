@@ -1,3 +1,2 @@
 --exclude=.git
 --exclude=Makefile
---exclude=vendor
