@@ -99,7 +99,7 @@ ui.show = function(finder, options)
       end
     end,
     on_select = function(choice)
-      if results and #results then
+      if results and #results > 0 then
         if choice.absolute then
           if choice.absolute > 0 then
             selected = math.min(choice.absolute, #results)
