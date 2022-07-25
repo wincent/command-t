@@ -86,8 +86,8 @@ ui.show = function(finder, options)
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
     on_open = function(kind)
-      if results and #results then
-        close()
+      close()
+      if results and #results > 0 then
         finder.open(results[selected], kind)
       end
     end,
