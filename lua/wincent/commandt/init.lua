@@ -10,43 +10,6 @@ local merge = require('wincent.commandt.private.merge')
 
 local commandt = {}
 
-commandt.buffer_finder = function()
-  -- TODO: refactor to avoid duplication
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.buffer')(options)
-  ui.show(finder, merge(options, { name = 'buffer' }))
-end
-
-commandt.file_finder = function(arg)
-  local directory = vim.trim(arg)
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.file')(directory, options)
-  ui.show(finder, merge(options, { name = 'file' }))
-end
-
-commandt.help_finder = function()
-  -- TODO: refactor to avoid duplication
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.help')(options)
-  ui.show(finder, merge(options, { name = 'help' }))
-end
-
--- "Smart" open that will switch to an already open window containing the
--- specified `buffer`, if one exists; otherwise, it will open a new window using
--- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
-commandt.open = function(buffer, command)
-  local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
-  if is_visible then
-    -- In order to be useful, `:sbuffer` needs `vim.o.switchbuf = 'usetab'`.
-    vim.cmd('sbuffer ' .. buffer)
-  else
-    vim.cmd(command .. ' ' .. buffer)
-  end
-end
-
 local default_options = {
   always_show_dot_files = false,
   height = 15,
@@ -113,6 +76,47 @@ local default_options = {
 -- Have to add some of these explicitly otherwise the ones with `nil` defaults
 -- won't come through (eg. `threads`).
 local allowed_options = concat(keys(default_options), { 'threads' })
+
+commandt.buffer_finder = function()
+  -- TODO: refactor to avoid duplication
+  local ui = require('wincent.commandt.private.ui')
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.buffer')(options)
+  ui.show(finder, merge(options, { name = 'buffer' }))
+end
+
+commandt.default_options = function()
+  return copy(default_options)
+end
+
+commandt.file_finder = function(arg)
+  local directory = vim.trim(arg)
+  local ui = require('wincent.commandt.private.ui')
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.file')(directory, options)
+  ui.show(finder, merge(options, { name = 'file' }))
+end
+
+commandt.help_finder = function()
+  -- TODO: refactor to avoid duplication
+  local ui = require('wincent.commandt.private.ui')
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.help')(options)
+  ui.show(finder, merge(options, { name = 'help' }))
+end
+
+-- "Smart" open that will switch to an already open window containing the
+-- specified `buffer`, if one exists; otherwise, it will open a new window using
+-- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
+commandt.open = function(buffer, command)
+  local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
+  if is_visible then
+    -- In order to be useful, `:sbuffer` needs `vim.o.switchbuf = 'usetab'`.
+    vim.cmd('sbuffer ' .. buffer)
+  else
+    vim.cmd(command .. ' ' .. buffer)
+  end
+end
 
 local _options = copy(default_options)
 
