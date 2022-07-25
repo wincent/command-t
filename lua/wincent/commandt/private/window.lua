@@ -227,7 +227,7 @@ function Window:show()
       callback = function()
         -- This will resposition title, too, so no need for a separate autocmd.
         self:_reposition()
-        if self._on_resize() then
+        if self._on_resize then
           self._on_resize()
         end
       end,
