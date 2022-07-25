@@ -76,8 +76,12 @@ local default_options = {
 }
 
 -- Have to add some of these explicitly otherwise the ones with `nil` defaults
--- won't come through (eg. `threads`).
-local allowed_options = concat(keys(default_options), { 'threads' })
+-- won't come through (eg. `ignore_case` etc).
+local allowed_options = concat(keys(default_options), {
+  'ignore_case',
+  'smart_case',
+  'threads',
+})
 
 commandt.buffer_finder = function()
   -- TODO: refactor to avoid duplication
