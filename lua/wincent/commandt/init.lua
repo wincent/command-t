@@ -128,7 +128,11 @@ commandt.setup = function(options)
   local errors = {}
 
   if vim.g.command_t_loaded == 1 then
-    table.insert(errors, '`commandt.setup()` was called too late, after Ruby plugin setup has already run')
+    -- May not be an error if you (for whatever reason) are calling `setup()`
+    -- twice (ie. later on during a session), but it's presumed that if you're
+    -- doing that, you know enough about what you're doing not to understand
+    -- that this error message is nothing to worry about.
+    table.insert(errors, '`commandt.setup()` was called after Ruby plugin setup has already run')
   elseif vim.g.CommandTPreferredImplementation == 'ruby' then
     table.insert(errors, '`commandt.setup()` was called, but `g:CommandTPreferredImplementation` is set to "ruby"')
   else
@@ -164,8 +168,8 @@ commandt.setup = function(options)
 
   if
     not pcall(function()
-      local lib = require('wincent.commandt.private.lib') -- Can we require it?
-      lib.commandt_epoch() -- Can we use it?
+      local lib = require('wincent.commandt.private.lib') -- We can require it.
+      lib.commandt_epoch() -- We can use it.
     end)
   then
     table.insert(errors, 'unable to load and use C library - run `:checkhealth wincent.commandt`')
