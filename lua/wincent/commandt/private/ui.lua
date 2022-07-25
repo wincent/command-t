@@ -6,6 +6,7 @@ local ui = {}
 local MatchListing = require('wincent.commandt.private.match_listing').MatchListing
 local Prompt = require('wincent.commandt.private.prompt').Prompt
 
+local cmdline_enter_autocmd = nil
 local current_finder = nil -- Reference to avoid premature garbage collection.
 local match_listing = nil
 local prompt = nil
@@ -37,6 +38,10 @@ local close = function()
   if prompt then
     prompt:close()
     prompt = nil
+  end
+  if cmdline_enter_autocmd ~= nil then
+    vim.api.nvim_del_autocmd(cmdline_enter_autocmd)
+    cmdline_enter_autocmd = nil
   end
 end
 
@@ -109,6 +114,12 @@ ui.show = function(finder, options)
     position = options.position,
   })
   prompt:show()
+
+  if cmdline_enter_autocmd == nil then
+    cmdline_enter_autocmd = vim.api.nvim_create_autocmd('CmdlineEnter', {
+      callback = close,
+    })
+  end
 end
 
 return ui
