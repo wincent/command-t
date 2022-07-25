@@ -18,8 +18,8 @@ return function(options)
     end
     return strings
   end
-  finder.select = function(item, kind)
-    options.select(vim.fn.fnameescape(item), kind)
+  finder.open = function(item, kind)
+    options.open(vim.fn.fnameescape(item), kind)
   end
   return finder
 end

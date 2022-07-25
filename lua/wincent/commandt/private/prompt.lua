@@ -20,8 +20,7 @@ function Prompt.new(options)
     name = nil,
     on_change = nil,
     on_leave = nil,
-    on_next = nil,
-    on_previous = nil,
+    on_open = nil,
     on_select = nil,
     position = 'bottom',
   }, options or {})
@@ -33,9 +32,8 @@ function Prompt.new(options)
     _name = options.name,
     _on_change = options.on_change,
     _on_leave = options.on_leave,
-    _on_next = options.on_next,
+    _on_open = options.on_open,
     _on_select = options.on_select,
-    _on_previous = options.on_previous,
     _position = options.position,
     _window = nil,
   }
@@ -94,34 +92,49 @@ function Prompt:show()
         self._window:close()
       end
     end,
-    ['next'] = function()
-      if self._on_next then
-        self._on_next()
+    open = function()
+      if self._on_open then
+        self._on_open('edit')
       end
     end,
-    previous = function()
-      if self._on_previous then
-        self._on_previous()
+    open_split = function()
+      if self._on_open then
+        self._on_open('split')
       end
     end,
-    select = function()
+    open_tab = function()
+      if self._on_open then
+        self._on_open('tabedit')
+      end
+    end,
+    open_vsplit = function()
+      if self._on_open then
+        self._on_open('vsplit')
+      end
+    end,
+    select_first = function()
       if self._on_select then
-        self._on_select('edit')
+        self._on_select({ absolute = 1 })
       end
     end,
-    select_split = function()
+    select_last = function()
       if self._on_select then
-        self._on_select('split')
+        self._on_select({ absolute = -1 })
       end
     end,
-    select_tab = function()
+    select_middle = function()
       if self._on_select then
-        self._on_select('tabedit')
+        self._on_select({ absolute = 0 })
       end
     end,
-    select_vsplit = function()
+    select_next = function()
       if self._on_select then
-        self._on_select('vsplit')
+        self._on_select({ relative = 1 })
+      end
+    end,
+    select_previous = function()
+      if self._on_select then
+        self._on_select({ relative = -1 })
       end
     end,
   }

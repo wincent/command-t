@@ -92,10 +92,30 @@ ui.show = function(finder, options)
     end,
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
-    on_select = function(kind)
+    on_open = function(kind)
       if results and #results then
         close()
-        finder.select(results[selected], kind)
+        finder.open(results[selected], kind)
+      end
+    end,
+    on_select = function(choice)
+      if results and #results then
+        if choice.absolute then
+          if choice.absolute > 0 then
+            selected = math.min(choice.absolute, #results)
+          elseif choice.absolute < 0 then
+            selected = math.max(#results + choice.absolute + 1, 1)
+          else -- Absolute "middle".
+            selected = math.min(math.floor(#results / 2) + 1, #results)
+          end
+        elseif choice.relative then
+          if choice.relative > 0 then
+            selected = math.min(selected + choice.relative, #results)
+          else
+            selected = math.max(selected + choice.relative, 1)
+          end
+        end
+        match_listing:select(selected)
       end
     end,
     position = options.position,

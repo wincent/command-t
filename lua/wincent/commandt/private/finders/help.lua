@@ -18,12 +18,12 @@ return function(options)
     end
     return strings
   end
-  finder.select = function(item, kind)
+  finder.open = function(item, kind)
     -- E434 "Can't find tag pattern" is innocuous, so swallow it. For more
     -- context, see: https://github.com/autozimu/LanguageClient-neovim/pull/731
     vim.cmd('try | help ' .. item .. ' | catch /E434/ | endtry')
     -- TODO: see if I can do anything useful here...
-    --options.select(vim.fn.fnameescape(item), kind)
+    --options.open(vim.fn.fnameescape(item), kind)
   end
   return finder
 end
