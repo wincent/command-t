@@ -245,7 +245,16 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
         ) {
 #ifdef DEBUG
             // Try to log error message, which could be something like:
+            //
             // "std::system_error: open: : No such file or directory"
+            //
+            // or:
+            //
+            //     watchman::RootResolveError: failed to resolve root:
+            //     unable to resolve root /home/wincent/code/wincent:
+            //     failed to parse json from /home/wincent/code/wincent/.watchmanconfig:
+            //     '[' or '{' expected near end of file
+            //
             str_t *error = watchman_read_string(r);
             DEBUG_LOG("%s\n", error->contents);
             str_free(error);
