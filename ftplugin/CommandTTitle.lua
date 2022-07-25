@@ -2,3 +2,4 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 vim.bo.bufhidden = 'wipe'
+vim.wo.winhighlight = 'IncSearch:Normal,Search:Normal' -- BUG: doesn't work
