@@ -68,7 +68,7 @@ typedef struct {
     haystack_t *haystacks;
 
     bool always_show_dot_files;
-    bool case_sensitive;
+    bool ignore_case;
     bool ignore_spaces;
     bool never_show_dot_files;
     bool recurse;

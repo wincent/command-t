@@ -19,7 +19,7 @@ typedef struct {
     float max_score_per_char;
     bool always_show_dot_files;
     bool never_show_dot_files;
-    bool case_sensitive;
+    bool ignore_case;
     bool recurse;
     float *memo; // Memoization.
 } matchinfo_t;
@@ -58,7 +58,7 @@ static float recursive_match(
                         return *memoized = 0.0f;
                     }
                 }
-            } else if (d >= 'A' && d <= 'Z' && !m->case_sensitive) {
+            } else if (d >= 'A' && d <= 'Z' && m->ignore_case) {
                 d += 'a' - 'A'; // Add 32 to downcase.
             }
 
@@ -128,7 +128,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
     m.max_score_per_char = (1.0f / m.haystack->candidate->length + 1.0f / m.needle_length) / 2;
     m.always_show_dot_files = matcher->always_show_dot_files;
     m.never_show_dot_files = matcher->never_show_dot_files;
-    m.case_sensitive = matcher->case_sensitive;
+    m.ignore_case = matcher->ignore_case;
     m.recurse = matcher->recurse;
 
     // Special case for zero-length search string.
@@ -164,7 +164,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
             while (haystack_idx >= needle_idx) {
                 char c = m.haystack->candidate->contents[haystack_idx];
                 char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
-                if (!m.case_sensitive) {
+                if (m.ignore_case) {
                     c = lower;
                 }
                 if (compute_bitmasks) {

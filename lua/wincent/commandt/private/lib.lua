@@ -40,7 +40,7 @@ setmetatable(c, {
           scanner_t *scanner;
           haystack_t *haystacks;
           bool always_show_dot_files;
-          bool case_sensitive;
+          bool ignore_case;
           bool ignore_spaces;
           bool never_show_dot_files;
           bool recurse;
@@ -89,7 +89,7 @@ setmetatable(c, {
       matcher_t *commandt_matcher_new(
           scanner_t *scanner,
           bool always_show_dot_files,
-          bool case_sensitive,
+          bool ignore_case,
           bool ignore_spaces,
           unsigned limit,
           bool never_show_dot_files,
@@ -171,7 +171,7 @@ end
 lib.commandt_matcher_new = function(scanner, options)
   options = merge({
     always_show_dot_files = false,
-    case_sensitive = false,
+    ignore_case = true,
     ignore_spaces = true,
     limit = 15,
     never_show_dot_files = false,
@@ -181,10 +181,11 @@ lib.commandt_matcher_new = function(scanner, options)
   if options.limit < 1 then
     error('limit must be > 0')
   end
+
   local matcher = c.commandt_matcher_new(
     scanner,
     options.always_show_dot_files,
-    options.case_sensitive,
+    options.ignore_case,
     options.ignore_spaces,
     options.limit,
     options.never_show_dot_files,

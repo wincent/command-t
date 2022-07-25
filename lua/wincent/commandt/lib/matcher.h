@@ -26,7 +26,7 @@ typedef struct {
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
-    bool case_sensitive,
+    bool ignore_case,
     bool ignore_spaces,
     unsigned limit,
     bool never_show_dot_files,

@@ -40,7 +40,7 @@ static void *get_matches(void *worker_args);
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
-    bool case_sensitive,
+    bool ignore_case,
     bool ignore_spaces,
     unsigned limit,
     bool never_show_dot_files,
@@ -61,7 +61,7 @@ matcher_t *commandt_matcher_new(
     }
 
     matcher->always_show_dot_files = always_show_dot_files;
-    matcher->case_sensitive = case_sensitive; // TODO maybe consider doing smart case at this level (currently doing it at Ruby/Lua level)
+    matcher->ignore_case = ignore_case;
     matcher->ignore_spaces = ignore_spaces;
     matcher->never_show_dot_files = never_show_dot_files;
     matcher->recurse = recurse;
@@ -95,7 +95,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     strcpy(needle_copy, needle);
 
     // Downcase needle if required.
-    if (!matcher->case_sensitive) {
+    if (matcher->ignore_case) {
         for (size_t i = 0; i < needle_length; i++) {
             char c = needle_copy[i];
             if (c >= 'A' && c <= 'Z') {
