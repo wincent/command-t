@@ -78,18 +78,6 @@ ui.show = function(finder, options)
       match_listing:update(results, { selected = selected })
     end,
     on_leave = close,
-    on_next = function()
-      if results and #results then
-        selected = math.min(selected + 1, #results)
-        match_listing:select(selected)
-      end
-    end,
-    on_previous = function()
-      if results and #results then
-        selected = math.max(selected - 1, 1)
-        match_listing:select(selected)
-      end
-    end,
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
     on_open = function(kind)
