@@ -63,6 +63,20 @@ describe('matcher.c', function()
       expect(matcher.match('f')).to_equal({ 'Foo' })
     end)
 
+    it('performs case-sensitive matching when configured to do so', function()
+      local matcher = get_matcher({ 'Foo' }, { ignore_case = false })
+      expect(matcher.match('b')).to_equal({})
+      expect(matcher.match('f')).to_equal({})
+      expect(matcher.match('F')).to_equal({ 'Foo' })
+    end)
+
+    it('performs smart-case matching when configured to do so', function()
+      local matcher = get_matcher({ 'Foo' }, { smart_case = true })
+      expect(matcher.match('b')).to_equal({})
+      expect(matcher.match('f')).to_equal({ 'Foo' })
+      expect(matcher.match('F')).to_equal({ 'Foo' })
+    end)
+
     -- We don't expect to see these in practice, but we still want to test it.
     it('gracefully handles empty haystacks', function()
       local matcher = get_matcher({ '', 'foo' })

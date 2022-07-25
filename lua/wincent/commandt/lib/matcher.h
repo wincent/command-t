@@ -31,6 +31,7 @@ matcher_t *commandt_matcher_new(
     unsigned limit,
     bool never_show_dot_files,
     bool recurse,
+    bool smart_case,
     unsigned threads
 );
 

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stdbool.h> /* for bool */
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for NULL */
 
@@ -118,7 +117,7 @@ static float recursive_match(
     return *memoized = score;
 }
 
-float commandt_score(haystack_t *haystack, matcher_t *matcher) {
+float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case) {
     matchinfo_t m;
     bool compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
@@ -128,7 +127,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher) {
     m.max_score_per_char = (1.0f / m.haystack->candidate->length + 1.0f / m.needle_length) / 2;
     m.always_show_dot_files = matcher->always_show_dot_files;
     m.never_show_dot_files = matcher->never_show_dot_files;
-    m.ignore_case = matcher->ignore_case;
+    m.ignore_case = ignore_case;
     m.recurse = matcher->recurse;
 
     // Special case for zero-length search string.

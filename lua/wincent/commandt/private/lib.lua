@@ -44,6 +44,7 @@ setmetatable(c, {
           bool ignore_spaces;
           bool never_show_dot_files;
           bool recurse;
+          bool smart_case;
           unsigned limit;
           unsigned threads;
           const char *needle;
@@ -94,6 +95,7 @@ setmetatable(c, {
           unsigned limit,
           bool never_show_dot_files,
           bool recurse,
+          bool smart_case,
           unsigned threads
       );
       void commandt_matcher_free(matcher_t *matcher);
@@ -176,6 +178,7 @@ lib.commandt_matcher_new = function(scanner, options)
     limit = 15,
     never_show_dot_files = false,
     recurse = true,
+    smart_case = true,
     threads = default_thread_count(),
   }, { limit = options.height }, options)
   if options.limit < 1 then
@@ -190,6 +193,7 @@ lib.commandt_matcher_new = function(scanner, options)
     options.limit,
     options.never_show_dot_files,
     options.recurse,
+    options.smart_case,
     options.threads
   )
   ffi.gc(matcher, c.commandt_matcher_free)

@@ -27,6 +27,9 @@ typedef struct {
     unsigned worker_count;
     unsigned worker_index;
     matcher_t *matcher;
+
+    // May need to temporarily override matcher as a result of smart_case.
+    bool ignore_case;
 } worker_args_t;
 
 // Forward declarations.
@@ -45,6 +48,7 @@ matcher_t *commandt_matcher_new(
     unsigned limit,
     bool never_show_dot_files,
     bool recurse,
+    bool smart_case,
     unsigned threads
 ) {
     assert(limit > 0);
@@ -65,6 +69,7 @@ matcher_t *commandt_matcher_new(
     matcher->ignore_spaces = ignore_spaces;
     matcher->never_show_dot_files = never_show_dot_files;
     matcher->recurse = recurse;
+    matcher->smart_case = smart_case;
     matcher->limit = limit;
     matcher->threads = threads;
     matcher->needle = NULL;
@@ -95,11 +100,18 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     strcpy(needle_copy, needle);
 
     // Downcase needle if required.
-    if (matcher->ignore_case) {
+    bool ignore_case = matcher->ignore_case;
+
+    if (matcher->ignore_case || matcher->smart_case) {
         for (size_t i = 0; i < needle_length; i++) {
             char c = needle_copy[i];
-            if (c >= 'A' && c <= 'Z') {
-                needle_copy[i] = c + 'a' - 'A'; // Add 32 to downcase.
+            if (c >= 'A' && c <= 'Z' ) {
+                if (matcher->smart_case) {
+                    ignore_case = false;
+                    break;
+                } else {
+                    needle_copy[i] = c + 'a' - 'A'; // Add 32 to downcase.
+                }
             }
         }
     }
@@ -166,6 +178,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         worker_args[i].worker_count = worker_count;
         worker_args[i].worker_index = i;
         worker_args[i].matcher = matcher;
+        worker_args[i].ignore_case = ignore_case;
 
         if (i == worker_count - 1) {
             // For the last worker, we'll just use the main thread.
@@ -295,6 +308,7 @@ static void *get_matches(void *worker_args) {
     unsigned worker_count = ((worker_args_t *)worker_args)->worker_count;
     unsigned worker_index = ((worker_args_t *)worker_args)->worker_index;
     matcher_t *matcher = ((worker_args_t *)worker_args)->matcher;
+    bool ignore_case = ((worker_args_t *)worker_args)->ignore_case;
 
     // Reserve one extra slot so that we can do an insert-then-extract even
     // when "full" (effectively allows use of min-heap to maintain a
@@ -315,7 +329,7 @@ static void *get_matches(void *worker_args) {
             continue;
         }
 
-        haystack->score = commandt_score(haystack, matcher);
+        haystack->score = commandt_score(haystack, matcher, ignore_case);
 
         if (haystack->score == 0.0f) {
             continue;

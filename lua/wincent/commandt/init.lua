@@ -13,6 +13,8 @@ local commandt = {}
 local default_options = {
   always_show_dot_files = false,
   height = 15,
+  ignore_case = nil, -- If nil, will infer from Neovim's `'ignorecase'`.
+  smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
 
   -- Note that because of the way we merge mappings recursively, you can _add_
   -- or _replace_ a mapping easily, but to _remove_ it you have to assign it to
@@ -150,8 +152,19 @@ commandt.setup = function(options)
 
   _options = merge(_options, options)
 
+  -- Inferred from Neovim settings if not explicitly set.
+  if _options.ignore_case == nil then
+    _options.ignore_case = vim.o.ignorecase
+  end
+  if _options.smart_case == nil then
+    _options.smart_case = vim.o.smartcase
+  end
+
   if _options.always_show_dot_files == true and _options.never_show_dot_files == true then
     table.insert(errors, '`always_show_dot_files` and `never_show_dot_files` should not both be true')
+  end
+  if _options.ignore_case ~= true and _options.ignore_case ~= false then
+    table.insert(errors, '`ignore_case` must be true or false')
   end
   if not is_integer(_options.margin) or _options.margin < 0 then
     table.insert(errors, '`margin` must be a non-negative integer')
@@ -164,6 +177,9 @@ commandt.setup = function(options)
   end
   if _options.selection_highlight ~= nil and type(_options.selection_highlight) ~= 'string' then
     table.insert(errors, '`selection_highlight` must be a string')
+  end
+  if _options.smart_case ~= true and _options.smart_case ~= false then
+    table.insert(errors, '`smart_case` must be true or false')
   end
 
   if
