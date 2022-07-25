@@ -88,10 +88,21 @@ local result = nil
 watchman.scanner = function(dir)
   local lib = require('wincent.commandt.private.lib')
   local project = watch_project(dir)
+  if project.error then
+    error(project.error)
+    -- TODO: in the future (once Watchman is more solid), degrade gracefully
+    -- instead; for now, explode loudly.
+  end
+
   -- Result needs to persist until scanner is garbage collected.
   -- TODO: figure out the right way to do that...
   result = query(project.watch, project.relative_path)
-  local scanner = lib.scanner_new_str(result.files, result.count)
+  if result.error ~= nil then
+    -- TODO: in the future (once Watchman is more solid), degrade gracefully
+    -- instead; for now, explode loudly.
+    error(result.error)
+  end
+  local scanner = lib.scanner_new_str(result.raw.files, result.raw.count)
   return scanner
 end
 

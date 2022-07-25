@@ -82,3 +82,10 @@ void str_free(str_t *str) {
         free(str);
     }
 }
+
+const char *str_c_string(str_t *str) {
+    char *c_string = xmalloc(str->length + NULL_PADDING);
+    memcpy(c_string, str->contents, str->length);
+    (c_string + str->length)[0] = '\0';
+    return c_string;
+}

@@ -81,4 +81,11 @@ void str_append_str(str_t *str, str_t *other);
  */
 void str_free(str_t *str);
 
+/**
+ * Returns a C string by copying the contents of `str`.
+ *
+ * Caller is responsible for `free()`-ing the returned string.
+ */
+const char *str_c_string(str_t *str);
+
 #endif

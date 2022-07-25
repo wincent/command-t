@@ -68,6 +68,7 @@ setmetatable(c, {
       typedef struct {
           unsigned count;
           str_t *files;
+          const char *error;
           size_t files_size;
           watchman_response_t *response;
       } watchman_query_result_t;
@@ -75,6 +76,7 @@ setmetatable(c, {
       typedef struct {
           const char *watch;
           const char *relative_path;
+          const char *error;
       } watchman_watch_project_result_t;
 
       typedef struct {
@@ -243,19 +245,22 @@ lib.commandt_watchman_disconnect = function(socket)
 end
 
 lib.commandt_watchman_query = function(root, relative_root, socket)
-  local result = c.commandt_watchman_query(root, relative_root, socket)
-  ffi.gc(result, c.commandt_watchman_query_result_free)
+  local raw = c.commandt_watchman_query(root, relative_root, socket)
+  local result = {
+    error = raw['error'] ~= nil and ffi.string(raw['error']) or nil,
+    raw = raw, -- So caller can access and pass through cdata to matcher.
+  }
+  ffi.gc(raw, c.commandt_watchman_query_result_free)
   return result
 end
 
 lib.commandt_watchman_watch_project = function(root, socket)
   local result = c.commandt_watchman_watch_project(root, socket)
   local project = {
-    watch = ffi.string(result['watch']),
+    error = result['error'] ~= nil and ffi.string(result['error']) or nil,
+    relative_path = result['relative_path'] ~= nil and ffi.string(result['relative_path']) or nil,
+    watch = result['watch'] ~= nil and ffi.string(result['watch']) or nil,
   }
-  if result['relative_path'] ~= nil then
-    project['relative_path'] = ffi.string(result['relative_path'])
-  end
   c.commandt_watchman_watch_project_result_free(result)
   return project
 end

@@ -34,6 +34,11 @@ typedef struct {
     str_t *files;
 
     /**
+     * NULL on success, a description of the error otherwise.
+     */
+    const char *error;
+
+    /**
      * @internal
      *
      * Book-keeping needed for call to `munmap()`.
@@ -49,8 +54,23 @@ typedef struct {
 } watchman_query_result_t;
 
 typedef struct {
+    /**
+     * May be NULL if an error occurred.
+     */
     const char *watch;
-    const char *relative_path; /** May be NULL. */
+
+    /**
+     * May be NULL if an error occurred, or this is a root watch (as opposed to
+     * a directory within an existing watch).
+     *
+     * See: https://facebook.github.io/watchman/docs/cmd/watch-project.html
+     */
+    const char *relative_path;
+
+    /**
+     * NULL on success, a description of the error otherwise.
+     */
+    const char *error;
 } watchman_watch_project_result_t;
 
 int commandt_watchman_connect(const char *socket_path);
