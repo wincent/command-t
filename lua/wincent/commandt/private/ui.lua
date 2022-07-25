@@ -8,6 +8,7 @@ local Prompt = require('wincent.commandt.private.prompt').Prompt
 
 local cmdline_enter_autocmd = nil
 local current_finder = nil -- Reference to avoid premature garbage collection.
+local current_window = nil
 local match_listing = nil
 local prompt = nil
 
@@ -43,6 +44,10 @@ local close = function()
     vim.api.nvim_del_autocmd(cmdline_enter_autocmd)
     cmdline_enter_autocmd = nil
   end
+  if current_window then
+    vim.api.nvim_set_current_win(current_window)
+    current_window = nil
+  end
 end
 
 -- TODO save/restore global options, like `hlsearch' (which we want to turn off
@@ -52,6 +57,9 @@ end
 ui.show = function(finder, options)
   -- TODO validate options
   current_finder = finder
+
+  current_window = vim.api.nvim_get_current_win()
+
   assert(current_finder) -- Avoid Lua warning about unused local.
   match_listing = MatchListing.new({
     height = options.height,
@@ -88,7 +96,11 @@ ui.show = function(finder, options)
     on_open = function(kind)
       close()
       if results and #results > 0 then
-        finder.open(results[selected], kind)
+        -- Defer, to give autocommands a chance to run.
+        local result = results[selected]
+        vim.defer_fn(function()
+          finder.open(result, kind)
+        end, 0)
       end
     end,
     on_select = function(choice)
