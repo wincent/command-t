@@ -113,22 +113,22 @@ commandt.options = function()
 end
 
 commandt.setup = function(options)
+  local errors = {}
+
   if vim.g.command_t_loaded == 1 then
-    error('commandt.setup(): Lua setup was called too late, after Ruby plugin setup has already run')
+    table.insert(errors, '`commandt.setup()` was called too late, after Ruby plugin setup has already run')
   elseif vim.g.CommandTPreferredImplementation == 'ruby' then
-    print('commandt.setup(): was called, but g:CommandTPreferredImplementation is set to "ruby"')
-    return
+    table.insert(errors, '`commandt.setup()` was called, but `g:CommandTPreferredImplementation` is set to "ruby"')
   else
     vim.g.CommandTPreferredImplementation = 'lua'
   end
 
-  local errors = {}
   options = options or {}
   for k, _ in pairs(options) do
     -- `n` is small, so not worried about `O(n)` check.
     if not contains(allowed_options, k) then
       -- TODO: suggest near-matches for misspelled option names
-      table.insert(errors, '  unrecognized option: ' .. k)
+      table.insert(errors, 'unrecognized option: ' .. k)
     end
   end
 
@@ -150,10 +150,20 @@ commandt.setup = function(options)
     table.insert(errors, '`selection_highlight` must be a string')
   end
 
+  if
+    not pcall(function()
+      local lib = require('wincent.commandt.private.lib') -- Can we require it?
+      lib.commandt_epoch() -- Can we use it?
+    end)
+  then
+    table.insert(errors, 'unable to load and use C library - run `:checkhealth wincent.commandt`')
+  end
+
   if #errors > 0 then
     table.insert(errors, 1, 'commandt.setup():')
     for i, message in ipairs(errors) do
-      errors[i] = { message .. '\n', 'WarningMsg' }
+      local indent = i == 1 and '' or '  '
+      errors[i] = { indent .. message .. '\n', 'WarningMsg' }
     end
     vim.api.nvim_echo(errors, true, {})
   end
