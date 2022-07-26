@@ -308,7 +308,7 @@ function Window:show()
       if self._title_buffer == 0 then
         error('Window:show(): nvim_create_buf() failed')
       end
-      vim.api.nvim_buf_set_option(self._title_buffer, 'buftype', 'nofile')
+      vim.api.nvim_buf_set_option(self._title_buffer, 'buftype', 'nofile') -- BUG: does nothing
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide
@@ -336,27 +336,13 @@ function Window:show()
       if self._title_window == 0 then
         error('Window:show(): nvim_open_win() failed')
       end
-      vim.api.nvim_create_autocmd('WinClosed', {
-        buffer = self._title_buffer,
-        nested = true,
-        once = true,
-        callback = function()
-          self._main_window = nil
-          if self._main_buffer then
-            -- vim.api.nvim_buf_delete(self._main_buffer, { force = true })
-          end
-          if self._on_close then
-            self._on_close()
-          end
-        end,
-      })
     end
     vim.api.nvim_buf_set_lines(
       self._title_buffer,
       0, -- start
       -1, -- end
       false, -- strict indexing
-      { self._padded_title } -- TODO: put actual type
+      { self._padded_title }
     )
   end
 end
