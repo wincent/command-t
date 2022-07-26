@@ -23,6 +23,9 @@
 // Avoid the overhead of threading when search space is small.
 #define THREAD_THRESHOLD 1000
 
+// Arbitrary limit to stop people from doing self-harm.
+#define MAX_THREADS 128
+
 typedef struct {
     unsigned worker_count;
     unsigned worker_index;
@@ -49,10 +52,13 @@ matcher_t *commandt_matcher_new(
     bool never_show_dot_files,
     bool recurse,
     bool smart_case,
-    unsigned threads
+    uint64_t threads
 ) {
     assert(limit > 0);
     assert(threads > 0);
+    if (threads > MAX_THREADS) {
+        threads = MAX_THREADS;
+    }
 
     matcher_t *matcher = xmalloc(sizeof(matcher_t));
     matcher->scanner = scanner;
@@ -71,7 +77,7 @@ matcher_t *commandt_matcher_new(
     matcher->recurse = recurse;
     matcher->smart_case = smart_case;
     matcher->limit = limit;
-    matcher->threads = threads;
+    matcher->threads = (unsigned int)threads;
     matcher->needle = NULL;
     matcher->needle_length = 0;
     matcher->needle_bitmask = UNSET_BITMASK;

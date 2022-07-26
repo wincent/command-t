@@ -96,7 +96,7 @@ setmetatable(c, {
           bool never_show_dot_files,
           bool recurse,
           bool smart_case,
-          unsigned threads
+          uint64_t threads
       );
       void commandt_matcher_free(matcher_t *matcher);
       result_t *commandt_matcher_run(matcher_t *matcher, const char *needle);

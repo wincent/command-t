@@ -32,7 +32,12 @@ matcher_t *commandt_matcher_new(
     bool never_show_dot_files,
     bool recurse,
     bool smart_case,
-    unsigned threads
+
+    // For Apple/ARM64: this would be `unsigned`, but their ABI require 64-bit
+    // type.
+    //
+    // See: https://github.com/LuaJIT/LuaJIT/issues/205#issuecomment-236426398
+    uint64_t threads
 );
 
 /**
