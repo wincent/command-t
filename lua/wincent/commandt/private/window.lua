@@ -324,7 +324,7 @@ function Window:show()
       if self._title_buffer == 0 then
         error('Window:show(): nvim_create_buf() failed')
       end
-      vim.api.nvim_buf_set_name(self._main_buffer, self:description() .. ' (title)')
+      vim.api.nvim_buf_set_name(self._title_buffer, self:description() .. ' (title)')
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide
