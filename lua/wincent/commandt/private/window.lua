@@ -225,7 +225,7 @@ function Window:show()
     vim.api.nvim_create_autocmd('VimResized', {
       buffer = self._main_buffer,
       callback = function()
-        -- This will resposition title, too, so no need for a separate autocmd.
+        -- This will reposition title, too, so no need for a separate autocmd.
         self:_reposition()
         if self._on_resize then
           self._on_resize()
@@ -284,7 +284,7 @@ function Window:show()
     end
 
     -- Note we do this _after_ putting buffer in window, so that `ftplugin`
-    -- can set window-level options based on `'filetype'` instead of just
+    -- files can set window-level options based on `'filetype'` instead of just
     -- buffer-level ones.
     if self._filetype ~= nil then
       vim.api.nvim_buf_set_option(self._main_buffer, 'filetype', self._filetype)
