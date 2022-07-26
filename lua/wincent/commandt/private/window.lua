@@ -201,8 +201,8 @@ function Window:show()
       error('Window:show(): nvim_create_buf() failed')
     end
     local ps1 = self._prompt or '> '
+    vim.api.nvim_buf_set_option(self._main_buffer, 'buftype', self._buftype)
     if self._buftype == 'prompt' then
-      vim.api.nvim_buf_set_option(self._main_buffer, 'buftype', 'prompt')
       vim.fn.prompt_setprompt(self._main_buffer, ps1)
     end
     if self._on_change then
@@ -308,7 +308,6 @@ function Window:show()
       if self._title_buffer == 0 then
         error('Window:show(): nvim_create_buf() failed')
       end
-      vim.api.nvim_buf_set_option(self._title_buffer, 'buftype', 'nofile') -- BUG: does nothing
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide
