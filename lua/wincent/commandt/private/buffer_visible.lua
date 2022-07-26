@@ -26,12 +26,12 @@ buffer_visible = function(buffer)
   else
     -- Check to see if buffer is hidden (has 'h' in the `:ls` output).
     local bufnr = tostring(vim.fn.bufnr(buffer))
-    local ls_buffers = vim.fn.execute('ls')
+    local ls_buffers = vim.fn.execute('ls h')
     for _, line in ipairs(vim.split(ls_buffers, '\n', { trimempty = true })) do
       -- Trim first so " 1" vs "10" doesn't ruin our whitespace-based splitting.
       local components = vim.split(vim.trim(line), '%s+')
       if components[1] == bufnr then
-        return components[2]:find('h') == nil
+        return false
       end
     end
 
