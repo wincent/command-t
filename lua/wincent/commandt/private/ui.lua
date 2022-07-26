@@ -45,8 +45,13 @@ local close = function()
     cmdline_enter_autocmd = nil
   end
   if current_window then
-    vim.api.nvim_set_current_win(current_window)
+    -- Due to autocommand nesting, and the fact that we call `close()` for
+    -- `WinLeave`, `WinClosed`, or us calling `:close()`, we have to be careful
+    -- to avoid infinite recursion here, by setting `current_window` to `nil`
+    -- _before_ calling `nvim_set_current_win()`:
+    local win = current_window
     current_window = nil
+    vim.api.nvim_set_current_win(win)
   end
 end
 

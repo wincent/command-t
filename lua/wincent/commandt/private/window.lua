@@ -105,18 +105,10 @@ function Window:close()
     vim.api.nvim_win_close(self._main_window, true)
     self._main_window = nil
   end
-  -- if self._main_buffer then
-  --   vim.api.nvim_buf_delete(self._main_buffer, { force = true })
-  --   self._main_buffer = nil
-  -- end
   if self._title_window then
     vim.api.nvim_win_close(self._title_window, true)
     self._title_window = nil
   end
-  -- if self._title_buffer then
-  --   vim.api.nvim_buf_delete(self._title_buffer, { force = true })
-  --   self._title_buffer = nil
-  -- end
 end
 
 -- For debuggability.
@@ -259,7 +251,7 @@ function Window:show()
   if self._main_window == nil then
     self._main_window = vim.api.nvim_open_win(
       self._main_buffer,
-      true, -- enter = true
+      false, -- enter = false
       merge({
         border = 'rounded', -- TODO make configurable
         focusable = false,
@@ -286,6 +278,7 @@ function Window:show()
         end
         if self._title_window then
           vim.api.nvim_win_close(self._title_window, true)
+          self._title_window = nil
         end
         if self._on_close then
           self._on_close()
@@ -296,6 +289,8 @@ function Window:show()
       vim.api.nvim_create_autocmd('WinLeave', {
         buffer = self._main_buffer,
         callback = self._on_leave,
+        once = true,
+        nested = true,
       })
     end
 
