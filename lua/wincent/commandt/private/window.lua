@@ -76,6 +76,7 @@ function Window.new(options)
   local w = {
     _bottom = options.bottom,
     _buftype = options.buftype,
+    _description = options.description,
     _filetype = options.filetype,
     _height = options.height,
     _main_buffer = nil,
@@ -116,6 +117,20 @@ function Window:close()
   --   vim.api.nvim_buf_delete(self._title_buffer, { force = true })
   --   self._title_buffer = nil
   -- end
+end
+
+-- For debuggability.
+function Window:description()
+  if self._description ~= nil then
+    return self._description
+  else
+    local trimmed = vim.trim(self._padded_title)
+    if trimmed == '' then
+      return 'commandt.Window'
+    else
+      return trimmed
+    end
+  end
 end
 
 -- Focus the window and enter insert mode, ready to receive input.
@@ -201,6 +216,7 @@ function Window:show()
       error('Window:show(): nvim_create_buf() failed')
     end
     local ps1 = self._prompt or '> '
+    vim.api.nvim_buf_set_name(self._main_buffer, self:description() .. ' (main)')
     vim.api.nvim_buf_set_option(self._main_buffer, 'buftype', self._buftype)
     if self._buftype == 'prompt' then
       vim.fn.prompt_setprompt(self._main_buffer, ps1)
@@ -308,6 +324,7 @@ function Window:show()
       if self._title_buffer == 0 then
         error('Window:show(): nvim_create_buf() failed')
       end
+      vim.api.nvim_buf_set_name(self._main_buffer, self:description() .. ' (title)')
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide

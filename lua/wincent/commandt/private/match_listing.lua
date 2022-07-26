@@ -79,6 +79,7 @@ function MatchListing:show()
   if self._window == nil then
     self._window = Window.new({
       bottom = bottom,
+      description = 'CommandT [match listing]',
       filetype = 'CommandTMatchListing',
       height = self._height,
       margin = self._margin,
