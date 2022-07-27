@@ -33,6 +33,12 @@ typedef struct {
  */
 str_t *str_new_copy(const char *source, size_t length);
 
+
+/**
+ * Create a new blank `str_t` struct of the specified length.
+ */
+str_t *str_new_size(size_t length);
+
 /**
  * Initialize the provided `str_t` struct with the buffer of `length` pointed to
  * by `source`. The buffer is _not_ copied. A string initialized in this way is
@@ -63,11 +69,11 @@ void str_init_copy(str_t *str, const char *source, size_t length);
 str_t *str_new(void);
 
 /**
- * For debugging. Appends `length` bytes of `source` to `str`.
- *
- * @internal
+ * Appends `length` bytes of `source` to `str`.
  */
 void str_append(str_t *str, const char *source, size_t length);
+
+void str_append_char(str_t *str, char c);
 
 /**
  * For debugging. Appends `other` to `str`.
@@ -75,6 +81,8 @@ void str_append(str_t *str, const char *source, size_t length);
  * @internal
  */
 void str_append_str(str_t *str, str_t *other);
+
+void str_truncate(str_t *str, size_t length);
 
 /**
  * Frees memory associated with `str`.

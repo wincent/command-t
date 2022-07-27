@@ -31,6 +31,16 @@ str_t *str_new_copy(const char *source, size_t length) {
     return str;
 }
 
+str_t *str_new_size(size_t length) {
+    assert(length < SSIZE_MAX);
+    str_t *str = xmalloc(sizeof(str_t));
+    str->contents = xmalloc(length + NULL_PADDING);
+    str->length = 0;
+    str->capacity = length + NULL_PADDING;
+    ((char *)str->contents)[0] = '\0';
+    return str;
+}
+
 void str_init(str_t *str, const char *source, size_t length) {
     assert(length < SSIZE_MAX);
     str->contents = source;
@@ -70,8 +80,27 @@ void str_append(str_t *str, const char *source, size_t length) {
     str->length = new_length;
 }
 
+void str_append_char(str_t *str, char c) {
+    assert(str->capacity != SLAB_ALLOCATION);
+    size_t new_length = str->length + 1;
+    assert(new_length + NULL_PADDING < SSIZE_MAX);
+    if (str->capacity < (ssize_t)(new_length + NULL_PADDING)) {
+        str->contents = xrealloc((void *)str->contents, new_length + STR_OVERALLOC);
+        str->capacity = new_length + STR_OVERALLOC;
+    }
+    ((char *)str->contents)[str->length] = c;
+    ((char *)str->contents)[str->length + 1] = '\0';
+    str->length = new_length;
+}
+
 void str_append_str(str_t *str, str_t *other) {
     str_append(str, other->contents, other->length);
+}
+
+void str_truncate(str_t *str, size_t length) {
+    assert(str->length > length);
+    str->length = length;
+    ((char *)str->contents)[length] = '\0';
 }
 
 void str_free(str_t *str) {
