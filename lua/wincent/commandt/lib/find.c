@@ -20,6 +20,7 @@
 #include <sys/types.h> /* for DIR */
 #include <unistd.h> /* for close(), readlink() */
 
+#include "debug.h"
 #include "find.h"
 #include "xmalloc.h"
 #include "xmap.h"
@@ -38,13 +39,9 @@ static void visit_directory(str_t *dir, int fd, char *name, int depth, find_resu
 static void visit_file(str_t *dir, char *name, find_result_t *result);
 static void visit_link(str_t *dir, int fd, char *name, int depth, find_result_t *result);
 
-// TODO: make this visit(), and teach it to visit anything at all
-// which means if it is a file, return it
-// if it is a link, traverse it (recurse)
-// if it is a dir, recurse
-
 // TODO: may want to model this as a queue and do iteration instead of recursion
 static void visit_directory(str_t *dir, int fd, char *name, int depth, find_result_t *result) {
+    DEBUG_LOG("visit_directory() %s + %s (fd=%d)\n", dir->contents, name, fd);
     if (depth < 0) {
         return;
     }
@@ -58,6 +55,7 @@ static void visit_directory(str_t *dir, int fd, char *name, int depth, find_resu
         fd = openat(fd, name, O_DIRECTORY | O_RDONLY);
         str_append_char(dir, '/');
     }
+    DEBUG_LOG("new fd=%d\n", fd);
     str_append(dir, name, strlen(name));
 
     if (fd == -1) {
@@ -65,10 +63,12 @@ static void visit_directory(str_t *dir, int fd, char *name, int depth, find_resu
         goto done;
     }
 
+    // Note: Mustn't call `close()` on this `fd  now (see `man fdopendir`).
     DIR *stream = fdopendir(fd);
 
     if (stream == NULL) {
         result->error = strerror(errno);
+        DEBUG_LOG("failed to open stream: %s\n", result->error);
         goto done;
     }
 
@@ -82,6 +82,7 @@ static void visit_directory(str_t *dir, int fd, char *name, int depth, find_resu
             strcmp(entry->d_name, current_directory) == 0 ||
             strcmp(entry->d_name, parent_directory) == 0
         ) {
+            DEBUG_LOG("skipping %s\n", entry->d_name);
             continue;
         } else if (entry->d_type == DT_DIR) {
             visit_directory(dir, fd, entry->d_name, depth - 1, result);
@@ -93,29 +94,31 @@ static void visit_directory(str_t *dir, int fd, char *name, int depth, find_resu
     }
     if (closedir(stream) == -1) {
         result->error = strerror(errno);
+        DEBUG_LOG("bad luck closedir(): %s\n", result->error);
     }
 
 done:
     str_truncate(dir, previous_size);
-    if (fd != -1 && close(fd) == -1) {
-        result->error = strerror(errno);
-    }
+    DEBUG_LOG("after truncation, back to: %s\n", dir->contents);
 }
 
 static void visit_file(str_t *dir, char *name, find_result_t *result) {
+    DEBUG_LOG("visit_file() %s + %s\n", dir->contents, name);
     char *dest = result->count
-        ? (char *)result->files[result->count - 1].contents
+        ? (char *)(&result->files[result->count - 1].contents)
         : result->buffer;
     size_t length = strlen(name);
     str_t file = result->files[result->count];
     str_init(&file, dest, dir->length + 1 + length);
     dest = memcpy(dest, dir->contents, dir->length) + dir->length;
-    dest[dir->length] = '/';
+    dest[0] = '/';
     memcpy(dest + 1, name, length);
     result->count++;
+    DEBUG_LOG("copied result: %s\n", file.contents);
 }
 
 static void visit_link(str_t *dir, int fd, char *name, int depth, find_result_t *result) {
+    DEBUG_LOG("visit_link() %s + %s (fd=%d)\n", dir->contents, name, fd);
     // BUG: note that all of this is probably super racy...
     if (depth < 0) {
         return;
@@ -164,6 +167,10 @@ find_result_t *commandt_find(const char *dir) {
     str_free(str);
 
     // TODO: copy result->error so it can be `free'd` by caller.
+    if (result->error) {
+        // eg. Bad file descriptor
+        DEBUG_LOG("error: %s\n", result->error);
+    }
     return result;
 }
 
