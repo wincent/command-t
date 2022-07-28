@@ -1,9 +1,11 @@
+local times = 100
+
 return {
   variants = {
     {
       name = 'buffer',
       source = 'wincent.commandt.private.scanners.buffer',
-      times = 10000,
+      times = times * 100, -- Scanner is too fast (misleadingly fast).
       skip_in_ci = false,
       stub_candidates = function()
         -- Note this is all a bit fake because the real scanner would burn some
@@ -196,31 +198,31 @@ return {
     {
       name = 'file',
       source = 'wincent.commandt.private.scanners.file',
-      times = 100,
+      times = times,
       skip_in_ci = false,
     },
     {
       name = 'find',
       source = 'wincent.commandt.private.scanners.find',
-      times = 100,
+      times = times,
       skip_in_ci = false,
     },
     {
       name = 'git',
       source = 'wincent.commandt.private.scanners.git',
-      times = 100,
+      times = times,
       skip_in_ci = false,
     },
     {
       name = 'rg',
       source = 'wincent.commandt.private.scanners.rg',
-      times = 100,
+      times = times,
       skip_in_ci = true,
     },
     {
       name = 'watchman',
       source = 'wincent.commandt.private.scanners.watchman',
-      times = 100,
+      times = times,
       skip_in_ci = true,
     },
   },

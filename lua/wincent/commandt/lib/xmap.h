@@ -13,4 +13,11 @@
  */
 void *xmap(size_t size);
 
+/**
+ * `munmap()` wrapper that uses `assert()` to confirm success.
+ *
+ * That is, only in DEBUG builds, it will `abort()` on failure.
+ */
+int xmunmap(void *address, size_t length);
+
 #endif

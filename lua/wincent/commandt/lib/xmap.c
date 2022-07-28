@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include <assert.h> /* for assert() */
 #include <stddef.h> /* for NULL */
 #include <stdlib.h> /* for abort() */
-#include <sys/mman.h> /* for mmap() */
+#include <sys/mman.h> /* for mmap(), munmap() */
 
 void *xmap(size_t size) {
     void *result = mmap(
@@ -20,4 +21,10 @@ void *xmap(size_t size) {
         abort();
     }
     return result;
+}
+
+int xmunmap(void *address, size_t length) {
+    int munmapped = munmap(address, length);
+    assert(munmapped == 0);
+    return munmapped;
 }

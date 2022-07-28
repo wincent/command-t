@@ -11,13 +11,12 @@
 #include <fts.h> /* for fts_close(), fts_open(), fts_read() */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for strcmp(), strerror() */
-#include <sys/mman.h> /* for munmap() */
 
 #include "debug.h"
 #include "find.h"
 #include "scanner.h" /* for scanner_new() */
 #include "xmalloc.h"
-#include "xmap.h"
+#include "xmap.h" /* for xmap(), xmunmap() */
 #include "xstrdup.h" /* for xstrdup() */
 
 // TODO: share these with scanner.c
@@ -66,7 +65,6 @@ find_result_t *commandt_find(const char *dir) {
                 memcpy(buffer, node->fts_path + drop, path_len);
                 str_init(str, buffer, path_len - 1); // Don't count NUL byte.
                 buffer += path_len;
-                DEBUG_LOG("%s\n", str->contents);
             }
         }
         if (errno != 0) {
@@ -86,8 +84,8 @@ find_result_t *commandt_find(const char *dir) {
 }
 
 void commandt_find_result_free(find_result_t *result) {
-    assert(munmap(result->files, result->files_size) == 0);
-    assert(munmap(result->buffer, result->buffer_size) == 0);
+    xmunmap(result->files, result->files_size);
+    xmunmap(result->buffer, result->buffer_size);
     free((void *)result->error);
     free(result);
 }

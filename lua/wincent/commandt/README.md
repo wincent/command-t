@@ -169,4 +169,3 @@ On this machine, too, the value determined by the heuristic (ie. `n = 14`) produ
 ## TODO
 
 - Keep adding tests.
-- Fix scanner benchmarks.

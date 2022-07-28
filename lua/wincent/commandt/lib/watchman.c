@@ -10,7 +10,6 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memset(), strlen(), strcpy(), strncpy() */
 #include <sys/errno.h> /* for errno */
-#include <sys/mman.h> /* for munmap() */
 #include <sys/socket.h> /* for AF_LOCAL, MSG_PEEK, MSG_WAITALL, recv() */
 #include <sys/un.h> /* for sockaddr_un */
 #include <unistd.h> /* for close() */
@@ -19,7 +18,7 @@
 #include "str.h"
 #include "watchman.h"
 #include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
-#include "xmap.h" /* for xmap() */
+#include "xmap.h" /* for xmap(), xmunmap() */
 #include "xstrdup.h" /* for xstrdup() */
 
 typedef struct {
@@ -347,8 +346,7 @@ void commandt_watchman_watch_project_result_free(
 }
 
 void commandt_watchman_query_result_free(watchman_query_result_t *result) {
-    DEBUG_LOG("commandt_watchman_query_result_free() -> munmap() %llu\n", result->files_size);
-    assert(munmap(result->files, result->files_size) == 0);
+    xmunmap(result->files, result->files_size);
     free(result->response);
     free((void *)result->error);
     free(result);

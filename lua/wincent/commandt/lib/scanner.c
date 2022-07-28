@@ -8,13 +8,12 @@
 #include <stdio.h> /* for fileno(), fprintf(), pclose(), popen(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
-#include <sys/mman.h> /* for munmap() */
 #include <unistd.h> /* read() */
 
 #include "debug.h"
 #include "scanner.h"
 #include "xmalloc.h"
-#include "xmap.h"
+#include "xmap.h" /* for xmap(), xmunmap() */
 
 // TODO: make this capable of producing asynchronously?
 
@@ -155,13 +154,11 @@ void scanner_free(scanner_t *scanner) {
     }
 
     if (scanner->candidates) {
-        DEBUG_LOG("scanner_free() -> munmap() candidates %llu\n", scanner->candidates_size);
-        assert(munmap(scanner->candidates, scanner->candidates_size) == 0);
+        xmunmap(scanner->candidates, scanner->candidates_size);
     }
 
     if (scanner->buffer) {
-        DEBUG_LOG("scanner_free() -> munmap() buffer %llu\n", scanner->buffer_size);
-        assert(munmap(scanner->buffer, scanner->buffer_size) == 0);
+        xmunmap(scanner->buffer, scanner->buffer_size);
     }
 
     free(scanner);
