@@ -11,7 +11,7 @@ return function(dir, options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   -- TODO: make `dir` actually do something here
-  finder.scanner = require('wincent.commandt.private.scanners.command').scanner(dir, 'rg --files --null')
+  finder.scanner = require('wincent.commandt.private.scanners.file').scanner(dir)
   finder.matcher = lib.commandt_matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.commandt_matcher_run(finder.matcher, query)

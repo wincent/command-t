@@ -22,15 +22,6 @@ setmetatable(c, {
       } str_t;
 
       typedef struct {
-          unsigned count;
-          str_t *files;
-          const char *error;
-          size_t files_size;
-          char *buffer;
-          size_t buffer_size;
-      } find_result_t;
-
-      typedef struct {
           str_t *candidate;
           long bitmask;
           float score;
@@ -94,10 +85,6 @@ setmetatable(c, {
         uint32_t microseconds;
       } benchmark_t;
 
-      // Find functions
-
-      find_result_t *commandt_find(const char *dir);
-
       // Matcher functions.
 
       matcher_t *commandt_matcher_new(
@@ -117,6 +104,7 @@ setmetatable(c, {
 
       // Scanner functions.
 
+      scanner_t *commandt_file_scanner(const char *dir);
       scanner_t *scanner_new_command(const char *command);
       scanner_t *scanner_new_copy(const char **candidates, unsigned count);
       scanner_t *scanner_new_str(str_t *candidates, unsigned count);
@@ -172,11 +160,10 @@ lib.commandt_epoch = function()
   return result['seconds'], result['microseconds']
 end
 
--- test with:
--- :lua require('wincent.commandt.private.lib').commandt_find('.')
-lib.commandt_find = function(dir)
-  local result = c.commandt_find(dir)
-  -- TODO: something with result...
+lib.commandt_file_scanner = function(dir)
+  local scanner = c.commandt_file_scanner(dir)
+  ffi.gc(scanner, c.scanner_free)
+  return scanner
 end
 
 -- For the first 8 cores, use 1 thread per core.

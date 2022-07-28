@@ -97,6 +97,9 @@ end
 
 commandt.file_finder = function(arg)
   local directory = vim.trim(arg)
+  if directory == '' then
+    directory = '.'
+  end
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.file')(directory, options)

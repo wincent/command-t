@@ -4,150 +4,26 @@
  */
 
 // TODO: implement max_depth, max_files
-// TODO: follow symlinks (ie. `find -L`)
 // TODO: implement scan_dot_directories
-// TODO: check what `find` does for symlink cycles; it detects and aborts
 
 #include <assert.h> /* for assert() */
-#include <dirent.h> /* for DT_DIR, DT_LNK, DT_REG, closedir(), opendir(), readdir() */
 #include <errno.h> /* for errno */
-#include <fcntl.h> /* for O_DIRECTORY, O_RDONLY */
-#include <limits.h> /* for PATH_MAX */
+#include <fts.h> /* for fts_close(), fts_open(), fts_read() */
 #include <stdlib.h> /* for free() */
-#include <string.h> /* for strerror() */
+#include <string.h> /* for strcmp(), strerror() */
 #include <sys/mman.h> /* for munmap() */
-#include <sys/stat.h> /* for fstatat() */
-#include <sys/types.h> /* for DIR */
-#include <unistd.h> /* for close(), readlink() */
 
 #include "debug.h"
 #include "find.h"
+#include "scanner.h" /* for scanner_new() */
 #include "xmalloc.h"
 #include "xmap.h"
+#include "xstrdup.h" /* for xstrdup() */
 
 // TODO: share these with scanner.c
-static long MAX_FILES = 134217728; // 128 M candiates.
+static long MAX_FILES = 134217728; // 128 M candidates.
 static size_t buffer_size = 137438953472; // 128 GB.
-
-#define MAX_DEPTH 64
-
 static const char *current_directory = ".";
-static const char *parent_directory = "..";
-
-// Forward declarations.
-static void visit_directory(str_t *dir, int fd, char *name, int depth, find_result_t *result);
-static void visit_file(str_t *dir, char *name, find_result_t *result);
-static void visit_link(str_t *dir, int fd, char *name, int depth, find_result_t *result);
-
-// TODO: may want to model this as a queue and do iteration instead of recursion
-static void visit_directory(str_t *dir, int fd, char *name, int depth, find_result_t *result) {
-    DEBUG_LOG("visit_directory() %s + %s (fd=%d)\n", dir->contents, name, fd);
-    if (depth < 0) {
-        return;
-    }
-
-    // TODO: confirm this works if `name` refers to a non-broken symlink (may need to drop O_DIRECTORY)
-    // TODO: see what happens if `name` is a broken symlink
-    size_t previous_size = dir->length;
-    if (fd == -1){
-        fd = open(name, O_DIRECTORY | O_RDONLY);
-    } else {
-        fd = openat(fd, name, O_DIRECTORY | O_RDONLY);
-        str_append_char(dir, '/');
-    }
-    DEBUG_LOG("new fd=%d\n", fd);
-    str_append(dir, name, strlen(name));
-
-    if (fd == -1) {
-        result->error = strerror(errno);
-        goto done;
-    }
-
-    // Note: Mustn't call `close()` on this `fd  now (see `man fdopendir`).
-    DIR *stream = fdopendir(fd);
-
-    if (stream == NULL) {
-        result->error = strerror(errno);
-        DEBUG_LOG("failed to open stream: %s\n", result->error);
-        goto done;
-    }
-
-    struct dirent *entry;
-    while (
-            result->count < MAX_FILES &&
-            !result->error &&
-            (entry = readdir(stream)) != NULL
-    ) {
-        if (
-            strcmp(entry->d_name, current_directory) == 0 ||
-            strcmp(entry->d_name, parent_directory) == 0
-        ) {
-            DEBUG_LOG("skipping %s\n", entry->d_name);
-            continue;
-        } else if (entry->d_type == DT_DIR) {
-            visit_directory(dir, fd, entry->d_name, depth - 1, result);
-        } else if (entry->d_type == DT_LNK) {
-            visit_link(dir, fd, entry->d_name, depth - 1, result);
-        } else if (entry->d_type == DT_REG) {
-            visit_file(dir, entry->d_name, result);
-        }
-    }
-    if (closedir(stream) == -1) {
-        result->error = strerror(errno);
-        DEBUG_LOG("bad luck closedir(): %s\n", result->error);
-    }
-
-done:
-    str_truncate(dir, previous_size);
-    DEBUG_LOG("after truncation, back to: %s\n", dir->contents);
-}
-
-static void visit_file(str_t *dir, char *name, find_result_t *result) {
-    DEBUG_LOG("visit_file() %s + %s\n", dir->contents, name);
-    char *dest = result->count
-        ? (char *)(&result->files[result->count - 1].contents)
-        : result->buffer;
-    size_t length = strlen(name);
-    str_t file = result->files[result->count];
-    str_init(&file, dest, dir->length + 1 + length);
-    dest = memcpy(dest, dir->contents, dir->length) + dir->length;
-    dest[0] = '/';
-    memcpy(dest + 1, name, length);
-    result->count++;
-    DEBUG_LOG("copied result: %s\n", file.contents);
-}
-
-static void visit_link(str_t *dir, int fd, char *name, int depth, find_result_t *result) {
-    DEBUG_LOG("visit_link() %s + %s (fd=%d)\n", dir->contents, name, fd);
-    // BUG: note that all of this is probably super racy...
-    if (depth < 0) {
-        return;
-    }
-
-    struct stat buf;
-    if (fstatat(fd, name, &buf, 0) == -1) {
-        // TODO: may just want to silently skip here
-        result->error = strerror(errno);
-        return;
-    }
-    if (S_ISREG(buf.st_mode)) {
-        visit_file(dir, name, result);
-    } else if (S_ISDIR(buf.st_mode)) {
-        visit_directory(dir, fd, name, depth - 1, result);
-    } else if (S_ISLNK(buf.st_mode)) {
-        // TODO: readlink
-        ssize_t bufsize = PATH_MAX * 2;
-        char buf[bufsize];
-        ssize_t size = readlinkat(fd, name, buf, bufsize);
-        if (size == -1) {
-            result->error = strerror(errno);
-        } else if (size == bufsize) {
-            // Truncation may have occurred. Give up, like a coward.
-        } else {
-            visit_link(dir, fd, buf, depth - 1, result);
-        }
-    }
-}
 
 find_result_t *commandt_find(const char *dir) {
     find_result_t *result = xcalloc(1, sizeof(find_result_t));
@@ -159,18 +35,48 @@ find_result_t *commandt_find(const char *dir) {
     result->buffer_size = buffer_size;
     result->buffer = xmap(result->buffer_size);
 
-    // Start with PATH_MAX (which, infamously, may not be big enough);
-    // we'll grow it if need be.
-    str_t *str = str_new_size(PATH_MAX);
-    // TODO: make MAX_DEPTH a param
-    visit_directory(str, -1, (char *)dir, MAX_DEPTH, result);
-    str_free(str);
+    char *buffer = result->buffer;
 
-    // TODO: copy result->error so it can be `free'd` by caller.
-    if (result->error) {
-        // eg. Bad file descriptor
-        DEBUG_LOG("error: %s\n", result->error);
+    // TODO: make sure there is no trailing slash
+    char *copy = xstrdup(dir);
+
+    // Drop leading "./" if we're exploring current directory.
+    size_t drop = strcmp(dir, current_directory) == 0 ? 2 : 0;
+
+    char *paths[] = {copy, NULL};
+    FTS *handle = fts_open(paths, FTS_LOGICAL | FTS_NOSTAT, NULL);
+    if (handle == NULL) {
+        result->error = strerror(errno);
+    } else {
+        FTSENT *node;
+        while ((node = fts_read(handle)) != NULL) {
+            if (node->fts_info == FTS_F) {
+                size_t path_len = strlen(node->fts_path) + 1 - drop; // Include NUL byte.
+                if (buffer + path_len > result->buffer + result->buffer_size) {
+                    // Would be decidedly odd to get here.
+                    DEBUG_LOG("commandt_find(): slab allocation exhausted\n");
+                    break;
+                }
+                str_t *str = &result->files[result->count++];
+                memcpy(buffer, node->fts_path + drop, path_len);
+                str_init(str, buffer, path_len - 1); // Don't count NUL byte.
+                buffer += path_len;
+                DEBUG_LOG("%s\n", str->contents);
+            }
+        }
+        if (errno != 0) {
+            result->error = strerror(errno);
+        }
+        if (fts_close(handle) == -1 && !result->error) {
+            result->error = strerror(errno);
+        }
     }
+
+    if (result->error) {
+        result->error = xstrdup(result->error);
+    }
+
+    free(copy);
     return result;
 }
 
@@ -179,4 +85,18 @@ void commandt_find_result_free(find_result_t *result) {
     assert(munmap(result->buffer, result->buffer_size) == 0);
     free((void *)result->error);
     free(result);
+}
+
+scanner_t *commandt_file_scanner(const char *dir) {
+    find_result_t *result = commandt_find(dir);
+    scanner_t *scanner = scanner_new(
+        result->count,
+        result->files,
+        result->files_size,
+        result->buffer,
+        result->buffer_size
+    );
+    free((void *)result->error);
+    free(result);
+    return scanner;
 }

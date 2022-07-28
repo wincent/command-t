@@ -19,7 +19,7 @@
 // TODO: make this capable of producing asynchronously?
 
 // TODO make this configurable
-static long MAX_FILES = 134217728; // 128 M candiates.
+static long MAX_FILES = 134217728; // 128 M candidates.
 
 static size_t buffer_size = 137438953472; // 128 GB.
 
@@ -99,6 +99,24 @@ scanner_t *scanner_new_str(str_t *candidates, unsigned count) {
     scanner->candidates = candidates;
     scanner->candidates_size = count * sizeof(str_t);
     scanner->count = count;
+    return scanner;
+}
+
+scanner_t *scanner_new(
+    unsigned count,
+    str_t *candidates,
+    size_t candidates_size,
+    char *buffer,
+    size_t buffer_size
+) {
+    assert(candidates);
+    assert(buffer);
+    scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
+    scanner->count = count;
+    scanner->candidates = candidates;
+    scanner->candidates_size = candidates_size;
+    scanner->buffer = buffer;
+    scanner->buffer_size = buffer_size;
     return scanner;
 }
 

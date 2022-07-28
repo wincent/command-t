@@ -32,6 +32,21 @@ scanner_t *scanner_new_command(const char *command);
 scanner_t *scanner_new_str(str_t *candidates, unsigned count);
 
 /**
+ * Create a `scanner_t` struct initialized with the provide values.
+ *
+ * This is a low-level sibling of `scanner_new_str`; just like that function,
+ * this one does not make copies of the provided values but does take
+ * "ownership" of them.
+ */
+scanner_t *scanner_new(
+    unsigned count,
+    str_t *candidates,
+    size_t candidates_size,
+    char *buffer,
+    size_t buffer_size
+);
+
+/**
  * For debugging, a human-readable string representation of the scanner.
  *
  * Caller should call `str_free()` on the returned string.

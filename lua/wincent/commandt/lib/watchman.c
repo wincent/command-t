@@ -20,6 +20,7 @@
 #include "watchman.h"
 #include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
 #include "xmap.h" /* for xmap() */
+#include "xstrdup.h" /* for xstrdup() */
 
 typedef struct {
     uint8_t *payload;
@@ -31,7 +32,6 @@ typedef struct {
 
 static void watchman_append(watchman_request_t *w, const char *data, size_t length);
 static void watchman_append_char(watchman_request_t *w, char c);
-static const char *watchman_error(const char *error);
 static uint64_t watchman_read_array(watchman_response_t *r, const char **error);
 static double watchman_read_double(watchman_response_t *r, const char **error);
 static int64_t watchman_read_int(watchman_response_t *r, const char **error);
@@ -215,7 +215,7 @@ watchman_query_result_t *commandt_watchman_query(
 
 done:
     if (result->error) {
-        result->error = watchman_error(result->error); // Makes a copy.
+        result->error = xstrdup(result->error);
     }
 done_no_copy:
     if (key) {
@@ -326,7 +326,7 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
 
 done:
     if (result->error) {
-        result->error = watchman_error(result->error); // Makes a copy.
+        result->error = xstrdup(result->error);
     }
 done_no_copy:
     watchman_response_free(r);
@@ -379,15 +379,6 @@ static void watchman_append_char(watchman_request_t *w, char c) {
         xrealloc(w->payload, w->capacity);
     }
     w->payload[w->length++] = c;
-}
-
-/**
- * Makes and returns a copy of the supplied error string
- */
-static const char *watchman_error(const char *error) {
-    char *result = xmalloc(strlen(error) + 1);
-    strcpy(result, error);
-    return result;
 }
 
 /**

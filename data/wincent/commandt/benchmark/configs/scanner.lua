@@ -194,6 +194,12 @@ return {
       end,
     },
     {
+      name = 'file',
+      source = 'wincent.commandt.private.scanners.file',
+      times = 100,
+      skip_in_ci = false,
+    },
+    {
       name = 'find',
       source = 'wincent.commandt.private.scanners.find',
       times = 100,
