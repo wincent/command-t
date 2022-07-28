@@ -5,11 +5,16 @@ local ffi = require('ffi')
 
 -- TODO: remember cached directories
 return function(dir, options)
-  dir = dir or os.getenv('PWD')
+  if vim.startswith(dir, './') then
+    dir = dir:sub(3, -1)
+  end
+  if dir ~= '' and dir ~= '.' then
+    dir = vim.fn.shellescape(dir)
+  end
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   -- TODO: make `dir` actually do something here
-  finder.scanner = require('wincent.commandt.private.scanners.file').scanner(dir)
+  finder.scanner = require('wincent.commandt.private.scanners.rg').scanner(dir)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)

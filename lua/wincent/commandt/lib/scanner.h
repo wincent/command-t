@@ -28,8 +28,13 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count);
 /**
  * Create a new `scanner_t` struct that will be populated by executing the
  * NUL-terminated `command` string.
+ *
+ * The `drop` parameter indicates how many characters of prefix, if any, should
+ * be omitted from the strings returned by the scanner; commonly, this will be
+ * 0, but for commands such as `find .` which prefix all paths with "./", `drop`
+ * would be 2.
  */
-scanner_t *scanner_new_command(const char *command);
+scanner_t *scanner_new_command(const char *command, unsigned drop);
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.

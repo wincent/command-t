@@ -3,13 +3,15 @@
 
 local ffi = require('ffi')
 
+-- TODO: eventually this will become a pure-C finder; for now we're just demoing
+-- the `command` scanner
 -- TODO: remember cached directories
 return function(dir, options)
   dir = dir or os.getenv('PWD')
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   -- TODO: make `dir` actually do something here
-  finder.scanner = require('wincent.commandt.private.scanners.file').scanner(dir)
+  finder.scanner = require('wincent.commandt.private.scanners.git').scanner(dir)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)

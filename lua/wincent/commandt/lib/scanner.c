@@ -37,7 +37,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     return scanner;
 }
 
-scanner_t *scanner_new_command(const char *command) {
+scanner_t *scanner_new_command(const char *command, unsigned drop) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
     DEBUG_LOG("scanner_new_command() -> xmap() candidates %llu\n", scanner->candidates_size);
@@ -63,7 +63,7 @@ scanner_t *scanner_new_command(const char *command) {
         }
         end += read_count;
         while (start < end) {
-            if  (start[0] == 0) { // TODO: may not always be -z
+            if  (start[0] == 0) { // TODO: terminator may not always be NUL (-z)
                 start++;
                 continue;
             }
@@ -71,8 +71,12 @@ scanner_t *scanner_new_command(const char *command) {
             if (!next_end) {
                 break;
             }
-            char *path = start + 0; // drop;
-            int length = next_end - start - 0; // drop
+            char *path = start + drop;
+            int length = next_end - start - drop;
+            if (length < 0) {
+                DEBUG_LOG("commandt_scanner_new_command(): not enough output to skip %u characters\n", drop);
+                goto bail;
+            }
             start = next_end + 1;
             str_init(&scanner->candidates[scanner->count++], path, length);
 
@@ -82,6 +86,7 @@ scanner_t *scanner_new_command(const char *command) {
         }
     }
 
+bail:
     int status = pclose(file);
     if (status == -1) {
         // Probably a `wait4()` call failed.

@@ -106,6 +106,22 @@ commandt.file_finder = function(arg)
   ui.show(finder, merge(options, { name = 'file' }))
 end
 
+commandt.find_finder = function(arg)
+  local directory = vim.trim(arg)
+  local ui = require('wincent.commandt.private.ui')
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.find')(directory, options)
+  ui.show(finder, merge(options, { name = 'find' }))
+end
+
+commandt.git_finder = function(arg)
+  local directory = vim.trim(arg)
+  local ui = require('wincent.commandt.private.ui')
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.git')(directory, options)
+  ui.show(finder, merge(options, { name = 'git' }))
+end
+
 commandt.help_finder = function()
   -- TODO: refactor to avoid duplication
   local ui = require('wincent.commandt.private.ui')
@@ -131,6 +147,14 @@ local _options = copy(default_options)
 
 commandt.options = function()
   return copy(_options)
+end
+
+commandt.rg_finder = function(arg)
+  local directory = vim.trim(arg)
+  local ui = require('wincent.commandt.private.ui')
+  local options = commandt.options()
+  local finder = require('wincent.commandt.private.finders.rg')(directory, options)
+  ui.show(finder, merge(options, { name = 'rg' }))
 end
 
 commandt.setup = function(options)
