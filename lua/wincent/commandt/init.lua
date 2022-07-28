@@ -65,7 +65,7 @@ local default_options = {
     },
   },
   margin = 10,
-  never_show_dotfiles = false,
+  never_show_dot_files = false,
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
   open = function(item, kind)
@@ -179,13 +179,6 @@ commandt.setup = function(options)
   end
 
   options = options or {}
-  for k, _ in pairs(options) do
-    -- `n` is small, so not worried about `O(n)` check.
-    if not contains(allowed_options, k) then
-      -- TODO: suggest near-matches for misspelled option names
-      table.insert(errors, 'unrecognized option: ' .. k)
-    end
-  end
 
   _options = merge(_options, options)
 
@@ -197,58 +190,125 @@ commandt.setup = function(options)
     _options.smart_case = vim.o.smartcase
   end
 
-  if _options.always_show_dot_files == true and _options.never_show_dot_files == true then
-    table.insert(errors, '`always_show_dot_files` and `never_show_dot_files` should not both be true')
-    _options.always_show_dot_files = default_options.always_show_dot_files
-    _options.never_show_dot_files = default_options.never_show_dotfiles
+  -- Helper functions for validating options.
+  local report = function(message)
+    table.insert(errors, message)
   end
-  if _options.ignore_case ~= true and _options.ignore_case ~= false then
-    table.insert(errors, '`ignore_case` must be true or false')
-    _options.ignore_case = default_options.ignore_case
+  local last = function(list)
+    return list[#list]
   end
-  if not is_integer(_options.margin) or _options.margin < 0 then
-    table.insert(errors, '`margin` must be a non-negative integer')
-    _options.margin = default_options.margin
+  local split_option = function(option)
+    local segments = {}
+    -- Append trailing '.' to make it easier to split.
+    for segment in string.gmatch(option .. '.', '([%a%d_]+)%.') do
+      table.insert(segments, segment)
+    end
+    return segments
   end
-  if _options.order ~= 'forward' and _options.order ~= 'reverse' then
-    table.insert(errors, "`order` must be 'forward' or 'reverse'")
-    _options.order = default_options.order
-  end
-  if _options.position ~= 'bottom' and _options.position ~= 'center' and _options.position ~= 'top' then
-    table.insert(errors, "`position` must be 'bottom', 'center' or 'top'")
-    _options.position = default_options.position
-  end
-  if type(_options.scanners) ~= 'table' then
-    table.insert(errors, '`scanners` must be a table')
-    _options.scanners = copy(default_options.scanners)
-  else
-    if type(_options.scanners.git) ~= 'table' then
-      table.insert(errors, '`scanners.git` must be a table')
-      _options.scanners.git = copy(default_options.scanners.git)
-    else
-      if type(_options.scanners.git.submodules) ~= 'boolean' then
-        table.insert(errors, '`scanners.git.submodules` must be a boolean')
-        _options.scanners.git = default_options.scanners.git.submodules
-      end
-      if type(_options.scanners.git.untracked) ~= 'boolean' then
-        table.insert(errors, '`scanners.git.untracked` must be a boolean')
-        _options.scanners.git = default_options.scanners.git.untracked
-      end
-      if _options.scanners.git.submodules == true and _options.scanners.git.untracked == true then
-        table.insert(errors, '`scanners.git.submodules` and `scanners.git.untracked` should not both be true')
-        _options.scanners.git = default_options.scanners.git.submodules
-        _options.scanners.git = default_options.scanners.git.untracked
+  local pick = function(option, value, pop)
+    pop = pop ~= nil and pop or 0
+    local segments = split_option(option)
+    local result = value
+    for i, segment in ipairs(segments) do
+      if i <= #segments - pop then
+        assert(type(result) == 'table')
+        result = result[segment]
       end
     end
+    return result
   end
-  if _options.selection_highlight ~= nil and type(_options.selection_highlight) ~= 'string' then
-    table.insert(errors, '`selection_highlight` must be a string')
-    _options.selection_hightlight = default_options.selection_highlight
+  local reset = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    actual = pick(option, actual, 1)
+    actual[last(split_option(option))] = copy(pick(option, defaults))
   end
-  if _options.smart_case ~= true and _options.smart_case ~= false then
-    table.insert(errors, '`smart_case` must be true or false')
-    _options.smart_case = default_options.smart_case
+  local require_boolean = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    if type(pick(option, actual)) ~= 'boolean' then
+      report(string.format('`%s` must be true or false', option))
+      reset(option, actual, defaults)
+    end
   end
+  local require_one_of = function(option, choices, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local description = ''
+    local picked = pick(option, actual)
+    for i, choice in ipairs(choices) do
+      if picked == choice then
+        return
+      end
+      if i == 1 then
+        description = "'" .. choice .. "'"
+      elseif i == #choices then
+        description = description .. " or '" .. choice .. "'"
+      else
+        description = description .. ", '" .. choice .. "'"
+      end
+    end
+    report(string.format('`%s` must be %s', option, description))
+    reset(option, actual, defaults)
+  end
+  local require_positive_integer = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local picked = pick(option, actual)
+    if not is_integer(picked) or picked < 0 then
+      report(string.format('`%s` must be a non-negative integer', option))
+      reset(option, actual, defaults)
+    end
+  end
+  local require_string = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local picked = pick(option, actual)
+    if type(picked) ~= 'string' then
+      report(string.format('`%s` must be a string', option))
+      reset(option, actual, defaults)
+    end
+  end
+  local require_table = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local picked = pick(option, actual)
+    if type(picked) ~= 'table' then
+      report(string.format('`%s` must be a table', option))
+      reset(option, actual, defaults)
+    end
+  end
+
+  for k, _ in pairs(options) do
+    -- `n` is small, so not worried about `O(n)` check.
+    if not contains(allowed_options, k) then
+      -- TODO: suggest near-matches for misspelled option names
+      report('unrecognized option: ' .. k)
+    end
+  end
+
+  require_boolean('always_show_dot_files')
+  require_boolean('never_show_dot_files')
+  if _options.always_show_dot_files == true and _options.never_show_dot_files == true then
+    report('`always_show_dot_files` and `never_show_dot_files` should not both be true')
+    reset('always_show_dot_files')
+    reset('never_show_dot_files')
+  end
+  require_boolean('ignore_case')
+  require_positive_integer('margin')
+  require_one_of('order', { 'forward', 'reverse' })
+  require_one_of('position', { 'bottom', 'center', 'top' })
+  require_table('scanners')
+  require_table('scanners.git')
+  require_boolean('scanners.git.submodules')
+  require_boolean('scanners.git.untracked')
+  if _options.scanners.git.submodules == true and _options.scanners.git.untracked == true then
+    report('`scanners.git.submodules` and `scanners.git.untracked` should not both be true')
+    reset('scanners.git.submodules')
+    reset('scanners.git.untracked')
+  end
+  require_string('selection_highlight')
+  require_boolean('smart_case')
 
   if
     not pcall(function()
