@@ -33,129 +33,116 @@ static size_t buffer_size = 137438953472; // 128 GB.
 static const char *current_directory = ".";
 static const char *parent_directory = "..";
 
+// Forward declarations.
+static void visit_directory(str_t *dir, int fd, char *name, int depth, find_result_t *result);
+static void visit_file(str_t *dir, char *name, find_result_t *result);
+static void visit_link(str_t *dir, int fd, char *name, int depth, find_result_t *result);
+
 // TODO: make this visit(), and teach it to visit anything at all
 // which means if it is a file, return it
 // if it is a link, traverse it (recurse)
 // if it is a dir, recurse
-static void find(str_t *dir, int fd, int depth, find_result_t *result) {
+
+// TODO: may want to model this as a queue and do iteration instead of recursion
+static void visit_directory(str_t *dir, int fd, char *name, int depth, find_result_t *result) {
     if (depth < 0) {
         return;
+    }
+
+    // TODO: confirm this works if `name` refers to a non-broken symlink (may need to drop O_DIRECTORY)
+    // TODO: see what happens if `name` is a broken symlink
+    size_t previous_size = dir->length;
+    if (fd == -1){
+        fd = open(name, O_DIRECTORY | O_RDONLY);
+    } else {
+        fd = openat(fd, name, O_DIRECTORY | O_RDONLY);
+        str_append_char(dir, '/');
+    }
+    str_append(dir, name, strlen(name));
+
+    if (fd == -1) {
+        result->error = strerror(errno);
+        goto done;
     }
 
     DIR *stream = fdopendir(fd);
 
     if (stream == NULL) {
         result->error = strerror(errno);
-        return;
+        goto done;
     }
 
     struct dirent *entry;
-    while (result->count < MAX_FILES && (entry = readdir(stream)) != NULL) {
-        char *name = entry->d_name;
+    while (
+            result->count < MAX_FILES &&
+            !result->error &&
+            (entry = readdir(stream)) != NULL
+    ) {
         if (
-            strcmp(name, current_directory) == 0 ||
-            strcmp(name, parent_directory) == 0
+            strcmp(entry->d_name, current_directory) == 0 ||
+            strcmp(entry->d_name, parent_directory) == 0
         ) {
             continue;
         } else if (entry->d_type == DT_DIR) {
-            // Recurse.
-            size_t previous_size = dir->length;
-            str_append_char(dir, '/');
-            str_append(dir, name, strlen(name));
-
-            int dir_fd = openat(fd, name, O_DIRECTORY | O_RDONLY);
-            if (dir_fd == -1) {
-                result->error = strerror(errno);
-                return;
-            }
-
-            find(dir, dir_fd, depth - 1, result);
-
-            str_truncate(dir, previous_size);
-            if (close(dir_fd) == -1) {
-                result->error = strerror(errno);
-                return;
-            }
-            if (result->error) {
-                return;
-            }
+            visit_directory(dir, fd, entry->d_name, depth - 1, result);
         } else if (entry->d_type == DT_LNK) {
-            // Note all of this is probably racy.
-
-            int initial_depth = depth;
-            char *target = name;
-
-            // TODO: DRY this up; dir and file actions are quite repetitive
-            while (depth >= 0) {
-                struct stat buf;
-                if (fstatat(fd, target, &buf, 0) == -1) {
-                    // TODO: may just want to silently skip here
-                    result->error = strerror(errno);
-                    return;
-                }
-                if (S_ISREG(buf.st_mode)) {
-                    // Regular file.
-                    char *dest = result->count
-                        ? (char *)result->files[result->count - 1].contents
-                        : result->buffer;
-                    size_t length = strlen(target);
-                    str_t file = result->files[result->count];
-                    str_init(&file, dest, dir->length + 1 + length);
-                    dest = memcpy(dest, dir->contents, dir->length) + dir->length;
-                    dest[dir->length] = '/';
-                    memcpy(dest + 1, target, length);
-                    result->count++;
-
-                    break;
-                } else if (S_ISDIR(buf.st_mode)) {
-                    // Recurse.
-                    size_t previous_size = dir->length;
-                    str_append_char(dir, '/');
-                    str_append(dir, name, strlen(name));
-
-                    int dir_fd = openat(fd, name, O_DIRECTORY | O_RDONLY);
-                    if (dir_fd == -1) {
-                        result->error = strerror(errno);
-                        return;
-                    }
-
-                    find(dir, dir_fd, depth - 1, result);
-
-                    str_truncate(dir, previous_size);
-                    if (close(dir_fd) == -1) {
-                        result->error = strerror(errno);
-                        return;
-                    }
-                    if (result->error) {
-                        return;
-                    }
-
-                    break;
-                } else if (S_ISLNK(buf.st_mode)) {
-                    // TODO: update `target` to new value and loop again
-                    // (ie. stat again)
-                    return;
-                } else {
-                    break;
-                }
-            }
-            depth = initial_depth;
+            visit_link(dir, fd, entry->d_name, depth - 1, result);
         } else if (entry->d_type == DT_REG) {
-            // Regular file.
-            char *dest = result->count
-                ? (char *)result->files[result->count - 1].contents
-                : result->buffer;
-            size_t length = strlen(name);
-            str_t file = result->files[result->count];
-            str_init(&file, dest, dir->length + 1 + length);
-            dest = memcpy(dest, dir->contents, dir->length) + dir->length;
-            dest[dir->length] = '/';
-            memcpy(dest + 1, name, length);
-            result->count++;
+            visit_file(dir, entry->d_name, result);
         }
     }
     if (closedir(stream) == -1) {
         result->error = strerror(errno);
+    }
+
+done:
+    str_truncate(dir, previous_size);
+    if (fd != -1 && close(fd) == -1) {
+        result->error = strerror(errno);
+    }
+}
+
+static void visit_file(str_t *dir, char *name, find_result_t *result) {
+    char *dest = result->count
+        ? (char *)result->files[result->count - 1].contents
+        : result->buffer;
+    size_t length = strlen(name);
+    str_t file = result->files[result->count];
+    str_init(&file, dest, dir->length + 1 + length);
+    dest = memcpy(dest, dir->contents, dir->length) + dir->length;
+    dest[dir->length] = '/';
+    memcpy(dest + 1, name, length);
+    result->count++;
+}
+
+static void visit_link(str_t *dir, int fd, char *name, int depth, find_result_t *result) {
+    // BUG: note that all of this is probably super racy...
+    if (depth < 0) {
+        return;
+    }
+
+    struct stat buf;
+    if (fstatat(fd, name, &buf, 0) == -1) {
+        // TODO: may just want to silently skip here
+        result->error = strerror(errno);
+        return;
+    }
+    if (S_ISREG(buf.st_mode)) {
+        visit_file(dir, name, result);
+    } else if (S_ISDIR(buf.st_mode)) {
+        visit_directory(dir, fd, name, depth - 1, result);
+    } else if (S_ISLNK(buf.st_mode)) {
+        // TODO: readlink
+        ssize_t bufsize = PATH_MAX * 2;
+        char buf[bufsize];
+        ssize_t size = readlinkat(fd, name, buf, bufsize);
+        if (size == -1) {
+            result->error = strerror(errno);
+        } else if (size == bufsize) {
+            // Truncation may have occurred. Give up, like a coward.
+        } else {
+            visit_link(dir, fd, buf, depth - 1, result);
+        }
     }
 }
 
@@ -169,24 +156,12 @@ find_result_t *commandt_find(const char *dir) {
     result->buffer_size = buffer_size;
     result->buffer = xmap(result->buffer_size);
 
-    // TODO: confirm this works if `dir` refers to a non-broken symlink (may
-    // need to drop O_DIRECTORY)
-    // TODO: see what happens if `dir` is a broken symlink
-    int fd = open(dir, O_DIRECTORY | O_RDONLY);
-
-    if (fd == -1) {
-        result->error = strerror(errno);
-    } else {
-        str_t *str = str_new_size(PATH_MAX);
-        str_append(str, dir, strlen(dir));
-        // TODO: make this a param
-        find(str, fd, MAX_DEPTH, result);
-        str_free(str);
-
-        if (close(fd) == -1) {
-            result->error = strerror(errno);
-        }
-    }
+    // Start with PATH_MAX (which, infamously, may not be big enough);
+    // we'll grow it if need be.
+    str_t *str = str_new_size(PATH_MAX);
+    // TODO: make MAX_DEPTH a param
+    visit_directory(str, -1, (char *)dir, MAX_DEPTH, result);
+    str_free(str);
 
     // TODO: copy result->error so it can be `free'd` by caller.
     return result;
