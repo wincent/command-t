@@ -220,8 +220,7 @@ return {
     {
       name = 'watchman',
       source = 'wincent.commandt.private.scanners.watchman',
-      -- Not sure why this one is so slow in the suite; it feels fast interactively.
-      times = 5,
+      times = 100,
       skip_in_ci = true,
     },
   },
