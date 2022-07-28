@@ -16,6 +16,7 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for strerror() */
 #include <sys/mman.h> /* for munmap() */
+#include <sys/stat.h> /* for fstatat() */
 #include <sys/types.h> /* for DIR */
 #include <unistd.h> /* for close(), readlink() */
 
@@ -32,6 +33,10 @@ static size_t buffer_size = 137438953472; // 128 GB.
 static const char *current_directory = ".";
 static const char *parent_directory = "..";
 
+// TODO: make this visit(), and teach it to visit anything at all
+// which means if it is a file, return it
+// if it is a link, traverse it (recurse)
+// if it is a dir, recurse
 static void find(str_t *dir, int fd, int depth, find_result_t *result) {
     if (depth < 0) {
         return;
@@ -75,18 +80,66 @@ static void find(str_t *dir, int fd, int depth, find_result_t *result) {
                 return;
             }
         } else if (entry->d_type == DT_LNK) {
-            // Read link and recurse.
-            char buf[PATH_MAX + 1];
-            ssize_t siz = readlinkat(fd, name, buf, PATH_MAX);
-            if (siz == -1) {
-                result->error = strerror(errno);
-                return;
+            // Note all of this is probably racy.
+
+            int initial_depth = depth;
+            char *target = name;
+
+            // TODO: DRY this up; dir and file actions are quite repetitive
+            while (depth >= 0) {
+                struct stat buf;
+                if (fstatat(fd, target, &buf, 0) == -1) {
+                    // TODO: may just want to silently skip here
+                    result->error = strerror(errno);
+                    return;
+                }
+                if (S_ISREG(buf.st_mode)) {
+                    // Regular file.
+                    char *dest = result->count
+                        ? (char *)result->files[result->count - 1].contents
+                        : result->buffer;
+                    size_t length = strlen(target);
+                    str_t file = result->files[result->count];
+                    str_init(&file, dest, dir->length + 1 + length);
+                    dest = memcpy(dest, dir->contents, dir->length) + dir->length;
+                    dest[dir->length] = '/';
+                    memcpy(dest + 1, target, length);
+                    result->count++;
+
+                    break;
+                } else if (S_ISDIR(buf.st_mode)) {
+                    // Recurse.
+                    size_t previous_size = dir->length;
+                    str_append_char(dir, '/');
+                    str_append(dir, name, strlen(name));
+
+                    int dir_fd = openat(fd, name, O_DIRECTORY | O_RDONLY);
+                    if (dir_fd == -1) {
+                        result->error = strerror(errno);
+                        return;
+                    }
+
+                    find(dir, dir_fd, depth - 1, result);
+
+                    str_truncate(dir, previous_size);
+                    if (close(dir_fd) == -1) {
+                        result->error = strerror(errno);
+                        return;
+                    }
+                    if (result->error) {
+                        return;
+                    }
+
+                    break;
+                } else if (S_ISLNK(buf.st_mode)) {
+                    // TODO: update `target` to new value and loop again
+                    // (ie. stat again)
+                    return;
+                } else {
+                    break;
+                }
             }
-            buf[siz] = '\0';
-
-            // Recurse if dir, otherwise loop...
-
-            // TODO: finish this
+            depth = initial_depth;
         } else if (entry->d_type == DT_REG) {
             // Regular file.
             char *dest = result->count
