@@ -44,7 +44,12 @@ find_result_t *commandt_find(const char *dir) {
     size_t drop = strcmp(dir, current_directory) == 0 ? 2 : 0;
 
     char *paths[] = {copy, NULL};
-    FTS *handle = fts_open(paths, FTS_LOGICAL | FTS_NOSTAT, NULL);
+#ifdef FTS_NOSTAT_TYPE
+    int flags = FTS_LOGICAL | FTS_NOSTAT_TYPE;
+#else
+    int flags = FTS_LOGICAL | FTS_NOSTAT;
+#endif
+    FTS *handle = fts_open(paths, flags, NULL);
     if (handle == NULL) {
         result->error = strerror(errno);
     } else {
@@ -89,6 +94,10 @@ void commandt_find_result_free(find_result_t *result) {
 
 scanner_t *commandt_file_scanner(const char *dir) {
     find_result_t *result = commandt_find(dir);
+    // BUG: if there is an error here, we effectively swallow it...
+    if (result->error) {
+        DEBUG_LOG("%s\n", result->error);
+    }
     scanner_t *scanner = scanner_new(
         result->count,
         result->files,
