@@ -3,10 +3,18 @@
 
 local git = {}
 
-git.scanner = function(dir)
+git.scanner = function(dir, options)
   local lib = require('wincent.commandt.private.lib')
-  -- TODO: complexify the command here (account for submodules etc)
-  local command = 'git ls-files --exclude-standard -cz'
+  local command = 'git ls-files --exclude-standard --cached -z'
+  if options.submodules then
+    command = command .. ' --recurse-submodules'
+  elseif options.untracked then
+    command = command .. ' --untracked'
+  end
+  if dir ~= '' then
+    command = command .. ' -- ' .. dir
+  end
+  print(vim.inspect(command))
   local scanner = lib.scanner_new_command(command)
   return scanner
 end

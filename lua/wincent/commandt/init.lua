@@ -71,6 +71,12 @@ local default_options = {
   open = function(item, kind)
     commandt.open(item, kind)
   end,
+  scanners = {
+    git = {
+      submodules = true,
+      untracked = false,
+    },
+  },
   selection_highlight = 'PMenuSel',
   threads = nil, -- Let heuristic apply.
 }
@@ -193,24 +199,55 @@ commandt.setup = function(options)
 
   if _options.always_show_dot_files == true and _options.never_show_dot_files == true then
     table.insert(errors, '`always_show_dot_files` and `never_show_dot_files` should not both be true')
+    _options.always_show_dot_files = default_options.always_show_dot_files
+    _options.never_show_dot_files = default_options.never_show_dotfiles
   end
   if _options.ignore_case ~= true and _options.ignore_case ~= false then
     table.insert(errors, '`ignore_case` must be true or false')
+    _options.ignore_case = default_options.ignore_case
   end
   if not is_integer(_options.margin) or _options.margin < 0 then
     table.insert(errors, '`margin` must be a non-negative integer')
+    _options.margin = default_options.margin
   end
   if _options.order ~= 'forward' and _options.order ~= 'reverse' then
     table.insert(errors, "`order` must be 'forward' or 'reverse'")
+    _options.order = default_options.order
   end
   if _options.position ~= 'bottom' and _options.position ~= 'center' and _options.position ~= 'top' then
     table.insert(errors, "`position` must be 'bottom', 'center' or 'top'")
+    _options.position = default_options.position
+  end
+  if type(_options.scanners) ~= 'table' then
+    table.insert(errors, '`scanners` must be a table')
+    _options.scanners = copy(default_options.scanners)
+  else
+    if type(_options.scanners.git) ~= 'table' then
+      table.insert(errors, '`scanners.git` must be a table')
+      _options.scanners.git = copy(default_options.scanners.git)
+    else
+      if type(_options.scanners.git.submodules) ~= 'boolean' then
+        table.insert(errors, '`scanners.git.submodules` must be a boolean')
+        _options.scanners.git = default_options.scanners.git.submodules
+      end
+      if type(_options.scanners.git.untracked) ~= 'boolean' then
+        table.insert(errors, '`scanners.git.untracked` must be a boolean')
+        _options.scanners.git = default_options.scanners.git.untracked
+      end
+      if _options.scanners.git.submodules == true and _options.scanners.git.untracked == true then
+        table.insert(errors, '`scanners.git.submodules` and `scanners.git.untracked` should not both be true')
+        _options.scanners.git = default_options.scanners.git.submodules
+        _options.scanners.git = default_options.scanners.git.untracked
+      end
+    end
   end
   if _options.selection_highlight ~= nil and type(_options.selection_highlight) ~= 'string' then
     table.insert(errors, '`selection_highlight` must be a string')
+    _options.selection_hightlight = default_options.selection_highlight
   end
   if _options.smart_case ~= true and _options.smart_case ~= false then
     table.insert(errors, '`smart_case` must be true or false')
+    _options.smart_case = default_options.smart_case
   end
 
   if
