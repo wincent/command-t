@@ -12,6 +12,19 @@
 #ifndef STR_H
 #define STR_H
 
+// Define short names for convenience, but all external symbols need prefixes.
+#define str_new_copy commandt_str_new_copy
+#define str_new_size commandt_str_new_size
+#define str_init commandt_str_init
+#define str_init_copy commandt_str_init_copy
+#define str_new commandt_str_new
+#define str_append commandt_str_append
+#define str_append_char commandt_str_append_char
+#define str_append_str commandt_str_append_str
+#define str_truncate commandt_str_truncate
+#define str_free commandt_str_free
+#define str_c_string commandt_str_c_string
+
 #include <limits.h> /* for SSIZE_MAX */
 #include <stddef.h> /* for size_t */
 #include <sys/types.h> /* for ssize_t */

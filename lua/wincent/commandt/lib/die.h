@@ -6,6 +6,9 @@
 #ifndef DIE_H
 #define DIE_H
 
+// Define short name for convenience, but all external symbols need prefixes.
+#define die commandt_die
+
 /**
  * Prints the `reason` message (if supplied; otherwise it uses a default
  * message) and `error` details as obtained from `strerror()`, then aborts the

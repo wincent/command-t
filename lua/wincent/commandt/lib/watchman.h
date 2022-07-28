@@ -51,7 +51,7 @@ typedef struct {
      * Book-keeping needed for call to `free()`.
      */
     watchman_response_t *response;
-} watchman_query_result_t;
+} watchman_query_t;
 
 typedef struct {
     /**
@@ -71,7 +71,7 @@ typedef struct {
      * NULL on success, a description of the error otherwise.
      */
     const char *error;
-} watchman_watch_project_result_t;
+} watchman_watch_project_t;
 
 int commandt_watchman_connect(const char *socket_path);
 
@@ -93,29 +93,29 @@ int commandt_watchman_disconnect(int socket);
  *
  * As a performance optimization, the slab of memory allocated to hold
  * the response from the Watchman server is preserved and the returned
- * `watchman_query_result_t` struct contains `str_t` structs that
+ * `watchman_query_t` struct contains `str_t` structs that
  * reference the underlying memory in the slab, rather than allocating new
  * copies.  As such, if you need to access those strings after a call to
- * `commandt_watchman_query_result_free()`, you must make a copy.
+ * `commandt_watchman_query_free()`, you must make a copy.
  */
-watchman_query_result_t *commandt_watchman_query(
+watchman_query_t *commandt_watchman_query(
     const char *root,
     const char *relative_root,
     int socket
 );
 
-void commandt_watchman_query_result_free(watchman_query_result_t *result);
+void commandt_watchman_query_free(watchman_query_t *result);
 
 /**
  * Equivalent to `watchman watch-project /path/to/root`.
  */
-watchman_watch_project_result_t *commandt_watchman_watch_project(
+watchman_watch_project_t *commandt_watchman_watch_project(
     const char *root,
     int socket
 );
 
-void commandt_watchman_watch_project_result_free(
-    watchman_watch_project_result_t *result
+void commandt_watchman_watch_project_free(
+    watchman_watch_project_t *result
 );
 
 #endif

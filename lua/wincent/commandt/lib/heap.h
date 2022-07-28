@@ -12,6 +12,12 @@
 #ifndef HEAP_H
 #define HEAP_H
 
+// Define short names for convenience, but all external symbols need prefixes.
+#define heap_extract commandt_heap_extract
+#define heap_free commandt_heap_free
+#define heap_insert commandt_heap_insert
+#define heap_new commandt_heap_new
+
 typedef int (*heap_compare_entries)(const void *a, const void *b);
 
 typedef struct {

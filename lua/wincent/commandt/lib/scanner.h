@@ -9,6 +9,14 @@
 #include "commandt.h" /* for scanner_t */
 #include "str.h"
 
+// Define short names for convenience, but all external symbols need prefixes.
+#define scanner_new_copy commandt_scanner_new_copy
+#define scanner_new_command commandt_scanner_new_command
+#define scanner_new_str commandt_scanner_new_str
+#define scanner_new commandt_scanner_new
+#define scanner_dump commandt_scanner_dump
+#define scanner_free commandt_scanner_free
+
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.
  *

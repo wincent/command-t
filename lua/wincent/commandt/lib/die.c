@@ -7,6 +7,8 @@
 #include <stdlib.h> /* for abort() */
 #include <string.h> /* for strerror() */
 
+#include "die.h"
+
 void die(char *reason, int error) {
     if (reason) {
         fprintf(stderr, "die(): %s - %s\n", reason, strerror(error));

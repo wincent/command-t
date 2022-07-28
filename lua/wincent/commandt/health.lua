@@ -18,7 +18,7 @@ return {
 
     local lib = require('wincent.commandt.private.lib')
     local result, _ = pcall(function()
-      lib.commandt_epoch()
+      lib.epoch()
     end)
 
     if result then

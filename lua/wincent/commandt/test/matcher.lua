@@ -9,10 +9,10 @@ describe('matcher.c', function()
   local get_matcher = function(paths, options)
     options = options or {}
     local scanner = lib.scanner_new_copy(paths)
-    local matcher = lib.commandt_matcher_new(scanner, options)
+    local matcher = lib.matcher_new(scanner, options)
     return {
       match = function(query)
-        local results = lib.commandt_matcher_run(matcher, query)
+        local results = lib.matcher_run(matcher, query)
         local strings = {}
         for k = 0, results.count - 1 do
           local str = results.matches[k]

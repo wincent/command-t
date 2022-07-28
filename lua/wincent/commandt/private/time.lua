@@ -11,9 +11,9 @@ end
 
 time.wall = function(callback)
   local lib = require('wincent.commandt.private.lib')
-  local start_wall_s, start_wall_us = lib.commandt_epoch()
+  local start_wall_s, start_wall_us = lib.epoch()
   callback()
-  local end_wall_s, end_wall_us = lib.commandt_epoch()
+  local end_wall_s, end_wall_us = lib.epoch()
   if end_wall_us >= start_wall_s then
     end_wall_us = end_wall_us + 1000000
     end_wall_s = end_wall_s - 1

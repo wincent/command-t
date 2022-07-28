@@ -8,6 +8,7 @@
 #include <stdlib.h> /* for malloc(), realloc() */
 
 #include "die.h"
+#include "xmalloc.h"
 
 #define BUF_SIZE 256
 

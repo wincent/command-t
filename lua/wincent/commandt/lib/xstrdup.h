@@ -6,6 +6,9 @@
 #ifndef XSTRDUP_H
 #define XSTRDUP_H
 
+// Define short name for convenience, but all external symbols need prefixes.
+#define xstrdup commandt_xstrdup
+
 /**
  * `strdup()` wrapper that calls `abort()` if allocation fails.
  */

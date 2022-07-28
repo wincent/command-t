@@ -9,7 +9,7 @@ data_directory:prepend_to_package_path()
 local time = require('wincent.commandt.private.time')
 local lib = require('wincent.commandt.private.lib')
 
-lib.commandt_epoch() -- Force eager loading of C library.
+lib.epoch() -- Force eager loading of C library.
 
 local reduce = function(list, initial, cb)
   local acc = initial

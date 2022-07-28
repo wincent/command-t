@@ -32,7 +32,7 @@ benchmark({
 
   setup = function(config)
     local scanner = lib.scanner_new_copy(config.paths)
-    local matcher = lib.commandt_matcher_new(scanner, options)
+    local matcher = lib.matcher_new(scanner, options)
     return { matcher, scanner }
   end,
 
@@ -41,14 +41,14 @@ benchmark({
     for _, query in ipairs(config.queries) do
       local input = ''
       for letter in query:gmatch('.') do
-        local matches = lib.commandt_matcher_run(matcher, input)
+        local matches = lib.matcher_run(matcher, input)
         for k = 0, matches.count - 1 do
           local str = matches.matches[k]
           ffi.string(str.contents, str.length)
         end
         input = input .. letter
       end
-      local matches = lib.commandt_matcher_run(matcher, input)
+      local matches = lib.matcher_run(matcher, input)
       for k = 0, matches.count - 1 do
         local str = matches.matches[k]
         ffi.string(str.contents, str.length)

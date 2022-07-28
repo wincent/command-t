@@ -7,6 +7,8 @@
 #include <stdlib.h> /* for abort() */
 #include <string.h> /* for strdup() */
 
+#include "xstrdup.h"
+
 char *xstrdup(const char *str) {
     char *copy = strdup(str);
     if (copy == NULL) {

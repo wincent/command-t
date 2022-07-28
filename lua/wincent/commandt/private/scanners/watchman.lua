@@ -39,7 +39,7 @@ local get_socket = function()
       error('wincent.commandt.scanners.watchman.get_socket(): no sockname')
     end
     local lib = require('wincent.commandt.private.lib')
-    socket = lib.commandt_watchman_connect(name)
+    socket = lib.watchman_connect(name)
   end
   return socket
 end
@@ -69,7 +69,7 @@ end
 local query = function(root, relative_root)
   local lib = require('wincent.commandt.private.lib')
 
-  return lib.commandt_watchman_query(root, relative_root, get_socket())
+  return lib.watchman_query(root, relative_root, get_socket())
 end
 
 -- Equivalent to `watchman watch-project $root`.
@@ -78,7 +78,7 @@ end
 -- my be `nil`.
 local watch_project = function(root)
   local lib = require('wincent.commandt.private.lib')
-  return lib.commandt_watchman_watch_project(root, get_socket())
+  return lib.watchman_watch_project(root, get_socket())
 end
 
 -- BUG: We leak this forever, but I want its lifetime to be bonded to that of

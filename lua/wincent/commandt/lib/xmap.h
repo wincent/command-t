@@ -6,6 +6,10 @@
 #ifndef XMAP_H
 #define XMAP_H
 
+// Define short names for convenience, but all external symbols need prefixes.
+#define xmap commandt_xmap
+#define xmunmap commandt_xmunmap
+
 #include <stddef.h> /* for size_t */
 
 /**

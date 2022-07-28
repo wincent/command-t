@@ -6,6 +6,11 @@
 #ifndef XMALLOC_H
 #define XMALLOC_H
 
+// Define short names for convenience, but all external symbols need prefixes.
+#define xcalloc commandt_xcalloc
+#define xmalloc commandt_xmalloc
+#define xrealloc commandt_xrealloc
+
 #include <stddef.h> /* for size_t */
 
 /**

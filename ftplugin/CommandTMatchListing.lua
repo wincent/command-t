@@ -3,6 +3,7 @@
 
 vim.bo.bufhidden = 'wipe'
 vim.bo.textwidth = 0
+vim.wo.concealcursor = ''
 vim.wo.conceallevel = 0
 vim.wo.winhighlight = 'IncSearch:Normal,Search:Normal'
 vim.wo.wrap = false

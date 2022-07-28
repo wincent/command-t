@@ -8,6 +8,8 @@
 #include <stdlib.h> /* for abort() */
 #include <sys/mman.h> /* for mmap(), munmap() */
 
+#include "xmap.h"
+
 void *xmap(size_t size) {
     void *result = mmap(
         NULL,

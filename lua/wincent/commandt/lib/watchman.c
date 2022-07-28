@@ -114,7 +114,7 @@ int commandt_watchman_disconnect(int socket) {
     }
 }
 
-watchman_query_result_t *commandt_watchman_query(
+watchman_query_t *commandt_watchman_query(
     const char *root,
     const char *relative_root,
     int socket
@@ -151,7 +151,7 @@ watchman_query_result_t *commandt_watchman_query(
 
     // Process the response:
     //
-    watchman_query_result_t *result = xcalloc(1, sizeof(watchman_query_result_t));
+    watchman_query_t *result = xcalloc(1, sizeof(watchman_query_t));
     result->response = r;
     str_t *key = NULL;
     uint64_t count = watchman_read_object(r, &result->error);
@@ -223,7 +223,7 @@ done_no_copy:
     return result;
 }
 
-watchman_watch_project_result_t *commandt_watchman_watch_project(
+watchman_watch_project_t *commandt_watchman_watch_project(
     const char *root,
     int socket
 ) {
@@ -250,8 +250,8 @@ watchman_watch_project_result_t *commandt_watchman_watch_project(
     //       ...
     //     }
     //
-    watchman_watch_project_result_t *result =
-        xcalloc(1, sizeof(watchman_watch_project_result_t));
+    watchman_watch_project_t *result =
+        xcalloc(1, sizeof(watchman_watch_project_t));
     str_t *key = NULL;
     uint64_t count = watchman_read_object(r, &result->error);
     if (result->error) {
@@ -336,8 +336,8 @@ done_no_copy:
     return result;
 }
 
-void commandt_watchman_watch_project_result_free(
-    watchman_watch_project_result_t *result
+void commandt_watchman_watch_project_free(
+    watchman_watch_project_t *result
 ) {
     free((void *)result->watch);
     free((void *)result->relative_path);
@@ -345,7 +345,7 @@ void commandt_watchman_watch_project_result_free(
     free(result);
 }
 
-void commandt_watchman_query_result_free(watchman_query_result_t *result) {
+void commandt_watchman_query_free(watchman_query_t *result) {
     xmunmap(result->files, result->files_size);
     free(result->response);
     free((void *)result->error);
@@ -572,7 +572,7 @@ static str_t *watchman_read_string(watchman_response_t *r, const char **error) {
  * payload buffer, as a performance optimization. The downstream consumer of
  * this information (typically, the caller of `commandt_watchman_query()`)
  * will be responsible for freeing the payload all at once via a call to
- * `commandt_watchman_query_result_free()`.
+ * `commandt_watchman_query_free()`.
  *
  * The strings will _not_ be NUL-terminated, so callers should be careful not to
  * assume that any `str_t` `contents` field points at a NUL-terminated string.
