@@ -3,6 +3,8 @@
 
 local ffi = require('ffi')
 
+local help_opened = false
+
 return function(options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
@@ -19,11 +21,31 @@ return function(options)
     return strings
   end
   finder.open = function(item, kind)
+    local command = 'help'
+    if kind == 'split' then
+      -- Split is the default, so for this finder, we abuse "split" mode to do
+      -- the opposite of the default, using tricks noted in `:help help-curwin`.
+      --
+      -- See also: https://github.com/vim/vim/issues/7534
+      if not help_opened then
+        vim.cmd([[
+          silent noautocmd keepalt help
+          silent noautocmd keepalt helpclose
+        ]])
+        help_opened = true
+      end
+      if vim.fn.empty(vim.fn.getcompletion(item, 'help')) == 0 then
+        vim.cmd('silent noautocmd keepalt edit ' .. vim.o.helpfile)
+      end
+    elseif kind == 'tabedit' then
+      command = 'tab help'
+    elseif kind == 'vsplit' then
+      command = 'vertical help'
+    end
+
     -- E434 "Can't find tag pattern" is innocuous, so swallow it. For more
     -- context, see: https://github.com/autozimu/LanguageClient-neovim/pull/731
-    vim.cmd('try | help ' .. item .. ' | catch /E434/ | endtry')
-    -- TODO: see if I can do anything useful here...
-    --options.open(vim.fn.fnameescape(item), kind)
+    vim.cmd('try | ' .. command .. ' ' .. item .. ' | catch /E434/ | endtry')
   end
   return finder
 end
