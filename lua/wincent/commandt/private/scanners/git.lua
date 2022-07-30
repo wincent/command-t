@@ -4,6 +4,7 @@
 local git = {}
 
 git.scanner = function(dir, options)
+  options = options or {}
   local lib = require('wincent.commandt.private.lib')
   local command = 'git ls-files --exclude-standard --cached -z'
   if options.submodules then
@@ -14,7 +15,6 @@ git.scanner = function(dir, options)
   if dir ~= '' then
     command = command .. ' -- ' .. dir
   end
-  print(vim.inspect(command))
   local scanner = lib.scanner_new_command(command)
   return scanner
 end
