@@ -12,9 +12,9 @@ local commandt = {}
 
 local default_options = {
   always_show_dot_files = false,
+  finders = {},
   height = 15,
   ignore_case = nil, -- If nil, will infer from Neovim's `'ignorecase'`.
-  smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
 
   -- Note that because of the way we merge mappings recursively, you can _add_
   -- or _replace_ a mapping easily, but to _remove_ it you have to assign it to
@@ -78,6 +78,7 @@ local default_options = {
     },
   },
   selection_highlight = 'PMenuSel',
+  smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
   threads = nil, -- Let heuristic apply.
 }
 
@@ -101,8 +102,8 @@ commandt.default_options = function()
   return copy(default_options)
 end
 
-commandt.file_finder = function(arg)
-  local directory = vim.trim(arg)
+commandt.file_finder = function(directory)
+  directory = vim.trim(directory)
   if directory == '' then
     directory = '.'
   end
@@ -112,16 +113,27 @@ commandt.file_finder = function(arg)
   ui.show(finder, merge(options, { name = 'file' }))
 end
 
-commandt.find_finder = function(arg)
-  local directory = vim.trim(arg)
+commandt.find_finder = function(directory)
+  directory = vim.trim(directory)
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.find')(directory, options)
   ui.show(finder, merge(options, { name = 'find' }))
 end
 
-commandt.git_finder = function(arg)
-  local directory = vim.trim(arg)
+commandt.finder = function(name, directory)
+  local options = commandt.options()
+  if options.finders[name] == nil then
+    error('commandt.finder(): no finder registered with name ' .. tostring(name))
+  end
+  directory = vim.trim(directory)
+  local finder = require('wincent.commandt.private.finders.command')(directory, options, name)
+  local ui = require('wincent.commandt.private.ui')
+  ui.show(finder, merge(options, { name = name }))
+end
+
+commandt.git_finder = function(directory)
+  directory = vim.trim(directory)
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.git')(directory, options)
@@ -155,8 +167,8 @@ commandt.options = function()
   return copy(_options)
 end
 
-commandt.rg_finder = function(arg)
-  local directory = vim.trim(arg)
+commandt.rg_finder = function(directory)
+  directory = vim.trim(directory)
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.rg')(directory, options)
@@ -223,11 +235,29 @@ commandt.setup = function(options)
     actual = pick(option, actual, 1)
     actual[last(split_option(option))] = copy(pick(option, defaults))
   end
+  local optional_function = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local value = pick(option, actual)
+    if value ~= nil and type(value) ~= 'function' then
+      report(string.format('`%s` must be a function or nil', option))
+      reset(option, actual, defaults)
+    end
+  end
   local require_boolean = function(option, actual, defaults)
     actual = actual ~= nil and actual or _options
     defaults = defaults ~= nil and defaults or default_options
     if type(pick(option, actual)) ~= 'boolean' then
       report(string.format('`%s` must be true or false', option))
+      reset(option, actual, defaults)
+    end
+  end
+  local require_function_or_string = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local value = pick(option, actual)
+    if type(value) ~= 'function' and type(value) ~= 'string' then
+      report(string.format('`%s` must be a function or string', option))
       reset(option, actual, defaults)
     end
   end
@@ -310,6 +340,26 @@ commandt.setup = function(options)
   require_string('selection_highlight')
   require_boolean('smart_case')
 
+  for name, finder in pairs(options.finders) do
+    require_function_or_string('finders.' .. name .. '.command', nil, {
+      finders = {
+        [name] = {
+          command = 'true',
+        },
+      },
+    })
+    optional_function('finders.' .. name .. '.open', nil, {
+      finders = {
+        [name] = {},
+      },
+    })
+    for k, _ in pairs(finder) do
+      if not contains({ 'command', 'open' }, k) then
+        report(string.format('unrecognized option in `finders.%s`: %s)', name, k))
+      end
+    end
+  end
+
   if
     not pcall(function()
       local lib = require('wincent.commandt.private.lib') -- We can require it.
@@ -329,8 +379,8 @@ commandt.setup = function(options)
   end
 end
 
-commandt.watchman_finder = function(arg)
-  local directory = vim.trim(arg)
+commandt.watchman_finder = function(directory)
+  directory = vim.trim(directory)
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.watchman')(directory, options)
