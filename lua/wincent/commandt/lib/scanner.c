@@ -86,7 +86,7 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
         }
     }
 
-bail:
+bail: (void)0;
     int status = pclose(file);
     if (status == -1) {
         // Probably a `wait4()` call failed.
