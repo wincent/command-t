@@ -1,0 +1,106 @@
+---
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+Language: Cpp
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveMacros: None
+AlignEscapedNewlines: DontAlign
+AlignOperands: DontAlign
+AlignTrailingComments: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Attach
+BreakBeforeTernaryOperators: true
+BreakStringLiterals: false
+ColumnLimit: 80
+ContinuationIndentWidth: 4
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '<.+>'
+    Priority:        1
+  - Regex:           '".*"'
+    Priority:        2
+IndentCaseBlocks: true
+IndentCaseLabels: true
+IndentGotoLabels: false
+IndentPPDirectives: None
+IndentWidth: 4
+IndentWrappedFunctionNames: true
+#InsertBraces: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakComment: 100
+PenaltyBreakOpenParenthesis: 0
+PenaltyBreakString: 200
+PenaltyExcessCharacter: 10
+PenaltyReturnTypeOnItsOwnLine: 1000
+PenaltyIndentedWhitespace: 0
+
+PPIndentWidth: 0
+
+# int *a
+PointerAlignment: Right
+
+QualifierAlignment: Leave
+
+# int &a
+ReferenceAlignment: Right
+
+ReflowComments: false
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseSensitive
+
+# (int)a
+SpaceAfterCStyleCast: false
+
+# !a
+SpaceAfterLogicalNot: false
+
+# void *const *x
+SpaceAroundPointerQualifiers: Default
+
+# a = 1
+SpaceBeforeAssignmentOperators: true
+
+# case 1:
+SpaceBeforeCaseColon: false
+
+SpaceBeforeParens: ControlStatements
+SpaceBeforeSquareBrackets: false
+
+# void f() {}
+SpaceInEmptyBlock: false
+
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+
+# x = (int)y
+SpacesInCStyleCastParentheses: false
+
+# if (a) { ... }
+SpacesInConditionalStatement: false
+
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+
+SpacesInParentheses: false
+
+# int a[1]
+SpacesInSquareBrackets: false
+
+TabWidth: 4
+
+UseCRLF: false
+
+UseTab: Never

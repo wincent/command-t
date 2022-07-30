@@ -6,6 +6,8 @@
 // TODO: implement max_depth, max_files
 // TODO: implement scan_dot_directories
 
+#include "find.h"
+
 #include <assert.h> /* for assert() */
 #include <errno.h> /* for errno */
 #include <fts.h> /* for fts_close(), fts_open(), fts_read() */
@@ -13,7 +15,6 @@
 #include <string.h> /* for strcmp(), strerror() */
 
 #include "debug.h"
-#include "find.h"
 #include "scanner.h" /* for scanner_new() */
 #include "xmalloc.h"
 #include "xmap.h" /* for xmap(), xmunmap() */
@@ -55,7 +56,8 @@ find_result_t *commandt_find(const char *directory) {
         FTSENT *node;
         while ((node = fts_read(handle)) != NULL) {
             if (node->fts_info == FTS_F) {
-                size_t path_len = strlen(node->fts_path) + 1 - drop; // Include NUL byte.
+                size_t path_len =
+                    strlen(node->fts_path) + 1 - drop; // Include NUL byte.
                 if (buffer + path_len > result->buffer + result->buffer_size) {
                     // Would be decidedly odd to get here.
                     DEBUG_LOG("commandt_find(): slab allocation exhausted\n");
@@ -97,11 +99,7 @@ scanner_t *commandt_file_scanner(const char *directory) {
         DEBUG_LOG("%s\n", result->error);
     }
     scanner_t *scanner = scanner_new(
-        result->count,
-        result->files,
-        result->files_size,
-        result->buffer,
-        result->buffer_size
+        result->count, result->files, result->files_size, result->buffer, result->buffer_size
     );
     free((void *)result->error);
     free(result);

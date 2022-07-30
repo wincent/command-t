@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "commandt.h"
+
 #include <limits.h> /* for UINT_MAX */
 #include <stdio.h> /* for perror() */
 #include <string.h> /* for strerror() */
@@ -10,13 +12,11 @@
 #include <time.h> /* for CLOCK_REALTIME, clock_gettime() */
 #include <unistd.h> /* for _SC_NPROCESSORS_CONF, sysconf() */
 
-#include "commandt.h"
-
 benchmark_t commandt_epoch() {
     struct timespec t;
     benchmark_t result;
     if (clock_gettime(CLOCK_REALTIME, &t) == 0) {
-        result.seconds =  t.tv_sec;
+        result.seconds = t.tv_sec;
         result.microseconds = t.tv_nsec / 1000;
     } else {
         perror(strerror(errno));

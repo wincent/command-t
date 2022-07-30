@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "str.h"
+
 #include <assert.h> /* for assert() */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memcpy() */
 
-#include "str.h"
 #include "xmalloc.h"
 
 // When allocating memory, reserve a little more than was asked for,
@@ -73,7 +74,8 @@ void str_append(str_t *str, const char *source, size_t length) {
     size_t new_length = str->length + length;
     assert(new_length + NULL_PADDING < SSIZE_MAX);
     if (str->capacity < (ssize_t)(new_length + NULL_PADDING)) {
-        str->contents = xrealloc((void *)str->contents, new_length + STR_OVERALLOC);
+        str->contents =
+            xrealloc((void *)str->contents, new_length + STR_OVERALLOC);
         str->capacity = new_length + STR_OVERALLOC;
     }
     memcpy((void *)str->contents + str->length, source, length + NULL_PADDING);
@@ -85,7 +87,8 @@ void str_append_char(str_t *str, char c) {
     size_t new_length = str->length + 1;
     assert(new_length + NULL_PADDING < SSIZE_MAX);
     if (str->capacity < (ssize_t)(new_length + NULL_PADDING)) {
-        str->contents = xrealloc((void *)str->contents, new_length + STR_OVERALLOC);
+        str->contents =
+            xrealloc((void *)str->contents, new_length + STR_OVERALLOC);
         str->capacity = new_length + STR_OVERALLOC;
     }
     ((char *)str->contents)[str->length] = c;

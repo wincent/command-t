@@ -46,7 +46,6 @@ typedef struct {
  */
 str_t *str_new_copy(const char *source, size_t length);
 
-
 /**
  * Create a new blank `str_t` struct of the specified length.
  */

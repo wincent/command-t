@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "scanner.h"
+
 #include <assert.h> /* for assert() */
 #include <stddef.h> /* for NULL */
 #include <stdio.h> /* for fileno(), fprintf(), pclose(), popen(), stderr */
@@ -11,7 +13,6 @@
 #include <unistd.h> /* read() */
 
 #include "debug.h"
-#include "scanner.h"
 #include "xmalloc.h"
 #include "xmap.h" /* for xmap(), xmunmap() */
 
@@ -40,10 +41,14 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
 scanner_t *scanner_new_command(const char *command, unsigned drop) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
-    DEBUG_LOG("scanner_new_command() -> xmap() candidates %llu\n", scanner->candidates_size);
+    DEBUG_LOG(
+        "scanner_new_command() -> xmap() candidates %llu\n", scanner->candidates_size
+    );
     scanner->candidates = xmap(scanner->candidates_size);
     scanner->buffer_size = buffer_size;
-    DEBUG_LOG("scanner_new_command() -> xmap() buffer %llu\n", scanner->buffer_size);
+    DEBUG_LOG(
+        "scanner_new_command() -> xmap() buffer %llu\n", scanner->buffer_size
+    );
     scanner->buffer = xmap(scanner->buffer_size);
 
     FILE *file = popen(command, "r");
@@ -63,7 +68,7 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
         }
         end += read_count;
         while (start < end) {
-            if  (start[0] == 0) { // TODO: terminator may not always be NUL (-z)
+            if (start[0] == 0) { // TODO: terminator may not always be NUL (-z)
                 start++;
                 continue;
             }
@@ -74,7 +79,10 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
             char *path = start + drop;
             int length = next_end - start - drop;
             if (length < 0) {
-                DEBUG_LOG("commandt_scanner_new_command(): not enough output to skip %u characters\n", drop);
+                DEBUG_LOG(
+                    "commandt_scanner_new_command(): not enough output to skip %u characters\n",
+                    drop
+                );
                 goto bail;
             }
             start = next_end + 1;
@@ -86,13 +94,17 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
         }
     }
 
-bail: (void)0;
+bail:
+    (void)0;
     int status = pclose(file);
     if (status != 0) {
         // Degrade gracefully; either:
         // - status -1: probably a `wait4()` call failed; or:
         // - otherwise: command exited with this status.
-        DEBUG_LOG("commandt_scanner_new_command(): pclose() exited with %d status\n", status);
+        DEBUG_LOG(
+            "commandt_scanner_new_command(): pclose() exited with %d status\n",
+            status
+        );
     }
 
 out:
@@ -139,9 +151,7 @@ str_t *scanner_dump(scanner_t *scanner) {
     for (unsigned i = 0; i < scanner->count; i++) {
         str_append(dump, INDENT, strlen(INDENT));
         str_append(
-            dump,
-            scanner->candidates[i].contents,
-            scanner->candidates[i].length
+            dump, scanner->candidates[i].contents, scanner->candidates[i].length
         );
         str_append(dump, COMMA, 1);
         str_append(dump, NEWLINE, 1);

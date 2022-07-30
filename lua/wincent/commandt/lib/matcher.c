@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "matcher.h"
+
 #include <assert.h> /* for assert */
 #include <pthread.h> /* for pthread_create, pthread_join etc */
 #include <stdbool.h> /* for bool */
@@ -14,7 +16,6 @@
 #include "debug.h"
 #include "die.h"
 #include "heap.h"
-#include "matcher.h"
 #include "scanner.h"
 #include "score.h"
 #include "str.h" /* for str_t */
@@ -111,7 +112,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     if (matcher->ignore_case || matcher->smart_case) {
         for (size_t i = 0; i < needle_length; i++) {
             char c = needle_copy[i];
-            if (c >= 'A' && c <= 'Z' ) {
+            if (c >= 'A' && c <= 'Z') {
                 if (matcher->smart_case) {
                     ignore_case = false;
                     break;
@@ -146,7 +147,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
 
     if (matcher->last_needle) {
         // Will compare against previously computed haystack bitmasks.
-        matcher->needle_bitmask = calculate_bitmask(matcher->needle, needle_length);
+        matcher->needle_bitmask =
+            calculate_bitmask(matcher->needle, needle_length);
 
         // Check whether current search extends previous search; if so, we can
         // skip all the non-matches from last time without looking at them.
@@ -189,11 +191,17 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         if (i == worker_count - 1) {
             // For the last worker, we'll just use the main thread.
             heap_t *heap = get_matches(&worker_args[i]);
-            memcpy(matches + matches_count, heap->entries, heap->count * sizeof(haystack_t *));
+            memcpy(
+                matches + matches_count,
+                heap->entries,
+                heap->count * sizeof(haystack_t *)
+            );
             matches_count += heap->count;
             heap_free(heap);
         } else {
-            int err = pthread_create(&threads[i], NULL, get_matches, (void *)&worker_args[i]);
+            int err = pthread_create(
+                &threads[i], NULL, get_matches, (void *)&worker_args[i]
+            );
             if (err != 0) {
                 die("phthread_create() failed", err);
             }
@@ -206,7 +214,11 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         if (err != 0) {
             die("phtread_join() failed", err);
         }
-        memcpy(matches + matches_count, heap->entries, heap->count * sizeof(haystack_t *));
+        memcpy(
+            matches + matches_count,
+            heap->entries,
+            heap->count * sizeof(haystack_t *)
+        );
         matches_count += heap->count;
         heap_free(heap);
     }
@@ -286,7 +298,7 @@ static int cmp_score(const void *a, const void *b) {
     if (a_score > b_score) {
         return -1; // `a` should appear before `b`.
     } else if (a_score < b_score) {
-        return 1;  // `b` should appear before `a`.
+        return 1; // `b` should appear before `a`.
     } else {
         return cmp_alpha(a, b);
     }
@@ -324,7 +336,8 @@ static void *get_matches(void *worker_args) {
     // TODO benchmark different thread partitioning method
     // (intead of every nth item to a thread, break into blocks)
     // to see if cache characteristics improve the speed)
-    for (unsigned i = worker_index; i < matcher->scanner->count; i += worker_count) {
+    for (unsigned i = worker_index; i < matcher->scanner->count;
+         i += worker_count) {
         haystack_t *haystack = matcher->haystacks + i;
         if (matcher->needle_bitmask == UNSET_BITMASK) {
             haystack->bitmask = UNSET_BITMASK;

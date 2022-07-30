@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "watchman.h"
+
 #include <assert.h> /* for assert() */
 #include <fcntl.h> /* for F_GETFL, F_SETFL, O_NONBLOCK, fcntl() */
 #include <limits.h> /* for SSIZE_MAX */
@@ -16,7 +18,6 @@
 
 #include "debug.h"
 #include "str.h"
-#include "watchman.h"
 #include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
 #include "xmap.h" /* for xmap(), xmunmap() */
 #include "xstrdup.h" /* for xstrdup() */
@@ -36,7 +37,9 @@ static double watchman_read_double(watchman_response_t *r, const char **error);
 static int64_t watchman_read_int(watchman_response_t *r, const char **error);
 static uint64_t watchman_read_object(watchman_response_t *r, const char **error);
 static str_t *watchman_read_string(watchman_response_t *r, const char **error);
-static void watchman_read_string_no_copy(watchman_response_t *r, str_t *str, const char **error);
+static void watchman_read_string_no_copy(
+    watchman_response_t *r, str_t *str, const char **error
+);
 static void watchman_request_free(watchman_request_t *w);
 static watchman_request_t *watchman_request_init();
 static void watchman_response_free(watchman_response_t *r);
@@ -45,36 +48,38 @@ static void watchman_skip_value(watchman_response_t *r, const char **error);
 static void watchman_write_array(watchman_request_t *w, unsigned length);
 static void watchman_write_int(watchman_request_t *w, int64_t num);
 static void watchman_write_object(watchman_request_t *w, unsigned size);
-static void watchman_write_string(watchman_request_t *w, const char *string, size_t length);
+static void watchman_write_string(
+    watchman_request_t *w, const char *string, size_t length
+);
 
-#define WATCHMAN_DEFAULT_STORAGE    4096
+#define WATCHMAN_DEFAULT_STORAGE 4096
 
-#define WATCHMAN_BINARY_MARKER      "\x00\x01"
-#define WATCHMAN_ARRAY_MARKER       0x00
-#define WATCHMAN_OBJECT_MARKER      0x01
-#define WATCHMAN_STRING_MARKER      0x02
-#define WATCHMAN_INT8_MARKER        0x03
-#define WATCHMAN_INT16_MARKER       0x04
-#define WATCHMAN_INT32_MARKER       0x05
-#define WATCHMAN_INT64_MARKER       0x06
-#define WATCHMAN_DOUBLE_MARKER      0x07
-#define WATCHMAN_TRUE               0x08
-#define WATCHMAN_FALSE              0x09
-#define WATCHMAN_NIL                0x0a
-#define WATCHMAN_TEMPLATE_MARKER    0x0b
-#define WATCHMAN_SKIP_MARKER        0x0c
+#define WATCHMAN_BINARY_MARKER "\x00\x01"
+#define WATCHMAN_ARRAY_MARKER 0x00
+#define WATCHMAN_OBJECT_MARKER 0x01
+#define WATCHMAN_STRING_MARKER 0x02
+#define WATCHMAN_INT8_MARKER 0x03
+#define WATCHMAN_INT16_MARKER 0x04
+#define WATCHMAN_INT32_MARKER 0x05
+#define WATCHMAN_INT64_MARKER 0x06
+#define WATCHMAN_DOUBLE_MARKER 0x07
+#define WATCHMAN_TRUE 0x08
+#define WATCHMAN_FALSE 0x09
+#define WATCHMAN_NIL 0x0a
+#define WATCHMAN_TEMPLATE_MARKER 0x0b
+#define WATCHMAN_SKIP_MARKER 0x0c
 
 #define WATCHMAN_HEADER \
-        WATCHMAN_BINARY_MARKER \
-        "\x06" \
-        "\x00\x00\x00\x00\x00\x00\x00\x00"
+WATCHMAN_BINARY_MARKER "\x06\x00\x00\x00\x00\x00\x00\x00\x00"
 
 // How far we have to look to figure out the size of the PDU header.
-#define WATCHMAN_SNIFF_BUFFER_SIZE (sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t))
+#define WATCHMAN_SNIFF_BUFFER_SIZE \
+(sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t))
 
 // How far we have to peek, at most, to figure out the size of the PDU itself.
 #define WATCHMAN_PEEK_BUFFER_SIZE \
-    (sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(typeof(WATCHMAN_INT64_MARKER)) + sizeof(int64_t))
+(sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(typeof(WATCHMAN_INT64_MARKER)) + \
+ sizeof(int64_t))
 
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -115,9 +120,7 @@ int commandt_watchman_disconnect(int socket) {
 }
 
 watchman_query_t *commandt_watchman_query(
-    const char *root,
-    const char *relative_root,
-    int socket
+    const char *root, const char *relative_root, int socket
 ) {
     // Prepare the message.
     //
@@ -163,17 +166,16 @@ watchman_query_t *commandt_watchman_query(
         key = watchman_read_string(r, &result->error);
         if (result->error) {
             goto done;
-        } else if (
-            key->length == sizeof("files") - 1 &&
-            strncmp(key->contents, "files", key->length) == 0
-        ) {
+        } else if (key->length == sizeof("files") - 1 && strncmp(key->contents, "files", key->length) == 0) {
             assert(!result->files);
             uint64_t file_count = watchman_read_array(r, &result->error);
             if (result->error) {
                 goto done;
             }
             result->files_size = sizeof(str_t) * file_count;
-            DEBUG_LOG("commandt_watchman_query() -> xmap() %llu\n", result->files_size);
+            DEBUG_LOG(
+                "commandt_watchman_query() -> xmap() %llu\n", result->files_size
+            );
             result->files = xmap(result->files_size);
             for (uint64_t j = 0; j < file_count; j++) {
                 watchman_read_string_no_copy(r, &result->files[j], &result->error);
@@ -182,10 +184,7 @@ watchman_query_t *commandt_watchman_query(
                 }
             }
             result->count = file_count;
-        } else if (
-            key->length == sizeof("error") - 1 &&
-            strncmp(key->contents, "error", key->length) == 0
-        ) {
+        } else if (key->length == sizeof("error") - 1 && strncmp(key->contents, "error", key->length) == 0) {
             str_t *error = watchman_read_string(r, &result->error);
             if (result->error) {
                 goto done;
@@ -207,7 +206,8 @@ watchman_query_t *commandt_watchman_query(
         key = NULL;
     }
     if (!result->files) {
-        result->error = "commandt_watchman_query(): no \"files\" value in \"query\" response";
+        result->error =
+            "commandt_watchman_query(): no \"files\" value in \"query\" response";
         goto done;
     }
     assert(r->ptr == r->end);
@@ -224,8 +224,7 @@ done_no_copy:
 }
 
 watchman_watch_project_t *commandt_watchman_watch_project(
-    const char *root,
-    int socket
+    const char *root, int socket
 ) {
 #ifdef DEBUG
     DEBUG_LOG("watch-project %s\n", root);
@@ -262,30 +261,21 @@ watchman_watch_project_t *commandt_watchman_watch_project(
         key = watchman_read_string(r, &result->error);
         if (result->error) {
             goto done;
-        } else if (
-            key->length == sizeof("watch") - 1 &&
-            strncmp(key->contents, "watch", key->length) == 0
-        ) {
+        } else if (key->length == sizeof("watch") - 1 && strncmp(key->contents, "watch", key->length) == 0) {
             str_t *watch = watchman_read_string(r, &result->error);
             if (result->error) {
                 goto done;
             }
             result->watch = watch->contents;
             free(watch);
-        } else if (
-            key->length == sizeof("relative_path") - 1 &&
-            strncmp(key->contents, "relative_path", key->length) == 0
-        ) {
+        } else if (key->length == sizeof("relative_path") - 1 && strncmp(key->contents, "relative_path", key->length) == 0) {
             str_t *relative_path = watchman_read_string(r, &result->error);
             if (result->error) {
                 goto done;
             }
             result->relative_path = relative_path->contents;
             free(relative_path);
-        } else if (
-            key->length == sizeof("error") - 1 &&
-            strncmp(key->contents, "error", key->length) == 0
-        ) {
+        } else if (key->length == sizeof("error") - 1 && strncmp(key->contents, "error", key->length) == 0) {
             // Error may be something like:
             //
             //     std::system_error: open: : No such file or directory
@@ -318,7 +308,8 @@ watchman_watch_project_t *commandt_watchman_watch_project(
         key = NULL;
     }
     if (!result->watch) {
-        result->error = "commandt_watchman_watch_project(): no \"watch\" value in \"watch-project\" response";
+        result->error =
+            "commandt_watchman_watch_project(): no \"watch\" value in \"watch-project\" response";
         goto done;
     }
     assert(r->ptr == r->end);
@@ -336,9 +327,7 @@ done_no_copy:
     return result;
 }
 
-void commandt_watchman_watch_project_free(
-    watchman_watch_project_t *result
-) {
+void commandt_watchman_watch_project_free(watchman_watch_project_t *result) {
     free((void *)result->watch);
     free((void *)result->relative_path);
     free((void *)result->error);
@@ -421,7 +410,8 @@ static double watchman_read_double(watchman_response_t *r, const char **error) {
     assert(error != NULL);
     double val = 0.0;
 
-    if (r->ptr + sizeof(typeof(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) > r->end) {
+    if (r->ptr + sizeof(typeof(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) >
+        r->end) {
         *error = "watchman_read_double(): insufficient double storage";
         goto done;
     }
@@ -577,7 +567,9 @@ static str_t *watchman_read_string(watchman_response_t *r, const char **error) {
  * The strings will _not_ be NUL-terminated, so callers should be careful not to
  * assume that any `str_t` `contents` field points at a NUL-terminated string.
  */
-static void watchman_read_string_no_copy(watchman_response_t *r, str_t *str, const char **error) {
+static void watchman_read_string_no_copy(
+    watchman_response_t *r, str_t *str, const char **error
+) {
     assert(error != NULL);
     if (r->ptr >= r->end) {
         *error = "watchman_read_string_no_copy(): unexpected end of input";
@@ -653,7 +645,9 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
     }
 
     // Sniff to see how large the header is.
-    ssize_t received = recv(socket, r->payload, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL);
+    ssize_t received = recv(
+        socket, r->payload, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL
+    );
     if (received == -1 || received != WATCHMAN_SNIFF_BUFFER_SIZE) {
         return NULL;
     }
@@ -664,8 +658,8 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
         return NULL;
     }
     int8_t sizes[] = {0, 0, 0, 1, 2, 4, 8};
-    ssize_t peek_size = sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) +
-        sizes[sizes_idx];
+    ssize_t peek_size =
+        sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) + sizes[sizes_idx];
 
     received = recv(socket, r->payload, peek_size, MSG_PEEK);
     if (received == -1 || received != peek_size) {
@@ -833,7 +827,9 @@ static void watchman_write_object(watchman_request_t *w, unsigned size) {
 /**
  * Encodes and appends the string `string` to `w`
  */
-static void watchman_write_string(watchman_request_t *w, const char *string, size_t length) {
+static void watchman_write_string(
+    watchman_request_t *w, const char *string, size_t length
+) {
     watchman_append_char(w, WATCHMAN_STRING_MARKER);
     watchman_write_int(w, length);
     watchman_append(w, string, length);

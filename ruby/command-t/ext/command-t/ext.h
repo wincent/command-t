@@ -5,9 +5,9 @@
 
 #include <ruby.h>
 
-extern VALUE mCommandT;              // module CommandT
-extern VALUE cCommandTMatcher;       // class CommandT::Matcher
-extern VALUE mCommandTWatchman;      // module CommandT::Watchman
+extern VALUE mCommandT; // module CommandT
+extern VALUE cCommandTMatcher; // class CommandT::Matcher
+extern VALUE mCommandTWatchman; // module CommandT::Watchman
 extern VALUE mCommandTWatchmanUtils; // module CommandT::Watchman::Utils
 
 // Encapsulates common pattern of checking for an option in an optional
@@ -16,11 +16,14 @@ extern VALUE mCommandTWatchmanUtils; // module CommandT::Watchman::Utils
 VALUE CommandT_option_from_hash(const char *option, VALUE hash);
 
 // Debugging macros.
-#define L(...) { \
-    fprintf(stdout, __VA_ARGS__); \
-    fflush(stdout); \
-} while (0)
-#define RUBY_INSPECT(obj) do { \
-    rb_funcall(rb_mKernel, rb_intern("p"), 1, obj); \
-    fflush(stdout); \
+#define L(...) \
+{ \
+fprintf(stdout, __VA_ARGS__); \
+fflush(stdout); \
+} \
+while (0)
+#define RUBY_INSPECT(obj) \
+do { \
+rb_funcall(rb_mKernel, rb_intern("p"), 1, obj); \
+fflush(stdout); \
 } while (0)

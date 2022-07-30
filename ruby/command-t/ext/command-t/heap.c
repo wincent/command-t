@@ -3,9 +3,9 @@
  * SPDX-LicenseIdentifier: BSD-2-Clause
  */
 
-#include <stdlib.h> /* for free(), malloc(), NULL */
-
 #include "heap.h"
+
+#include <stdlib.h> /* for free(), malloc(), NULL */
 
 #define HEAP_PARENT(index) ((index - 1) / 2)
 #define HEAP_LEFT(index) (2 * index + 1)
@@ -104,24 +104,12 @@ void heap_insert(heap_t *heap, void *value) {
 void heap_heapify(heap_t *heap, long idx) {
     long left_idx = HEAP_LEFT(idx);
     long right_idx = HEAP_RIGHT(idx);
-    long smallest_idx =
-        right_idx < heap->count ?
+    long smallest_idx = right_idx < heap->count
+        ? (heap_compare(heap, left_idx, right_idx) > 0 ? left_idx : right_idx)
+        : left_idx < heap->count ? left_idx
+                                 : idx;
 
-        // Right (and therefore left) child exists.
-        (heap_compare(heap, left_idx, right_idx) > 0 ? left_idx : right_idx) :
-
-        left_idx < heap->count ?
-
-        // Only left child exists.
-        left_idx :
-
-        // No children exist.
-        idx;
-
-    if (
-        smallest_idx != idx &&
-        !heap_property(heap, idx, smallest_idx)
-    ) {
+    if (smallest_idx != idx && !heap_property(heap, idx, smallest_idx)) {
         // Swap with smallest_idx child.
         heap_swap(heap, idx, smallest_idx);
         heap_heapify(heap, smallest_idx);

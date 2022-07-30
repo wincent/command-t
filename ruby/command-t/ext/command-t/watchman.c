@@ -15,15 +15,15 @@
 #error no st.h header found
 #endif
 
-#include <stdint.h>     /* for uint8_t */
-#include <fcntl.h>      /* for fcntl() */
-#include <sys/errno.h>  /* for errno */
+#include <fcntl.h> /* for fcntl() */
+#include <stdint.h> /* for uint8_t */
+#include <sys/errno.h> /* for errno */
 #include <sys/socket.h> /* for recv(), MSG_PEEK */
 
 typedef struct {
-    uint8_t *data;  // payload
-    size_t cap;     // total capacity
-    size_t len;     // current length
+    uint8_t *data; // payload
+    size_t cap; // total capacity
+    size_t len; // current length
 } watchman_t;
 
 // Forward declarations:
@@ -32,32 +32,30 @@ void watchman_dump(watchman_t *w, VALUE serializable);
 
 #define WATCHMAN_DEFAULT_STORAGE 4096
 
-#define WATCHMAN_BINARY_MARKER   "\x00\x01"
-#define WATCHMAN_ARRAY_MARKER    0x00
-#define WATCHMAN_HASH_MARKER     0x01
-#define WATCHMAN_STRING_MARKER   0x02
-#define WATCHMAN_INT8_MARKER     0x03
-#define WATCHMAN_INT16_MARKER    0x04
-#define WATCHMAN_INT32_MARKER    0x05
-#define WATCHMAN_INT64_MARKER    0x06
-#define WATCHMAN_FLOAT_MARKER    0x07
-#define WATCHMAN_TRUE            0x08
-#define WATCHMAN_FALSE           0x09
-#define WATCHMAN_NIL             0x0a
+#define WATCHMAN_BINARY_MARKER "\x00\x01"
+#define WATCHMAN_ARRAY_MARKER 0x00
+#define WATCHMAN_HASH_MARKER 0x01
+#define WATCHMAN_STRING_MARKER 0x02
+#define WATCHMAN_INT8_MARKER 0x03
+#define WATCHMAN_INT16_MARKER 0x04
+#define WATCHMAN_INT32_MARKER 0x05
+#define WATCHMAN_INT64_MARKER 0x06
+#define WATCHMAN_FLOAT_MARKER 0x07
+#define WATCHMAN_TRUE 0x08
+#define WATCHMAN_FALSE 0x09
+#define WATCHMAN_NIL 0x0a
 #define WATCHMAN_TEMPLATE_MARKER 0x0b
-#define WATCHMAN_SKIP_MARKER     0x0c
+#define WATCHMAN_SKIP_MARKER 0x0c
 
 #define WATCHMAN_HEADER \
-        WATCHMAN_BINARY_MARKER \
-        "\x06" \
-        "\x00\x00\x00\x00\x00\x00\x00\x00"
+WATCHMAN_BINARY_MARKER "\x06\x00\x00\x00\x00\x00\x00\x00\x00"
 
-static const char watchman_array_marker  = WATCHMAN_ARRAY_MARKER;
-static const char watchman_hash_marker   = WATCHMAN_HASH_MARKER;
+static const char watchman_array_marker = WATCHMAN_ARRAY_MARKER;
+static const char watchman_hash_marker = WATCHMAN_HASH_MARKER;
 static const char watchman_string_marker = WATCHMAN_STRING_MARKER;
-static const char watchman_true          = WATCHMAN_TRUE;
-static const char watchman_false         = WATCHMAN_FALSE;
-static const char watchman_nil           = WATCHMAN_NIL;
+static const char watchman_true = WATCHMAN_TRUE;
+static const char watchman_false = WATCHMAN_FALSE;
+static const char watchman_nil = WATCHMAN_NIL;
 
 /**
  * Appends `len` bytes, starting at `data`, to the watchman_t struct `w`
@@ -253,7 +251,9 @@ int64_t watchman_load_int(char **ptr, char *end) {
             *ptr = val_ptr + sizeof(int64_t);
             break;
         default:
-            rb_raise(rb_eArgError, "bad integer marker 0x%02x", (unsigned int)*ptr[0]);
+            rb_raise(
+                rb_eArgError, "bad integer marker 0x%02x", (unsigned int)*ptr[0]
+            );
             break;
     }
 
@@ -536,7 +536,7 @@ VALUE CommandTWatchmanUtils_dump(VALUE self, VALUE serializable) {
 
     // prepare final return value
     serialized = rb_str_buf_new(w->len);
-    rb_str_buf_cat(serialized, (const char*)w->data, w->len);
+    rb_str_buf_cat(serialized, (const char *)w->data, w->len);
     watchman_free(w);
     return serialized;
 }
@@ -551,12 +551,12 @@ void watchman_raise_system_call_error(int number) {
 }
 
 // How far we have to look to figure out the size of the PDU header
-#define WATCHMAN_SNIFF_BUFFER_SIZE sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
+#define WATCHMAN_SNIFF_BUFFER_SIZE \
+sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
 
 // How far we have to peek, at most, to figure out the size of the PDU itself
 #define WATCHMAN_PEEK_BUFFER_SIZE \
-    sizeof(WATCHMAN_BINARY_MARKER) - 1 + \
-    sizeof(WATCHMAN_INT64_MARKER) + \
+sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(WATCHMAN_INT64_MARKER) + \
     sizeof(int64_t)
 
 /**
@@ -570,7 +570,7 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     char *payload;
     int fileno, flags;
     int8_t peek[WATCHMAN_PEEK_BUFFER_SIZE];
-    int8_t sizes[] = { 0, 0, 0, 1, 2, 4, 8 };
+    int8_t sizes[] = {0, 0, 0, 1, 2, 4, 8};
     int8_t sizes_idx;
     int8_t *pdu_size_ptr;
     int64_t payload_size;
@@ -593,12 +593,14 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     if (sent == -1) {
         watchman_raise_system_call_error(errno);
     } else if (sent != query_len) {
-        rb_raise(rb_eRuntimeError, "expected to send %ld bytes but sent %zd",
-            query_len, sent);
+        rb_raise(
+            rb_eRuntimeError, "expected to send %ld bytes but sent %zd", query_len, sent
+        );
     }
 
     // sniff to see how large the header is
-    received = recv(fileno, peek, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL);
+    received =
+        recv(fileno, peek, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL);
     if (received == -1) {
         watchman_raise_system_call_error(errno);
     } else if (received != WATCHMAN_SNIFF_BUFFER_SIZE) {
@@ -610,8 +612,8 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
     if (sizes_idx < WATCHMAN_INT8_MARKER || sizes_idx > WATCHMAN_INT64_MARKER) {
         rb_raise(rb_eRuntimeError, "bad PDU size marker");
     }
-    peek_size = sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) +
-        sizes[sizes_idx];
+    peek_size =
+        sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t) + sizes[sizes_idx];
 
     received = recv(fileno, peek, peek_size, MSG_PEEK);
     if (received == -1) {
@@ -620,17 +622,14 @@ VALUE CommandTWatchmanUtils_query(VALUE self, VALUE query, VALUE socket) {
         rb_raise(rb_eRuntimeError, "failed to peek at PDU header");
     }
     pdu_size_ptr = peek + sizeof(WATCHMAN_BINARY_MARKER) - sizeof(int8_t);
-    payload_size =
-        peek_size +
+    payload_size = peek_size +
         watchman_load_int((char **)&pdu_size_ptr, (char *)peek + peek_size);
 
     // actually read the PDU
     buffer = xmalloc(payload_size);
     if (!buffer) {
         rb_raise(
-            rb_eNoMemError,
-            "failed to allocate %lld bytes",
-            (long long int)payload_size
+            rb_eNoMemError, "failed to allocate %lld bytes", (long long int)payload_size
         );
     }
     received = recv(fileno, buffer, payload_size, MSG_WAITALL);

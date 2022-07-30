@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "score.h"
+
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for NULL */
 
 #include "debug.h"
-#include "score.h"
 
 // Use a struct to make passing params during recursion easier.
 typedef struct {
@@ -22,6 +23,7 @@ typedef struct {
     bool recurse;
     float *memo; // Memoization.
 } matchinfo_t;
+
 // TODO: see if can come up with a better name than matchinfo_t
 
 static float recursive_match(
@@ -48,12 +50,12 @@ static float recursive_match(
             c = m->needle_p[i];
             d = m->haystack->candidate->contents[j];
             if (d == '.') {
-                if (j == 0 || m->haystack->candidate->contents[j - 1] == '/') { // This is a dot-file.
+                if (j == 0 ||
+                    m->haystack->candidate->contents[j - 1] ==
+                        '/') { // This is a dot-file.
                     int dot_search = c == '.'; // Searching for a dot.
-                    if (
-                        m->never_show_dot_files ||
-                        (!dot_search && !m->always_show_dot_files)
-                    ) {
+                    if (m->never_show_dot_files ||
+                        (!dot_search && !m->always_show_dot_files)) {
                         return *memoized = 0.0f;
                     }
                 }
@@ -69,20 +71,13 @@ static float recursive_match(
                 if (distance > 1) {
                     float factor = 1.0f;
                     char last = m->haystack->candidate->contents[j - 1];
-                    char curr = m->haystack->candidate->contents[j]; // Case matters, so get again.
+                    char curr =
+                        m->haystack->candidate->contents[j]; // Case matters, so get again.
                     if (last == '/') {
                         factor = 0.9f;
-                    } else if (
-                        last == '-' ||
-                        last == '_' ||
-                        last == ' ' ||
-                        (last >= '0' && last <= '9')
-                    ) {
+                    } else if (last == '-' || last == '_' || last == ' ' || (last >= '0' && last <= '9')) {
                         factor = 0.8f;
-                    } else if (
-                        last >= 'a' && last <= 'z' &&
-                        curr >= 'A' && curr <= 'Z'
-                    ) {
+                    } else if (last >= 'a' && last <= 'z' && curr >= 'A' && curr <= 'Z') {
                         factor = 0.8f;
                     } else if (last == '.') {
                         factor = 0.7f;
@@ -95,7 +90,8 @@ static float recursive_match(
                 }
 
                 if (j < m->rightmost_match_p[i] && m->recurse) {
-                    float sub_score = recursive_match(m, j + 1, i, last_idx, score);
+                    float sub_score =
+                        recursive_match(m, j + 1, i, last_idx, score);
                     if (sub_score > seen_score) {
                         seen_score = sub_score;
                     }
@@ -124,7 +120,8 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
     m.needle_p = matcher->needle;
     m.needle_length = matcher->needle_length;
     m.rightmost_match_p = NULL;
-    m.max_score_per_char = (1.0f / m.haystack->candidate->length + 1.0f / m.needle_length) / 2;
+    m.max_score_per_char =
+        (1.0f / m.haystack->candidate->length + 1.0f / m.needle_length) / 2;
     m.always_show_dot_files = matcher->always_show_dot_files;
     m.never_show_dot_files = matcher->never_show_dot_files;
     m.ignore_case = ignore_case;
@@ -136,14 +133,16 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
         if (m.never_show_dot_files || !m.always_show_dot_files) {
             for (size_t i = 0; i < m.haystack->candidate->length; i++) {
                 char c = m.haystack->candidate->contents[i];
-                if (c == '.' && (i == 0 || m.haystack->candidate->contents[i - 1] == '/')) {
+                if (c == '.' &&
+                    (i == 0 || m.haystack->candidate->contents[i - 1] == '/')) {
                     return -1.0f;
                 }
             }
         }
     } else {
         if (haystack->bitmask != UNSET_BITMASK) {
-            if ((matcher->needle_bitmask & haystack->bitmask) != matcher->needle_bitmask) {
+            if ((matcher->needle_bitmask & haystack->bitmask) !=
+                matcher->needle_bitmask) {
                 return 0.0f;
             }
         }

@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "die.h"
+
 #include <stdio.h> /* for fprintf() */
 #include <stdlib.h> /* for abort() */
 #include <string.h> /* for strerror() */
-
-#include "die.h"
 
 void die(char *reason, int error) {
     if (reason) {

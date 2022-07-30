@@ -8,7 +8,7 @@
 
 #ifdef DEBUG
 
-#define DEBUG_LOG(format, ...)  debugLog(format __VA_OPT__(,) __VA_ARGS__);
+#define DEBUG_LOG(format, ...) debugLog(format __VA_OPT__(, ) __VA_ARGS__);
 
 /**
  * Log debug statements to a file, because anything we might log to stdout or
@@ -19,7 +19,7 @@ void debugLog(const char *format, ...);
 
 #else
 
-#define DEBUG_LOG(format, ...)  /* No logging outside of debug mode. */
+#define DEBUG_LOG(format, ...) /* No logging outside of debug mode. */
 
 #endif
 

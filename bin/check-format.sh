@@ -11,3 +11,5 @@ cd "$REPO_ROOT"
 stylua --check .
 
 npx -y prettier --list-different "**/*.md"
+
+find . -iname '*.[ch]' | xargs clang-format --dry-run

@@ -99,9 +99,7 @@ int commandt_watchman_disconnect(int socket);
  * `commandt_watchman_query_free()`, you must make a copy.
  */
 watchman_query_t *commandt_watchman_query(
-    const char *root,
-    const char *relative_root,
-    int socket
+    const char *root, const char *relative_root, int socket
 );
 
 void commandt_watchman_query_free(watchman_query_t *result);
@@ -110,12 +108,9 @@ void commandt_watchman_query_free(watchman_query_t *result);
  * Equivalent to `watchman watch-project /path/to/root`.
  */
 watchman_watch_project_t *commandt_watchman_watch_project(
-    const char *root,
-    int socket
+    const char *root, int socket
 );
 
-void commandt_watchman_watch_project_free(
-    watchman_watch_project_t *result
-);
+void commandt_watchman_watch_project_free(watchman_watch_project_t *result);
 
 #endif
