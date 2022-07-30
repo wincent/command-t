@@ -88,10 +88,11 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
 
 bail: (void)0;
     int status = pclose(file);
-    if (status == -1) {
-        // Probably a `wait4()` call failed.
-    } else if (status != 0) {
-        // Command exited with non-zero status. Again we degrade.
+    if (status != 0) {
+        // Degrade gracefully; either:
+        // - status -1: probably a `wait4()` call failed; or:
+        // - otherwise: command exited with this status.
+        DEBUG_LOG("commandt_scanner_new_command(): pclose() exited with %d status\n", status);
     }
 
 out:
