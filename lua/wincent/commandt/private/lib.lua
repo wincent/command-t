@@ -104,7 +104,7 @@ setmetatable(c, {
 
       // Scanner functions.
 
-      scanner_t *commandt_file_scanner(const char *dir);
+      scanner_t *commandt_file_scanner(const char *directory);
       scanner_t *commandt_scanner_new_command(const char *command, unsigned drop);
       scanner_t *commandt_scanner_new_copy(const char **candidates, unsigned count);
       scanner_t *commandt_scanner_new_str(str_t *candidates, unsigned count);
@@ -160,8 +160,8 @@ lib.epoch = function()
   return result['seconds'], result['microseconds']
 end
 
-lib.file_scanner = function(dir)
-  local scanner = c.commandt_file_scanner(dir)
+lib.file_scanner = function(directory)
+  local scanner = c.commandt_file_scanner(directory)
   ffi.gc(scanner, c.commandt_scanner_free)
   return scanner
 end

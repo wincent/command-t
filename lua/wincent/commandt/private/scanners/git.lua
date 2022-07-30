@@ -3,7 +3,7 @@
 
 local git = {}
 
-git.scanner = function(dir, options)
+git.scanner = function(directory, options)
   options = options or {}
   local lib = require('wincent.commandt.private.lib')
   local command = 'git ls-files --exclude-standard --cached -z'
@@ -12,8 +12,8 @@ git.scanner = function(dir, options)
   elseif options.untracked then
     command = command .. ' --untracked'
   end
-  if dir ~= '' then
-    command = command .. ' -- ' .. dir
+  if directory ~= '' then
+    command = command .. ' -- ' .. directory
   end
   local scanner = lib.scanner_new_command(command)
   return scanner

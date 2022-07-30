@@ -42,15 +42,15 @@ typedef struct {
     size_t buffer_size;
 } find_result_t;
 
-find_result_t *commandt_find(const char *dir);
+find_result_t *commandt_find(const char *directory);
 void commandt_find_result_free(find_result_t *result);
 
 /**
- * Wrapper that calls `commandt_find()` with `dir` to obtain a `find_result_t`.
+ * Wrapper that calls `commandt_find()` with `directory` to obtain a `find_result_t`.
  * It uses the contents of the `find_result_t` to create a new `scanner_t`.  The
  * new scanner takes ownership of the resources, which means you should call
  * `scanner_free()` on it.
  */
-scanner_t *commandt_file_scanner(const char *dir);
+scanner_t *commandt_file_scanner(const char *directory);
 
 #endif

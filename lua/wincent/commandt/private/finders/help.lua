@@ -8,7 +8,6 @@ local help_opened = false
 return function(options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  -- TODO: make `dir` actually do something here
   finder.scanner = require('wincent.commandt.private.scanners.help').scanner()
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)

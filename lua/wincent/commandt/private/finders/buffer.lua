@@ -6,7 +6,6 @@ local ffi = require('ffi')
 return function(options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  -- TODO: make `dir` actually do something here
   finder.scanner = require('wincent.commandt.private.scanners.buffer').scanner()
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)

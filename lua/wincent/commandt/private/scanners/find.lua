@@ -3,14 +3,14 @@
 
 local find = {}
 
--- Note: because `dir` is going to be interpolated into a command invocation, it
--- should be shell escaped before calling this scanner.
-find.scanner = function(dir)
+-- Note: because `directory` is going to be interpolated into a command
+-- invocation, it should be shell escaped before calling this scanner.
+find.scanner = function(directory)
   local drop = 0
-  if dir == '' or dir == '.' then
+  if directory == '' or directory == '.' then
     -- Drop 2 characters because `find` will prefix every result with "./",
     -- making it look like a dotfile.
-    dir = '.'
+    directory = '.'
     drop = 2
     -- TODO: decide what to do if somebody passes '..' or similar, because that
     -- will also make the results get filtered out as though they were dotfiles.
@@ -19,7 +19,7 @@ find.scanner = function(dir)
   end
   local lib = require('wincent.commandt.private.lib')
   -- TODO: support max depth, dot directory filter etc
-  local command = 'find -L ' .. dir .. ' -type f -print0'
+  local command = 'find -L ' .. directory .. ' -type f -print0'
   local scanner = lib.scanner_new_command(command, drop)
   return scanner
 end

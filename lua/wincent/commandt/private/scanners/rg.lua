@@ -3,17 +3,17 @@
 
 local rg = {}
 
--- Note: because `dir` is going to be interpolated into a command invocation, it
--- should be shell escaped before calling this scanner.
-rg.scanner = function(dir)
+-- Note: because `directory` is going to be interpolated into a command
+-- invocation, it should be shell escaped before calling this scanner.
+rg.scanner = function(directory)
   local drop = 0
-  if dir == '.' then
+  if directory == '.' then
     drop = 2
   end
   local lib = require('wincent.commandt.private.lib')
   local command = 'rg --files --null'
-  if #dir > 0 then
-    command = command .. ' ' .. dir
+  if #directory > 0 then
+    command = command .. ' ' .. directory
   end
   local scanner = lib.scanner_new_command(command, drop)
   return scanner

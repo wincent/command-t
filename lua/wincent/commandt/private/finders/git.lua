@@ -6,13 +6,13 @@ local ffi = require('ffi')
 -- TODO: eventually this will become a pure-C finder; for now we're just demoing
 -- the `command` scanner
 -- TODO: remember cached directories
-return function(dir, options)
-  if dir ~= '' then
-    dir = vim.fn.shellescape(dir)
+return function(directory, options)
+  if directory ~= '' then
+    directory = vim.fn.shellescape(directory)
   end
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  finder.scanner = require('wincent.commandt.private.scanners.git').scanner(dir, options.scanners.git)
+  finder.scanner = require('wincent.commandt.private.scanners.git').scanner(directory, options.scanners.git)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)

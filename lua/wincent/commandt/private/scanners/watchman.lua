@@ -85,9 +85,9 @@ end
 -- the scanner object
 local result = nil
 
-watchman.scanner = function(dir)
+watchman.scanner = function(directory)
   local lib = require('wincent.commandt.private.lib')
-  local project = watch_project(dir)
+  local project = watch_project(directory)
   if project.error then
     error(project.error)
     -- TODO: in the future (once Watchman is more solid), degrade gracefully

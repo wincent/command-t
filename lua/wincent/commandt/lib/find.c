@@ -24,7 +24,7 @@ static long MAX_FILES = 134217728; // 128 M candidates.
 static size_t buffer_size = 137438953472; // 128 GB.
 static const char *current_directory = ".";
 
-find_result_t *commandt_find(const char *dir) {
+find_result_t *commandt_find(const char *directory) {
     find_result_t *result = xcalloc(1, sizeof(find_result_t));
 
     // TODO: once i am passing in max_files, don't bother asking for MAX_FILES
@@ -37,10 +37,10 @@ find_result_t *commandt_find(const char *dir) {
     char *buffer = result->buffer;
 
     // TODO: make sure there is no trailing slash
-    char *copy = xstrdup(dir);
+    char *copy = xstrdup(directory);
 
     // Drop leading "./" if we're exploring current directory.
-    size_t drop = strcmp(dir, current_directory) == 0 ? 2 : 0;
+    size_t drop = strcmp(directory, current_directory) == 0 ? 2 : 0;
 
     char *paths[] = {copy, NULL};
 #ifdef FTS_NOSTAT_TYPE
@@ -90,8 +90,8 @@ void commandt_find_result_free(find_result_t *result) {
     free(result);
 }
 
-scanner_t *commandt_file_scanner(const char *dir) {
-    find_result_t *result = commandt_find(dir);
+scanner_t *commandt_file_scanner(const char *directory) {
+    find_result_t *result = commandt_find(directory);
     // BUG: if there is an error here, we effectively swallow it...
     if (result->error) {
         DEBUG_LOG("%s\n", result->error);
