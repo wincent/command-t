@@ -14,7 +14,7 @@ On Apple Silicon, where the `luajit` package is not currently available in Homeb
 export PATH="/opt/homebrew/opt/luajit-openresty/bin:$PATH"
 ```
 
-After which, `bin/benchmarks/matcher.lua` will work.
+After which, `bin/benchmarks/matcher.lua` (and `bin/benchmarks/scanner.lua`) will work.
 
 ### Debugging
 
@@ -24,7 +24,9 @@ gdb luajit
 (gdb) bt
 ```
 
-### Thread counts
+### Matcher benchmarks
+
+#### Thread counts
 
 We have a heuristic for guessing the "optimal" thread count based on the number of available cores reported by the operating system. The heuristic doesn't have to be perfect, it just has to be good enough, because users can always override it by explicitly providing a `threads` setting. In short the heuristic is:
 
@@ -35,7 +37,7 @@ Intuitively, the explanation for the heuristic is that, while the matching work 
 
 These particular numbers were captured during an extreme heat-wave, which does mean that thermal throttling effects are more likely to have had an effect (both in terms of reducing performance overall, but also increasing variability and sensitivity to things like gaps between benchmark runs), but also that the workload in some sense is useful as a truly "worst case" scenario.
 
-#### Mid-2015 15" MacBook Pro (Intel)
+##### Mid-2015 15" MacBook Pro (Intel)
 
 [According to EveryMac.com](https://everymac.com/systems/apple/macbook_pro/specs/macbook-pro-core-i7-2.8-15-dual-graphics-mid-2015-retina-display-specs.html):
 
@@ -57,7 +59,7 @@ n = 4: total 9.02153 11.54666 2.78264 [+8.9%]  0.0005 (3.17405) (4.23569) (1.263
 
 As expected, we see wall-clock time (the items in parentheses) going down as we add more threads, just as we see CPU time going up as we demand more CPU resources. We also see a statistically significant increase in time on the second `n = 4` run, which seems reasonable to attribute to thermal throttling. In any case, even the slower of the two `n = 4` runs is faster than the `n = 3` run, so it is clear that for this machine, setting `n` equal to the number of cores is best.
 
-#### 2020 13" MacBook Pro (M1)
+##### 2020 13" MacBook Pro (M1)
 
 This is an Apple Silicon with 8 cores (4 "performance" cores, 4 "efficiency" cores) as [described by EveryMac.com](https://everymac.com/systems/apple/macbook_pro/specs/macbook-pro-m1-8-core-13-2020-specs.html):
 
@@ -82,7 +84,7 @@ n = 8: total 7.01419 7.16561 0.24266  [+23.8%] 0.0005 (1.71194) (1.76068) (0.179
 
 Here we see the expected increase in CPU time as we add more cores, along with the improvement in wall-clock time. Notably, the wins from `n = 1` to `n = 4` are steady, presumably coming from usage of the performance cores. As we go beyond, to `n = 5` and above, things initially get slower and then start speeding up again. This is probably because adding efficiency cores initially brings overhead without much benefit, but by the time you get to `n = 8` is has eventually become worth it. For this machine, then, setting `n` equal to the number of cores seems best. One interesting detail about this machine: it is very consistent, if the tight standard deviation (`sd` in the data above) is anything to go by.
 
-## Codespace (32 "cores")
+##### Codespace (32 "cores")
 
 This is virtualized machine abstracted away from the real hardware. As such, I don't know much about what it _really_ is, nor how judiciously the host operating system is dispensing resources, or how heavily the host may be being loaded by other users, but the machine _does_ report having 32 cores.
 
@@ -107,7 +109,7 @@ n = 32: total 17.00941 19.39369 9.71603 [+11.8%]  0.0005 (3.85935) (5.37582) (6.
 
 Here the fastest value was seen at `n = 8` (`3.00s`), but there is very little spread overall between `n = 6` (`3.09s`) and `n = 14` (`3.18s`), `n = 14` being the thread count determined by the heuristic.
 
-#### Ryzen 5950X
+##### Ryzen 5950X
 
 From, [the horse's mouth](https://www.amd.com/en/products/cpu/amd-ryzen-9-5950x):
 
@@ -166,6 +168,95 @@ n = 14: total 6.63483 6.85217 0.49835  [-83.0%] 0.0005 (1.24134) (1.30750) (0.28
 
 On this machine, too, the value determined by the heuristic (ie. `n = 14`) produces an optimal result.
 
+### Scanner benchmarks
+
+#### Watchman
+
+Watchman is extremely sensitive to the specific watches you have configured. For example, with an almost empty `watchman watch-list`:
+
+```
+{
+    "version": "20220724.130242.0",
+    "roots": [
+        "/home/wincent/code/wincent/aspects/nvim/files/.config/nvim/pack/bundle/opt/command-t"
+    ]
+}
+```
+
+We get these results (CPU times on left, wall-clock times on right):
+
+```
+           best    avg      sd     +/-     p     (best)    (avg)      (sd)     +/-     p
+  buffer 0.02478 0.02688 0.01952 [+4.6%] 0.025 (0.02480) (0.02691) (0.01954) [+4.6%] 0.025
+    file 0.05376 0.05416 0.00115 [-0.1%]       (0.05396) (0.05433) (0.00125) [-0.1%]
+    find 0.02040 0.02102 0.00141 [-2.1%]  0.01 (0.20775) (0.21365) (0.01905) [-0.4%]
+     git 0.01841 0.01895 0.00173 [-3.1%] 0.005 (0.22503) (0.22822) (0.00925) [-0.6%] 0.025
+      rg 0.02004 0.02067 0.00127 [+0.4%]       (0.55998) (0.56965) (0.02087) [+0.3%]
+watchman 0.00181 0.00196 0.00110 [+3.3%]       (0.01737) (0.01890) (0.01657) [-2.1%]
+   total 0.14085 0.14365 0.01968 [+0.2%]       (1.09550) (1.11166) (0.03569) [+0.0%]
+```
+
+After adding a clone of the Linux kernel repo:
+
+```
+{
+    "version": "20220724.130242.0",
+    "roots": [
+        "/home/wincent/code/linux",
+        "/home/wincent/code/wincent/aspects/nvim/files/.config/nvim/pack/bundle/opt/command-t"
+    ]
+}
+```
+
+We get this, showing no performance impact:
+
+```
+           best    avg      sd     +/-      p     (best)    (avg)      (sd)     +/-     p
+  buffer 0.02498 0.02722 0.02081 [+1.2%]        (0.02501) (0.02724) (0.02082) [+1.2%]
+    file 0.05407 0.05444 0.00113 [+0.5%] 0.0005 (0.05425) (0.05463) (0.00115) [+0.5%] 0.005
+    find 0.02085 0.02126 0.00135 [+1.1%]  0.025 (0.20738) (0.21266) (0.01124) [-0.5%]
+     git 0.01886 0.01943 0.00295 [+2.5%]   0.01 (0.22544) (0.22914) (0.01174) [+0.4%]
+      rg 0.02007 0.02062 0.00104 [-0.3%]        (0.56322) (0.56808) (0.01408) [-0.3%]
+watchman 0.00174 0.00191 0.00084 [-2.8%]        (0.01726) (0.01880) (0.01426) [-0.6%]
+   total 0.14204 0.14487 0.02097 [+0.8%]   0.05 (1.10057) (1.11054) (0.03328) [-0.1%]
+```
+
+Now, if we add a "parent" watch that spans both of these (ie. watching my home directory):
+
+```
+{
+    "version": "20220724.130242.0",
+    "roots": [
+        "/home/wincent",
+        "/home/wincent/code/linux",
+        "/home/wincent/code/wincent/aspects/nvim/files/.config/nvim/pack/bundle/opt/command-t"
+    ]
+}
+```
+
+We get this, showing that performance really tanks — evidently, the `watch-project` functionality may well be saving memory in the presence of overlapping watches, but we are paying a high price for it (I am not sure whether this is happening inside Watchman itself, which is the one stripping the prefixes off the paths inside the nested watches, or in Command-T; the low CPU times and the high wall-clock times suggest that this is I/O-wait and it's Watchman that is busy):
+
+```
+           best    avg      sd      +/-      p     (best)      (avg)      (sd)      +/-      p
+  buffer 0.02704 0.03932 0.01764 [+30.8%] 0.0005  (0.02710)  (0.03935) (0.01761) [+30.8%] 0.0005
+    file 0.05443 0.05504 0.00191  [+1.1%] 0.0005  (0.05460)  (0.05537) (0.00193)  [+1.3%] 0.0005
+    find 0.02089 0.02166 0.00232  [+1.8%]  0.005  (0.21183)  (0.21780) (0.01705)  [+2.4%] 0.0005
+     git 0.01913 0.01964 0.00229  [+1.0%]         (0.22554)  (0.23022) (0.01509)  [+0.5%]
+      rg 0.02027 0.02075 0.00113  [+0.7%]  0.025  (0.55962)  (0.56885) (0.01878)  [+0.1%]
+watchman 0.00488 0.00784 0.00646 [+75.7%] 0.0005 (10.99634) (11.09394) (0.26660) [+99.8%] 0.0005
+   total 0.15397 0.16425 0.01712 [+11.8%] 0.0005 (12.10684) (12.20553) (0.27421) [+90.9%] 0.0005
+```
+
 ## TODO
 
 - Keep adding tests.
+
+  - Add integration tests (seeing as I removed vroom).
+
+- FEAT: toggle mark with space in normal mode to do a multiselection?
+
+- Lots of TODO sprinkled around the code
+
+- DOCS: write docs
+
+- TODO: teach "watchman" scanner not to bail trying to watch root of "/"
