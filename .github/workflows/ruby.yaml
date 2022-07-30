@@ -1,6 +1,15 @@
 name: ruby
 on: [push, pull_request]
 jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jidicula/clang-format-action@v4.8.0
+        with:
+          clang-format-version: "14"
+          check-path: ruby
+
   test:
     runs-on: ubuntu-latest
     steps:
