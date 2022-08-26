@@ -10,12 +10,6 @@ def version
   `git describe`.chomp
 end
 
-def rubygems_version
-  # RubyGems will barf if we try to pass an intermediate version number
-  # like "1.1b2-10-g61a374a", so no choice but to abbreviate it
-  `git describe --abbrev=0`.chomp
-end
-
 def yellow
   "\033[33m"
 end
@@ -45,8 +39,6 @@ task :help do
 The general release sequence is:
 
   rake prerelease
-  rake gem
-  rake push
 
 For a full list of available tasks:
 
@@ -61,6 +53,7 @@ task :spec do
   bail_on_failure
 end
 
+# TODO: move this _out_ of Rakefile
 desc 'Create archive'
 task :archive => :check_tag do
   system "git archive -o command-t-#{version}.zip HEAD -- ."
@@ -86,6 +79,7 @@ task :make do
   end
 end
 
+# TODO: move this _out_ of Rakefile
 desc 'Check that the current HEAD is tagged'
 task :check_tag do
   unless system 'git describe --exact-match HEAD 2> /dev/null'
@@ -93,19 +87,6 @@ task :check_tag do
   end
 end
 
+# TODO: move this _out_ of Rakefile
 desc 'Run checks prior to release'
 task :prerelease => [:make, :spec, :archive, :check_tag]
-
-desc 'Create the ruby gem package'
-task :gem => :check_tag do
-  Dir.chdir 'ruby/command-t' do
-    sh "gem build command-t.gemspec"
-  end
-end
-
-desc 'Push gem to Gemcutter ("gem push")'
-task :push => :gem do
-  Dir.chdir 'ruby/command-t' do
-    sh "gem push command-t-#{rubygems_version}.gem"
-  end
-end
