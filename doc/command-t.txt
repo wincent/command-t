@@ -7,19 +7,20 @@ CONTENTS                                        *command-t-contents*
  3. Installation                    |command-t-installation|
  4. Upgrading                       |command-t-upgrading|
  5. Trouble-shooting                |command-t-trouble-shooting|
- 6. Usage                           |command-t-usage|
- 7. Commands                        |command-t-commands|
- 8. Functions                       |command-t-functions|
- 9. Mappings                        |command-t-mappings|
-10. Options                         |command-t-options|
-11. FAQ                             |command-t-faq|
-12. Tips                            |command-t-tips|
-13. Authors                         |command-t-authors|
-14. Development                     |command-t-development|
-15. Website                         |command-t-website|
-16. Related projects                |command-t-related-projects|
-17. License                         |command-t-license|
-18. History                         |command-t-history|
+ 6. Known issues                    |command-t-known-issues|
+ 7. Usage                           |command-t-usage|
+ 8. Commands                        |command-t-commands|
+ 9. Functions                       |command-t-functions|
+10. Mappings                        |command-t-mappings|
+11. Options                         |command-t-options|
+12. FAQ                             |command-t-faq|
+13. Tips                            |command-t-tips|
+14. Authors                         |command-t-authors|
+15. Development                     |command-t-development|
+16. Website                         |command-t-website|
+17. Related projects                |command-t-related-projects|
+18. License                         |command-t-license|
+19. History                         |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -45,7 +46,7 @@ filename itself.
 REQUIREMENTS                                    *command-t-requirements*
 
 The core of Command-T is written in C for speed, and it optionally makes use
-of a number of external executables -- such as `git`, `rg`, and `watchman` --
+of a number of external programs -- such as `git`, `rg`, and `watchman` --
 for finding files.
 
 Run `:checkhealth wincent.commandt` to confirm that the C library has been
@@ -68,13 +69,18 @@ fallback, as described in |command-t-upgrading| below).
 
 UPGRADING                                       *command-t-upgrading*
 
-Until version 5.0, Command-T was written in a combination Ruby, Vimscript, and
-C, and was compatible with a range of versions of both Vim and Neovim. Back
-when the project started in 2010, Vim was at version 7 and Neovim did not
-exist yet. At that time, Ruby provided a convenient means of packaging
-high-performance C code inside a library that could be called from Vim,
-making Command-T the fastest fuzzy-finder by far. The downside was that it
-was hard to install because it required that care be taken to compile both
+This section details what has changed from version 5.x to 6.x, why, and how to
+update. For additional context see the blog post:
+
+  https://wincent.com/blog/command-t-lua-rewrite
+
+Up to and including version 5.0, Command-T was written in a combination Ruby,
+Vimscript, and C, and was compatible with a range of versions of both Vim
+and Neovim. Back when the project started (2010), Vim was at version 7 and
+Neovim did not exist yet. At that time, Ruby provided a convenient means of
+packaging high-performance C code inside a library that could be called from
+Vim, making Command-T the fastest fuzzy-finder by far. The downside was that
+it was hard to install because it required that care be taken to compile both
 Vim and Command-T with the exact same version of Ruby. Additionally, Vim did
 not yet provide handy abstractions for things like floating windows, which
 meant that a large fraction of the Command-T codebase was actually dedicated
@@ -86,7 +92,7 @@ with than Vimscript (infamous for its quirks), but the design was still fairly
 unorthodox; for example, the decision to capture query inputs by setting up
 mappings for individual keys (given that there was no actual input buffer)
 meant that some things that you might reasonably expect to work, like being
-able to copy and paste a query, did not work.
+able to copy and paste a query, did not always work.
 
 Since then, a number of things have occurred: competitive pressure from Neovim
 has lead to a proliferation of features in both editors, including floating
@@ -130,6 +136,7 @@ initial plan is to keep the Ruby code exactly where it is inside the plug-in
 and print a deprecation warning prompting people to either opt-in to continue
 using the old implementation, or otherwise opt-in to the new one.
 
+
 How to opt-in to remaining on the Ruby implementation ~
 
 Set:
@@ -149,6 +156,7 @@ The Lua implementation is still available for testing even when
 |g:CommandTPreferredImplementation| is set to `"ruby"`. For example, to use
 the Lua-powered version of |:CommandT| when Ruby is selected, invoke the
 command with the `:KommandT` alias instead.
+
 
 How to opt-in to switching to the Lua implementation ~
 
@@ -224,6 +232,21 @@ TROUBLE-SHOOTING                                *command-t-trouble-shooting*
 See also |command-t-ruby-trouble-shooting| for older trouble-shooting tips.
 
 
+KNOWN ISSUES                                    *command-t-known-issues*
+
+- There are many missing features in 6.x compared with 5.x.
+- Prior to 6.x the Watcman scanner would fall back to the `find`-based scanner
+  in the event of an error; 6.x does not yet implement any such fallback.
+- 5.x used to cache directory listings, requiring the use of |:CommandTFlush|
+  to force a re-scan. 6.x does not implement any such caching (which means
+  that results are always fresh, but on large directories the re-scanning may
+  introduce a noticeable delay).
+- Sometimes the results in the match listing are scrolled to the right,
+  causing the left edge to be cut off; I would love to fix this but haven't
+  identified a cause yet.
+- The documentation for 6.x (ie. this document) is still a work in progress.
+
+
 USAGE                                           *command-t-usage*
 
 See also |command-t-ruby-usage| for older usage information.
@@ -233,7 +256,7 @@ COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
 |:CommandT|         Brings up the Command-T file window, starting in the current
-                  working directory as returned by the|:pwd|
+                  working directory as returned by the |:pwd|
                   command.
 
                                                  *:CommandTBuffer*
@@ -272,9 +295,74 @@ are documented and they could change without notice at any time; for example:
 
                                                 *commandt.setup()*
 |commandt.setup()|
-
-...
-
+>
+    require('wincent.commandt').setup({
+      always_show_dot_files = false,
+      height = 15,
+      ignore_case = nil, -- nil means "infer from Neovim's 'ignorecase'".
+      mappings = {
+        i = {
+          ['<C-a>'] = '<Home>',
+          ['<C-c>'] = 'close',
+          ['<C-e>'] = '<End>',
+          ['<C-h>'] = '<Left>',
+          ['<C-j>'] = 'select_next',
+          ['<C-k>'] = 'select_previous',
+          ['<C-l>'] = '<Right>',
+          ['<C-n>'] = 'select_next',
+          ['<C-p>'] = 'select_previous',
+          ['<C-s>'] = 'open_split',
+          ['<C-t>'] = 'open_tab',
+          ['<C-v>'] = 'open_vsplit',
+          ['<CR>'] = 'open',
+          ['<Down>'] = 'select_next',
+          ['<Up>'] = 'select_previous',
+        },
+        n = {
+          ['<C-a>'] = '<Home>',
+          ['<C-c>'] = 'close',
+          ['<C-e>'] = '<End>',
+          ['<C-h>'] = '<Left>',
+          ['<C-j>'] = 'select_next',
+          ['<C-k>'] = 'select_previous',
+          ['<C-l>'] = '<Right>',
+          ['<C-n>'] = 'select_next',
+          ['<C-p>'] = 'select_previous',
+          ['<C-s>'] = 'open_split',
+          ['<C-t>'] = 'open_tab',
+          ['<C-u>'] = 'clear',
+          ['<C-v>'] = 'open_vsplit',
+          ['<CR>'] = 'open',
+          ['<Down>'] = 'select_next',
+          ['<Esc>'] = 'close',
+          ['<Up>'] = 'select_previous',
+          ['H'] = 'select_first',
+          ['M'] = 'select_middle',
+          ['G'] = 'select_last',
+          ['L'] = 'select_last',
+          ['gg'] = 'select_first',
+          ['j'] = 'select_next',
+          ['k'] = 'select_previous',
+        },
+      },
+      margin = 10,
+      never_show_dot_files = false,
+      order = 'forward', -- 'forward' or 'reverse'.
+      position = 'center', -- 'bottom', 'center' or 'top'.
+      open = function(item, kind)
+        commandt.open(item, kind)
+      end,
+      scanners = {
+        git = {
+          submodules = true,
+          untracked = false,
+        },
+      },
+      selection_highlight = 'PMenuSel',
+      smart_case = nil, -- nil means "infer from Neovim's 'smartcase'".
+      threads = nil, -- nil means "auto".
+    })
+<
 
 MAPPINGS                                        *command-t-mappings*
 
@@ -461,6 +549,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                         *command-t-history*
+
+6.0.0-a.0 (26 August 2022) ~
+
+- Rewrite in Lua; for more details see |command-t-upgrading|. Note that this
+  is an alpha release, so the new APIs are subject to change.
 
 5.0.5 (24 July 2022) ~
 

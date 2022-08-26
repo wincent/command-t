@@ -17,7 +17,22 @@ CONTENTS                                        *command-t-ruby-contents*
 
 INTRODUCTION                                    *command-t-ruby-intro*
 
-...
+Command-T was originally a Vim plug-in consisting of a mixture of Vimscript,
+Ruby code, and a C extension. As of version 6.x, the core has been rewritten
+in Lua, with performance-critical sections still implemented by a C library,
+and it explicitly targets Neovim alone.
+
+As described in this issue:
+
+  https://github.com/wincent/command-t/issues/391
+
+an effort has been made to ensure that the Ruby implementation continues to
+work during this transition, and in fact, you should be able to continue to
+use Command-T's Ruby-based implementation with Vim even in future releases.
+
+This document largely reflects the Command-T documentation as it existed in
+releases prior to 6.x. For documentation specifically focused on 6.x and
+above, please see |command-t.txt|.
 
 
 REQUIREMENTS                                    *command-t-ruby-requirements*
@@ -1189,6 +1204,7 @@ you might do: >
 
 FAQ                                             *command-t-ruby-faq*
 
+
 Why does my build fail with "unknown argument -multiply_definedsuppress"? ~
 
 You may see this on OS X Mavericks when building with the Clang compiler
@@ -1205,6 +1221,7 @@ Command-T), or more simply, building with the following `ARCHFLAGS` set:
 
   ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future ruby extconf.rb
   make
+
 
 Why can't I open in a split with <C-CR> and <C-s> in the terminal? ~
 
@@ -1226,6 +1243,7 @@ To disable flow control, add the following to your `.zshrc` or
 
 See the `stty` man page for more details.
 
+
 Why doesn't the Escape key close the match listing in terminal Vim? ~
 
 In some terminals such as xterm the Escape key misbehaves, so Command-T
@@ -1241,6 +1259,7 @@ platforms (OS X, CentOS etc).
 
 
 TIPS                                            *command-t-ruby-tips*
+
 
 Working with very large repositories ~
 
