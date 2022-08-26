@@ -550,6 +550,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+main (not yet released) ~
+
+- ...
+
 6.0.0-a.0 (26 August 2022) ~
 
 - Rewrite in Lua; for more details see |command-t-upgrading|. Note that this
