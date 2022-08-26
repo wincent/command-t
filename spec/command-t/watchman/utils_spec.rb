@@ -14,9 +14,9 @@ describe CommandT::Watchman::Utils do
 
   def little_endian?
     byte = [0xff00].pack('s')[0]
-    if byte.is_a?(Fixnum) # ie. Ruby 1.8
+    if byte.is_a?(Integer)
       byte.zero?
-    elsif byte.is_a?(String) # ie. Ruby >= 1.9
+    elsif byte.is_a?(String)
       byte == "\x00"
     else
       raise 'unable to determine endianness'
