@@ -84,6 +84,7 @@ describe CommandT::Controller do
   end
 
   def stub_vim(working_directory)
+    $curbuf = {}
     allow($curbuf).to receive(:number).and_return('0')
     allow(::VIM).to receive(:command).with(/noremap/)
     allow(::VIM).to receive(:command).with('silent b 0')
