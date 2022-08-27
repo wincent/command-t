@@ -74,9 +74,9 @@ update. For additional context see the blog post:
 
   https://wincent.com/blog/command-t-lua-rewrite
 
-Up to and including version 5.0, Command-T was written in a combination Ruby,
-Vimscript, and C, and was compatible with a range of versions of both Vim
-and Neovim. Back when the project started (2010), Vim was at version 7 and
+Up to and including version 5.0, Command-T was written in a combination of
+Ruby, Vimscript, and C, and was compatible with a range of versions of both
+Vim and Neovim. Back when the project started (2010), Vim was at version 7 and
 Neovim did not exist yet. At that time, Ruby provided a convenient means of
 packaging high-performance C code inside a library that could be called from
 Vim, making Command-T the fastest fuzzy-finder by far. The downside was that
@@ -85,7 +85,7 @@ Vim and Command-T with the exact same version of Ruby. Additionally, Vim did
 not yet provide handy abstractions for things like floating windows, which
 meant that a large fraction of the Command-T codebase was actually dedicated
 to micromanaging windows, buffers and splits, so that it could create the
-illusion of rendering a separate a match listing interface without interfering
+illusion of rendering a separate match listing interface without interfering
 with existing buffers, splits, and settings. Most of this code was written in
 Ruby (a "real" programming language), which was a bit more pleasant to work
 with than Vimscript (infamous for its quirks), but the design was still fairly
