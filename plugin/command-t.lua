@@ -28,7 +28,7 @@ else
   CommandTFind = 'KommandTFind'
   CommandTGit = 'KommandTGit'
   CommandTHelp = 'KommandTHelp'
-  CommandTRipgrep = 'CommandTRipgrep'
+  CommandTRipgrep = 'KommandTRipgrep'
   CommandTWatchman = 'KommandTWatchman'
 end
 
