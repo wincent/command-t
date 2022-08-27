@@ -208,12 +208,11 @@ following to your |vimrc| or some other file that gets loaded during
 
 What happens if you don't explicitly opt-in to either implementation ~
 
-The first time you open Neovim, Command-T will show a message prompting you to
-choose an implementation via one of the above means. You can either follow
-this prompt, or elect to suppress it in the future by settings:
->
-    let g:CommandTSuppressRubyDeprecationWarning=1
-<
+When you open Neovim, Command-T will show a message prompting you to choose an
+implementation via one of the above means. You can either follow this prompt,
+or ignore it, but it will appear every time that you open Neovim until you
+make a decision.
+
 If you don't opt-in explicitly, Command-T version 6.0 will behave as though
 you had chosen Ruby. Starting with version 7.0, it will behave as though you
 had chosen Lua.
@@ -221,7 +220,7 @@ had chosen Lua.
 If you are running Vim instead of Neovim, Command-T will behave as though you
 had chosen Ruby.
 
-If you wish to ignore the entire business of upgrading, you can set up your
+If you wish to avoid the entire business of upgrading, you can set up your
 plug-in manager to track the Command-T `5-x-release` branch instead of `main`.
 That branch only contains the Ruby code, and none of the Lua changes that
 started with the 6.0 release.
