@@ -340,7 +340,7 @@ commandt.setup = function(options)
   require_string('selection_highlight')
   require_boolean('smart_case')
 
-  for name, finder in pairs(options.finders) do
+  for name, finder in pairs(options.finders or {}) do
     require_function_or_string('finders.' .. name .. '.command', nil, {
       finders = {
         [name] = {
