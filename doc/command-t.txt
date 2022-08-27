@@ -255,8 +255,9 @@ COMMANDS                                        *command-t-commands*
 
                                                 *:CommandT*
 |:CommandT|         Brings up the Command-T file window, starting in the current
-                  working directory as returned by the |:pwd|
-                  command.
+                  working directory as returned by the |:pwd| command. Scans
+                  for files using the `fts` facilities provided by the C
+                  standard library.
 
                                                  *:CommandTBuffer*
 |:CommandTBuffer|   Brings up the Command-T buffer window.
@@ -264,11 +265,33 @@ COMMANDS                                        *command-t-commands*
                   except that the selection is limited to files that
                   you already have open in buffers.
 
+                                                *:CommandTFind*
+|:CommandTFind|     Brings up the Command-T file window, starting in the current
+                  working directory as returned by the |:pwd| command. Scans
+                  for files by executing the `find` executable.
+
+                                                *:CommandTGit*
+|:CommandTGit|      Brings up the Command-T file window, starting in the current
+                  working directory as returned by the |:pwd| command. Scans
+                  for files using `git`, so only works inside Git
+                  repositories.
+
                                                  *:CommandTHelp*
 |:CommandTHelp|     Brings up the Command-T help search window. This works
                   exactly like the standard file window, except that it shows
                   help topics found in any documentation under Vim's
                   |'runtimepath'|.
+
+                                                *:CommandTRipgrep*
+|:CommandTRipgrep|  Brings up the Command-T file window, starting in the current
+                  working directory as returned by the |:pwd| command. Scans
+                  for files using `rg`.
+
+                                                *:CommandTWatchman*
+|:CommandTWatchman| Brings up the Command-T file window, starting in the current
+                  working directory as returned by the |:pwd| command. Scans
+                  for files by connecting to the `watchman` daemon, which must
+                  be installed on your system.
 
 See also |command-t-ruby-commands| for commands that exist specifically within
 the Ruby-powered version of Command-T.
