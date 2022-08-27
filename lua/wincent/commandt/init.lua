@@ -178,13 +178,7 @@ end
 commandt.setup = function(options)
   local errors = {}
 
-  if vim.g.command_t_loaded == 1 then
-    -- May not be an error if you (for whatever reason) are calling `setup()`
-    -- twice (ie. later on during a session), but it's presumed that if you're
-    -- doing that, you know enough about what you're doing not to understand
-    -- that this error message is nothing to worry about.
-    table.insert(errors, '`commandt.setup()` was called after Ruby plugin setup has already run')
-  elseif vim.g.CommandTPreferredImplementation == 'ruby' then
+  if vim.g.CommandTPreferredImplementation == 'ruby' then
     table.insert(errors, '`commandt.setup()` was called, but `g:CommandTPreferredImplementation` is set to "ruby"')
   else
     vim.g.CommandTPreferredImplementation = 'lua'
