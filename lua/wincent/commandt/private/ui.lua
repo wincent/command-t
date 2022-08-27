@@ -11,6 +11,8 @@ local current_finder = nil -- Reference to avoid premature garbage collection.
 local current_window = nil
 local match_listing = nil
 local prompt = nil
+local results = nil
+local selected = nil
 
 -- Reverses `list` in place.
 local reverse = function(list)
@@ -55,6 +57,17 @@ local close = function()
   end
 end
 
+ui.open = function(kind)
+  close()
+  if results and #results > 0 then
+    -- Defer, to give autocommands a chance to run.
+    local result = results[selected]
+    vim.defer_fn(function()
+      current_finder.open(result, kind)
+    end, 0)
+  end
+end
+
 -- TODO save/restore global options, like `hlsearch' (which we want to turn off
 -- temporarily when our windows are visible) — either that, or figure out how to
 -- make the highlighting not utterly suck.
@@ -65,7 +78,6 @@ ui.show = function(finder, options)
 
   current_window = vim.api.nvim_get_current_win()
 
-  assert(current_finder) -- Avoid Lua warning about unused local.
   match_listing = MatchListing.new({
     height = options.height,
     margin = options.margin,
@@ -74,8 +86,8 @@ ui.show = function(finder, options)
   })
   match_listing:show()
 
-  local results = nil
-  local selected = nil
+  results = nil
+  selected = nil
   prompt = Prompt.new({
     height = options.height,
     mappings = options.mappings,
@@ -98,16 +110,7 @@ ui.show = function(finder, options)
     on_leave = close,
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
-    on_open = function(kind)
-      close()
-      if results and #results > 0 then
-        -- Defer, to give autocommands a chance to run.
-        local result = results[selected]
-        vim.defer_fn(function()
-          finder.open(result, kind)
-        end, 0)
-      end
-    end,
+    on_open = ui.open,
     on_select = function(choice)
       if results and #results > 0 then
         if choice.absolute then
