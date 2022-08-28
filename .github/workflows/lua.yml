@@ -49,7 +49,7 @@ jobs:
           popd
 
       - name: Run unit tests (debug)
-        run: bin/test.sh
+        run: bin/test
 
       - name: Run stress tests (debug, benchmarks)
         run: TIMES=1 bin/benchmarks/matcher.lua

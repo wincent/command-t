@@ -6,7 +6,7 @@
 if #arg == 0 then
   -- We use a wrapper script because Lua doesn't provide any built-in APIs for
   -- reading directories.
-  print('test.lua: please execute using the test.sh wrapper script')
+  print('test.lua: please execute using the `test` wrapper script')
   os.exit(1)
 end
 
