@@ -30,7 +30,7 @@ brew install --cask virtualbox
 ## Creating a Vagrant VM
 
 ```bash
-vagrant init hashicorp/bionic64
+vagrant init hashicorp/bionic64 # First time only; creates Vagrantfile.
 vagrant up
 vagrant ssh
 ```
@@ -66,17 +66,50 @@ make CMAKE_BUILD_TYPE=RelWithDebInfo
 sudo make install
 ```
 
-## Installing Command-T and other dependencies
+## Installing Command-T and other dependencies manually
+
+Manual install:
 
 ```bash
-mkdir -p ~/.config/nvim/pack/bundle/start
-git clone https://github.com/wincent/command-t ~/.config/nvim/pack/bundle/start/command-t
+BUNDLE=$HOME/.config/nvim/pack/bundle/start
+mkdir -p $BUNDLE
+git clone --depth 1 https://github.com/wincent/command-t $BUNDLE/command-t
 echo "require('wincent.commandt').setup()" > ~/.config/nvim/init.lua
-(cd /home/vagrant/.config/nvim/pack/bundle/start/command-t/lua/wincent/commandt/lib && make)
+(cd $BUNDLE/command-t/lua/wincent/commandt/lib && make)
 
 # Also install any other plug-ins that might be needed to reproduce a problem; eg:
-git clone https://github.com/jiangmiao/auto-pairs ~/.config/nvim/pack/bundle/start/auto-pairs
+
+git clone --depth 1 https://github.com/jiangmiao/auto-pairs $BUNDLE/auto-pairs
 ```
+
+## Installing Command-T using Packer
+
+For reproducing reports like [this one](https://github.com/wincent/command-t/issues/393#issuecomment-1229541720).
+
+```bash
+BUNDLE=$HOME/.config/nvim/pack/bundle/start
+mkdir -p $BUNDLE
+git clone --depth 1 https://github.com/wbthomason/packer.nvim $BUNDLE/packer.nvim
+```
+
+Then, in `~/.config/nvim/init.lua`:
+
+```
+require('packer').startup(function(use)
+  use {
+    'wincent/command-t',
+    run = 'cd lua/wincent/commandt/lib && make',
+    setup = function ()
+      vim.g.CommandTPreferredImplementation = 'lua'
+    end,
+    config = function()
+      require('wincent.commandt').setup()
+    end,
+  }
+end)
+```
+
+and run `:PackerInstall`.
 
 ## Cleaning up after testing is done
 
