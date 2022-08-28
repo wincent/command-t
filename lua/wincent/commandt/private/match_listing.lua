@@ -43,19 +43,45 @@ function MatchListing:close()
   end
 end
 
+local format_line = function(line, width, selected)
+  local prefix = selected and '> ' or '  '
+
+  -- Right pad so that selection highlighting is shown across full width.
+  if width < 104 then
+    if #line > 99 then
+      -- No padding needed.
+      line = prefix .. line
+    else
+      line = prefix .. string.format('%-' .. (width - #prefix) .. 's', line)
+    end
+  else
+    -- Avoid: "invalid option" caused by format argument > 99.
+    line = prefix .. string.format('%-99s', line)
+    local diff = width - line:len()
+    if diff > 0 then
+      line = line .. string.rep(' ', diff)
+    end
+  end
+
+  -- Trim right to make sure we never wrap.
+  return line:sub(1, width)
+end
+
 function MatchListing:select(selected)
   assert(type(selected) == 'number')
   assert(selected > 0)
-  assert(selected <= #self._lines)
+  assert(selected <= #self._results)
   if self._window then
-    local selection = '  ' .. self._lines[self._selected]:sub(3)
-    self._window:replace_line(selection, self._selected)
+    local width = self._window:width() or vim.o.columns -- BUG: width may be cached/stale
+
+    local previous_selection = format_line(self._results[self._selected], width, false)
+    self._window:replace_line(previous_selection, self._selected)
     self._window:unhighlight_line(self._selected)
 
     self._selected = selected
-    selection = '> ' .. self._lines[self._selected]:sub(3)
-    self._window:replace_line(selection, selected)
-    self._window:highlight_line(selected)
+    local new_selection = format_line(self._results[self._selected], width, true)
+    self._window:replace_line(new_selection, self._selected)
+    self._window:highlight_line(self._selected)
   end
 end
 
@@ -112,26 +138,8 @@ function MatchListing:update(results, options)
     local width = self._window:width() or vim.o.columns
     self._lines = {}
     for i, result in ipairs(results) do
-      local prefix = i == self._selected and '> ' or '  '
-      local line = nil
-
-      -- Right pad so that selection highlighting is shown across full width.
-      if width < 104 then
-        if #result > 99 then
-          -- No padding needed.
-          line = prefix .. result
-        else
-          line = prefix .. string.format('%-' .. (width - #prefix) .. 's', result)
-        end
-      else
-        -- Avoid: "invalid option" caused by format argument > 99.
-        line = prefix .. string.format('%-99s', result)
-        local diff = width - line:len()
-        if diff > 0 then
-          line = line .. string.rep(' ', diff)
-        end
-      end
-
+      local selected = i == self._selected
+      local line = format_line(result, width, selected)
       table.insert(self._lines, line)
     end
     self._window:unhighlight()

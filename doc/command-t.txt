@@ -240,9 +240,6 @@ KNOWN ISSUES                                    *command-t-known-issues*
   to force a re-scan. 6.x does not implement any such caching (which means
   that results are always fresh, but on large directories the re-scanning may
   introduce a noticeable delay).
-- Sometimes the results in the match listing are scrolled to the right,
-  causing the left edge to be cut off; I would love to fix this but haven't
-  identified a cause yet.
 - The documentation for 6.x (ie. this document) is still a work in progress.
 
 
