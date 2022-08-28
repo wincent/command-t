@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
+# SPDX-License-Identifier: BSD-2-Clause
+
+set -e
+
+if ! git describe --exact-match HEAD 2> /dev/null; then
+  echo "\`HEAD\` is not tagged; aborting"
+  exit 1
+fi
+
+
+VERSION=$(git describe)
+ARCHIVE="command-t-${VERSION}.zip"
+
+set -x
+
+git archive -o ${ARCHIVE} HEAD -- .

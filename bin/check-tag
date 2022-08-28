@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
+# SPDX-License-Identifier: BSD-2-Clause
+
+if ! git describe --exact-match HEAD 2> /dev/null; then
+  echo "\`HEAD\` is not tagged"
+  exit 1
+fi

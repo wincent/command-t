@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
+# SPDX-License-Identifier: BSD-2-Clause
+
+REPO_ROOT="${BASH_SOURCE%/*}/.."
+
+cd "$REPO_ROOT"
+
+bundle exec rspec spec

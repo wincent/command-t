@@ -1,0 +1,13 @@
+#!/bin/bash
+#
+# SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
+# SPDX-License-Identifier: BSD-2-Clause
+
+echo "Usage:"
+echo
+echo "  check-format      Check formatting of C, Lua, and Markdown files"
+echo "  create-archive    Create ZIP archive from tagged HEAD"
+echo "  format            Format C, Lua, and Markdown files"
+echo "  help              Show this usage information"
+echo "  spec              Run Ruby specs"
+echo "  test              Run Lua tests"
