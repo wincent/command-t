@@ -576,9 +576,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+6.0.0-a.1 (28 August 2022) ~
 
-- ...
+- fix: gracefully handle |commandt.setup()| calls without a `finders` config.
+  (https://github.com/wincent/command-t/commit/e59f7406a565b574).
+- refactor: get rid of a potentially confusing diagnostic message
+  (https://github.com/wincent/command-t/commit/05b434a7dd3e2963).
+- docs: add documentation for the |:CommandTFind|, |:CommandTGit|,
+  |:CommandTRipgrep|, and |:CommandTWatchman| commands
+  (https://github.com/wincent/command-t/commit/c488f7f41e863398).
 
 6.0.0-a.0 (26 August 2022) ~
 
