@@ -480,6 +480,10 @@ the clone URL for which is:
 
   https://github.com/wincent/command-t.git
 
+The canonical upstream is hosted at:
+
+  https://git.wincent.com/command-t.git
+
 Mirrors exist on GitLab and BitBucket, and are automatically updated once per
 hour:
 
