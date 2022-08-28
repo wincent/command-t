@@ -4,6 +4,18 @@ Patches are welcome via the usual mechanisms (pull requests, email, posting to t
 
 For more details, see the "command-t-development" section in [the documentation](https://github.com/wincent/command-t/blob/main/doc/command-t.txt).
 
+# Releasing
+
+1. Update "command-t-history" section in `doc/command-t.txt`.
+2. Edit metadata in `lua/wincent/commandt/version.lua` to reflect new `$VERSION`.
+3. Commit using `git commit -p -m "chore: prepare for $VERSION release"`.
+4. Create tag with `git tag -s $VERSION -m "$VERSION release"`.
+5. Check release readiness with `make check`.
+6. Produce ZIP archive with `bin/create-archive`.
+7. Upload new release to [vim.org](http://www.vim.org/scripts/script.php?script_id=3025).
+8. Push with `git push --follow-tags`.
+9. Update [release notes on GitHub](https://github.com/wincent/command-t/releases).
+
 # Reproducing bugs
 
 Sometimes [user bug reports](https://github.com/wincent/command-t/issues) depend on characteristics of their local setup. Reproducing this may require copying configuration and installing dependencies, something I'd rather not do to my own development system. So, here are some notes about setting up Vagrant on macOS to provide a disposable VM on which to try things out in a controlled environment.
