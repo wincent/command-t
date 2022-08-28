@@ -575,7 +575,8 @@ HISTORY                                         *command-t-history*
 
 main (not yet released) ~
 
-...
+- fix: fix rendering glitches due to interaction with vim-dirvish
+  (https://github.com/wincent/command-t/commit/ca959c9437d13ca0).
 
 6.0.0-a.1 (28 August 2022) ~
 
