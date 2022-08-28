@@ -4,6 +4,8 @@
 .ruby-version
 .un~
 /.bundle
+/.vagrant
+/Vagrantfile
 /data/log.yml
 /media
 commandt-debug.log
