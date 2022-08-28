@@ -36,7 +36,7 @@ jobs:
           popd
 
       - name: Run unit tests (release)
-        run: bin/test.sh
+        run: bin/test
 
       - name: Run stress tests (release, benchmarks)
         run: TIMES=1 bin/benchmarks/matcher.lua
