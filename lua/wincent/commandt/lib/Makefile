@@ -5,29 +5,42 @@ SHELL := /bin/bash
 
 CCFLAGS += -Wall -Wextra -Wno-unused-parameter
 
-ifdef DEBUG
-    CCFLAGS += -DDEBUG -g -O0
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+	# 128 M candidates.
+	CCFLAGS += -DMAX_FILES_CONF=134217728
+	# 128 GB.
+	CCFLAGS += -DMMAP_SLAB_SIZE_CONF=137438953472
 else
-    # As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
-    # May also want to consider going `-Ofast` instead of `-O3`.
-    CCFLAGS += -DNDEBUG -O3
+	# 32 M candidates.
+	CCFLAGS += MAX_FILES_CONF=33554432
+	# 32 GB.
+	CCFLAGS += MMAP_SLAB_SIZE_CONF=34359738368
+endif
+
+ifdef DEBUG
+	CCFLAGS += -DDEBUG -g -O0
+else
+	# As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
+	# May also want to consider going `-Ofast` instead of `-O3`.
+	CCFLAGS += -DNDEBUG -O3
 endif
 
 ifeq ($(OS),Windows_NT)
-    CC ?= gcc
-    CCFLAGS += -DWIN32
-    DLLEXT := dll
+	CC ?= gcc
+	CCFLAGS += -DWIN32
+	DLLEXT := dll
 else
-    DLLEXT := so
-    UNAME := $(shell uname -s)
-    ifeq ($(UNAME),Darwin)
-        CC = xcrun clang
-        CCFLAGS += -DMACOS
-    endif
-    ifeq ($(UNAME),Linux)
-        CC ?= gcc
-        CCFLAGS += -DLINUX -pthread
-    endif
+	DLLEXT := so
+	UNAME := $(shell uname -s)
+	ifeq ($(UNAME),Darwin)
+		CC = xcrun clang
+		CCFLAGS += -DMACOS
+	endif
+	ifeq ($(UNAME),Linux)
+		CC ?= gcc
+		CCFLAGS += -DLINUX -pthread
+	endif
 endif
 
 LIBS = -lpthread

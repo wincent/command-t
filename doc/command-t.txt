@@ -579,6 +579,8 @@ main (not yet released) ~
   (https://github.com/wincent/command-t/commit/ca959c9437d13ca0).
 - feat: teach prompt window to delete a word with `<C-w>`
   (https://github.com/wincent/command-t/commit/0a19ffbe7bed4988).
+- fix: avoid aborts on 32-bit systems
+  (https://github.com/wincent/command-t/issues/399).
 
 6.0.0-a.1 (28 August 2022) ~
 

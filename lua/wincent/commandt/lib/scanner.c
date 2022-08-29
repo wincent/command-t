@@ -19,9 +19,8 @@
 // TODO: make this capable of producing asynchronously?
 
 // TODO make this configurable
-static long MAX_FILES = 134217728; // 128 M candidates.
-
-static size_t buffer_size = 137438953472; // 128 GB.
+static long MAX_FILES = MAX_FILES_CONF;
+static size_t buffer_size = MMAP_SLAB_SIZE_CONF;
 
 scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
