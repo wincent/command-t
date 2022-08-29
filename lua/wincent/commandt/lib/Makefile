@@ -19,28 +19,28 @@ else
 endif
 
 ifdef DEBUG
-    CCFLAGS += -DDEBUG -g -O0
+	CCFLAGS += -DDEBUG -g -O0
 else
-    # As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
-    # May also want to consider going `-Ofast` instead of `-O3`.
-    CCFLAGS += -DNDEBUG -O3
+	# As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
+	# May also want to consider going `-Ofast` instead of `-O3`.
+	CCFLAGS += -DNDEBUG -O3
 endif
 
 ifeq ($(OS),Windows_NT)
-    CC ?= gcc
-    CCFLAGS += -DWIN32
-    DLLEXT := dll
+	CC ?= gcc
+	CCFLAGS += -DWIN32
+	DLLEXT := dll
 else
-    DLLEXT := so
-    UNAME := $(shell uname -s)
-    ifeq ($(UNAME),Darwin)
-        CC = xcrun clang
-        CCFLAGS += -DMACOS
-    endif
-    ifeq ($(UNAME),Linux)
-        CC ?= gcc
-        CCFLAGS += -DLINUX -pthread
-    endif
+	DLLEXT := so
+	UNAME := $(shell uname -s)
+	ifeq ($(UNAME),Darwin)
+		CC = xcrun clang
+		CCFLAGS += -DMACOS
+	endif
+	ifeq ($(UNAME),Linux)
+		CC ?= gcc
+		CCFLAGS += -DLINUX -pthread
+	endif
 endif
 
 LIBS = -lpthread
