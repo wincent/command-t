@@ -573,7 +573,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+6.0.0-a.2 (29 August 2022) ~
 
 - fix: fix rendering glitches due to interaction with vim-dirvish
   (https://github.com/wincent/command-t/commit/ca959c9437d13ca0).
