@@ -5,6 +5,19 @@ SHELL := /bin/bash
 
 CCFLAGS += -Wall -Wextra -Wno-unused-parameter
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+	# 128 M candidates.
+	CCFLAGS += -DMAX_FILES_CONF=134217728
+	# 128 GB.
+	CCFLAGS += -DMMAP_SLAB_SIZE_CONF=137438953472
+else
+	# 32 M candidates.
+	CCFLAGS += MAX_FILES_CONF=33554432
+	# 32 GB.
+	CCFLAGS += MMAP_SLAB_SIZE_CONF=34359738368
+endif
+
 ifdef DEBUG
     CCFLAGS += -DDEBUG -g -O0
 else

@@ -21,8 +21,8 @@
 #include "xstrdup.h" /* for xstrdup() */
 
 // TODO: share these with scanner.c
-static long MAX_FILES = 134217728; // 128 M candidates.
-static size_t buffer_size = 137438953472; // 128 GB.
+static long MAX_FILES = MAX_FILES_CONF;
+static size_t buffer_size = MMAP_SLAB_SIZE_CONF;
 static const char *current_directory = ".";
 
 find_result_t *commandt_find(const char *directory) {
