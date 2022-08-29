@@ -33,6 +33,7 @@ local default_options = {
       ['<C-s>'] = 'open_split',
       ['<C-t>'] = 'open_tab',
       ['<C-v>'] = 'open_vsplit',
+      ['<C-w>'] = '<C-S-w>',
       ['<CR>'] = 'open',
       ['<Down>'] = 'select_next',
       ['<Up>'] = 'select_previous',
