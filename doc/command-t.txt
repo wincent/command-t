@@ -575,7 +575,8 @@ HISTORY                                         *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- fix: fix build problem on 32-bit systems; this was a regression introduced
+  in 6.0.0-a.2 (https://github.com/wincent/command-t/commit/6c8e2a3e3b5acd00).
 
 6.0.0-a.2 (29 August 2022) ~
 
