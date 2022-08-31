@@ -408,10 +408,11 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nicholas T.
-  Adrian Keet                     Nicolas Alpi
-  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
-  Alexey Terekhov                 Nilo César Teixeira
+  Abhinav Gupta                   Nate Kane
+  Adrian Keet                     Nicholas T.
+  Aleksandrs Ļedovskis            Nicolas Alpi
+  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
+  Andrea Cedraro                  Nilo César Teixeira
   Andrius Grabauskas              Noon Silk
   Andy Waite                      Ole Petter Bang
   Anthony Panozzo                 Patrick Hayes
@@ -442,7 +443,6 @@ Other contributors that have submitted patches include, in alphabetical order:
   Max Timkovich                   Yan Pritzker
   Mike Lundy                      Zak Johnson
   Nadav Samet                     xiaodezhang
-  Nate Kane
 
 This list produced with:
 
@@ -577,6 +577,8 @@ main (not yet released) ~
 
 - fix: fix build problem on 32-bit systems; this was a regression introduced
   in 6.0.0-a.2 (https://github.com/wincent/command-t/commit/6c8e2a3e3b5acd00).
+- docs: drop unnecessary `{ remap = true }` from mapping instructions
+  (https://github.com/wincent/command-t/pull/401)
 
 6.0.0-a.2 (29 August 2022) ~
 
