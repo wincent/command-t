@@ -15,6 +15,7 @@ git.scanner = function(directory, options)
   if directory ~= '' then
     command = command .. ' -- ' .. directory
   end
+  command = command .. ' 2> /dev/null'
   local scanner = lib.scanner_new_command(command)
   return scanner
 end

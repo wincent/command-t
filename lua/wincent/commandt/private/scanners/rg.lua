@@ -15,6 +15,7 @@ rg.scanner = function(directory)
   if #directory > 0 then
     command = command .. ' ' .. directory
   end
+  command = command .. ' 2> /dev/null'
   local scanner = lib.scanner_new_command(command, drop)
   return scanner
 end
