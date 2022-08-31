@@ -19,7 +19,7 @@ find.scanner = function(directory)
   end
   local lib = require('wincent.commandt.private.lib')
   -- TODO: support max depth, dot directory filter etc
-  local command = 'find -L ' .. directory .. ' -type f -print0'
+  local command = 'find -L ' .. directory .. ' -type f -print0 2> /dev/null'
   local scanner = lib.scanner_new_command(command, drop)
   return scanner
 end

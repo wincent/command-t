@@ -579,6 +579,10 @@ main (not yet released) ~
   in 6.0.0-a.2 (https://github.com/wincent/command-t/commit/6c8e2a3e3b5acd00).
 - docs: drop unnecessary `{ remap = true }` from mapping instructions
   (https://github.com/wincent/command-t/pull/401)
+- feat: implement fallback for when `find`, `git`, or `rg` return no results
+  (https://github.com/wincent/command-t/commit/9e8c790ca718b40f2).
+- refactor: hide standard error output from `find`, `git` and `rg`
+  (https://github.com/wincent/command-t/commit/b229d929ae2a55a7b).
 
 6.0.0-a.2 (29 August 2022) ~
 

@@ -94,7 +94,14 @@ ui.show = function(finder, options)
     margin = options.margin,
     name = options.name,
     on_change = function(query)
-      results = finder.run(query)
+      results = current_finder.run(query)
+      if #results > 0 then
+        -- Once we've proved a finder works, we don't ever want to use fallback.
+        current_finder.fallback = nil
+      elseif current_finder.fallback then
+        current_finder = current_finder.fallback()
+        results = current_finder.run(query)
+      end
       if #results == 0 then
         selected = nil
       else
