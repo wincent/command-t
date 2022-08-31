@@ -573,6 +573,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+main (not yet released) ~
+
+- ...
+
 6.0.0-a.3 (31 August 2022) ~
 
 - fix: fix build problem on 32-bit systems; this was a regression introduced

@@ -15,6 +15,7 @@ For more details, see the "command-t-development" section in [the documentation]
 7. Upload new release to [vim.org](http://www.vim.org/scripts/script.php?script_id=3025).
 8. Push with `git push --follow-tags`.
 9. Update [release notes on GitHub](https://github.com/wincent/command-t/releases).
+10. Start a new entry under "command-t-history"  in `doc/command-t.txt` for subsequent development.
 
 # Reproducing bugs
 
