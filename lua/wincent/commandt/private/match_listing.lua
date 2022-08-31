@@ -46,6 +46,16 @@ end
 local format_line = function(line, width, selected)
   local prefix = selected and '> ' or '  '
 
+  -- Sanitize some control characters, plus blackslashes.
+  line = line
+    :gsub('\\', '\\\\')
+    :gsub('\b', '\\b')
+    :gsub('\f', '\\f')
+    :gsub('\n', '\\n')
+    :gsub('\r', '\\r')
+    :gsub('\t', '\\t')
+    :gsub('\v', '\\v')
+
   -- Right pad so that selection highlighting is shown across full width.
   if width < 104 then
     if #line > 99 then
