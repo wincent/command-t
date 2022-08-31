@@ -7,11 +7,20 @@ local ffi = require('ffi')
 -- the `command` scanner
 -- TODO: remember cached directories
 return function(directory, options)
+  local finder = {}
+  -- Use a thunk to avoid cost of fallback scanning until actually needed.
+  finder.fallback = (
+    (function(d, o)
+      return function()
+        finder.fallback = require('wincent.commandt.private.finders.file')(d ~= '' and d or '.', o)
+        return finder.fallback
+      end
+    end)(directory, options)
+  )
   if directory ~= '' then
     directory = vim.fn.shellescape(directory)
   end
   local lib = require('wincent.commandt.private.lib')
-  local finder = {}
   finder.scanner = require('wincent.commandt.private.scanners.git').scanner(directory, options.scanners.git)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
