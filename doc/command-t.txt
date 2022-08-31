@@ -201,9 +201,9 @@ the box. In order to set up the equivalent mappings for Lua, you would add the
 following to your |vimrc| or some other file that gets loaded during
 |startup|:
 >
-    vim.keymap.set('n', '<Leader>b', '<Plug>(CommandTBuffer)', { remap = true })
-    vim.keymap.set('n', '<Leader>j', '<Plug>(CommandTJump)', { remap  = true })
-    vim.keymap.set('n', '<Leader>t', '<Plug>(CommandT)', { remap = true })
+    vim.keymap.set('n', '<Leader>b', '<Plug>(CommandTBuffer)')
+    vim.keymap.set('n', '<Leader>j', '<Plug>(CommandTJump)')
+    vim.keymap.set('n', '<Leader>t', '<Plug>(CommandT)')
 <
 
 What happens if you don't explicitly opt-in to either implementation ~
