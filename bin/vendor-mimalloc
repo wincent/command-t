@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
+# SPDX-License-Identifier: BSD-2-Clause
+
+set -ex
+
+REPO_ROOT="${BASH_SOURCE%/*}/.."
+cd "$REPO_ROOT"
+
+BASE=lua/wincent/commandt/lib/vendor/github/microsoft
+mkdir -p "$BASE"
+cd "$BASE"
+rm -rf mimalloc*
+wget https://github.com/microsoft/mimalloc/archive/refs/tags/v2.0.6.tar.gz -O mimalloc.tar.gz
+tar xzf mimalloc.tar.gz
+rm mimalloc.tar.gz
+ln -s mimalloc-2.0.6 mimalloc
