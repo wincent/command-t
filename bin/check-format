@@ -8,8 +8,14 @@ REPO_ROOT="${BASH_SOURCE%/*}/.."
 # Must `cd` to root in order for `stylua.toml` to get picked up.
 cd "$REPO_ROOT"
 
-stylua --check .
+EXIT=0
 
-npx -y prettier --list-different "**/*.md"
+stylua --check . || EXIT=1
 
-find . -iname '*.[ch]' | xargs clang-format --dry-run
+npx -y prettier --list-different "**/*.md" || EXIT=1
+
+set -o pipefail
+
+find . -iname '*.[ch]' | xargs clang-format --dry-run || EXIT=1
+
+exit $EXIT
