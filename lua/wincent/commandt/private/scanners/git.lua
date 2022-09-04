@@ -10,7 +10,7 @@ git.scanner = function(directory, options)
   if options.submodules then
     command = command .. ' --recurse-submodules'
   elseif options.untracked then
-    command = command .. ' --untracked'
+    command = command .. ' --others'
   end
   if directory ~= '' then
     command = command .. ' -- ' .. directory
