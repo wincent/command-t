@@ -8,15 +8,7 @@ local ffi = require('ffi')
 -- TODO: remember cached directories
 return function(directory, options)
   local finder = {}
-  -- Use a thunk to avoid cost of fallback scanning until actually needed.
-  finder.fallback = (
-    (function(d, o)
-      return function()
-        finder.fallback = require('wincent.commandt.private.finders.file')(d ~= '' and d or '.', o)
-        return finder.fallback
-      end
-    end)(directory, options)
-  )
+  finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
   if directory ~= '' then
     directory = vim.fn.shellescape(directory)
   end
