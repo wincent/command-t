@@ -577,6 +577,10 @@ main (not yet released) ~
 
 - fix: use correct `git ls-files` switch when `scanners.git.untracked` is `true`.
   (https://github.com/wincent/command-t/pull/405).
+- fix: make Watchman scanner work with a path argument
+  (https://github.com/wincent/command-t/commit/c7020a44cfddfb87).
+- feat: show "fallback" in prompt title if a fallback scanner kicks in
+  (https://github.com/wincent/command-t/commit/c16b2721fdad1d0b).
 
 6.0.0-a.3 (31 August 2022) ~
 
