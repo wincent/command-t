@@ -573,7 +573,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+6.0.0-a.4 (5 September 2022) ~
 
 - fix: use correct `git ls-files` switch when `scanners.git.untracked` is `true`.
   (https://github.com/wincent/command-t/pull/405).
