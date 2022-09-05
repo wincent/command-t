@@ -6,6 +6,6 @@
 return function(finder, directory, options)
   return function()
     finder.fallback = require('wincent.commandt.private.finders.file')(directory ~= '' and directory or '.', options)
-    return finder.fallback
+    return finder.fallback, 'fallback'
   end
 end

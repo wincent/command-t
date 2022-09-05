@@ -198,6 +198,19 @@ function Window:replace_lines(lines, options)
   end
 end
 
+function Window:set_title(title)
+  self._title = title
+  self._padded_title = title ~= '' and (' ' .. title .. ' ') or ''
+  self:_reposition()
+  vim.api.nvim_buf_set_lines(
+    self._title_buffer,
+    0, -- start
+    -1, -- end
+    false, -- strict indexing
+    { self._padded_title }
+  )
+end
+
 function Window:show()
   if self._main_buffer == nil then
     self._main_buffer = vim.api.nvim_create_buf(
@@ -407,7 +420,7 @@ function Window:_reposition()
         col = position.col + #self._prompt,
         height = 1,
         row = math.max(0, position.row),
-        width = #(' ' .. self._title .. ' '),
+        width = #self._padded_title,
       })
     )
   end

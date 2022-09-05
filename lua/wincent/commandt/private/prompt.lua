@@ -10,6 +10,13 @@ local Prompt = {}
 
 local mt = {
   __index = Prompt,
+  __newindex = function(t, k, v)
+    if k == 'name' then
+      Prompt.set_name(t, v)
+    else
+      rawset(t, k, v)
+    end
+  end,
 }
 
 function Prompt.new(options)
@@ -47,6 +54,17 @@ function Prompt:close()
   end
 end
 
+function Prompt:set_name(name)
+  self._name = name
+  if self._window then
+    self._window:set_title(self:title())
+  end
+end
+
+function Prompt:title()
+  return self._name and ('CommandT [' .. self._name .. ']') or 'CommandT'
+end
+
 function Prompt:show()
   local bottom = nil
   local top = nil
@@ -64,7 +82,6 @@ function Prompt:show()
   end
 
   if self._window == nil then
-    local title = self._name and ('CommandT [' .. self._name .. ']') or 'CommandT'
     self._window = Window.new({
       bottom = bottom,
       buftype = 'prompt',
@@ -79,7 +96,7 @@ function Prompt:show()
         self._window = nil
       end,
       on_leave = self._on_leave,
-      title = title,
+      title = self:title(),
       top = top,
     })
   end

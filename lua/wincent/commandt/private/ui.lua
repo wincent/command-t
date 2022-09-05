@@ -99,7 +99,8 @@ ui.show = function(finder, options)
         -- Once we've proved a finder works, we don't ever want to use fallback.
         current_finder.fallback = nil
       elseif current_finder.fallback then
-        current_finder = current_finder.fallback()
+        current_finder, name = current_finder.fallback()
+        prompt.name = name or 'fallback'
         results = current_finder.run(query)
       end
       if #results == 0 then
