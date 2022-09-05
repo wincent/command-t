@@ -234,8 +234,6 @@ See also |command-t-ruby-trouble-shooting| for older trouble-shooting tips.
 KNOWN ISSUES                                    *command-t-known-issues*
 
 - There are many missing features in 6.x compared with 5.x.
-- Prior to 6.x the Watchman scanner would fall back to the `find`-based scanner
-  in the event of an error; 6.x does not yet implement any such fallback.
 - 5.x used to cache directory listings, requiring the use of |:CommandTFlush|
   to force a re-scan. 6.x does not implement any such caching (which means
   that results are always fresh, but on large directories the re-scanning may
