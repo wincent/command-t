@@ -575,7 +575,8 @@ HISTORY                                         *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- fix: use correct `git ls-files` switch when `scanners.git.untracked` is `true`.
+  (https://github.com/wincent/command-t/pull/405).
 
 6.0.0-a.3 (31 August 2022) ~
 
