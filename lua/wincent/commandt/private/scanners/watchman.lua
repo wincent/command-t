@@ -87,7 +87,7 @@ local result = nil
 
 watchman.scanner = function(directory)
   local lib = require('wincent.commandt.private.lib')
-  local project = watch_project(directory)
+  local project = watch_project(vim.fn.fnamemodify(directory, ':p'))
   if project.error then
     error(project.error)
     -- TODO: in the future (once Watchman is more solid), degrade gracefully

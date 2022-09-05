@@ -9,7 +9,6 @@ return function(directory, options)
   end
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  -- TODO: make `directory` actually do something here
   finder.scanner = require('wincent.commandt.private.scanners.watchman').scanner(directory)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)

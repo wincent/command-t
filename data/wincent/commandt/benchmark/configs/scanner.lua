@@ -224,6 +224,19 @@ return {
       source = 'wincent.commandt.private.scanners.watchman',
       times = times,
       skip_in_ci = true,
+      stub_candidates = function()
+        assert(_G.vim == nil)
+        _G.vim = {
+          fn = {
+            fnamemodify = function(name, _modifier)
+              return name
+            end,
+          },
+        }
+      end,
+      unstub_candidates = function()
+        _G.vim = nil
+      end,
     },
   },
 }
