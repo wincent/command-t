@@ -30,9 +30,9 @@ benchmark({
       local name = output:match('"sockname":%s*"([^"]+)"') or fallback
       scanner.set_sockname(name)
     end
-    if config.stub_candidates then
+    if config.stub then
       -- For scanners that otherwise depend on Neovim for a list of candidates.
-      config.stub_candidates(scanner)
+      config.stub(scanner)
     end
     return scanner
   end,
@@ -49,8 +49,8 @@ benchmark({
   end,
 
   teardown = function(config)
-    if config.unstub_candidates then
-      config.unstub_candidates()
+    if config.unstub then
+      config.unstub()
     end
   end,
 })

@@ -7,7 +7,7 @@ return {
       source = 'wincent.commandt.private.scanners.buffer',
       times = times * 100, -- Scanner is too fast (misleadingly fast).
       skip_in_ci = false,
-      stub_candidates = function()
+      stub = function()
         -- Note this is all a bit fake because the real scanner would burn some
         -- unknown amount of cycles actually asking Vim for these, and in a
         -- sense that's the actually interesting part of the work.
@@ -191,7 +191,7 @@ return {
           },
         }
       end,
-      unstub_candidates = function()
+      unstub = function()
         _G.vim = nil
       end,
     },
@@ -224,7 +224,7 @@ return {
       source = 'wincent.commandt.private.scanners.watchman',
       times = times,
       skip_in_ci = true,
-      stub_candidates = function()
+      stub = function()
         assert(_G.vim == nil)
         _G.vim = {
           fn = {
@@ -234,7 +234,7 @@ return {
           },
         }
       end,
-      unstub_candidates = function()
+      unstub = function()
         _G.vim = nil
       end,
     },
