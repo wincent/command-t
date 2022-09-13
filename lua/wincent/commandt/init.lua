@@ -124,11 +124,19 @@ end
 
 commandt.finder = function(name, directory)
   local options = commandt.options()
-  if options.finders[name] == nil then
+  local config = options.finders[name]
+  if config == nil then
     error('commandt.finder(): no finder registered with name ' .. tostring(name))
   end
-  directory = vim.trim(directory)
-  local finder = require('wincent.commandt.private.finders.command')(directory, options, name)
+  if directory ~= nil then
+    directory = vim.trim(directory)
+  end
+  local finder = nil
+  if config.candidates then
+    finder = require('wincent.commandt.private.finders.list')(config.candidates, config.open, options, name)
+  else
+    finder = require('wincent.commandt.private.finders.command')(directory, options, name)
+  end
   local ui = require('wincent.commandt.private.ui')
   ui.show(finder, merge(options, { name = name }))
 end
@@ -239,20 +247,29 @@ commandt.setup = function(options)
       reset(option, actual, defaults)
     end
   end
+  local optional_function_or_string = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local value = pick(option, actual)
+    if value ~= nil and type(value) ~= 'function' and type(value) ~= 'string' then
+      report(string.format('`%s` must be a function or string or nil', option))
+      reset(option, actual, defaults)
+    end
+  end
+  local optional_function_or_table = function(option, actual, defaults)
+    actual = actual ~= nil and actual or _options
+    defaults = defaults ~= nil and defaults or default_options
+    local value = pick(option, actual)
+    if value ~= nil and type(value) ~= 'function' and type(value) ~= 'table' then
+      report(string.format('`%s` must be a function or table or nil', option))
+      reset(option, actual, defaults)
+    end
+  end
   local require_boolean = function(option, actual, defaults)
     actual = actual ~= nil and actual or _options
     defaults = defaults ~= nil and defaults or default_options
     if type(pick(option, actual)) ~= 'boolean' then
       report(string.format('`%s` must be true or false', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local require_function_or_string = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local value = pick(option, actual)
-    if type(value) ~= 'function' and type(value) ~= 'string' then
-      report(string.format('`%s` must be a function or string', option))
       reset(option, actual, defaults)
     end
   end
@@ -336,7 +353,14 @@ commandt.setup = function(options)
   require_boolean('smart_case')
 
   for name, finder in pairs(options.finders or {}) do
-    require_function_or_string('finders.' .. name .. '.command', nil, {
+    optional_function_or_table('finders.' .. name .. '.candidates', nil, {
+      finders = {
+        [name] = {
+          command = 'true',
+        },
+      },
+    })
+    optional_function_or_string('finders.' .. name .. '.command', nil, {
       finders = {
         [name] = {
           command = 'true',
@@ -348,8 +372,9 @@ commandt.setup = function(options)
         [name] = {},
       },
     })
+    -- TODO: complain if passed `candidates` _and_ `command`.
     for k, _ in pairs(finder) do
-      if not contains({ 'command', 'open' }, k) then
+      if not contains({ 'candidates', 'command', 'open' }, k) then
         report(string.format('unrecognized option in `finders.%s`: %s)', name, k))
       end
     end

@@ -38,6 +38,7 @@ local get = function(force)
   return helptags
 end
 
+-- TODO: call/use `list` scanner instead
 help.scanner = function()
   local paths = get()
   local lib = require('wincent.commandt.private.lib')
