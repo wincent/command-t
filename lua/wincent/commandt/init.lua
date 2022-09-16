@@ -132,8 +132,11 @@ commandt.finder = function(name, directory)
     directory = vim.trim(directory)
   end
   local finder = nil
+  if config.open then
+    options = merge(options, { open = config.open })
+  end
   if config.candidates then
-    finder = require('wincent.commandt.private.finders.list')(config.candidates, config.open, options, name)
+    finder = require('wincent.commandt.private.finders.list')(config.candidates, options, name)
   else
     finder = require('wincent.commandt.private.finders.command')(directory, options, name)
   end

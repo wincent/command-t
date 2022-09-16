@@ -3,7 +3,7 @@
 
 local ffi = require('ffi')
 
-return function(candidates, open, options, name)
+return function(candidates, options, name)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   if type(candidates) == 'function' then
@@ -24,7 +24,7 @@ return function(candidates, open, options, name)
     return strings
   end
   finder.open = function(item, kind)
-    open(item, kind)
+    options.open(item, kind)
   end
   return finder
 end
