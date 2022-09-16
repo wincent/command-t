@@ -10,6 +10,17 @@ local merge = require('wincent.commandt.private.merge')
 
 local commandt = {}
 
+local open = function(buffer, command)
+  buffer = vim.fn.fnameescape(buffer)
+  local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
+  if is_visible then
+    -- In order to be useful, `:sbuffer` needs `vim.o.switchbuf = 'usetab'`.
+    vim.cmd('sbuffer ' .. buffer)
+  else
+    vim.cmd(command .. ' ' .. buffer)
+  end
+end
+
 local default_options = {
   always_show_dot_files = false,
   finders = {},
@@ -69,9 +80,7 @@ local default_options = {
   never_show_dot_files = false,
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
-  open = function(item, kind)
-    commandt.open(item, kind)
-  end,
+  open = open,
   scanners = {
     git = {
       submodules = true,
@@ -132,13 +141,17 @@ commandt.finder = function(name, directory)
     directory = vim.trim(directory)
   end
   local finder = nil
-  if config.open then
-    options = merge(options, { open = config.open })
+  options.open = function(item, kind)
+    if config.open then
+      config.open(item, kind)
+    else
+      commandt.open(item, kind)
+    end
   end
   if config.candidates then
-    finder = require('wincent.commandt.private.finders.list')(config.candidates, options, name)
+    finder = require('wincent.commandt.private.finders.list')(directory, config.candidates, options)
   else
-    finder = require('wincent.commandt.private.finders.command')(directory, options, name)
+    finder = require('wincent.commandt.private.finders.command')(directory, config.command, options)
   end
   local ui = require('wincent.commandt.private.ui')
   ui.show(finder, merge(options, { name = name }))
@@ -163,15 +176,7 @@ end
 -- "Smart" open that will switch to an already open window containing the
 -- specified `buffer`, if one exists; otherwise, it will open a new window using
 -- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
-commandt.open = function(buffer, command)
-  local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
-  if is_visible then
-    -- In order to be useful, `:sbuffer` needs `vim.o.switchbuf = 'usetab'`.
-    vim.cmd('sbuffer ' .. buffer)
-  else
-    vim.cmd(command .. ' ' .. buffer)
-  end
-end
+commandt.open = open
 
 local _options = copy(default_options)
 

@@ -19,8 +19,6 @@ return function(directory, options)
     end
     return strings
   end
-  finder.open = function(item, kind)
-    options.open(vim.fn.fnameescape(item), kind)
-  end
+  finder.open = options.open
   return finder
 end

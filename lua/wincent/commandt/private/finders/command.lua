@@ -3,9 +3,8 @@
 
 local ffi = require('ffi')
 
-return function(directory, options, name)
+return function(directory, command, options)
   local lib = require('wincent.commandt.private.lib')
-  local command = options.finders[name].command
   command = type(command) == 'string' and command or command(directory)
   local finder = {}
   finder.scanner = require('wincent.commandt.private.scanners.command').scanner(command)
@@ -19,9 +18,6 @@ return function(directory, options, name)
     end
     return strings
   end
-  finder.open = options.finders[name].open
-    or function(item, kind)
-      options.open(vim.fn.fnameescape(item), kind)
-    end
+  finder.open = options.open
   return finder
 end

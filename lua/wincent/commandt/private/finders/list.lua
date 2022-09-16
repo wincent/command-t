@@ -3,11 +3,11 @@
 
 local ffi = require('ffi')
 
-return function(candidates, options, name)
+return function(directory, candidates, options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   if type(candidates) == 'function' then
-    finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates())
+    finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates(directory))
   elseif type(candidates) == 'table' then
     finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates)
   else
@@ -23,8 +23,6 @@ return function(candidates, options, name)
     end
     return strings
   end
-  finder.open = function(item, kind)
-    options.open(item, kind)
-  end
+  finder.open = options.open
   return finder
 end
