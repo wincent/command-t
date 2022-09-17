@@ -12,6 +12,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   CommandTFind = 'CommandTFind'
   CommandTGit = 'CommandTGit'
   CommandTHelp = 'CommandTHelp'
+  CommandTLine = 'CommandTLine'
   CommandTRipgrep = 'CommandTRipgrep'
   CommandTWatchman = 'CommandTWatchman'
 
@@ -20,6 +21,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   vim.keymap.set('n', '<Plug>(CommandTFind)', ':CommandTFind<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTGit)', ':CommandTGit<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTHelp)', ':CommandTHelp<CR>', { silent = true })
+  vim.keymap.set('n', '<Plug>(CommandTLine)', ':CommandTLine<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTRipgrep)', ':CommandTRipgrep<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTWatchman)', ':CommandTWatchman<CR>', { silent = true })
 else
@@ -28,6 +30,7 @@ else
   CommandTFind = 'KommandTFind'
   CommandTGit = 'KommandTGit'
   CommandTHelp = 'KommandTHelp'
+  CommandTLine = 'KommandTLine'
   CommandTRipgrep = 'KommandTRipgrep'
   CommandTWatchman = 'KommandTWatchman'
 end
@@ -40,29 +43,39 @@ end, {
 })
 
 vim.api.nvim_create_user_command(CommandTBuffer, function()
-  require('wincent.commandt').buffer_finder()
-end, {})
+  require('wincent.commandt').finder('buffer')
+end, {
+  nargs = 0,
+})
 
 vim.api.nvim_create_user_command(CommandTFind, function(command)
-  require('wincent.commandt').find_finder(command.args)
+  require('wincent.commandt').finder('find', command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
 vim.api.nvim_create_user_command(CommandTGit, function(command)
-  require('wincent.commandt').git_finder(command.args)
+  require('wincent.commandt').finder('git', command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
 vim.api.nvim_create_user_command(CommandTHelp, function()
-  require('wincent.commandt').help_finder()
-end, {})
+  require('wincent.commandt').finder('help')
+end, {
+  nargs = 0,
+})
+
+vim.api.nvim_create_user_command(CommandTLine, function()
+  require('wincent.commandt').finder('line')
+end, {
+  nargs = 0,
+})
 
 vim.api.nvim_create_user_command(CommandTRipgrep, function(command)
-  require('wincent.commandt').rg_finder(command.args)
+  require('wincent.commandt').finder('rg', command.args)
 end, {
   complete = 'dir',
   nargs = '?',

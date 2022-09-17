@@ -21,9 +21,168 @@ local open = function(buffer, command)
   end
 end
 
+local help_opened = false
+
 local default_options = {
   always_show_dot_files = false,
-  finders = {},
+  finders = {
+    -- Returns the list of paths currently loaded into buffers.
+    buffer = {
+      candidates = function()
+        -- TODO: don't include unlisted buffers unless user wants them (need some way
+        -- for them to signal that)
+        local handles = vim.api.nvim_list_bufs()
+        local paths = {}
+        for _, handle in ipairs(handles) do
+          if vim.api.nvim_buf_is_loaded(handle) then
+            local name = vim.api.nvim_buf_get_name(handle)
+            if name ~= '' then
+              local relative = vim.fn.fnamemodify(name, ':~:.')
+              table.insert(paths, relative)
+            end
+          end
+        end
+        return paths
+      end,
+    },
+    find = {
+      command = function(directory)
+        if vim.startswith(directory, './') then
+          directory = directory:sub(3, -1)
+        end
+        if directory ~= '' and directory ~= '.' then
+          directory = vim.fn.shellescape(directory)
+        end
+        local drop = 0
+        if directory == '' or directory == '.' then
+          -- Drop 2 characters because `find` will prefix every result with "./",
+          -- making it look like a dotfile.
+          directory = '.'
+          drop = 2
+          -- TODO: decide what to do if somebody passes '..' or similar, because that
+          -- will also make the results get filtered out as though they were dotfiles.
+          -- I may end up needing to do some fancy, separate micromanagement of
+          -- prefixes and let the matcher operate on paths without prefixes.
+        end
+        -- TODO: support max depth, dot directory filter etc
+        local command = 'find -L ' .. directory .. ' -type f -print0 2> /dev/null'
+        return command, drop
+      end,
+      fallback = true,
+    },
+    git = {
+      command = function(directory, options)
+        if directory ~= '' then
+          directory = vim.fn.shellescape(directory)
+        end
+        local command = 'git ls-files --exclude-standard --cached -z'
+        if options.submodules then
+          command = command .. ' --recurse-submodules'
+        elseif options.untracked then
+          command = command .. ' --others'
+        end
+        if directory ~= '' then
+          command = command .. ' -- ' .. directory
+        end
+        command = command .. ' 2> /dev/null'
+        return command
+      end,
+      fallback = true,
+    },
+    help = {
+      candidates = function()
+        -- Neovim doesn't provide an easy way to get a list of all help tags.
+        -- `tagfiles()` only shows the tagfiles for the current buffer, so you need
+        -- to already be in a buffer of `'buftype'` `help` for that to work.
+        -- Likewise, `taglist()` only shows tags that apply to the current file
+        -- type, and `:tag` has the same restriction.
+        --
+        -- So, we look for "doc/tags" files at every location in the `'runtimepath'`
+        -- and try to manually parse it.
+        local helptags = {}
+        local tagfiles = vim.api.nvim_get_runtime_file('doc/tags', true)
+        for _, tagfile in ipairs(tagfiles) do
+          if vim.fn.filereadable(tagfile) then
+            for _, tag in ipairs(vim.fn.readfile(tagfile)) do
+              local _, _, tag_text = tag:find('^%s*(%S+)%s+')
+              if tag_text ~= nil then
+                table.insert(helptags, tag_text)
+              end
+            end
+          end
+        end
+        -- TODO: memoize this? (ie. add `memoize = true`)?
+        return helptags
+      end,
+      open = function(item, kind)
+        local command = 'help'
+        if kind == 'split' then
+          -- Split is the default, so for this finder, we abuse "split" mode to do
+          -- the opposite of the default, using tricks noted in `:help help-curwin`.
+          --
+          -- See also: https://github.com/vim/vim/issues/7534
+          if not help_opened then
+            vim.cmd([[
+              silent noautocmd keepalt help
+              silent noautocmd keepalt helpclose
+            ]])
+            help_opened = true
+          end
+          if vim.fn.empty(vim.fn.getcompletion(item, 'help')) == 0 then
+            vim.cmd('silent noautocmd keepalt edit ' .. vim.o.helpfile)
+          end
+        elseif kind == 'tabedit' then
+          command = 'tab help'
+        elseif kind == 'vsplit' then
+          command = 'vertical help'
+        end
+
+        -- E434 "Can't find tag pattern" is innocuous, so swallow it. For more
+        -- context, see: https://github.com/autozimu/LanguageClient-neovim/pull/731
+        vim.cmd('try | ' .. command .. ' ' .. item .. ' | catch /E434/ | endtry')
+      end,
+    },
+    line = {
+      candidates = function()
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+        local result = {}
+        for i, line in ipairs(lines) do
+          -- Skip blank/empty lines.
+          if not line:match('^%s*$') then
+            table.insert(result, vim.trim(line) .. ':' .. tostring(i))
+          end
+        end
+        return result
+      end,
+      open = function(item)
+        -- Extract line number from (eg) "some line contents:100".
+        local suffix = string.find(item, '%d+$')
+        local index = tonumber(item:sub(suffix))
+        vim.api.nvim_win_set_cursor(0, { index, 0 })
+      end,
+    },
+    rg = {
+      command = function(directory)
+        if vim.startswith(directory, './') then
+          directory = directory:sub(3, -1)
+        end
+        if directory ~= '' and directory ~= '.' then
+          directory = vim.fn.shellescape(directory)
+        end
+        local drop = 0
+        if directory == '.' then
+          drop = 2
+        end
+        local command = 'rg --files --null'
+        if #directory > 0 then
+          command = command .. ' ' .. directory
+        end
+        command = command .. ' 2> /dev/null'
+        return command, drop
+      end,
+      fallback = true,
+    },
+  },
   height = 15,
   ignore_case = nil, -- If nil, will infer from Neovim's `'ignorecase'`.
 
@@ -100,14 +259,6 @@ local allowed_options = concat(keys(default_options), {
   'threads',
 })
 
-commandt.buffer_finder = function()
-  -- TODO: refactor to avoid duplication
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.buffer')(options)
-  ui.show(finder, merge(options, { name = 'buffer' }))
-end
-
 commandt.default_options = function()
   return copy(default_options)
 end
@@ -121,14 +272,6 @@ commandt.file_finder = function(directory)
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.file')(directory, options)
   ui.show(finder, merge(options, { name = 'file' }))
-end
-
-commandt.find_finder = function(directory)
-  directory = vim.trim(directory)
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.find')(directory, options)
-  ui.show(finder, merge(options, { name = 'find' }))
 end
 
 commandt.finder = function(name, directory)
@@ -153,24 +296,11 @@ commandt.finder = function(name, directory)
   else
     finder = require('wincent.commandt.private.finders.command')(directory, config.command, options)
   end
+  if config.fallback then
+    finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
+  end
   local ui = require('wincent.commandt.private.ui')
   ui.show(finder, merge(options, { name = name }))
-end
-
-commandt.git_finder = function(directory)
-  directory = vim.trim(directory)
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.git')(directory, options)
-  ui.show(finder, merge(options, { name = 'git' }))
-end
-
-commandt.help_finder = function()
-  -- TODO: refactor to avoid duplication
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.help')(options)
-  ui.show(finder, merge(options, { name = 'help' }))
 end
 
 -- "Smart" open that will switch to an already open window containing the
@@ -182,14 +312,6 @@ local _options = copy(default_options)
 
 commandt.options = function()
   return copy(_options)
-end
-
-commandt.rg_finder = function(directory)
-  directory = vim.trim(directory)
-  local ui = require('wincent.commandt.private.ui')
-  local options = commandt.options()
-  local finder = require('wincent.commandt.private.finders.rg')(directory, options)
-  ui.show(finder, merge(options, { name = 'rg' }))
 end
 
 commandt.setup = function(options)

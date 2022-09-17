@@ -3,9 +3,9 @@
 
 local command = {}
 
-command.scanner = function(user_command)
+command.scanner = function(user_command, drop)
   local lib = require('wincent.commandt.private.lib')
-  local scanner = lib.scanner_new_command(user_command)
+  local scanner = lib.scanner_new_command(user_command, drop)
   return scanner
 end
 

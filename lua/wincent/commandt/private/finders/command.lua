@@ -5,9 +5,12 @@ local ffi = require('ffi')
 
 return function(directory, command, options)
   local lib = require('wincent.commandt.private.lib')
-  command = type(command) == 'string' and command or command(directory)
+  local drop = 0
+  if type(command) == 'function' then
+    command, drop = command(directory, options)
+  end
   local finder = {}
-  finder.scanner = require('wincent.commandt.private.scanners.command').scanner(command)
+  finder.scanner = require('wincent.commandt.private.scanners.command').scanner(command, drop)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)
