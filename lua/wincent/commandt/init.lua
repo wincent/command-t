@@ -5,6 +5,7 @@ local concat = require('wincent.commandt.private.concat')
 local contains = require('wincent.commandt.private.contains')
 local copy = require('wincent.commandt.private.copy')
 local is_integer = require('wincent.commandt.private.is_integer')
+local is_table = require('wincent.commandt.private.is_table')
 local keys = require('wincent.commandt.private.keys')
 local merge = require('wincent.commandt.private.merge')
 
@@ -22,6 +23,132 @@ local open = function(buffer, command)
 end
 
 local help_opened = false
+
+local options_spec = {
+  kind = 'table',
+  keys = {
+    always_show_dot_files = { kind = 'boolean' },
+    finders = {
+      kind = 'table',
+      values = {
+        kind = 'table',
+        keys = {
+          candidates = {
+            kind = {
+              one_of = {
+                { kind = 'function' },
+                {
+                  kind = 'list',
+                  of = { kind = 'string' },
+                },
+              },
+            },
+            optional = true,
+          },
+          command = {
+            kind = {
+              one_of = {
+                { kind = 'function' },
+                { kind = 'string' },
+              },
+            },
+            optional = true,
+          },
+          fallback = { kind = 'boolean', optional = true },
+          open = { kind = 'function', optional = true },
+        },
+      },
+      meta = function(t)
+        local errors = {}
+        if is_table(t) then
+          for key, value in pairs(t) do
+            if value.candidates and value.command then
+              value.command = nil
+              table.insert(errors, string.format('%s: `candidates` and `command` should not both be set', key))
+            elseif value.candidates == nil and value.command == nil then
+              value.candidates = {}
+              table.insert(errors, string.format('%s: either `candidates` or `command` should be set', key))
+            end
+          end
+        end
+        return errors
+      end,
+    },
+    height = { kind = 'number' },
+    ignore_case = {
+      kind = 'boolean',
+      optional = true,
+    },
+    mappings = {
+      kind = 'table',
+      keys = {
+        i = {
+          kind = 'table',
+          values = { kind = 'string' },
+        },
+        n = {
+          kind = 'table',
+          values = { kind = 'string' },
+        },
+      },
+    },
+    margin = {
+      kind = 'number',
+      meta = function(context)
+        if not is_integer(context.margin) or context.margin < 0 then
+          context.margin = 0
+          return { '`margin` must be a non-negative integer' }
+        end
+      end,
+    },
+    never_show_dot_files = { kind = 'boolean' },
+    order = { kind = { one_of = { 'forward', 'reverse' } } },
+    position = { kind = { one_of = { 'bottom', 'center', 'top' } } },
+    open = { kind = 'function' },
+    scanners = {
+      kind = 'table',
+      keys = {
+        git = {
+          kind = 'table',
+          keys = {
+            submodules = {
+              kind = 'boolean',
+              optional = true,
+            },
+            untracked = {
+              kind = 'boolean',
+              optional = true,
+            },
+          },
+          meta = function(t)
+            if is_table(t) and t.submodules == true and t.untracked == true then
+              t.submodules = false
+              t.untracked = false
+              return { '`submodules` and `untracked` should not both be true' }
+            end
+          end,
+          optional = true,
+        },
+      },
+    },
+    selection_highlight = { kind = 'string' },
+    smart_case = {
+      kind = 'boolean',
+      optional = true,
+    },
+    threads = {
+      kind = 'number',
+      optional = true,
+    },
+  },
+  meta = function(t)
+    if t.always_show_dot_files == true and t.never_show_dot_files == true then
+      t.always_show_dot_files = false
+      t.never_show_dot_files = false
+      return { '`always_show_dot_files` and `never_show_dot_files` should not both be true' }
+    end
+  end,
+}
 
 local default_options = {
   always_show_dot_files = false,
@@ -323,7 +450,12 @@ commandt.setup = function(options)
     vim.g.CommandTPreferredImplementation = 'lua'
   end
 
-  options = options or {}
+  if options == nil then
+    options = {}
+  elseif not is_table(options) then
+    table.insert(errors, '`commandt.setup() expects a table of options but received ' .. type(options))
+    options = {}
+  end
 
   _options = merge(_options, options)
 
@@ -335,180 +467,8 @@ commandt.setup = function(options)
     _options.smart_case = vim.o.smartcase
   end
 
-  -- Helper functions for validating options.
-  local report = function(message)
-    table.insert(errors, message)
-  end
-  local last = function(list)
-    return list[#list]
-  end
-  local split_option = function(option)
-    local segments = {}
-    -- Append trailing '.' to make it easier to split.
-    for segment in string.gmatch(option .. '.', '([%a%d_]+)%.') do
-      table.insert(segments, segment)
-    end
-    return segments
-  end
-  local pick = function(option, value, pop)
-    pop = pop ~= nil and pop or 0
-    local segments = split_option(option)
-    local result = value
-    for i, segment in ipairs(segments) do
-      if i <= #segments - pop then
-        assert(type(result) == 'table')
-        result = result[segment]
-      end
-    end
-    return result
-  end
-  local reset = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    actual = pick(option, actual, 1)
-    actual[last(split_option(option))] = copy(pick(option, defaults))
-  end
-  local optional_function = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local value = pick(option, actual)
-    if value ~= nil and type(value) ~= 'function' then
-      report(string.format('`%s` must be a function or nil', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local optional_function_or_string = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local value = pick(option, actual)
-    if value ~= nil and type(value) ~= 'function' and type(value) ~= 'string' then
-      report(string.format('`%s` must be a function or string or nil', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local optional_function_or_table = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local value = pick(option, actual)
-    if value ~= nil and type(value) ~= 'function' and type(value) ~= 'table' then
-      report(string.format('`%s` must be a function or table or nil', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local require_boolean = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    if type(pick(option, actual)) ~= 'boolean' then
-      report(string.format('`%s` must be true or false', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local require_one_of = function(option, choices, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local description = ''
-    local picked = pick(option, actual)
-    for i, choice in ipairs(choices) do
-      if picked == choice then
-        return
-      end
-      if i == 1 then
-        description = "'" .. choice .. "'"
-      elseif i == #choices then
-        description = description .. " or '" .. choice .. "'"
-      else
-        description = description .. ", '" .. choice .. "'"
-      end
-    end
-    report(string.format('`%s` must be %s', option, description))
-    reset(option, actual, defaults)
-  end
-  local require_positive_integer = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local picked = pick(option, actual)
-    if not is_integer(picked) or picked < 0 then
-      report(string.format('`%s` must be a non-negative integer', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local require_string = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local picked = pick(option, actual)
-    if type(picked) ~= 'string' then
-      report(string.format('`%s` must be a string', option))
-      reset(option, actual, defaults)
-    end
-  end
-  local require_table = function(option, actual, defaults)
-    actual = actual ~= nil and actual or _options
-    defaults = defaults ~= nil and defaults or default_options
-    local picked = pick(option, actual)
-    if type(picked) ~= 'table' then
-      report(string.format('`%s` must be a table', option))
-      reset(option, actual, defaults)
-    end
-  end
-
-  for k, _ in pairs(options) do
-    -- `n` is small, so not worried about `O(n)` check.
-    if not contains(allowed_options, k) then
-      -- TODO: suggest near-matches for misspelled option names
-      report('unrecognized option: ' .. k)
-    end
-  end
-
-  require_boolean('always_show_dot_files')
-  require_boolean('never_show_dot_files')
-  if _options.always_show_dot_files == true and _options.never_show_dot_files == true then
-    report('`always_show_dot_files` and `never_show_dot_files` should not both be true')
-    reset('always_show_dot_files')
-    reset('never_show_dot_files')
-  end
-  require_boolean('ignore_case')
-  require_positive_integer('margin')
-  require_one_of('order', { 'forward', 'reverse' })
-  require_one_of('position', { 'bottom', 'center', 'top' })
-  require_table('scanners')
-  require_table('scanners.git')
-  require_boolean('scanners.git.submodules')
-  require_boolean('scanners.git.untracked')
-  if _options.scanners.git.submodules == true and _options.scanners.git.untracked == true then
-    report('`scanners.git.submodules` and `scanners.git.untracked` should not both be true')
-    reset('scanners.git.submodules')
-    reset('scanners.git.untracked')
-  end
-  require_string('selection_highlight')
-  require_boolean('smart_case')
-
-  for name, finder in pairs(options.finders or {}) do
-    optional_function_or_table('finders.' .. name .. '.candidates', nil, {
-      finders = {
-        [name] = {
-          command = 'true',
-        },
-      },
-    })
-    optional_function_or_string('finders.' .. name .. '.command', nil, {
-      finders = {
-        [name] = {
-          command = 'true',
-        },
-      },
-    })
-    optional_function('finders.' .. name .. '.open', nil, {
-      finders = {
-        [name] = {},
-      },
-    })
-    -- TODO: complain if passed `candidates` _and_ `command`.
-    for k, _ in pairs(finder) do
-      if not contains({ 'candidates', 'command', 'open' }, k) then
-        report(string.format('unrecognized option in `finders.%s`: %s)', name, k))
-      end
-    end
-  end
+  local validate = require('wincent.commandt.private.validate')
+  errors = merge(errors, validate('', nil, _options, options_spec, default_options))
 
   if
     not pcall(function()

@@ -18,6 +18,9 @@ local lua_directory = pwd .. '/lua/'
 package.path = lua_directory .. '?.lua;' .. package.path
 package.path = lua_directory .. '?/init.lua;' .. package.path
 
+local is_list = require('wincent.commandt.private.is_list')
+local is_table = require('wincent.commandt.private.is_table')
+
 local contexts = {}
 local current_context = nil
 local current_test = nil
@@ -106,17 +109,53 @@ equal = function(a, b)
   end
 end
 
+local inspect = nil
+
+inspect = function(value, indent)
+  local prefix = (' '):rep(indent)
+  if type(value) == 'string' then
+    return prefix .. "'" .. value:gsub('\\', '\\\\'):gsub("'", "\\'") .. "'"
+  elseif type(value) == 'table' then
+    if is_list(value) then
+      if #value == 0 then
+        return prefix .. '{}'
+      else
+        local output = prefix .. '{\n'
+        for _, v in ipairs(value) do
+          output = output .. inspect(v, indent + 2) .. ',\n'
+        end
+        output = output .. prefix .. '}'
+        return output
+      end
+    else
+      local output = prefix .. '{\n'
+      output = output .. prefix .. '}'
+      for k, v in pairs(value) do
+        local trimmed = inspect(v, indent + 2):gsub('^%s+', '')
+        output = output .. '[' .. inspect(k, 0) .. '] = ' .. trimmed .. ',\n'
+      end
+      return output
+    end
+  else
+    return prefix .. tostring(value)
+  end
+end
+
 _G.expect = function(value)
   return {
     to_be = function(other)
       if value ~= other then
+        print('\nExpected:\n\n' .. inspect(other, 2) .. '\n')
+        print('Actual:\n\n' .. inspect(value, 2) .. '\n')
+        inspect(value)
         error('not ==', 2)
       end
     end,
 
     to_equal = function(other)
       if not equal(value, other) then
-        -- TODO: say how it was different
+        print('\nExpected:\n\n' .. inspect(other, 2) .. '\n')
+        print('Actual:\n\n' .. inspect(value, 2) .. '\n')
         error('not equal', 2)
       end
     end,
@@ -125,12 +164,16 @@ _G.expect = function(value)
     -- will refactor.
     not_to_be = function(other)
       if value == other then
+        print('\nExpected (not):\n\n' .. inspect(other, 2) .. '\n')
+        print('Actual:\n\n' .. inspect(value, 2) .. '\n')
         error('==', 2)
       end
     end,
 
     not_to_equal = function(other)
       if equal(value, other) then
+        print('\nExpected (not):\n\n' .. inspect(other, 2) .. '\n')
+        print('Actual:\n\n' .. inspect(value, 2) .. '\n')
         error('equal', 2)
       end
     end,
