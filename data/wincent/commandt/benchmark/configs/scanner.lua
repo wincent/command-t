@@ -5,21 +5,11 @@ return {
     {
       name = 'buffer',
       source = function()
+        local command = require('wincent.commandt').default_options().finders.buffer.candidates()
         local scanner = require('wincent.commandt.private.scanners.list').scanner
         return {
           scanner = function()
-            local handles = vim.api.nvim_list_bufs()
-            local paths = {}
-            for _, handle in ipairs(handles) do
-              if vim.api.nvim_buf_is_loaded(handle) then
-                local name = vim.api.nvim_buf_get_name(handle)
-                if name ~= '' then
-                  local relative = vim.fn.fnamemodify(name, ':~:.')
-                  table.insert(paths, relative)
-                end
-              end
-            end
-            return scanner(paths)
+            return scanner(command)
           end,
         }
       end,
@@ -222,14 +212,24 @@ return {
     {
       name = 'find',
       source = function()
-        local command = 'find -L . -type f -print0 2> /dev/null'
-        local drop = 2
+        local command = require('wincent.commandt').default_options().finders.find.command('')
         local scanner = require('wincent.commandt.private.scanners.command').scanner
         return {
           scanner = function()
-            return scanner(command, drop)
+            return scanner(command)
           end,
         }
+      end,
+      stub = function()
+        assert(_G.vim == nil)
+        _G.vim = {
+          startswith = function()
+            return false
+          end,
+        }
+      end,
+      unstub = function()
+        _G.vim = nil
       end,
       times = times,
       skip_in_ci = false,
@@ -237,7 +237,7 @@ return {
     {
       name = 'git',
       source = function()
-        local command = 'git ls-files --exclude-standard --cached -z 2> /dev/null'
+        local command = require('wincent.commandt').default_options().finders.git.command('', {})
         local scanner = require('wincent.commandt.private.scanners.command').scanner
         return {
           scanner = function()
@@ -251,13 +251,24 @@ return {
     {
       name = 'rg',
       source = function()
-        local command = 'rg --files --null 2> /dev/null'
+        local command = require('wincent.commandt').default_options().finders.rg.command('')
         local scanner = require('wincent.commandt.private.scanners.command').scanner
         return {
           scanner = function()
             return scanner(command)
           end,
         }
+      end,
+      stub = function()
+        assert(_G.vim == nil)
+        _G.vim = {
+          startswith = function()
+            return false
+          end,
+        }
+      end,
+      unstub = function()
+        _G.vim = nil
       end,
       times = times,
       skip_in_ci = true,

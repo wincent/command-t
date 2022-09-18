@@ -21,6 +21,10 @@ benchmark({
   setup = function(config)
     collectgarbage()
     local scanner = nil
+    if config.stub then
+      -- For scanners that otherwise depend on Neovim for a list of candidates.
+      config.stub()
+    end
     if type(config.source) == 'string' then
       scanner = require(config.source)
     elseif type(config.source) == 'function' then
@@ -36,10 +40,6 @@ benchmark({
       file:close()
       local name = output:match('"sockname":%s*"([^"]+)"') or fallback
       scanner.set_sockname(name)
-    end
-    if config.stub then
-      -- For scanners that otherwise depend on Neovim for a list of candidates.
-      config.stub(scanner)
     end
     return scanner
   end,
