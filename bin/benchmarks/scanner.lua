@@ -20,7 +20,14 @@ benchmark({
 
   setup = function(config)
     collectgarbage()
-    local scanner = require(config.source)
+    local scanner = nil
+    if type(config.source) == 'string' then
+      scanner = require(config.source)
+    elseif type(config.source) == 'function' then
+      scanner = config.source()
+    else
+      error('`source` should be a string or function')
+    end
     if scanner.name == 'watchman' then
       -- We don't have a real JSON parser here, so we fake it.
       local fallback = '/opt/homebrew/var/run/watchman/wincent-state/sock'
