@@ -573,7 +573,8 @@ HISTORY                                         *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- feat: add back |:CommandTLine| finder
+  (https://github.com/wincent/command-t/pull/408).
 
 6.0.0-a.4 (5 September 2022) ~
 
