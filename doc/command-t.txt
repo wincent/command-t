@@ -594,7 +594,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+6.0.0-b.0 (21 October 2022) ~
 
 - feat: add back |:CommandTLine| finder
   (https://github.com/wincent/command-t/pull/408).
