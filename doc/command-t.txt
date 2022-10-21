@@ -57,11 +57,34 @@ See also |command-t-ruby-requirements| for older requirements.
 
 INSTALLATION                                    *command-t-installation*
 
-You'll need a C compiler. `cd` into the `lua/wincent/commandt/lib/` directory
-and type:
+Most people choose to install using a plug-in manager (although you may
+also choose to simply download the source code or pull it into your dotfiles
+as a Git submodule). As an example, if you were using packer.nvim
+(https://github.com/wbthomason/packer.nvim), the following config could be
+used:
+
+    use {
+      'wincent/command-t',
+      run = 'cd lua/wincent/commandt/lib && make',
+      setup = function ()
+        vim.g.CommandTPreferredImplementation = 'lua'
+      end,
+      config = function()
+        require('wincent.commandt').setup({
+          -- Customizations go here.
+        })
+      end,
+    }
+
+Note the use of `make`; you'll need a C compiler to actually build the
+plug-in. If you're managing the plug-in manually, `cd` into the
+`lua/wincent/commandt/lib/` directory and type:
 >
     make
 <
+If you're not sure where to run this command, running
+`:checkhealth wincent.commandt` should show the exact location.
+
 See also |command-t-ruby-installation| for older installation instructions
 (relevant if you wish to continue using the Ruby implementation as a
 fallback, as described in |command-t-upgrading| below).
