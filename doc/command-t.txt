@@ -440,30 +440,31 @@ Other contributors that have submitted patches include, in alphabetical order:
   Artem Nezvigin                  Paul Jolly
   Ben Boeckel                     Pavel Sergeev
   Brendan Mulholland              Rainux Luo
-  Daniel Burgess                  Richard Feldman
-  Daniel Hahler                   Roland Puntaier
-  David Emett                     Ross Lagerwall
-  David Szotten                   Sam Morris
-  Douglas Drumond                 Scott Bronson
-  Emily Strickland                Seth Fowler
-  Felix Tjandrawibawa             Sherzod Gapirov
-  Gary Bernhardt                  Shlomi Fish
-  Henric Trotzig                  Stefan Schmidt
-  Ivan Ukhov                      Stephen Gelman
-  Jakob Pfender                   Steve Herrell
-  Jeff Kreeftmeijer               Steven Moazami
-  Jerome Castaneda                Steven Stallion
-  Joe Lencioni                    Sung Pae
-  KJ Tsanaktsidis                 Thomas Pelletier
-  Kevin Webster                   Todd Derr
-  Kien Nguyen Duc                 Ton van den Heuvel
-  Lucas de Vries                  Victor Hugo Borja
-  Marcus Brito                    Vlad Seghete
-  Marian Schubert                 Vít Ondruch
-  Matthew Todd                    Woody Peterson
-  Max Timkovich                   Yan Pritzker
-  Mike Lundy                      Zak Johnson
-  Nadav Samet                     xiaodezhang
+  Cody Buell                      Richard Feldman
+  Daniel Burgess                  Roland Puntaier
+  Daniel Hahler                   Ross Lagerwall
+  David Emett                     Sam Morris
+  David Szotten                   Scott Bronson
+  Douglas Drumond                 Seth Fowler
+  Emily Strickland                Sherzod Gapirov
+  Felix Tjandrawibawa             Shlomi Fish
+  Gary Bernhardt                  Stefan Schmidt
+  Henric Trotzig                  Stephen Gelman
+  Ivan Ukhov                      Steve Herrell
+  Jakob Pfender                   Steven Moazami
+  Jeff Kreeftmeijer               Steven Stallion
+  Jerome Castaneda                Sung Pae
+  Joe Lencioni                    Thomas Pelletier
+  KJ Tsanaktsidis                 Todd Derr
+  Kevin Webster                   Ton van den Heuvel
+  Kien Nguyen Duc                 Victor Hugo Borja
+  Lucas de Vries                  Vlad Seghete
+  Marcus Brito                    Vít Ondruch
+  Marian Schubert                 Woody Peterson
+  Matthew Todd                    Yan Pritzker
+  Max Timkovich                   Zak Johnson
+  Mike Lundy                      xiaodezhang
+  Nadav Samet
 
 This list produced with:
 
@@ -596,7 +597,8 @@ HISTORY                                         *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- fix: actually respect `scanners.git.submodules` and `scanners.git.untracked`
+  options in |commandt.setup()| (https://github.com/wincent/command-t/pull/414).
 
 6.0.0-b.0 (21 October 2022) ~
 
