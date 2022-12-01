@@ -203,9 +203,9 @@ local default_options = {
           directory = vim.fn.shellescape(directory)
         end
         local command = 'git ls-files --exclude-standard --cached -z'
-        if options.submodules then
+        if options.scanners.git.submodules then
           command = command .. ' --recurse-submodules'
-        elseif options.untracked then
+        elseif options.scanners.git.untracked then
           command = command .. ' --others'
         end
         if directory ~= '' then
