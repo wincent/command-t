@@ -599,6 +599,8 @@ main (not yet released) ~
 
 - fix: actually respect `scanners.git.submodules` and `scanners.git.untracked`
   options in |commandt.setup()| (https://github.com/wincent/command-t/pull/414).
+- fix: avoid "invalid option" error to `format` at specific window dimensions
+  (https://github.com/wincent/command-t/issues/415).
 
 6.0.0-b.0 (21 October 2022) ~
 
