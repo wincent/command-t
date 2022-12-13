@@ -57,13 +57,11 @@ local format_line = function(line, width, selected)
     :gsub('\v', '\\v')
 
   -- Right pad so that selection highlighting is shown across full width.
-  if width < 104 then
-    if #line > 99 then
-      -- No padding needed.
-      line = prefix .. line
-    else
-      line = prefix .. string.format('%-' .. (width - #prefix) .. 's', line)
-    end
+  if width < 102 and #line > 99 then
+    -- No padding needed.
+    line = prefix .. line
+  elseif width < 102 then
+    line = prefix .. string.format('%-' .. (width - #prefix) .. 's', line)
   else
     -- Avoid: "invalid option" caused by format argument > 99.
     line = prefix .. string.format('%-99s', line)
