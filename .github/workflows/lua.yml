@@ -10,11 +10,11 @@ on:
 
 jobs:
   style:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v2
-      - uses: JohnnyMorganz/stylua-action@1.0.0
+      - uses: actions/checkout@v3
+      - uses: JohnnyMorganz/stylua-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --check .
@@ -25,10 +25,10 @@ jobs:
           check-path: lua
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: leafo/gh-actions-lua@v9
         with:
           luaVersion: luajit-2.1.0-beta3
