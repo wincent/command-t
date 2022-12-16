@@ -523,6 +523,18 @@ feeling wild and experimental, but note that the "next" branch may
 periodically be rewound (force-updated) to keep it in sync with the
 "main" branch after each official release.
 
+The release process is:
+
+1. Update the version in `lua/wincent/commandt/version.lua`.
+2. Update |command-t-history|.
+3. Commit with a message like "chore: prepare for 6.0.0 release".
+4. Create a signed tag with `git tag -s -m '6.0.0 release` (or similar).
+5. Publish with `git push origin --follow-tags` (or similar).
+6. Create GitHub release and publish release notes.
+7. Create archive (eg. `git archive -o command-t-6.0.0-b.1.zip HEAD -- .` or
+   similar).
+8. Upload to vim.org (http://www.vim.org/scripts/script.php?script_id=3025).
+
 
 WEBSITE                                         *command-t-website*
 
