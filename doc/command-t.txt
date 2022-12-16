@@ -595,7 +595,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
-main (not yet released) ~
+6.0.0-b.1 (16 December 2022) ~
 
 - fix: actually respect `scanners.git.submodules` and `scanners.git.untracked`
   options in |commandt.setup()| (https://github.com/wincent/command-t/pull/414).
