@@ -52,6 +52,31 @@ describe('merge()', function()
       other = 'yeah',
     })
 
+    -- Because it's convenient for user settings, list-like tables get
+    -- replaced, table-like tables get merged.
+    merged = merge({
+      list_like = { 'foo', 'bar', 'baz' },
+      table_like = {
+        width = 10,
+        height = 20,
+      },
+    }, {
+      list_like = { 'qux', 'foobar' },
+      table_like = {
+        height = 30,
+        depth = 50,
+      }
+    })
+
+    expect(merged).to_equal({
+      list_like = { 'qux', 'foobar' },
+      table_like = {
+        width = 10,
+        height = 30,
+        depth = 50,
+      }
+    })
+
     -- Values of differing types get overwritten.
     merged = merge({
       a = true,
