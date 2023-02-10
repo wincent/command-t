@@ -105,6 +105,7 @@ local options_spec = {
     order = { kind = { one_of = { 'forward', 'reverse' } } },
     position = { kind = { one_of = { 'bottom', 'center', 'top' } } },
     open = { kind = 'function' },
+    root_markers = { kind = 'list', of = { kind = 'string' } },
     scanners = {
       kind = 'table',
       keys = {
@@ -140,6 +141,7 @@ local options_spec = {
       kind = 'number',
       optional = true,
     },
+    traverse = { kind = { one_of = { 'file', 'pwd', 'none' } } },
   },
   meta = function(t)
     if t.always_show_dot_files == true and t.never_show_dot_files == true then
@@ -367,6 +369,7 @@ local default_options = {
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
   open = open,
+  root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
   scanners = {
     git = {
       submodules = true,
@@ -376,7 +379,10 @@ local default_options = {
   selection_highlight = 'PMenuSel',
   smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
   threads = nil, -- Let heuristic apply.
+  traverse = 'file', -- 'file', 'pwd' or 'none'.
 }
+
+local _options = copy(default_options)
 
 -- Have to add some of these explicitly otherwise the ones with `nil` defaults
 -- won't come through (eg. `ignore_case` etc).
@@ -385,6 +391,20 @@ local allowed_options = concat(keys(default_options), {
   'smart_case',
   'threads',
 })
+
+local get_directory = function()
+  local options = _options -- No need for deep copy provided by `commandt.options()`.
+  if options.traverse == 'file' then
+    local file = vim.fn.expand('%:p:h')
+    return require('wincent.commandt.private.find_root')(file, options.root_markers)
+  elseif options.traverse == 'pwd' then
+    return require('wincent.commandt.private.find_root')(vim.fn.getcwd(), options.root_markers)
+  else
+    return vim.fn.getcwd()
+  end
+end
+
+commandt._directory = get_directory
 
 commandt.default_options = function()
   return copy(default_options)
@@ -434,8 +454,6 @@ end
 -- specified `buffer`, if one exists; otherwise, it will open a new window using
 -- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
 commandt.open = open
-
-local _options = copy(default_options)
 
 commandt.options = function()
   return copy(_options)
