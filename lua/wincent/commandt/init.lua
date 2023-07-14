@@ -161,7 +161,7 @@ local default_options = {
         local handles = vim.api.nvim_list_bufs()
         local paths = {}
         for _, handle in ipairs(handles) do
-          if vim.api.nvim_buf_is_loaded(handle) then
+          if vim.api.nvim_buf_is_valid(handle) then
             local name = vim.api.nvim_buf_get_name(handle)
             if name ~= '' then
               local relative = vim.fn.fnamemodify(name, ':~:.')

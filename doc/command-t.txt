@@ -609,7 +609,8 @@ HISTORY                                         *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- fix: teach buffer finder to see all buffers passed into Neovim as
+  command-line arguments (https://github.com/wincent/command-t/issues/418).
 
 6.0.0-b.1 (16 December 2022) ~
 
