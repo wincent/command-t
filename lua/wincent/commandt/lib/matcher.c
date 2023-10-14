@@ -236,11 +236,12 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     result_t *results = xmalloc(sizeof(result_t));
     unsigned count = matches_count > limit ? limit : matches_count;
     results->matches = xmalloc(count * sizeof(const char *));
-    results->count = 0;
+    results->match_count = 0;
+    results->candidate_count = candidate_count;
 
-    for (long i = 0; i < count && results->count <= limit; i++) {
+    for (long i = 0; i < count && results->match_count <= limit; i++) {
         if (matches[i]->score > 0.0f) {
-            results->matches[results->count++] = matches[i]->candidate;
+            results->matches[results->match_count++] = matches[i]->candidate;
         }
     }
 

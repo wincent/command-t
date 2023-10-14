@@ -17,11 +17,11 @@ return function(directory, candidates, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)
     local strings = {}
-    for i = 0, results.count - 1 do
+    for i = 0, results.match_count - 1 do
       local str = results.matches[i]
       table.insert(strings, ffi.string(str.contents, str.length))
     end
-    return strings
+    return strings, results.candidate_count
   end
   finder.open = options.open
   return finder

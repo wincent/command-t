@@ -14,7 +14,7 @@ describe('matcher.c', function()
       match = function(query)
         local results = lib.matcher_run(matcher, query)
         local strings = {}
-        for k = 0, results.count - 1 do
+        for k = 0, results.match_count - 1 do
           local str = results.matches[k]
           table.insert(strings, ffi.string(str.contents, str.length))
         end

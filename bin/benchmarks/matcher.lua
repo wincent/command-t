@@ -42,14 +42,14 @@ benchmark({
       local input = ''
       for letter in query:gmatch('.') do
         local matches = lib.matcher_run(matcher, input)
-        for k = 0, matches.count - 1 do
+        for k = 0, matches.match_count - 1 do
           local str = matches.matches[k]
           ffi.string(str.contents, str.length)
         end
         input = input .. letter
       end
       local matches = lib.matcher_run(matcher, input)
-      for k = 0, matches.count - 1 do
+      for k = 0, matches.match_count - 1 do
         local str = matches.matches[k]
         ffi.string(str.contents, str.length)
       end

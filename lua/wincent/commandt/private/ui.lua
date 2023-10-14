@@ -6,6 +6,7 @@ local ui = {}
 local MatchListing = require('wincent.commandt.private.match_listing').MatchListing
 local Prompt = require('wincent.commandt.private.prompt').Prompt
 
+local candidate_count = nil
 local cmdline_enter_autocmd = nil
 local current_finder = nil -- Reference to avoid premature garbage collection.
 local current_window = nil
@@ -94,8 +95,8 @@ ui.show = function(finder, options)
     margin = options.margin,
     name = options.name,
     on_change = function(query)
-      results = current_finder.run(query)
-      if #results > 0 then
+      results, candidate_count = current_finder.run(query)
+      if #results > 0 or candidate_count > 0 then
         -- Once we've proved a finder works, we don't ever want to use fallback.
         current_finder.fallback = nil
       elseif current_finder.fallback then

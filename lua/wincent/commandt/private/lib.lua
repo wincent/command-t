@@ -56,7 +56,8 @@ setmetatable(c, {
 
       typedef struct {
           str_t **matches;
-          unsigned count;
+          unsigned match_count;
+          unsigned candidate_count;
       } result_t;
 
       typedef struct {
