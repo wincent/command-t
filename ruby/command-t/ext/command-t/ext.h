@@ -17,13 +17,13 @@ VALUE CommandT_option_from_hash(const char *option, VALUE hash);
 
 // Debugging macros.
 #define L(...) \
-{ \
-fprintf(stdout, __VA_ARGS__); \
-fflush(stdout); \
-} \
-while (0)
+    { \
+        fprintf(stdout, __VA_ARGS__); \
+        fflush(stdout); \
+    } \
+    while (0)
 #define RUBY_INSPECT(obj) \
-do { \
-rb_funcall(rb_mKernel, rb_intern("p"), 1, obj); \
-fflush(stdout); \
-} while (0)
+    do { \
+        rb_funcall(rb_mKernel, rb_intern("p"), 1, obj); \
+        fflush(stdout); \
+    } while (0)

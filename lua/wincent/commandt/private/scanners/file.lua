@@ -3,10 +3,10 @@
 
 local file = {}
 
-file.scanner = function(directory)
+file.scanner = function(directory, max_files)
   local lib = require('wincent.commandt.private.lib')
-  -- TODO: support max depth, dot directory filter etc
-  local scanner = lib.file_scanner(directory)
+  -- TODO: support dot directory filter etc
+  local scanner = lib.file_scanner(directory, max_files)
   return scanner
 end
 

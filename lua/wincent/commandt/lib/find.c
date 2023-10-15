@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-// TODO: implement max_depth, max_files
+// TODO: implement max_depth
 // TODO: implement scan_dot_directories
 
 #include "find.h"
@@ -25,11 +25,10 @@ static long MAX_FILES = MAX_FILES_CONF;
 static size_t buffer_size = MMAP_SLAB_SIZE_CONF;
 static const char *current_directory = ".";
 
-find_result_t *commandt_find(const char *directory) {
+find_result_t *commandt_find(const char *directory, unsigned max_files) {
     find_result_t *result = xcalloc(1, sizeof(find_result_t));
 
-    // TODO: once i am passing in max_files, don't bother asking for MAX_FILES
-    result->files_size = sizeof(str_t) * MAX_FILES;
+    result->files_size = sizeof(str_t) * (max_files ? max_files + 1 : MAX_FILES);
     result->files = xmap(result->files_size);
 
     result->buffer_size = buffer_size;
@@ -67,6 +66,10 @@ find_result_t *commandt_find(const char *directory) {
                 memcpy(buffer, node->fts_path + drop, path_len);
                 str_init(str, buffer, path_len - 1); // Don't count NUL byte.
                 buffer += path_len;
+
+                if (max_files && result->count >= max_files) {
+                    break;
+                }
             }
         }
         if (errno != 0) {
@@ -92,8 +95,8 @@ void commandt_find_result_free(find_result_t *result) {
     free(result);
 }
 
-scanner_t *commandt_file_scanner(const char *directory) {
-    find_result_t *result = commandt_find(directory);
+scanner_t *commandt_file_scanner(const char *directory, unsigned max_files) {
+    find_result_t *result = commandt_find(directory, max_files);
     // BUG: if there is an error here, we effectively swallow it...
     if (result->error) {
         DEBUG_LOG("%s\n", result->error);

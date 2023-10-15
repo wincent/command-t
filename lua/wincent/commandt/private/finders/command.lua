@@ -6,11 +6,12 @@ local ffi = require('ffi')
 return function(directory, command, options)
   local lib = require('wincent.commandt.private.lib')
   local drop = 0
+  local max_files = 0
   if type(command) == 'function' then
-    command, drop = command(directory, options)
+    command, drop, max_files = command(directory, options)
   end
   local finder = {}
-  finder.scanner = require('wincent.commandt.private.scanners.command').scanner(command, drop)
+  finder.scanner = require('wincent.commandt.private.scanners.command').scanner(command, drop, max_files)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)

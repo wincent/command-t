@@ -8,7 +8,8 @@ return function(directory, options)
   directory = directory or os.getenv('PWD')
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
-  finder.scanner = require('wincent.commandt.private.scanners.file').scanner(directory)
+  local max_files = options.scanners.file.max_files or 0
+  finder.scanner = require('wincent.commandt.private.scanners.file').scanner(directory, max_files)
   finder.matcher = lib.matcher_new(finder.scanner, options)
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)

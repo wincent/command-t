@@ -34,7 +34,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count);
  * 0, but for commands such as `find .` which prefix all paths with "./", `drop`
  * would be 2.
  */
-scanner_t *scanner_new_command(const char *command, unsigned drop);
+scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_files);
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.

@@ -6,19 +6,21 @@
 #include "scanner.h"
 
 #include <assert.h> /* for assert() */
+#include <errno.h> /* for errno */
+#include <signal.h> /* for SIGKILL, kill() */
 #include <stddef.h> /* for NULL */
 #include <stdio.h> /* for fileno(), fprintf(), pclose(), popen(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
-#include <unistd.h> /* read() */
+#include <unistd.h> /* close(), fork(), pipe(), read(), tcgetpgrp() */
 
 #include "debug.h"
+#include "str.h"
 #include "xmalloc.h"
 #include "xmap.h" /* for xmap(), xmunmap() */
 
 // TODO: make this capable of producing asynchronously?
 
-// TODO make this configurable
 static long MAX_FILES = MAX_FILES_CONF;
 static size_t buffer_size = MMAP_SLAB_SIZE_CONF;
 
@@ -37,7 +39,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     return scanner;
 }
 
-scanner_t *scanner_new_command(const char *command, unsigned drop) {
+scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_files) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
     DEBUG_LOG(
@@ -50,19 +52,52 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
     );
     scanner->buffer = xmap(scanner->buffer_size);
 
-    FILE *file = popen(command, "r");
-    if (!file) {
-        // Rather than crashing the process, act like we got an empty result.
+    // Index 0 = read end of pipe; index 1 = write end of pipe.
+    int stdout_pipe[2];
+
+    if (pipe(stdout_pipe) != 0) {
+        DEBUG_LOG("scanner_new_command(): failed pipe()\n");
         goto out;
     }
-    int fd = fileno(file);
 
+    pid_t child_pid = fork();
+    if (child_pid == -1) {
+        DEBUG_LOG("scanner_new_command(): failed fork()\n");
+        goto out;
+    } else if (child_pid == 0) {
+        // In child.
+        DEBUG_LOG("scanner_new_command(): forked child\n");
+        close(stdout_pipe[0]); // TODO check error (!= 0) etc
+        dup2(stdout_pipe[1], 1);
+        close(stdout_pipe[1]);
+
+        // Fork a shell to mimic behavior of `popen()`.
+        execl("/bin/sh", "sh", "-c", command, NULL);
+        perror("execl");
+        _exit(1);
+    }
+
+    // In parent.
+    DEBUG_LOG(
+        "scanner_new_command(): parent forked child with PID %d\n", child_pid
+    );
+    int status = close(stdout_pipe[1]);
+    if (status != 0) {
+        // Degrade gracefully; either:
+        // - status -1: probably a `wait4()` call failed; or:
+        // - otherwise: command exited with this status.
+        DEBUG_LOG(
+            "commandt_scanner_new_command(): close() exited with %d status\n", status
+        );
+    }
     char *start = scanner->buffer;
     char *end = scanner->buffer;
     ssize_t read_count;
-    while ((read_count = read(fd, end, 4096)) != 0) {
+    while ((read_count = read(stdout_pipe[0], end, 4096)) != 0) {
+        DEBUG_LOG("scanner_new_command(): read %d bytes\n", read_count);
         if (read_count < 0) {
             // A read error, but we may as well try and proceed gracefully.
+            DEBUG_LOG("scanner_new_command(): read() - %s\n", strerror(errno));
             break;
         }
         end += read_count;
@@ -86,27 +121,38 @@ scanner_t *scanner_new_command(const char *command, unsigned drop) {
             }
             start = next_end + 1;
             str_init(&scanner->candidates[scanner->count++], path, length);
+            DEBUG_LOG(
+                "commandt_scanner_new_command(): scanned %s\n",
+                str_c_string(&scanner->candidates[scanner->count - 1])
+            );
 
-            if (scanner->count >= MAX_FILES) {
-                // TODO: make this real
+            if (max_files && scanner->count >= max_files) {
+                DEBUG_LOG(
+                    "commandt_scanner_new_command(): killing process %d because count %d\n",
+                    child_pid,
+                    scanner->count
+                );
+                if (kill(child_pid, SIGKILL)) {
+                    DEBUG_LOG(
+                        "commandt_scanner_new_command(): kill() errno %d error %s\n",
+                        errno,
+                        strerror(errno)
+                    );
+                }
+                goto bail;
             }
         }
     }
 
 bail:
-    (void)0;
-    int status = pclose(file);
-    if (status != 0) {
-        // Degrade gracefully; either:
-        // - status -1: probably a `wait4()` call failed; or:
-        // - otherwise: command exited with this status.
-        DEBUG_LOG(
-            "commandt_scanner_new_command(): pclose() exited with %d status\n",
-            status
-        );
-    }
+    DEBUG_LOG("commandt_scanner_new_command(): waiting %d\n", child_pid);
+    wait(&child_pid);
 
 out:
+    DEBUG_LOG(
+        "commandt_scanner_new_command(): returning scanner with count %d\n",
+        scanner->count
+    );
     return scanner;
 }
 

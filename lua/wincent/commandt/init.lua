@@ -108,9 +108,24 @@ local options_spec = {
     scanners = {
       kind = 'table',
       keys = {
+        find = {
+          kind = 'table',
+          keys = {
+            max_files = { kind = 'number' },
+          },
+          optional = true,
+        },
+        file = {
+          kind = 'table',
+          keys = {
+            max_files = { kind = 'number' },
+          },
+          optional = true,
+        },
         git = {
           kind = 'table',
           keys = {
+            max_files = { kind = 'number' },
             submodules = {
               kind = 'boolean',
               optional = true,
@@ -127,6 +142,13 @@ local options_spec = {
               return { '`submodules` and `untracked` should not both be true' }
             end
           end,
+          optional = true,
+        },
+        rg = {
+          kind = 'table',
+          keys = {
+            max_files = { kind = 'number' },
+          },
           optional = true,
         },
       },
@@ -173,7 +195,7 @@ local default_options = {
       end,
     },
     find = {
-      command = function(directory)
+      command = function(directory, options)
         if vim.startswith(directory, './') then
           directory = directory:sub(3, -1)
         end
@@ -191,9 +213,10 @@ local default_options = {
           -- I may end up needing to do some fancy, separate micromanagement of
           -- prefixes and let the matcher operate on paths without prefixes.
         end
-        -- TODO: support max depth, dot directory filter etc
+        -- TODO: support dot directory filter etc
         local command = 'find -L ' .. directory .. ' -type f -print0 2> /dev/null'
-        return command, drop
+        local max_files = options.scanners.find.max_files or 0
+        return command, drop, max_files
       end,
       fallback = true,
     },
@@ -212,7 +235,9 @@ local default_options = {
           command = command .. ' -- ' .. directory
         end
         command = command .. ' 2> /dev/null'
-        return command
+        local drop = 0
+        local max_files = options.scanners.git.max_files or 0
+        return command, drop, max_files
       end,
       fallback = true,
     },
@@ -289,7 +314,7 @@ local default_options = {
       end,
     },
     rg = {
-      command = function(directory)
+      command = function(directory, options)
         if vim.startswith(directory, './') then
           directory = directory:sub(3, -1)
         end
@@ -305,7 +330,8 @@ local default_options = {
           command = command .. ' ' .. directory
         end
         command = command .. ' 2> /dev/null'
-        return command, drop
+        local max_files = options.scanners.rg.max_files or 0
+        return command, drop, max_files
       end,
       fallback = true,
     },
@@ -368,9 +394,19 @@ local default_options = {
   position = 'center', -- 'bottom', 'center', 'top'.
   open = open,
   scanners = {
+    file = {
+      max_files = 0,
+    },
+    find = {
+      max_files = 0,
+    },
     git = {
+      max_files = 0,
       submodules = true,
       untracked = false,
+    },
+    rg = {
+      max_files = 0,
     },
   },
   selection_highlight = 'PMenuSel',

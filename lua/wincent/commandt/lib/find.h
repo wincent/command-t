@@ -42,7 +42,7 @@ typedef struct {
     size_t buffer_size;
 } find_result_t;
 
-find_result_t *commandt_find(const char *directory);
+find_result_t *commandt_find(const char *directory, unsigned max_files);
 void commandt_find_result_free(find_result_t *result);
 
 /**
@@ -51,6 +51,6 @@ void commandt_find_result_free(find_result_t *result);
  * new scanner takes ownership of the resources, which means you should call
  * `scanner_free()` on it.
  */
-scanner_t *commandt_file_scanner(const char *directory);
+scanner_t *commandt_file_scanner(const char *directory, unsigned max_files);
 
 #endif

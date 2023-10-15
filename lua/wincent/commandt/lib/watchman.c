@@ -70,16 +70,16 @@ static void watchman_write_string(
 #define WATCHMAN_SKIP_MARKER 0x0c
 
 #define WATCHMAN_HEADER \
-WATCHMAN_BINARY_MARKER "\x06\x00\x00\x00\x00\x00\x00\x00\x00"
+    WATCHMAN_BINARY_MARKER "\x06\x00\x00\x00\x00\x00\x00\x00\x00"
 
 // How far we have to look to figure out the size of the PDU header.
 #define WATCHMAN_SNIFF_BUFFER_SIZE \
-(sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t))
+    (sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t))
 
 // How far we have to peek, at most, to figure out the size of the PDU itself.
 #define WATCHMAN_PEEK_BUFFER_SIZE \
-(sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(typeof(WATCHMAN_INT64_MARKER)) + \
- sizeof(int64_t))
+    (sizeof(WATCHMAN_BINARY_MARKER) - 1 + \
+     sizeof(typeof(WATCHMAN_INT64_MARKER)) + sizeof(int64_t))
 
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);

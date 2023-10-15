@@ -48,7 +48,7 @@ void watchman_dump(watchman_t *w, VALUE serializable);
 #define WATCHMAN_SKIP_MARKER 0x0c
 
 #define WATCHMAN_HEADER \
-WATCHMAN_BINARY_MARKER "\x06\x00\x00\x00\x00\x00\x00\x00\x00"
+    WATCHMAN_BINARY_MARKER "\x06\x00\x00\x00\x00\x00\x00\x00\x00"
 
 static const char watchman_array_marker = WATCHMAN_ARRAY_MARKER;
 static const char watchman_hash_marker = WATCHMAN_HASH_MARKER;
@@ -552,12 +552,12 @@ void watchman_raise_system_call_error(int number) {
 
 // How far we have to look to figure out the size of the PDU header
 #define WATCHMAN_SNIFF_BUFFER_SIZE \
-sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
+    sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(int8_t)
 
 // How far we have to peek, at most, to figure out the size of the PDU itself
 #define WATCHMAN_PEEK_BUFFER_SIZE \
-sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(WATCHMAN_INT64_MARKER) + \
-    sizeof(int64_t)
+    sizeof(WATCHMAN_BINARY_MARKER) - 1 + sizeof(WATCHMAN_INT64_MARKER) + \
+        sizeof(int64_t)
 
 /**
  * CommandT::Watchman::Utils.query(query, socket)
