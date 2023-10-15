@@ -55,6 +55,15 @@ local options_spec = {
             optional = true,
           },
           fallback = { kind = 'boolean', optional = true },
+          max_files = {
+            kind = {
+              one_of = {
+                { kind = 'function' },
+                { kind = 'number' },
+              },
+            },
+            optional = true,
+          },
           open = { kind = 'function', optional = true },
         },
       },
@@ -68,6 +77,10 @@ local options_spec = {
             elseif value.candidates == nil and value.command == nil then
               value.candidates = {}
               table.insert(errors, string.format('%s: either `candidates` or `command` should be set', key))
+            end
+
+            if value.candidates and value.max_files then
+              table.insert(errors, string.format('%s: `max_files` has no effect if `candidates` set', key))
             end
           end
         end
@@ -215,10 +228,12 @@ local default_options = {
         end
         -- TODO: support dot directory filter etc
         local command = 'find -L ' .. directory .. ' -type f -print0 2> /dev/null'
-        local max_files = options.scanners.find.max_files or 0
-        return command, drop, max_files
+        return command, drop
       end,
       fallback = true,
+      max_files = function(options)
+        return options.scanners.find.max_files
+      end,
     },
     git = {
       command = function(directory, options)
@@ -236,10 +251,12 @@ local default_options = {
         end
         command = command .. ' 2> /dev/null'
         local drop = 0
-        local max_files = options.scanners.git.max_files or 0
-        return command, drop, max_files
+        return command, drop
       end,
       fallback = true,
+      max_files = function(options)
+        return options.scanners.git.max_files
+      end,
     },
     help = {
       candidates = function()
@@ -330,10 +347,12 @@ local default_options = {
           command = command .. ' ' .. directory
         end
         command = command .. ' 2> /dev/null'
-        local max_files = options.scanners.rg.max_files or 0
-        return command, drop, max_files
+        return command, drop
       end,
       fallback = true,
+      max_files = function(options)
+        return options.scanners.rg.max_files
+      end,
     },
   },
   height = 15,
@@ -457,7 +476,7 @@ commandt.finder = function(name, directory)
   if config.candidates then
     finder = require('wincent.commandt.private.finders.list')(directory, config.candidates, options)
   else
-    finder = require('wincent.commandt.private.finders.command')(directory, config.command, options)
+    finder = require('wincent.commandt.private.finders.command')(directory, config.command, options, name)
   end
   if config.fallback then
     finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)

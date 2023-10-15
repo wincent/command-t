@@ -3,12 +3,18 @@
 
 local ffi = require('ffi')
 
-return function(directory, command, options)
+return function(directory, command, options, name)
   local lib = require('wincent.commandt.private.lib')
   local drop = 0
   local max_files = 0
+  local get_max_files = options.finders[name].max_files
   if type(command) == 'function' then
-    command, drop, max_files = command(directory, options)
+    command, drop = command(directory, options)
+  end
+  if type(get_max_files) == 'number' then
+    max_files = get_max_files
+  elseif type(get_max_files) == 'function' then
+    max_files = get_max_files(options) or 0
   end
   local finder = {}
   finder.scanner = require('wincent.commandt.private.scanners.command').scanner(command, drop, max_files)
