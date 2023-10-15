@@ -14,9 +14,9 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
       - uses: actions/checkout@v3
-      - uses: jidicula/clang-format-action@v4.8.0
+      - uses: jidicula/clang-format-action@v4.11.0
         with:
-          clang-format-version: "14"
+          clang-format-version: "17"
           check-path: ruby
 
   test:
