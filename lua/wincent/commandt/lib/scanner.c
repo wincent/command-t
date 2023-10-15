@@ -12,7 +12,7 @@
 #include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
-#include <unistd.h> /* close(), fork(), pipe(), read() */
+#include <unistd.h> /* _exit(), close(), fork(), pipe(), read() */
 
 #include "debug.h"
 #include "str.h"
@@ -56,24 +56,36 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
     int stdout_pipe[2];
 
     if (pipe(stdout_pipe) != 0) {
-        DEBUG_LOG("scanner_new_command(): failed pipe()\n");
+        DEBUG_LOG("scanner_new_command(): failed pipe() - %s\n", strerror(errno));
         goto out;
     }
 
     pid_t child_pid = fork();
     if (child_pid == -1) {
-        DEBUG_LOG("scanner_new_command(): failed fork()\n");
+        DEBUG_LOG("scanner_new_command(): failed fork() - %s\n", strerror(errno));
         goto out;
     } else if (child_pid == 0) {
         // In child.
         DEBUG_LOG("scanner_new_command(): forked child\n");
-        close(stdout_pipe[0]); // TODO check error (!= 0) etc
-        dup2(stdout_pipe[1], 1);
-        close(stdout_pipe[1]);
+        if (close(stdout_pipe[0]) != 0) {
+            DEBUG_LOG(
+                "scanner_new_command(): failed close() - %s\n", strerror(errno)
+            );
+        }
+        if (dup2(stdout_pipe[1], 1) == -1) {
+            DEBUG_LOG(
+                "scanner_new_command(): failed dup2() - %s\n", strerror(errno)
+            );
+        }
+        if (close(stdout_pipe[1]) != 0) {
+            DEBUG_LOG(
+                "scanner_new_command(): failed close() - %s\n", strerror(errno)
+            );
+        }
 
         // Fork a shell to mimic behavior of `popen()`.
         execl("/bin/sh", "sh", "-c", command, NULL);
-        perror("execl");
+        DEBUG_LOG("scanner_new_command(): failed execl() - %s\n", strerror(errno));
         _exit(1);
     }
 
@@ -83,11 +95,9 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
     );
     int status = close(stdout_pipe[1]);
     if (status != 0) {
-        // Degrade gracefully; either:
-        // - status -1: probably a `wait4()` call failed; or:
-        // - otherwise: command exited with this status.
         DEBUG_LOG(
-            "commandt_scanner_new_command(): close() exited with %d status\n", status
+            "commandt_scanner_new_command(): failed close() - %s\n",
+            strerror(errno)
         );
     }
     char *start = scanner->buffer;
@@ -97,7 +107,9 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
         DEBUG_LOG("scanner_new_command(): read %d bytes\n", read_count);
         if (read_count < 0) {
             // A read error, but we may as well try and proceed gracefully.
-            DEBUG_LOG("scanner_new_command(): read() - %s\n", strerror(errno));
+            DEBUG_LOG(
+                "scanner_new_command(): failed read() - %s\n", strerror(errno)
+            );
             break;
         }
         end += read_count;
@@ -134,8 +146,7 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
                 );
                 if (kill(child_pid, SIGKILL)) {
                     DEBUG_LOG(
-                        "commandt_scanner_new_command(): kill() errno %d error %s\n",
-                        errno,
+                        "commandt_scanner_new_command(): failed kill() - %s\n",
                         strerror(errno)
                     );
                 }
@@ -146,7 +157,11 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
 
 bail:
     DEBUG_LOG("commandt_scanner_new_command(): waiting %d\n", child_pid);
-    wait(&child_pid);
+    if (wait(&child_pid) == -1) {
+        DEBUG_LOG(
+            "commandt_scanner_new_command(): failed wait() - %s\n", strerror(errno)
+        );
+    }
 
 out:
     DEBUG_LOG(
