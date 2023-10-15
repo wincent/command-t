@@ -251,7 +251,33 @@ started with the 6.0 release.
 
 TROUBLE-SHOOTING                                *command-t-trouble-shooting*
 
-See also |command-t-ruby-trouble-shooting| for older trouble-shooting tips.
+Command-T hangs ~
+
+Command-T may appear to hang while scanning the filesystem if it encounters
+a circular or cyclical symbolic link, causing it to scan some directory
+hierarchy in an infinite loop. While Command-T could implement cycle detection
+(and it in fact did in the Ruby implementation), doing so would mean slowing
+down every scan in a well-constructed filesystem, just to avoid problems
+caused by pathological filesystems. Given that the prime design goal of
+Command-T is to provide the fastest experience possible, there are no plans to
+implement cycle detection in the Lua rewrite.
+
+As such, the recommendation is to remove such cycles from the filesystem.
+One way to find the cycles is with the `find` command:
+>
+    find . -follow -printf ""
+<
+This will print "File system loop detected" for every cycle found. Note that
+on macOS you may need to install and use the GNU version of `find` (for
+example, via Homebrew), and execute the command as `gfind`.
+
+Another way to mitigate the harm caused by cycles is to use the `max_files`
+options to limit the number of files that Command-T will scan before
+terminating the scan. See |command-t-max_files|.
+
+Other trouble-shooting issues ~
+
+See |command-t-ruby-trouble-shooting| for older trouble-shooting tips.
 
 
 KNOWN ISSUES                                    *command-t-known-issues*
@@ -339,7 +365,7 @@ are documented and they could change without notice at any time; for example:
     require('wincent.commandt').setup({
       always_show_dot_files = false,
       height = 15,
-      ignore_case = nil, -- nil means "infer from Neovim's 'ignorecase'".
+      ignore_case = nil, -- If nil, will infer from Neovim's `'ignorecase'`.
       mappings = {
         i = {
           ['<C-a>'] = '<Home>',
@@ -393,16 +419,100 @@ are documented and they could change without notice at any time; for example:
         commandt.open(item, kind)
       end,
       scanners = {
+        file = {
+          max_files = 0,
+        },
+        find = {
+          max_files = 0,
+        },
         git = {
+          max_files = 0,
           submodules = true,
           untracked = false,
         },
+        rg = {
+          max_files = 0,
+        },
       },
       selection_highlight = 'PMenuSel',
-      smart_case = nil, -- nil means "infer from Neovim's 'smartcase'".
-      threads = nil, -- nil means "auto".
+      smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
+      threads = nil, -- Let heuristic apply.
     })
 <
+See below for description of specific properties that can be used in the table
+passed to |commandt.setup()|.
+
+                                                *command-t-max_files*
+                                                number or function (default: 0)
+
+`max_files` can be used to limit the number of files that Command-T will scan
+before terminating the scan. A value of 0 (the default), means no limit. The
+following example shows how to figure different limits for each of the
+built-in scanners:
+>
+    scanners = {
+      file = {
+        max_files = 100000, -- A "big" limit.
+      },
+      find = {
+        max_files = 10, -- A small limit.
+      },
+      git = {
+        max_files = 0, -- Same as no limit.
+      },
+      rg = {
+        -- No setting, no limit.
+      },
+    }
+<
+If you define your own finder, you can provide a `max_depth` value with that.
+For example, you can provide a literal number:
+>
+    finders = {
+      ack = {
+        command = function(directory)
+          local command = 'ack -f --print0'
+          if directory ~= '' and directory ~= '.' and directory ~= './' then
+            directory = vim.fn.shellescape(directory)
+            command = command .. ' -- ' .. directory
+          end
+          local drop = 0
+          local max_files = 10000
+          return command, drop
+        end,
+        max_depth = 100000,
+      },
+    }
+<
+or a function that returns a number:
+>
+    finders = {
+      ack = {
+        command = function(directory)
+          local command = 'ack -f --print0'
+          if directory ~= '' and directory ~= '.' and directory ~= './' then
+            directory = vim.fn.shellescape(directory)
+            command = command .. ' -- ' .. directory
+          end
+          local drop = 0
+          return command, drop
+        end,
+        max_files = function(options)
+          -- Imagine we want to use the same value as is configured for rg:
+          return options.scanners.rg.max_files
+        end,
+      },
+    }
+<
+The built-in `file` scanner will terminate its scan as soon as the specified
+`max_depth` limit is reached. In contrast, `command`-based scanners (like the
+"ack" example shown above, or the built-in `find`, `git`, or `rg` scanners),
+all involve forking out to a separate process; for these, as soon as Command-T
+detects that they have returned `max_depth` or more results it will terminate
+them with a `SIGKILL` signal. Depending on whether or how the forked process's
+output is buffered, it's possible that slightly more than `max_depth` items
+may be returned.
+
 
 MAPPINGS                                        *command-t-mappings*
 
@@ -607,6 +717,8 @@ main (not yet released) ~
 
 - fix: teach buffer finder to see all buffers passed into Neovim as
   command-line arguments (https://github.com/wincent/command-t/issues/418).
+- feat: add `max_files` settings
+  (https://github.com/wincent/command-t/issues/420).
 
 6.0.0-b.1 (16 December 2022) ~
 
