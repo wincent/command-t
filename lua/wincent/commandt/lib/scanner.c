@@ -9,10 +9,10 @@
 #include <errno.h> /* for errno */
 #include <signal.h> /* for SIGKILL, kill() */
 #include <stddef.h> /* for NULL */
-#include <stdio.h> /* for fileno(), fprintf(), pclose(), popen(), stderr */
+#include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
-#include <unistd.h> /* close(), fork(), pipe(), read(), tcgetpgrp() */
+#include <unistd.h> /* close(), fork(), pipe(), read() */
 
 #include "debug.h"
 #include "str.h"
