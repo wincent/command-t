@@ -465,7 +465,7 @@ built-in scanners:
       },
     }
 <
-If you define your own finder, you can provide a `max_depth` value with that.
+If you define your own finder, you can provide a `max_files` value with that.
 For example, you can provide a literal number:
 >
     finders = {
@@ -480,7 +480,7 @@ For example, you can provide a literal number:
           local max_files = 10000
           return command, drop
         end,
-        max_depth = 100000,
+        max_files = 100000,
       },
     }
 <
@@ -505,12 +505,12 @@ or a function that returns a number:
     }
 <
 The built-in `file` scanner will terminate its scan as soon as the specified
-`max_depth` limit is reached. In contrast, `command`-based scanners (like the
+`max_files` limit is reached. In contrast, `command`-based scanners (like the
 "ack" example shown above, or the built-in `find`, `git`, or `rg` scanners),
 all involve forking out to a separate process; for these, as soon as Command-T
-detects that they have returned `max_depth` or more results it will terminate
+detects that they have returned `max_files` or more results it will terminate
 them with a `SIGKILL` signal. Depending on whether or how the forked process's
-output is buffered, it's possible that slightly more than `max_depth` items
+output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
 
 
