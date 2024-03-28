@@ -185,7 +185,7 @@ module CommandT
       # support requests, implement the following fallback to the buffer name
       # instead, at least until upstream gets fixed.
       #
-      # For more details, see: https://wincent.com/issues/1617
+      # For more details, see: https://wincent.dev/issues/1617
       if $curbuf.number == 0
         # use bwipeout as bunload fails if passed the name of a hidden buffer
         base = File.basename($curbuf.name)

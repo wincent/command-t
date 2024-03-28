@@ -95,7 +95,7 @@ UPGRADING                                       *command-t-upgrading*
 This section details what has changed from version 5.x to 6.x, why, and how to
 update. For additional context see the blog post:
 
-  https://wincent.com/blog/command-t-lua-rewrite
+  https://wincent.dev/blog/command-t-lua-rewrite
 
 Up to and including version 5.0, Command-T was written in a combination of
 Ruby, Vimscript, and C, and was compatible with a range of versions of both
