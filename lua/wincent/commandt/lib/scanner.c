@@ -12,6 +12,7 @@
 #include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
+#include <sys/wait.h> /* for wait() */
 #include <unistd.h> /* _exit(), close(), fork(), pipe(), read() */
 
 #include "debug.h"
