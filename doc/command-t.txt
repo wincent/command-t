@@ -539,23 +539,25 @@ AUTHORS                                         *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nate Kane
-  Adrian Keet                     Nicholas T.
-  Aleksandrs Ļedovskis            Nicolas Alpi
-  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
-  Andrea Cedraro                  Nilo César Teixeira
-  Andrius Grabauskas              Noon Silk
-  Andy Waite                      Ole Petter Bang
-  Anthony Panozzo                 Patrick Hayes
-  Artem Nezvigin                  Paul Jolly
-  Ben Boeckel                     Pavel Sergeev
-  Brendan Mulholland              Rainux Luo
-  Cody Buell                      Richard Feldman
-  Daniel Burgess                  Roland Puntaier
-  Daniel Hahler                   Ross Lagerwall
-  David Emett                     Sam Morris
-  David Szotten                   Scott Bronson
-  Douglas Drumond                 Seth Fowler
+
+  Abhinav Gupta                   Nadav Samet
+  Adrian Keet                     Nate Kane
+  Aleksandrs Ļedovskis            Nicholas T.
+  Alexey Terekhov                 Nicolas Alpi
+  Andrea Cedraro                  Nikolai Aleksandrovich Pavlov
+  Andrius Grabauskas              Nilo César Teixeira
+  Andy Waite                      Noon Silk
+  Anthony Panozzo                 Ole Petter Bang
+  Artem Nezvigin                  Patrick Hayes
+  Ben Boeckel                     Paul Jolly
+  Brendan Mulholland              Pavel Sergeev
+  Cody Buell                      Rainux Luo
+  Daniel Burgess                  Richard Feldman
+  Daniel Hahler                   Roland Puntaier
+  David Emett                     Ross Lagerwall
+  David Szotten                   Sam Morris
+  Douglas Drumond                 Scott Bronson
+  Elanora Manson                  Seth Fowler
   Emily Strickland                Sherzod Gapirov
   Felix Tjandrawibawa             Shlomi Fish
   Gary Bernhardt                  Stefan Schmidt
@@ -574,7 +576,6 @@ Other contributors that have submitted patches include, in alphabetical order:
   Matthew Todd                    Yan Pritzker
   Max Timkovich                   Zak Johnson
   Mike Lundy                      xiaodezhang
-  Nadav Samet
 
 This list produced with:
 
@@ -719,6 +720,8 @@ main (not yet released) ~
   command-line arguments (https://github.com/wincent/command-t/issues/418).
 - feat: add `max_files` settings
   (https://github.com/wincent/command-t/issues/420).
+- fix: fix compilation error reported on Linux
+  (https://github.com/wincent/command-t/pull/423).
 
 6.0.0-b.1 (16 December 2022) ~
 
