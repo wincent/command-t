@@ -119,3 +119,29 @@ exit
 vagrant halt
 vagrant destroy
 ```
+
+# Profiling
+
+## On macOS
+
+I didn't have any success the last time I tried these, but including the notes here for reference anyway:
+
+```
+xctrace record --launch bin/benchmarks/matcher.lua --template "CPU Profiler" # Instruments.app hangs while opening this.
+xctrace record --launch bin/benchmarks/matcher.lua --template "Time Profiler" # Instruments.app hangs while opening this.
+xctrace record --launch bin/benchmarks/matcher.lua --template "Activity Monitor" # Produces not very useful system-wide stats.
+xctrace record --launch bin/benchmarks/matcher.lua --template "Allocations" # Completes with an error and produces no useful info.
+```
+
+In theory, should be able to run the following, but it hangs:
+
+```
+xctrace symbolicate --input some.trace --dsym lua/wincent/commandt/lib/commandt.so.dSYM
+```
+
+I also attempted using the `/usr/bin/sample` tool, which produces results, albeit not particularly easy ones to parse:
+
+```
+(sleep 1 && luajit bin/benchmarks/matcher.lua) &
+sample -wait luajit -mayDie
+```
