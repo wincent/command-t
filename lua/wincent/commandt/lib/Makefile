@@ -22,8 +22,7 @@ ifdef DEBUG
 	CCFLAGS += -DDEBUG -g -O0
 else
 	# As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
-	# May also want to consider going `-Ofast` instead of `-O3`.
-	CCFLAGS += -DNDEBUG -O3
+	CCFLAGS += -DNDEBUG -Ofast
 endif
 
 ifeq ($(OS),Windows_NT)
