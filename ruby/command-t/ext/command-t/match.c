@@ -76,9 +76,11 @@ float recursive_match(
                     char curr = m->haystack_p[j]; // Case matters, so get again.
                     if (last == '/') {
                         factor = 0.9;
-                    } else if (last == '-' || last == '_' || last == ' ' || (last >= '0' && last <= '9')) {
+                    } else if (last == '-' || last == '_' || last == ' ' ||
+                               (last >= '0' && last <= '9')) {
                         factor = 0.8;
-                    } else if (last >= 'a' && last <= 'z' && curr >= 'A' && curr <= 'Z') {
+                    } else if (last >= 'a' && last <= 'z' && curr >= 'A' &&
+                               curr <= 'Z') {
                         factor = 0.8;
                     } else if (last == '.') {
                         factor = 0.7;

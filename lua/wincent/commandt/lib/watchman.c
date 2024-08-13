@@ -166,7 +166,8 @@ watchman_query_t *commandt_watchman_query(
         key = watchman_read_string(r, &result->error);
         if (result->error) {
             goto done;
-        } else if (key->length == sizeof("files") - 1 && strncmp(key->contents, "files", key->length) == 0) {
+        } else if (key->length == sizeof("files") - 1 &&
+                   strncmp(key->contents, "files", key->length) == 0) {
             assert(!result->files);
             uint64_t file_count = watchman_read_array(r, &result->error);
             if (result->error) {
@@ -184,7 +185,8 @@ watchman_query_t *commandt_watchman_query(
                 }
             }
             result->count = file_count;
-        } else if (key->length == sizeof("error") - 1 && strncmp(key->contents, "error", key->length) == 0) {
+        } else if (key->length == sizeof("error") - 1 &&
+                   strncmp(key->contents, "error", key->length) == 0) {
             str_t *error = watchman_read_string(r, &result->error);
             if (result->error) {
                 goto done;
@@ -261,21 +263,24 @@ watchman_watch_project_t *commandt_watchman_watch_project(
         key = watchman_read_string(r, &result->error);
         if (result->error) {
             goto done;
-        } else if (key->length == sizeof("watch") - 1 && strncmp(key->contents, "watch", key->length) == 0) {
+        } else if (key->length == sizeof("watch") - 1 &&
+                   strncmp(key->contents, "watch", key->length) == 0) {
             str_t *watch = watchman_read_string(r, &result->error);
             if (result->error) {
                 goto done;
             }
             result->watch = watch->contents;
             free(watch);
-        } else if (key->length == sizeof("relative_path") - 1 && strncmp(key->contents, "relative_path", key->length) == 0) {
+        } else if (key->length == sizeof("relative_path") - 1 &&
+                   strncmp(key->contents, "relative_path", key->length) == 0) {
             str_t *relative_path = watchman_read_string(r, &result->error);
             if (result->error) {
                 goto done;
             }
             result->relative_path = relative_path->contents;
             free(relative_path);
-        } else if (key->length == sizeof("error") - 1 && strncmp(key->contents, "error", key->length) == 0) {
+        } else if (key->length == sizeof("error") - 1 &&
+                   strncmp(key->contents, "error", key->length) == 0) {
             // Error may be something like:
             //
             //     std::system_error: open: : No such file or directory
