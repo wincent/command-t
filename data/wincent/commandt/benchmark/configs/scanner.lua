@@ -180,6 +180,9 @@ return {
         assert(_G.vim == nil)
         _G.vim = {
           api = {
+            nvim_buf_is_valid = function()
+              return true
+            end,
             nvim_list_bufs = function()
               local handles = {}
               for i = 1, #names do
