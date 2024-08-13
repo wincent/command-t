@@ -334,35 +334,42 @@ static void *get_matches(void *worker_args) {
     // top-"limit" list of items).
     heap_t *heap = heap_new(matcher->limit + 1, cmp_score);
 
-    // TODO benchmark different thread partitioning method
-    // (intead of every nth item to a thread, break into blocks)
-    // to see if cache characteristics improve the speed)
-    for (unsigned i = worker_index; i < matcher->scanner->count;
-         i += worker_count) {
-        haystack_t *haystack = matcher->haystacks + i;
-        if (matcher->needle_bitmask == UNSET_BITMASK) {
-            haystack->bitmask = UNSET_BITMASK;
+    // Each worker will process a chunk of 64 consecutive needles at a time in
+    // order maximize benefit of the CPU cache.
+    unsigned chunk_size = 64;
+    for (unsigned chunk_start = worker_index * chunk_size;
+         chunk_start < matcher->scanner->count;
+         chunk_start += worker_count * chunk_size) {
+        unsigned chunk_end = chunk_start + chunk_size;
+        if (chunk_end > matcher->scanner->count) {
+            chunk_end = matcher->scanner->count;
         }
-        if (matcher->last_needle != NULL && haystack->score == 0.0f) {
-            // Skip over this candidate because it didn't match last
-            // time and it can't match this time either.
-            continue;
-        }
-
-        haystack->score = commandt_score(haystack, matcher, ignore_case);
-
-        if (haystack->score == 0.0f) {
-            continue;
-        }
-
-        if (heap->count == matcher->limit) {
-            float score = ((haystack_t *)HEAP_PEEK(heap))->score;
-            if (haystack->score >= score) {
-                heap_insert(heap, haystack);
-                (void)heap_extract(heap);
+        for (unsigned i = chunk_start; i < chunk_end; i++) {
+            haystack_t *haystack = matcher->haystacks + i;
+            if (matcher->needle_bitmask == UNSET_BITMASK) {
+                haystack->bitmask = UNSET_BITMASK;
             }
-        } else {
-            heap_insert(heap, haystack);
+            if (matcher->last_needle != NULL && haystack->score == 0.0f) {
+                // Skip over this candidate because it didn't match last
+                // time and it can't match this time either.
+                continue;
+            }
+
+            haystack->score = commandt_score(haystack, matcher, ignore_case);
+
+            if (haystack->score == 0.0f) {
+                continue;
+            }
+
+            if (heap->count == matcher->limit) {
+                float score = ((haystack_t *)HEAP_PEEK(heap))->score;
+                if (haystack->score >= score) {
+                    heap_insert(heap, haystack);
+                    (void)heap_extract(heap);
+                }
+            } else {
+                heap_insert(heap, haystack);
+            }
         }
     }
 
