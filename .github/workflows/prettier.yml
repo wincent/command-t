@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v3
-      - uses: actionsx/prettier@v2
+      - uses: actions/checkout@v4
+      - uses: actionsx/prettier@v3
         with:
           args: --list-different "**/*.md"
