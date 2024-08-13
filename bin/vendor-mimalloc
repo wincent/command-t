@@ -12,7 +12,7 @@ BASE=lua/wincent/commandt/lib/vendor/github/microsoft
 mkdir -p "$BASE"
 cd "$BASE"
 rm -rf mimalloc*
-wget https://github.com/microsoft/mimalloc/archive/refs/tags/v2.0.6.tar.gz -O mimalloc.tar.gz
+wget https://github.com/microsoft/mimalloc/archive/refs/tags/v2.1.7.tar.gz -O mimalloc.tar.gz
 tar xzf mimalloc.tar.gz
 rm mimalloc.tar.gz
-ln -s mimalloc-2.0.6 mimalloc
+ln -s mimalloc-2.1.7 mimalloc
