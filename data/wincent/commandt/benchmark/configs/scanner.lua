@@ -240,7 +240,8 @@ return {
     {
       name = 'git',
       source = function()
-        local command = require('wincent.commandt').default_options().finders.git.command('', {})
+        local options = require('wincent.commandt').default_options()
+        local command = options.finders.git.command('', options)
         local scanner = require('wincent.commandt.private.scanners.command').scanner
         return {
           scanner = function()
