@@ -122,9 +122,15 @@ vagrant destroy
 
 # Profiling
 
+In order to get intelligible stack traces, compile with debug symbols with:
+
+```
+make PROFILE=1
+```
+
 ## On macOS
 
-I didn't have any success the last time I tried these, but including the notes here for reference anyway:
+I didn't have any success the last time I tried `xctrace`, but including the notes here for reference anyway:
 
 ```
 xctrace record --launch bin/benchmarks/matcher.lua --template "CPU Profiler" # Instruments.app hangs while opening this.
@@ -145,3 +151,47 @@ I also attempted using the `/usr/bin/sample` tool, which produces results, albei
 (sleep 1 && luajit bin/benchmarks/matcher.lua) &
 sample -wait luajit -mayDie
 ```
+
+So far, `dtrace` is the only thing I've been able to get working usefully:
+
+```
+sudo -v
+luajit bin/benchmarks/matcher.lua & ; DTRACE_PID=$! ; sudo vmmap $DTRACE_PID | grep commandt.so ; sudo dtrace -x ustackframes=100 -p $DTRACE_PID -n \
+  'profile-100 /pid == '$DTRACE_PID'/ { @[ustack()] = count(); }' -o dtrace.stacks
+```
+
+ie. refresh sudo credentials, kick off `luajit`, grab the base address of the `commandt`.so library so that we can symbolicate later on, run `dtrace` for 60s, sample 100 times per second (ie. every 10ms), grab user stack (not kernel frames), then exit.
+
+I tried a few tricks[^tricks] to get `dtrace` to symbolicate for us automatically but eventually had to do it manually with `atos`. Grab the base address of the `__TEXT` segment (printed by `vmmap`); in this example, `0x104ac0000`:
+
+```
+__TEXT                      104ac0000-104ac8000    [   32K    32K     0K     0K] r-x/rwx SM=COW          /Users/USER/*/commandt.so
+__DATA_CONST                104ac8000-104acc000    [   16K    16K    16K     0K] r--/rwx SM=COW          /Users/USER/*/commandt.so
+__LINKEDIT                  104acc000-104ad0000    [   16K    16K     0K     0K] r--/rwx SM=COW          /Users/USER/*/commandt.so
+```
+
+Then run this hacky script:
+
+```
+cat dtrace.stacks | bin/symbolicate-dtrace 0x104ac0000 > dtrace.symbolicated
+```
+
+Which produces output that can then be visualized with:
+
+```
+git clone https://github.com/brendangregg/FlameGraph
+cd FlameGraph
+./stackcollapse.pl dtrace.symbolicated > dtrace.collapsed
+./flamegraph.pl dtrace.collapsed > dtrace.svg
+```
+
+[^tricks]:
+    Tricks which didn't work included running from inside `lua/wincent/commandt/lib` (where the dSYM bundle is), and moving the dSYM bundle up to the root and running from there.
+
+    The probable reason why automatic symbol discovery doesn't work is the UUID mismatch between the library and the process that `dtrace` is executing:
+
+    ```
+    dwarfdump --uuid lua/wincent/commandt/lib/commandt.so       # This matches...
+    dwarfdump --uuid lua/wincent/commandt/lib/commandt.so.dSYM  # ... with this;
+    dwarfdump --uuid /opt/homebrew/bin/luajit                   # but not with this.
+    ```

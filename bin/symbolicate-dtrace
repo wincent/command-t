@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+
+/**
+ * SPDX-FileCopyrightText: Copyright 2024-present Greg Hurrell and contributors.
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+import child_process from 'node:child_process';
+import readline from 'node:readline';
+
+const SYMBOL_TABLE = {};
+
+const BASE_ADDRESS = process.argv[2];
+
+if (!BASE_ADDRESS.match(/^0x[0-9a-f]{8,12}$/)) {
+  throw new Error(`Invalid base address: ${JSON.stringify(BASE_ADDRESS)}`);
+}
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  crlfDelay: Infinity,
+});
+
+for await (const line of rl) {
+  process.stdout.write(transformLine(line) + '\n');
+}
+
+function transformLine(line) {
+  return line.replace(/^(\s+)(0x[0-9a-f]{8,12})$/, (_match, whitespace, address) => {
+    if (!SYMBOL_TABLE[address]) {
+      SYMBOL_TABLE[address] = lookup(address);
+    }
+    return `${whitespace}${SYMBOL_TABLE[address]}`;
+  });
+}
+
+function lookup(address) {
+  const result = child_process.spawnSync('atos', [
+    '-arch',
+    'arm64',
+    '-o',
+    'lua/wincent/commandt/lib/commandt.so',
+    '-l',
+    BASE_ADDRESS,
+    address,
+  ]);
+
+  // Result should be of the form:
+  //
+  //    recursive_match (in commandt.so) (score.c:42)
+  //
+  // Transform that into:
+  //
+  //    commandt.so`recursive_match (score.c:42)
+  //
+  return result.stdout.toString().trimEnd().replace(/(\w+)\s+\(in ([^)]+)\)\s+\(([^)]+)\)/, (_match, fn, library, location) => {
+    return `${library}\`${fn} (${location})`;
+  });
+}
