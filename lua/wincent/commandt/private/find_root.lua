@@ -5,11 +5,13 @@ local find_root = nil
 
 find_root = function(starting_directory, root_markers)
   local absolute_path = vim.fn.fnamemodify(starting_directory, ':p')
+
+  -- If it's a directory, :p will add a trailing slash, which we must strip.
+  absolute_path = absolute_path:gsub('(.-)/$', '%1')
+
   while true do
     for _, marker in ipairs(root_markers) do
-      -- If we get all the way to the root ('/'), don't use separator.
-      local separator = vim.endswith(absolute_path, '/') and '' or '/'
-      local candidate = absolute_path .. separator .. marker
+      local candidate = absolute_path .. '/' .. marker
       if vim.fn.isdirectory(candidate) == 1 or vim.fn.filereadable(candidate) == 1 then
         return absolute_path
       end
