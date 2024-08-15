@@ -492,7 +492,7 @@ local allowed_options = concat(keys(default_options), {
 local get_directory = function()
   local options = _options -- No need for deep copy provided by `commandt.options()`.
   if options.traverse == 'file' then
-    local file = vim.fn.expand('%:p:h')
+    local file = vim.fn.expand('%:p:h') -- If no current file, returns current dir.
     return require('wincent.commandt.private.find_root')(file, options.root_markers)
   elseif options.traverse == 'pwd' then
     return require('wincent.commandt.private.find_root')(vim.fn.getcwd(), options.root_markers)
