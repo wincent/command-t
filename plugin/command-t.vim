@@ -66,13 +66,13 @@ else
   command! -nargs=? -complete=dir KommandT call commandt#FileFinder(<q-args>)
   command! KommandTBuffer call commandt#BufferFinder()
   command! KommandTHelp call commandt#HelpFinder()
+  command! KommandTLine call commandt#LineFinder()
 
   " Not implemented on the Lua side yet, so these ones continue to use "CommandT" prefix:
   command! CommandTCommand call commandt#CommandFinder()
   command! CommandTFlush call commandt#Flush()
   command! CommandTHistory call commandt#HistoryFinder()
   command! CommandTJump call commandt#JumpFinder()
-  command! CommandTLine call commandt#LineFinder()
   command! CommandTLoad call commandt#Load()
   command! CommandTMRU call commandt#MRUFinder()
   command! CommandTSearch call commandt#SearchFinder()
@@ -84,7 +84,6 @@ endif
 " These ones not implemented on the Lua side yet:
 nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
 nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
-nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
 nnoremap <silent> <Plug>(CommandTSearch) :CommandTSearch<CR>
 nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
@@ -94,6 +93,7 @@ if s:prefers_ruby
   nnoremap <silent> <Plug>(CommandT) :CommandT<CR>
   nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
   nnoremap <silent> <Plug>(CommandTHelp) :CommandTHelp<CR>
+  nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
 
   if !hasmapto('<Plug>(CommandT)') && maparg('<Leader>t', 'n') ==# ''
     nmap <unique> <Leader>t <Plug>(CommandT)
