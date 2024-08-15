@@ -21,8 +21,12 @@ endif
 ifdef DEBUG
 	CCFLAGS += -DDEBUG -g -O0
 else
-	# As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
-	CCFLAGS += -DNDEBUG -Ofast
+	ifdef PROFILE
+		CCFLAGS += -DNDEBUG -g -Ofast
+	else
+		# As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
+		CCFLAGS += -DNDEBUG -Ofast
+	endif
 endif
 
 ifeq ($(OS),Windows_NT)
@@ -48,7 +52,7 @@ SRCS = $(wildcard *.c)
 
 all: commandt.$(DLLEXT)
 
-# Rebuild whenever CCFLAGS changes (eg. when DEBUG passed or not passed).
+# Rebuild whenever CCFLAGS change (eg. when DEBUG/PROFILE passed or not passed).
 # See: https://stackoverflow.com/a/26147844/2103996
 .PHONY: variable
 define DEPEND_ON
