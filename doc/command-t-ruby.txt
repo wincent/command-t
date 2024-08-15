@@ -554,11 +554,6 @@ COMMANDS                                        *command-t-ruby-commands*
                   exactly like the standard file window, except that it shows
                   the history of previously entered commands.
 
-                                                *:CommandTLine*
-|:CommandTLine|     Brings up the Command-T line search window. This works
-                  exactly like the standard file window, except that it shows
-                  the lines in the current buffer.
-
                                                 *:CommandTMRU*
 |:CommandTMRU|      Brings up the Command-T buffer window, except that matches
                   are shown in MRU (most recently used) order. If you prefer to

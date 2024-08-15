@@ -326,6 +326,11 @@ COMMANDS                                        *command-t-commands*
                   help topics found in any documentation under Vim's
                   |'runtimepath'|.
 
+                                                *:CommandTLine*
+|:CommandTLine|     Brings up the Command-T line search window. This works
+                  exactly like the standard file window, except that it shows
+                  the lines in the current buffer.
+
                                                 *:CommandTRipgrep*
 |:CommandTRipgrep|  Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
