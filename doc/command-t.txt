@@ -364,7 +364,7 @@ are documented and they could change without notice at any time; for example:
     local Window = require('wincent.commandt.private.window').Window
 <
 
-                                                *commandt.setup()*
+                                              *commandt.setup()*
 |commandt.setup()|
 >
     require('wincent.commandt').setup({
@@ -433,6 +433,7 @@ are documented and they could change without notice at any time; for example:
       open = function(item, kind)
         commandt.open(item, kind)
       end,
+      root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
       scanners = {
         file = {
           max_files = 0,
@@ -452,13 +453,14 @@ are documented and they could change without notice at any time; for example:
       selection_highlight = 'PMenuSel',
       smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
       threads = nil, -- Let heuristic apply.
+      traverse = 'none', -- 'file', 'pwd' or 'none'.
     })
 <
 See below for description of specific properties that can be used in the table
 passed to |commandt.setup()|.
 
-                                                *command-t-max_files*
-                                                number or function (default: 0)
+                                              *command-t-max_files*
+                                              number or function (default: 0)
 
 `max_files` can be used to limit the number of files that Command-T will scan
 before terminating the scan. A value of 0 (the default), means no limit. The
@@ -527,6 +529,39 @@ detects that they have returned `max_files` or more results it will terminate
 them with a `SIGKILL` signal. Depending on whether or how the forked process's
 output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
+
+                                              *command-t-root_markers*
+                                              list of strings (default: various)
+
+`root_markers` is used in conjunction with the `traverse` setting (see
+|command-t-traverse|) to control how commands like |:CommandT| choose a root
+directory at which begin the search when invoked without an explicit path
+argument.
+
+The default value is a list-like table containing the following strings:
+'.git', '.hg', '.svn', '.bzr', '_darcs'.
+
+                                              *command-t-traverse*
+                                              string (default: 'none')
+
+Controls how path-based commands like |:CommandT| choose a root directory from
+which to begin the search when invoked without an explicit path argument.
+Possible vaules are:
+
+- "none": use Neovim's present working directory as the root (ie. attempt no
+  traversal).
+
+- "file": starting from the file currently being edited, traverse upwards
+  through the filesystem hieararchy until finding an SCM root (as indicated
+  by the presence of a ".git", ".hg" or similar diretory) and use that as the
+  base path. If no such root is found, fall back to using the present working
+  directory as a root. The list of SCM markers that Command-T uses to detect an
+  SCM root can be customized with the `root_markers` option (see
+  |command-t-root_markers|).
+
+- "pwd": traverse upwards looking for an SCM root just like the "file" setting
+  (above), but instead of starting from the file currently being edited, start
+  from Neovim's present working directory.
 
 
 MAPPINGS                                        *command-t-mappings*
