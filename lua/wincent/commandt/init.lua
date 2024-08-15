@@ -476,7 +476,7 @@ local default_options = {
   selection_highlight = 'PMenuSel',
   smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
   threads = nil, -- Let heuristic apply.
-  traverse = 'file', -- 'file', 'pwd' or 'none'.
+  traverse = 'none', -- 'file', 'pwd' or 'none'.
 }
 
 local _options = copy(default_options)
