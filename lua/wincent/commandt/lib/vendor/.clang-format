@@ -1,0 +1,4 @@
+---
+# Stop vendored files from being checked.
+DisableFormat: true
+SortIncludes: Never
