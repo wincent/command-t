@@ -5,6 +5,8 @@
 
 #include "xmap.h"
 
+#define _GNU_SOURCE /* for MAP_ANONYMOUS, MAP_NORESERVE */
+
 #include <assert.h> /* for assert() */
 #include <stddef.h> /* for NULL */
 #include <stdlib.h> /* for abort() */
