@@ -65,7 +65,7 @@ describe('merge()', function()
       table_like = {
         height = 30,
         depth = 50,
-      }
+      },
     })
 
     expect(merged).to_equal({
@@ -74,7 +74,7 @@ describe('merge()', function()
         width = 10,
         height = 30,
         depth = 50,
-      }
+      },
     })
 
     -- Values of differing types get overwritten.
