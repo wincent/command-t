@@ -79,7 +79,7 @@ static void watchman_write_string(
 // How far we have to peek, at most, to figure out the size of the PDU itself.
 #define WATCHMAN_PEEK_BUFFER_SIZE \
     (sizeof(WATCHMAN_BINARY_MARKER) - 1 + \
-     sizeof(typeof(WATCHMAN_INT64_MARKER)) + sizeof(int64_t))
+     sizeof(__typeof__(WATCHMAN_INT64_MARKER)) + sizeof(int64_t))
 
 int commandt_watchman_connect(const char *socket_path) {
     int fd = socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -415,7 +415,7 @@ static double watchman_read_double(watchman_response_t *r, const char **error) {
     assert(error != NULL);
     double val = 0.0;
 
-    if (r->ptr + sizeof(typeof(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) >
+    if (r->ptr + sizeof(__typeof__(WATCHMAN_DOUBLE_MARKER)) + sizeof(double) >
         r->end) {
         *error = "watchman_read_double(): insufficient double storage";
         goto done;
@@ -423,7 +423,7 @@ static double watchman_read_double(watchman_response_t *r, const char **error) {
 
     // Verify and consume marker.
     if (r->ptr[0] == WATCHMAN_DOUBLE_MARKER) {
-        r->ptr += sizeof(typeof(WATCHMAN_DOUBLE_MARKER));
+        r->ptr += sizeof(__typeof__(WATCHMAN_DOUBLE_MARKER));
         val = *(double *)r->ptr;
         r->ptr += sizeof(double);
     } else {
