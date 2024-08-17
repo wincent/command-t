@@ -5,6 +5,8 @@
 
 #include "xstrdup.h"
 
+#define _POSIX_C_SOURCE 200809L /* needed in order to see strdup() */
+
 #include <stddef.h> /* for NULL */
 #include <stdlib.h> /* for abort() */
 #include <string.h> /* for strdup() */
