@@ -7,6 +7,7 @@
 
 #include <assert.h> /* for assert */
 #include <pthread.h> /* for pthread_create, pthread_join etc */
+#include <stdatomic.h> /* for atomic_fetch_add(), atomic_load() */
 #include <stdbool.h> /* for bool */
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for qsort(), NULL */
@@ -100,7 +101,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
     unsigned candidate_count = scanner->count;
     unsigned limit = matcher->limit;
-    unsigned matches_count = 0;
+    atomic_uint matches_count = 0;
 
     size_t needle_length = strlen(needle);
     char *needle_copy = xmalloc(needle_length + 1);
@@ -192,11 +193,11 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             // For the last worker, we'll just use the main thread.
             heap_t *heap = get_matches(&worker_args[i]);
             memcpy(
-                matches + matches_count,
+                matches + atomic_load(&matches_count),
                 heap->entries,
                 heap->count * sizeof(haystack_t *)
             );
-            matches_count += heap->count;
+            atomic_fetch_add(&matches_count, heap->count);
             heap_free(heap);
         } else {
             int err = pthread_create(
@@ -215,26 +216,29 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             die("phtread_join() failed", err);
         }
         memcpy(
-            matches + matches_count,
+            matches + atomic_load(&matches_count),
             heap->entries,
             heap->count * sizeof(haystack_t *)
         );
-        matches_count += heap->count;
+        atomic_fetch_add(&matches_count, heap->count);
         heap_free(heap);
     }
 
     free(threads);
     free(worker_args);
 
+    unsigned count = atomic_load(&matches_count);
     if (needle_length == 0 || (needle_length == 1 && matcher->needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
-        qsort(matches, matches_count, sizeof(haystack_t *), cmp_alpha_p);
+        qsort(matches, count, sizeof(haystack_t *), cmp_alpha_p);
     } else {
-        qsort(matches, matches_count, sizeof(haystack_t *), cmp_score_p);
+        qsort(matches, count, sizeof(haystack_t *), cmp_score_p);
     }
 
+    if (count > limit) {
+        count = limit;
+    }
     result_t *results = xmalloc(sizeof(result_t));
-    unsigned count = matches_count > limit ? limit : matches_count;
     results->matches = xmalloc(count * sizeof(const char *));
     results->match_count = 0;
     results->candidate_count = candidate_count;
