@@ -3,7 +3,7 @@
 
 SHELL := /bin/bash
 
-CCFLAGS += -std=c17 -Wall -Wextra -Wno-unused-parameter
+CCFLAGS += -std=gnu17 -Wall -Wextra -Wno-unused-parameter
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
