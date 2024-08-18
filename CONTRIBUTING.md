@@ -195,3 +195,29 @@ cd FlameGraph
     dwarfdump --uuid lua/wincent/commandt/lib/commandt.so.dSYM  # ... with this;
     dwarfdump --uuid /opt/homebrew/bin/luajit                   # but not with this.
     ```
+
+### Using PGO (Profile-Guided Optimizations)
+
+Make a build that collects profiling data:
+
+```
+make CFLAGS=-fprofile-generate
+```
+
+Run the program to generate the profiling data:
+
+```
+TIMES=1 bin/benchmarks/matcher.lua
+```
+
+Prepare the data:
+
+```
+xcrun llvm-profdata merge -output=lua/wincent/commandt/lib/default.profdata *.profraw
+```
+
+Make a build using the profiling data:
+
+```
+make CFLAGS=-fprofile-use
+```

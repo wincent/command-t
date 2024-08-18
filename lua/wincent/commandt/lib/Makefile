@@ -3,7 +3,10 @@
 
 SHELL := /bin/bash
 
-CCFLAGS += -std=gnu17 -Wall -Wextra -Wno-unused-parameter
+CCFLAGS ?= -std=gnu17 -Wall -Wextra -Wno-unused-parameter
+
+# Allow augmentation from the command-line with CFLAGS:
+CCFLAGS += $(CFLAGS)
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
