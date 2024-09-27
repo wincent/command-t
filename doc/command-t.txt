@@ -420,7 +420,7 @@ are documented and they could change without notice at any time; for example:
       match_listing = {
         -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
         -- list of strings.
-        border = { '', '', '', ' ', '', '', '', ' '},
+        border = { '', '', '', '│', '┘', '─', '└', '│' },
       },
       never_show_dot_files = false,
       order = 'forward', -- 'forward' or 'reverse'.
@@ -428,7 +428,8 @@ are documented and they could change without notice at any time; for example:
       prompt = {
         -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
         -- list of strings.
-        border = 'single',
+        border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' },
+
       },
       open = function(item, kind)
         commandt.open(item, kind)

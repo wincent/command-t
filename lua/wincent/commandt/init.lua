@@ -447,13 +447,13 @@ local default_options = {
   },
   margin = 10,
   match_listing = {
-    border = { '', '', '', ' ', '', '', '', ' ' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+    border = { '', '', '', '│', '┘', '─', '└', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
   },
   never_show_dot_files = false,
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
   prompt = {
-    border = 'single', -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+    border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
   },
   open = open,
   root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
