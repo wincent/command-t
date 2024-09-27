@@ -457,7 +457,7 @@ passed to |commandt.setup()|.
 
 `max_files` can be used to limit the number of files that Command-T will scan
 before terminating the scan. A value of 0 (the default), means no limit. The
-following example shows how to figure different limits for each of the
+following example shows how to configure different limits for each of the
 built-in scanners:
 >
     scanners = {
