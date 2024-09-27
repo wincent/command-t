@@ -535,7 +535,7 @@ may be returned.
 
 `root_markers` is used in conjunction with the `traverse` setting (see
 |command-t-traverse|) to control how commands like |:CommandT| choose a root
-directory at which begin the search when invoked without an explicit path
+directory at which to begin the search when invoked without an explicit path
 argument.
 
 The default value is a list-like table containing the following strings:
@@ -552,7 +552,7 @@ Possible vaules are:
   traversal).
 
 - "file": starting from the file currently being edited, traverse upwards
-  through the filesystem hieararchy until finding an SCM root (as indicated
+  through the filesystem hierarchy until finding an SCM root (as indicated
   by the presence of a ".git", ".hg" or similar diretory) and use that as the
   base path. If no such root is found, fall back to using the present working
   directory as a root. The list of SCM markers that Command-T uses to detect an
