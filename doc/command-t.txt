@@ -773,6 +773,9 @@ main (not yet released) ~
   (https://github.com/wincent/command-t/issues/420).
 - fix: fix compilation error reported on Linux
   (https://github.com/wincent/command-t/pull/423).
+- feat: add `match_listing` / `border` and `prompt` / `border` settings.
+- feat: add `traverse` and `root_markers` settings
+  (https://github.com/wincent/command-t/issues/416).
 
 6.0.0-b.1 (16 December 2022) ~
 
