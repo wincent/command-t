@@ -33,12 +33,6 @@ jobs:
         with:
           luaVersion: luajit-openresty
 
-      - name: Symlink luajit
-        run: |
-          pushd .lua/bin
-          ln -s lua luajit
-          popd
-
       - name: Build extension (release)
         run: |
           pushd lua/wincent/commandt/lib
