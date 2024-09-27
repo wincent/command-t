@@ -114,9 +114,45 @@ local options_spec = {
         end
       end,
     },
+    match_listing = {
+      kind = 'table',
+      keys = {
+        border = {
+          kind = {
+            one_of = {
+              'double',
+              'none',
+              'rounded',
+              'shadow',
+              'single',
+              'solid',
+              { kind = 'list', of = { kind = 'string' } },
+            },
+          },
+        },
+      },
+    },
     never_show_dot_files = { kind = 'boolean' },
     order = { kind = { one_of = { 'forward', 'reverse' } } },
     position = { kind = { one_of = { 'bottom', 'center', 'top' } } },
+    prompt = {
+      kind = 'table',
+      keys = {
+        border = {
+          kind = {
+            one_of = {
+              'double',
+              'none',
+              'rounded',
+              'shadow',
+              'single',
+              'solid',
+              { kind = 'list', of = { kind = 'string' } },
+            },
+          },
+        },
+      },
+    },
     open = { kind = 'function' },
     scanners = {
       kind = 'table',
@@ -408,9 +444,15 @@ local default_options = {
     },
   },
   margin = 10,
+  match_listing = {
+    border = { '', '', '', ' ', '', '', '', ' ' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+  },
   never_show_dot_files = false,
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
+  prompt = {
+    border = 'single', -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+  },
   open = open,
   scanners = {
     file = {

@@ -21,6 +21,7 @@ local mt = {
 
 function Prompt.new(options)
   options = merge({
+    border = 'single',
     mappings = {},
     margin = 0,
     height = 15,
@@ -33,6 +34,7 @@ function Prompt.new(options)
   }, options or {})
   -- TODO validate options
   local p = {
+    _border = options.border,
     _height = options.height,
     _mappings = options.mappings,
     _margin = options.margin,
@@ -83,6 +85,7 @@ function Prompt:show()
 
   if self._window == nil then
     self._window = Window.new({
+      border = self._border,
       bottom = bottom,
       buftype = 'prompt',
       filetype = 'CommandTPrompt',

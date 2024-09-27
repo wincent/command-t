@@ -17,6 +17,7 @@ local mt = {
 
 function MatchListing.new(options)
   options = merge({
+    border = { '', '', '', ' ', '', '', '', ' ' },
     height = 15,
     margin = 0,
     position = 'bottom',
@@ -24,6 +25,7 @@ function MatchListing.new(options)
   }, options or {})
   -- TODO: validate options
   local m = {
+    _border = options.border,
     _height = options.height,
     _margin = options.margin,
     _position = options.position,
@@ -112,6 +114,7 @@ function MatchListing:show()
   -- TODO: deal with other options, like reverse
   if self._window == nil then
     self._window = Window.new({
+      border = self._border,
       bottom = bottom,
       description = 'CommandT [match listing]',
       filetype = 'CommandTMatchListing',

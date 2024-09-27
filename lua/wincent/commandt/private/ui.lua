@@ -80,6 +80,7 @@ ui.show = function(finder, options)
   current_window = vim.api.nvim_get_current_win()
 
   match_listing = MatchListing.new({
+    border = options.match_listing.border,
     height = options.height,
     margin = options.margin,
     position = options.position,
@@ -90,6 +91,7 @@ ui.show = function(finder, options)
   results = nil
   selected = nil
   prompt = Prompt.new({
+    border = options.prompt.border,
     height = options.height,
     mappings = options.mappings,
     margin = options.margin,

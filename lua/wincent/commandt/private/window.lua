@@ -58,6 +58,7 @@ end
 
 function Window.new(options)
   options = merge({
+    border = 'single',
     bottom = nil,
     buftype = 'nofile', -- Also, 'prompt'.
     filetype = nil,
@@ -74,6 +75,7 @@ function Window.new(options)
   }, options)
   validate_options(options)
   local w = {
+    _border = options.border,
     _bottom = options.bottom,
     _buftype = options.buftype,
     _description = options.description,
@@ -266,7 +268,7 @@ function Window:show()
       self._main_buffer,
       false, -- enter = false
       merge({
-        border = 'rounded', -- TODO make configurable
+        border = self._border,
         focusable = false,
         noautocmd = true,
         relative = 'editor',

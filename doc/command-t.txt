@@ -412,9 +412,19 @@ are documented and they could change without notice at any time; for example:
         },
       },
       margin = 10,
+      match_listing = {
+        -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
+        -- list of strings.
+        border = { '', '', '', ' ', '', '', '', ' '},
+      },
       never_show_dot_files = false,
       order = 'forward', -- 'forward' or 'reverse'.
       position = 'center', -- 'bottom', 'center' or 'top'.
+      prompt = {
+        -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
+        -- list of strings.
+        border = 'single',
+      },
       open = function(item, kind)
         commandt.open(item, kind)
       end,
