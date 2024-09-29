@@ -225,7 +225,7 @@ function Window:show()
     local ps1 = self._prompt or '> '
     vim.api.nvim_buf_set_name(self._main_buffer, self:description() .. ' (main)')
     vim.api.nvim_set_option_value('modifiable', true, { buf = self._main_buffer })
-    vim.api.nvim_buf_set_option(self._main_buffer, 'buftype', self._buftype)
+    vim.api.nvim_set_option_value('buftype', self._buftype, { buf = self._main_buffer })
     if self._buftype == 'prompt' then
       vim.fn.prompt_setprompt(self._main_buffer, ps1)
     end
@@ -235,7 +235,7 @@ function Window:show()
         -- but it only returns the prompt prefix for some reason...
         local query = vim.api.nvim_get_current_line():sub(#ps1 + 1)
         self._on_change(query)
-        vim.api.nvim_buf_set_option(self._main_buffer, 'modified', false)
+        vim.api.nvim_set_option_value('modified', false, { buf = self._main_buffer })
       end
       vim.api.nvim_create_autocmd('TextChanged', {
         buffer = self._main_buffer,
@@ -314,7 +314,7 @@ function Window:show()
     -- files can set window-level options based on `'filetype'` instead of just
     -- buffer-level ones.
     if self._filetype ~= nil then
-      vim.api.nvim_buf_set_option(self._main_buffer, 'filetype', self._filetype)
+      vim.api.nvim_set_option_value('filetype', self._filetype, { buf = self._main_buffer })
     end
 
     -- TODO: decide whether I need to clear lines here.
@@ -337,7 +337,7 @@ function Window:show()
       end
       vim.api.nvim_buf_set_name(self._title_buffer, self:description() .. ' (title)')
       vim.api.nvim_set_option_value('modifiable', true, { buf = self._title_buffer })
-      vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
+      vim.api.nvim_set_option_value('filetype', 'CommandTTitle', { buf = self._title_buffer })
     end
     -- TODO: trim title if too wide
     if self._title_window == nil then
