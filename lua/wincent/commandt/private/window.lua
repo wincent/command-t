@@ -219,12 +219,12 @@ function Window:show()
       false, -- listed = false
       true -- scratch = true
     )
-    vim.api.nvim_set_option_value('modifiable', true, { buf = self._main_buffer })
     if self._main_buffer == 0 then
       error('Window:show(): nvim_create_buf() failed')
     end
     local ps1 = self._prompt or '> '
     vim.api.nvim_buf_set_name(self._main_buffer, self:description() .. ' (main)')
+    vim.api.nvim_set_option_value('modifiable', true, { buf = self._main_buffer })
     vim.api.nvim_buf_set_option(self._main_buffer, 'buftype', self._buftype)
     if self._buftype == 'prompt' then
       vim.fn.prompt_setprompt(self._main_buffer, ps1)
@@ -332,11 +332,11 @@ function Window:show()
         false, -- listed = false
         true -- scratch = true
       )
-      vim.api.nvim_set_option_value('modifiable', true, { buf = self._title_buffer })
       if self._title_buffer == 0 then
         error('Window:show(): nvim_create_buf() failed')
       end
       vim.api.nvim_buf_set_name(self._title_buffer, self:description() .. ' (title)')
+      vim.api.nvim_set_option_value('modifiable', true, { buf = self._title_buffer })
       vim.api.nvim_buf_set_option(self._title_buffer, 'filetype', 'CommandTTitle')
     end
     -- TODO: trim title if too wide
