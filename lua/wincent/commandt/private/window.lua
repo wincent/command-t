@@ -219,7 +219,7 @@ function Window:show()
       false, -- listed = false
       true -- scratch = true
     )
-    vim.api.nvim_set_option_value('modifiable', true, {buf=self._main_buffer})
+    vim.api.nvim_set_option_value('modifiable', true, { buf = self._main_buffer })
     if self._main_buffer == 0 then
       error('Window:show(): nvim_create_buf() failed')
     end
@@ -332,7 +332,7 @@ function Window:show()
         false, -- listed = false
         true -- scratch = true
       )
-      vim.api.nvim_set_option_value('modifiable', true, {buf=self._title_buffer})
+      vim.api.nvim_set_option_value('modifiable', true, { buf = self._title_buffer })
       if self._title_buffer == 0 then
         error('Window:show(): nvim_create_buf() failed')
       end
