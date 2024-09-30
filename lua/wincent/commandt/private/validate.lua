@@ -261,7 +261,7 @@ validate_table = function(path, context, options, spec, defaults, config)
       end
     end
   end
-  return vim.tbl_flatten(errors)
+  return vim.iter(errors):flatten():totable()
 end
 
 return validate
