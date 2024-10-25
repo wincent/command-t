@@ -152,7 +152,7 @@ I also attempted using the `/usr/bin/sample` tool, which produces results, albei
 sample -wait luajit -mayDie
 ```
 
-So far, `dtrace` is the only thing I've been able to get working usefully:
+`dtrace`, however, produced a useful result, albeit with some hoop-jumping required:
 
 ```
 sudo -v
@@ -195,6 +195,15 @@ cd FlameGraph
     dwarfdump --uuid lua/wincent/commandt/lib/commandt.so.dSYM  # ... with this;
     dwarfdump --uuid /opt/homebrew/bin/luajit                   # but not with this.
     ```
+
+I also had success straightforwardly with [Samply](https://github.com/mstange/samply):
+
+```
+cargo install --locked samply
+TIMES=1 ~/.cargo/bin/samply record luajit bin/benchmarks/matcher.lua
+```
+
+**Note:** Using `TIMES=1` because otherwise the generated `profile.json` is too big and crashes Chrome (but not Safari).
 
 ### Using PGO (Profile-Guided Optimizations)
 
