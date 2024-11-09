@@ -91,6 +91,7 @@ function Window.new(options)
     _on_resize = options.on_resize,
     _padded_title = options.title ~= '' and (' ' .. options.title .. ' ') or '',
     _prompt = options.prompt,
+    _resize_autocmd = nil,
     _selection_highlight = options.selection_highlight,
     _title = options.title,
     _title_buffer = nil,
@@ -246,15 +247,15 @@ function Window:show()
         callback = callback,
       })
     end
-    vim.api.nvim_create_autocmd('VimResized', {
-      buffer = self._main_buffer,
+    self._resize_autocmd = vim.api.nvim_create_autocmd('VimResized', {
       callback = function()
-        -- This will reposition title, too, so no need for a separate autocmd.
+        -- One autocmd will handle both title and main repositioning.
         self:_reposition()
         if self._on_resize then
           self._on_resize()
         end
       end,
+      group = vim.api.nvim_create_augroup('CommandTWindow', { clear = false }),
     })
     vim.api.nvim_create_autocmd('BufWipeout', {
       buffer = self._main_buffer,
@@ -295,6 +296,10 @@ function Window:show()
         if self._title_window then
           vim.api.nvim_win_close(self._title_window, true)
           self._title_window = nil
+        end
+        if self._resize_autocmd ~= nil then
+          vim.api.nvim_del_autocmd(self._resize_autocmd)
+          self._resize_autocmd = nil
         end
         if self._on_close then
           self._on_close()

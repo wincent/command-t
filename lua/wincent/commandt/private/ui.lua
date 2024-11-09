@@ -79,6 +79,12 @@ ui.show = function(finder, options)
 
   current_window = vim.api.nvim_get_current_win()
 
+  -- Work around an autocommand bug. We don't reliably get `WinClosed` events,
+  -- or if we do, our call to `nvim_del_autocmd()` doesn't always clean up for
+  -- us. So, we add some window-related autocommands to a group which we always
+  -- reset every time we show a new UI.
+  vim.api.nvim_create_augroup('CommandTWindow', { clear = true })
+
   match_listing = MatchListing.new({
     border = options.match_listing.border,
     height = options.height,
