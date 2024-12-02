@@ -5,6 +5,10 @@
 
 # Command-T
 
+<a href="https://dotfyle.com/plugins/wincent/command-t">
+  <img src="https://dotfyle.com/plugins/wincent/command-t/shield" />
+</a>
+
 Command-T is a Neovim and Vim plug-in that provides an extremely fast "fuzzy" mechanism for:
 
 - Opening files and buffers
