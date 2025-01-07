@@ -21,7 +21,7 @@ function MatchListing.new(options)
     height = 15,
     margin = 0,
     position = 'bottom',
-    selection_highlight = 'PMenuSel',
+    selection_highlight = 'PmenuSel',
   }, options or {})
   -- TODO: validate options
   local m = {

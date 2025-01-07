@@ -473,7 +473,7 @@ local default_options = {
       max_files = 0,
     },
   },
-  selection_highlight = 'PMenuSel',
+  selection_highlight = 'PmenuSel',
   smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
   threads = nil, -- Let heuristic apply.
   traverse = 'none', -- 'file', 'pwd' or 'none'.

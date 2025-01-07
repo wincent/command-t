@@ -69,7 +69,7 @@ function Window.new(options)
     on_leave = nil,
     on_resize = nil,
     prompt = '> ', -- Has no effect unless `buftype` is 'prompt'.
-    selection_highlight = 'PMenuSel',
+    selection_highlight = 'PmenuSel',
     title = 'Command-T', -- Set to '' to suppress.
     top = nil,
   }, options)
