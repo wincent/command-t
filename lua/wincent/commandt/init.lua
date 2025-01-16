@@ -2,7 +2,6 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 local concat = require('wincent.commandt.private.concat')
-local contains = require('wincent.commandt.private.contains')
 local copy = require('wincent.commandt.private.copy')
 local is_integer = require('wincent.commandt.private.is_integer')
 local is_table = require('wincent.commandt.private.is_table')
