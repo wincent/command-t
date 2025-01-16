@@ -340,3 +340,7 @@ print(
     .. ' total in '
     .. string.format('%.6fs', wall)
 )
+
+if stats.failed > 0 then
+  os.exit(1)
+end
