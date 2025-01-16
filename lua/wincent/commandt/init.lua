@@ -517,6 +517,43 @@ commandt.file_finder = function(directory)
   ui.show(finder, merge(options, { name = 'file' }))
 end
 
+local report_errors = function(errors, heading)
+  if #errors > 0 then
+    table.insert(errors, 1, heading .. ':')
+    for i, message in ipairs(errors) do
+      local indent = i == 1 and '' or '  '
+      errors[i] = { indent .. message .. '\n', 'WarningMsg' }
+    end
+    vim.api.nvim_echo(errors, true, {})
+  end
+end
+
+-- Returns a sanitized copy of `options` (with bad values fixed, if possible),
+-- and a table of errors. `base`, if provided, is an options object to extend.
+local sanitize_options = function(options, base)
+  local errors = {}
+  options = copy(options or {})
+  if not is_table(options) then
+    table.insert(errors, 'expected a table of options but received ' .. type(options))
+    options = {}
+  end
+  if base ~= nil then
+    options = merge(base, options)
+  end
+
+  -- Inferred from Neovim settings if not explicitly set.
+  if options.ignore_case == nil then
+    options.ignore_case = vim.o.ignorecase
+  end
+  if options.smart_case == nil then
+    options.smart_case = vim.o.smartcase
+  end
+
+  local validate = require('wincent.commandt.private.validate')
+  errors = merge(errors, validate('', nil, options, options_spec, default_options))
+  return options, errors
+end
+
 commandt.finder = function(name, directory)
   local options = commandt.options()
   local config = options.finders[name]
@@ -556,33 +593,14 @@ commandt.options = function()
 end
 
 commandt.setup = function(options)
-  local errors = {}
+  local sanitized_options, errors = sanitize_options(options, _options)
+  _options = sanitized_options
 
   if vim.g.CommandTPreferredImplementation == 'ruby' then
-    table.insert(errors, '`commandt.setup()` was called, but `g:CommandTPreferredImplementation` is set to "ruby"')
+    table.insert(errors, 1, '`commandt.setup()` was called, but `g:CommandTPreferredImplementation` is set to "ruby"')
   else
     vim.g.CommandTPreferredImplementation = 'lua'
   end
-
-  if options == nil then
-    options = {}
-  elseif not is_table(options) then
-    table.insert(errors, '`commandt.setup() expects a table of options but received ' .. type(options))
-    options = {}
-  end
-
-  _options = merge(_options, options)
-
-  -- Inferred from Neovim settings if not explicitly set.
-  if _options.ignore_case == nil then
-    _options.ignore_case = vim.o.ignorecase
-  end
-  if _options.smart_case == nil then
-    _options.smart_case = vim.o.smartcase
-  end
-
-  local validate = require('wincent.commandt.private.validate')
-  errors = merge(errors, validate('', nil, _options, options_spec, default_options))
 
   if
     not pcall(function()
@@ -593,14 +611,7 @@ commandt.setup = function(options)
     table.insert(errors, 'unable to load and use C library - run `:checkhealth wincent.commandt`')
   end
 
-  if #errors > 0 then
-    table.insert(errors, 1, 'commandt.setup():')
-    for i, message in ipairs(errors) do
-      local indent = i == 1 and '' or '  '
-      errors[i] = { indent .. message .. '\n', 'WarningMsg' }
-    end
-    vim.api.nvim_echo(errors, true, {})
-  end
+  report_errors(errors, 'commandt.setup()')
 end
 
 commandt.watchman_finder = function(directory)
