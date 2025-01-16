@@ -63,15 +63,13 @@ local check_ruby_c_extension = function()
 
   if vim.fn.exists(':CommandTLoad') ~= 0 then
     vim.cmd('CommandTLoad')
-    if vim.fn.has('ruby') == 1 then
-      local result = vim.fn.rubyeval('$command_t && $command_t.class.respond_to?(:guard) ? 1 : 0')
-      if result == 1 then
-        health.ok('Has working Ruby C extension')
-      else
-        health.warn('Ruby C extension missing or broken', {
-          'Try running `ruby extconf.rb && make` from\n' .. ruby_build_directory,
-        })
-      end
+    local result = vim.fn.rubyeval('$command_t && $command_t.class.respond_to?(:guard) ? 1 : 0')
+    if result == 1 then
+      health.ok('Has working Ruby C extension')
+    else
+      health.warn('Ruby C extension missing or broken', {
+        'Try running `ruby extconf.rb && make` from\n' .. ruby_build_directory,
+      })
     end
   else
     health.warn(':CommandTLoad does not exist')
