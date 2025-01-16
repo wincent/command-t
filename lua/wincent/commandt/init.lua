@@ -44,6 +44,10 @@ local options_spec = {
             },
             optional = true,
           },
+          options = {
+            kind = 'function',
+            optional = true,
+          },
           command = {
             kind = {
               one_of = {
@@ -222,6 +226,15 @@ local options_spec = {
   end,
 }
 
+-- Function that returns a copy of `options` with
+-- `always_show_dot_files = true` and `never_show_dot_files = false`.
+local force_dot_files = function(options)
+  return merge(options, {
+    always_show_dot_files = true,
+    never_show_dot_files = false,
+  })
+end
+
 local default_options = {
   always_show_dot_files = false,
   finders = {
@@ -243,6 +256,7 @@ local default_options = {
         end
         return paths
       end,
+      options = force_dot_files,
     },
     find = {
       command = function(directory, options)
@@ -347,6 +361,7 @@ local default_options = {
         -- context, see: https://github.com/autozimu/LanguageClient-neovim/pull/731
         vim.cmd('try | ' .. command .. ' ' .. item .. ' | catch /E434/ | endtry')
       end,
+      options = force_dot_files,
     },
     line = {
       candidates = function()
@@ -366,6 +381,7 @@ local default_options = {
         local index = tonumber(item:sub(suffix))
         vim.api.nvim_win_set_cursor(0, { index, 0 })
       end,
+      options = force_dot_files,
     },
     rg = {
       command = function(directory, options)
@@ -559,6 +575,12 @@ commandt.finder = function(name, directory)
   local config = options.finders[name]
   if config == nil then
     error('commandt.finder(): no finder registered with name ' .. tostring(name))
+  end
+  if config.options then
+    -- Optionally transform options.
+    local sanitized_options, errors = sanitize_options(config.options(options))
+    report_errors(errors, 'commandt.finder()')
+    options = sanitized_options
   end
   if directory ~= nil then
     directory = vim.trim(directory)
