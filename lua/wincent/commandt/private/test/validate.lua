@@ -2,16 +2,18 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 local validate = require('wincent.commandt.private.validate')
+local mocks = require('wincent.commandt.private.mocks.vim')
 
 describe('validate()', function()
   before(function()
-    assert(_G.vim == nil)
-    require('wincent.commandt.private.mocks.vim.inspect').setup()
-    require('wincent.commandt.private.mocks.vim.iter').setup()
+    mocks({
+      inspect = true,
+      iter = true,
+    })
   end)
 
   after(function()
-    _G.vim = nil
+    mocks(false)
   end)
 
   local spec = {
