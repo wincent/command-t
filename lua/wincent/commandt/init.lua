@@ -241,12 +241,10 @@ local default_options = {
     -- Returns the list of paths currently loaded into buffers.
     buffer = {
       candidates = function()
-        -- TODO: don't include unlisted buffers unless user wants them (need some way
-        -- for them to signal that)
         local handles = vim.api.nvim_list_bufs()
         local paths = {}
         for _, handle in ipairs(handles) do
-          if vim.api.nvim_buf_is_valid(handle) then
+          if vim.api.nvim_buf_is_valid(handle) and vim.api.nvim_get_option_value('buflisted', { buf = handle }) then
             local name = vim.api.nvim_buf_get_name(handle)
             if name ~= '' then
               local relative = vim.fn.fnamemodify(name, ':~:.')
