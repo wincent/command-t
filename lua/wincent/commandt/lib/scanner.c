@@ -6,12 +6,12 @@
 #include "scanner.h"
 
 #include <assert.h> /* for assert() */
-#include <errno.h> /* for errno */
 #include <signal.h> /* for SIGKILL, kill() */
 #include <stddef.h> /* for NULL */
 #include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
+#include <sys/errno.h> /* for errno */
 #include <sys/wait.h> /* for wait() */
 #include <unistd.h> /* _exit(), close(), fork(), pipe(), read() */
 

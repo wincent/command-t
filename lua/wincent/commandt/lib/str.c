@@ -6,6 +6,7 @@
 #include "str.h"
 
 #include <assert.h> /* for assert() */
+#include <limits.h> /* for SSIZE_MAX */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memcpy() */
 

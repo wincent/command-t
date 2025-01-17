@@ -8,8 +8,6 @@
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for NULL */
 
-#include "debug.h"
-
 // Use a struct to make passing params during recursion easier.
 typedef struct {
     haystack_t *haystack;

@@ -25,7 +25,6 @@
 #define str_free commandt_str_free
 #define str_c_string commandt_str_c_string
 
-#include <limits.h> /* for SSIZE_MAX */
 #include <stddef.h> /* for size_t */
 #include <sys/types.h> /* for ssize_t */
 

@@ -14,10 +14,8 @@
 #include <string.h> /* for strncmp() */
 
 #include "commandt.h"
-#include "debug.h"
 #include "die.h"
 #include "heap.h"
-#include "scanner.h"
 #include "score.h"
 #include "str.h" /* for str_t */
 #include "xmalloc.h"
