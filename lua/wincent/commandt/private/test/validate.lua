@@ -1,8 +1,8 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local validate = require('wincent.commandt.private.validate')
 local mocks = require('wincent.commandt.private.mocks')
+local validate = require('wincent.commandt.private.validate')
 
 describe('validate()', function()
   before(function()
