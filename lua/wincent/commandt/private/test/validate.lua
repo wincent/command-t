@@ -6,20 +6,8 @@ local validate = require('wincent.commandt.private.validate')
 describe('validate()', function()
   before(function()
     assert(_G.vim == nil)
-    _G.vim = {
-      inspect = function(value)
-        return '<inspect:' .. type(value) .. '>'
-      end,
-      tbl_flatten = function(t)
-        local flattened = {}
-        for _, v in ipairs(t) do
-          for _, inner in ipairs(v) do
-            table.insert(flattened, inner)
-          end
-        end
-        return flattened
-      end,
-    }
+    require('wincent.commandt.private.mocks.vim.inspect').setup()
+    require('wincent.commandt.private.mocks.vim.iter').setup()
   end)
 
   after(function()
