@@ -45,7 +45,7 @@ function M.setup()
     return self._list
   end
 
-  _G.vim.iter = function(list)
+  vim.iter = function(list)
     return Iter.new(list)
   end
 end

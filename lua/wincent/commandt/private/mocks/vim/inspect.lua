@@ -8,7 +8,7 @@ function M.setup()
     _G.vim = {}
   end
 
-  _G.vim.inspect = function(value)
+  vim.inspect = function(value)
     return '<inspect:' .. type(value) .. '>'
   end
 end
