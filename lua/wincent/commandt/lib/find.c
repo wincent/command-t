@@ -8,7 +8,6 @@
 
 #include "find.h"
 
-#include <assert.h> /* for assert() */
 #include <errno.h> /* for errno */
 #include <fts.h> /* for fts_close(), fts_open(), fts_read() */
 #include <stdlib.h> /* for free() */
