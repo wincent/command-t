@@ -21,6 +21,8 @@ package.path = lua_directory .. '?/init.lua;' .. package.path
 local is_list = require('wincent.commandt.private.is_list')
 local is_table = require('wincent.commandt.private.is_table')
 
+require('wincent.commandt.private.mocks.vim.iter')
+
 local contexts = {}
 local current_context = nil
 local current_test = nil
