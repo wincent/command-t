@@ -6,13 +6,13 @@ local is_list = require('wincent.commandt.private.is_list')
 local is_table = require('wincent.commandt.private.is_table')
 
 -- Forward declarations.
-local validate_boolean = nil
-local validate_function = nil
-local validate_list = nil
-local validate_number = nil
-local validate_one_of = nil
-local validate_string = nil
-local validate_table = nil
+local validate_boolean
+local validate_function
+local validate_list
+local validate_number
+local validate_one_of
+local validate_string
+local validate_table
 
 local format_path = function(path)
   if path == '' then
