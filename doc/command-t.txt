@@ -58,7 +58,7 @@ See also |command-t-ruby-requirements| for older requirements.
 INSTALLATION                                    *command-t-installation*
 
 Most people choose to install using a plug-in manager (although you may
-also choose to simply download the source code or pull it into your dotfiles
+also choose to simply download the source code or pull it into your dot-files
 as a Git submodule). As an example, if you were using packer.nvim
 (https://github.com/wbthomason/packer.nvim), the following config could be
 used:
@@ -460,6 +460,30 @@ are documented and they could change without notice at any time; for example:
 See below for description of specific properties that can be used in the table
 passed to |commandt.setup()|.
 
+                                              *command-t-always_show_dot_files*
+                                              boolean (default: false)
+
+When showing a file listing Command-T will by default show dot-files only
+if the entered search string contains a dot that could cause a dot-file to
+match. For example, given a search query like ".init", the following path
+would match and be shown in the match listing:
+
+    .config/nvim/init.lua
+
+but a query like "init" would not show the path.
+
+When set to true, this setting instructs Command-T to always include
+matching dot-files in the match listing regardless of whether the search
+string contains a dot. So, for the example path above, a query like "init"
+would cause the path to show in the match listing even though it is a dot-file.
+
+Note that this setting only influences file listings (ie. those shown by
+commands like |:CommandT|, |:CommandTFind|, and so on); the buffer listing (shown
+by |:CommandTBuffer|) treats dot-files like any other file and will show them
+whenever they match the search query.
+
+See also |command-t-never_show_dot_files|
+
                                               *command-t-max_files*
                                               number or function (default: 0)
 
@@ -530,6 +554,28 @@ detects that they have returned `max_files` or more results it will terminate
 them with a `SIGKILL` signal. Depending on whether or how the forked process's
 output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
+
+                                              *command-t-never_show_dot_files*
+                                              boolean (default: false)
+
+In the file listing, Command-T will by default show dot-files if the entered
+search string contains a dot that could cause a dot-file to match. Otherwise,
+dot-files are suppressed. For example, given a search query like ".init", the
+following path would match and be shown in the match listing:
+
+    .config/nvim/init.lua
+
+but a query like "init" would not show the path.
+
+When set to a true, this setting instructs Command-T to never show dot-files
+under any circumstances, so a search like ".init" would not show the
+corresponding path.
+
+Note that it is contradictory to set both this setting and
+|command-t-always_show_dot_files| to true.
+
+Note that this setting has no effect in buffer listings (ie. those shown by
+|:CommandTBuffer|), where dot files are treated like any other file.
 
                                               *command-t-root_markers*
                                               list of strings (default: various)
