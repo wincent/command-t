@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
- * SPDX-LicenseIdentifier: BSD-2-Clause
+ * SPDX-License-Identifier: BSD-2-Clause
  */
 
 #include "matcher.h"
