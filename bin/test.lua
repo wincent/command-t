@@ -91,9 +91,7 @@ _G.pending = function(description)
   })
 end
 
-local equal = nil
-
-equal = function(a, b)
+local function equal(a, b)
   if type(a) == 'table' and type(b) == 'table' then
     if #a == #b then
       for k, v in pairs(a) do
@@ -108,9 +106,7 @@ equal = function(a, b)
   end
 end
 
-local inspect = nil
-
-inspect = function(value, indent)
+local function inspect(value, indent)
   local prefix = (' '):rep(indent)
   if type(value) == 'string' then
     return prefix .. "'" .. value:gsub('\\', '\\\\'):gsub("'", "\\'") .. "'"
@@ -246,9 +242,7 @@ local stats = {
 local setup = {}
 local teardown = {}
 
-local run = nil
-
-run = function(runnable, indent)
+local function run(runnable, indent)
   if runnable.kind == 'context' then
     print(indent .. bold(runnable.description))
     for _, child in ipairs(runnable.children) do
