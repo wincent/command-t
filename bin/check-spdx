@@ -3,13 +3,19 @@
 # SPDX-FileCopyrightText: Copyright 2025-present Greg Hurrell and contributors.
 # SPDX-License-Identifier: BSD-2-Clause
 
-git ls-files -- 'bin/**' '*.c' '*.h' '*.lua' '*.vim' | while read -r FILE; do
+STATUS=0
+
+while read -r FILE; do
     if [[ -f "$FILE" ]]; then
         if ! grep -q "SPDX-FileCopyrightText:" "$FILE" 2> /dev/null; then
             echo "$FILE missing SPDX-FileCopyrightText-Identifier"
+            STATUS=1
         fi
         if ! grep -q "SPDX-License-Identifier:" "$FILE" 2> /dev/null; then
             echo "$FILE missing SPDX-License-Identifier"
+            STATUS=1
         fi
     fi
-done
+done < <(git ls-files -- 'bin/**' '*.c' '*.h' '*.lua' '*.vim')
+
+exit $STATUS
