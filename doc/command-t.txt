@@ -1,6 +1,6 @@
-*command-t.txt* Command-T plug-in for Vim         *command-t*
+*command-t.txt*              Command-T plug-in for Vim                *command-t*
 
-CONTENTS                                        *command-t-contents*
+CONTENTS                                                   *command-t-contents*
 
  1. Introduction                    |command-t-intro|
  2. Requirements                    |command-t-requirements|
@@ -23,7 +23,7 @@ CONTENTS                                        *command-t-contents*
 19. History                         |command-t-history|
 
 
-INTRODUCTION                                    *command-t-intro*
+INTRODUCTION                                                  *command-t-intro*
 
 The Command-T plug-in provides an extremely fast, intuitive mechanism for
 opening files and buffers with a minimal number of keystrokes. It's named
@@ -43,7 +43,11 @@ from the upper path components rather than just entering characters from the
 filename itself.
 
 
-REQUIREMENTS                                    *command-t-requirements*
+REQUIREMENTS                                           *command-t-requirements*
+
+Command-T supports the latest stable release of Neovim as well as the latest
+Neovim nightly release. Command-T generally also runs on recent versions of
+Vim, although they are not explicitly tested.
 
 The core of Command-T is written in C for speed, and it optionally makes use
 of a number of external programs -- such as `git`, `rg`, and `watchman` --
@@ -55,7 +59,7 @@ built, and check for the presence of the optional executable helpers.
 See also |command-t-ruby-requirements| for older requirements.
 
 
-INSTALLATION                                    *command-t-installation*
+INSTALLATION                                           *command-t-installation*
 
 Most people choose to install using a plug-in manager (although you may
 also choose to simply download the source code or pull it into your dot-files
@@ -90,7 +94,7 @@ See also |command-t-ruby-installation| for older installation instructions
 fallback, as described in |command-t-upgrading| below).
 
 
-UPGRADING                                       *command-t-upgrading*
+UPGRADING                                                 *command-t-upgrading*
 
 This section details what has changed from version 5.x to 6.x, why, and how to
 update. For additional context see the blog post:
@@ -249,7 +253,7 @@ That branch only contains the Ruby code, and none of the Lua changes that
 started with the 6.0 release.
 
 
-TROUBLE-SHOOTING                                *command-t-trouble-shooting*
+TROUBLE-SHOOTING                                   *command-t-trouble-shooting*
 
 Command-T hangs ~
 
@@ -273,14 +277,14 @@ example, via Homebrew), and execute the command as `gfind`.
 
 Another way to mitigate the harm caused by cycles is to use the `max_files`
 options to limit the number of files that Command-T will scan before
-terminating the scan. See |command-t-max_files|.
+terminating the scan. See |commandt.setup.scanners.max_files|.
 
 Other trouble-shooting issues ~
 
 See |command-t-ruby-trouble-shooting| for older trouble-shooting tips.
 
 
-KNOWN ISSUES                                    *command-t-known-issues*
+KNOWN ISSUES                                           *command-t-known-issues*
 
 - There are many missing features in 6.x compared with 5.x.
 - 5.x used to cache directory listings, requiring the use of |:CommandTFlush|
@@ -290,53 +294,53 @@ KNOWN ISSUES                                    *command-t-known-issues*
 - The documentation for 6.x (ie. this document) is still a work in progress.
 
 
-USAGE                                           *command-t-usage*
+USAGE                                                         *command-t-usage*
 
 See also |command-t-ruby-usage| for older usage information.
 
 
-COMMANDS                                        *command-t-commands*
+COMMANDS                                                   *command-t-commands*
 
-                                                *:CommandT*
+                                                                    *:CommandT*
 |:CommandT|         Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files using the `fts` facilities provided by the C
                   standard library.
 
-                                                 *:CommandTBuffer*
+                                                              *:CommandTBuffer*
 |:CommandTBuffer|   Brings up the Command-T buffer window.
                   This works exactly like the standard file window,
                   except that the selection is limited to files that
                   you already have open in buffers.
 
-                                                *:CommandTFind*
+                                                                *:CommandTFind*
 |:CommandTFind|     Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files by executing the `find` executable.
 
-                                                *:CommandTGit*
+                                                                 *:CommandTGit*
 |:CommandTGit|      Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files using `git`, so only works inside Git
                   repositories.
 
-                                                 *:CommandTHelp*
+                                                                *:CommandTHelp*
 |:CommandTHelp|     Brings up the Command-T help search window. This works
                   exactly like the standard file window, except that it shows
                   help topics found in any documentation under Vim's
                   |'runtimepath'|.
 
-                                                *:CommandTLine*
+                                                                *:CommandTLine*
 |:CommandTLine|     Brings up the Command-T line search window. This works
                   exactly like the standard file window, except that it shows
                   the lines in the current buffer.
 
-                                                *:CommandTRipgrep*
+                                                              *:CommandTRipgrep*
 |:CommandTRipgrep|  Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files using `rg`.
 
-                                                *:CommandTWatchman*
+                                                            *:CommandTWatchman*
 |:CommandTWatchman| Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files by connecting to the `watchman` daemon, which must
@@ -346,7 +350,7 @@ See also |command-t-ruby-commands| for commands that exist specifically within
 the Ruby-powered version of Command-T.
 
 
-FUNCTIONS                                       *command-t-functions*
+FUNCTIONS                                                 *command-t-functions*
 
 All Lua functions defined by Command-T are namespaced under `wincent` in
 order to avoid collisions with other plug-ins and with built-in functionality
@@ -364,7 +368,7 @@ are documented and they could change without notice at any time; for example:
     local Window = require('wincent.commandt.private.window').Window
 <
 
-                                              *commandt.setup()*
+                                                             *commandt.setup()*
 |commandt.setup()|
 >
     require('wincent.commandt').setup({
@@ -461,8 +465,8 @@ are documented and they could change without notice at any time; for example:
 See below for description of specific properties that can be used in the table
 passed to |commandt.setup()|.
 
-                                              *command-t-always_show_dot_files*
-                                              boolean (default: false)
+                                         *commandt.setup.always_show_dot_files*
+                                                     boolean (default: false)
 
 When showing a file listing Command-T will by default show dot-files only
 if the entered search string contains a dot that could cause a dot-file to
@@ -483,69 +487,75 @@ commands like |:CommandT|, |:CommandTFind|, and so on); the buffer listing (show
 by |:CommandTBuffer|) treats dot-files like any other file and will show them
 whenever they match the search query.
 
-See also |command-t-never_show_dot_files|
+See also |commandt.setup.never_show_dot_files|
 
-                                              *command-t-max_files*
+                                            *commandt.setup.scanners.max_files*
                                               number or function (default: 0)
 
-`max_files` can be used to limit the number of files that Command-T will scan
-before terminating the scan. A value of 0 (the default), means no limit. The
-following example shows how to configure different limits for each of the
-built-in scanners:
+|commandt.setup.scanners.max_files| can be used to limit the number of files
+that Command-T will scan before terminating the scan. A value of 0 (the
+default), means no limit. The following example shows how to configure
+different limits for each of the built-in scanners:
 >
-    scanners = {
-      file = {
-        max_files = 100000, -- A "big" limit.
+    require('wincent.commandt').setup({
+      scanners = {
+        file = {
+          max_files = 100000, -- A "big" limit.
+        },
+        find = {
+          max_files = 10, -- A small limit.
+        },
+        git = {
+          max_files = 0, -- Same as no limit.
+        },
+        rg = {
+          -- No setting, no limit.
+        },
       },
-      find = {
-        max_files = 10, -- A small limit.
-      },
-      git = {
-        max_files = 0, -- Same as no limit.
-      },
-      rg = {
-        -- No setting, no limit.
-      },
-    }
+    })
 <
 If you define your own finder, you can provide a `max_files` value with that.
 For example, you can provide a literal number:
 >
-    finders = {
-      ack = {
-        command = function(directory)
-          local command = 'ack -f --print0'
-          if directory ~= '' and directory ~= '.' and directory ~= './' then
-            directory = vim.fn.shellescape(directory)
-            command = command .. ' -- ' .. directory
-          end
-          local drop = 0
-          local max_files = 10000
-          return command, drop
-        end,
-        max_files = 100000,
+    require('wincent.commandt').setup({
+      finders = {
+        ack = {
+          command = function(directory)
+            local command = 'ack -f --print0'
+            if directory ~= '' and directory ~= '.' and directory ~= './' then
+              directory = vim.fn.shellescape(directory)
+              command = command .. ' -- ' .. directory
+            end
+            local drop = 0
+            local max_files = 10000
+            return command, drop
+          end,
+          max_files = 100000,
+        },
       },
-    }
+     })
 <
 or a function that returns a number:
 >
-    finders = {
-      ack = {
-        command = function(directory)
-          local command = 'ack -f --print0'
-          if directory ~= '' and directory ~= '.' and directory ~= './' then
-            directory = vim.fn.shellescape(directory)
-            command = command .. ' -- ' .. directory
-          end
-          local drop = 0
-          return command, drop
-        end,
-        max_files = function(options)
-          -- Imagine we want to use the same value as is configured for rg:
-          return options.scanners.rg.max_files
-        end,
+    require('wincent.commandt').setup({
+      finders = {
+        ack = {
+          command = function(directory)
+            local command = 'ack -f --print0'
+            if directory ~= '' and directory ~= '.' and directory ~= './' then
+              directory = vim.fn.shellescape(directory)
+              command = command .. ' -- ' .. directory
+            end
+            local drop = 0
+            return command, drop
+          end,
+          max_files = function(options)
+            -- Imagine we want to use the same value as is configured for rg:
+            return options.scanners.rg.max_files
+          end,
+        },
       },
-    }
+    })
 <
 The built-in `file` scanner will terminate its scan as soon as the specified
 `max_files` limit is reached. In contrast, `command`-based scanners (like the
@@ -556,8 +566,8 @@ them with a `SIGKILL` signal. Depending on whether or how the forked process's
 output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
 
-                                              *command-t-never_show_dot_files*
-                                              boolean (default: false)
+                                          *commandt.setup.never_show_dot_files*
+                                                     boolean (default: false)
 
 In the file listing, Command-T will by default show dot-files if the entered
 search string contains a dot that could cause a dot-file to match. Otherwise,
@@ -573,24 +583,31 @@ under any circumstances, so a search like ".init" would not show the
 corresponding path.
 
 Note that it is contradictory to set both this setting and
-|command-t-always_show_dot_files| to true.
+|commandt.setup.always_show_dot_files| to true.
 
 Note that this setting has no effect in buffer listings (ie. those shown by
 |:CommandTBuffer|), where dot files are treated like any other file.
 
-                                              *command-t-root_markers*
-                                              list of strings (default: various)
 
-`root_markers` is used in conjunction with the `traverse` setting (see
-|command-t-traverse|) to control how commands like |:CommandT| choose a root
-directory at which to begin the search when invoked without an explicit path
-argument.
+    require('wincent.commandt').setup({ never_show_dot_files = true })
+
+                                                  *commandt.setup.root_markers*
+                                           list of strings (default: various)
+
+|commandt.setup.root_markers| is used in conjunction with the
+|commandt.setup.traverse| setting to control how commands like |:CommandT| choose
+a root directory at which to begin the search when invoked without an
+explicit path argument.
 
 The default value is a list-like table containing the following strings:
 '.git', '.hg', '.svn', '.bzr', '_darcs'.
 
-                                              *command-t-traverse*
-                                              string (default: 'none')
+    require('wincent.commandt').setup({
+      root_markers = { 'tsconfig.json', 'package.json' },
+    })
+
+                                                      *commandt.setup.traverse*
+                                                     string (default: 'none')
 
 Controls how path-based commands like |:CommandT| choose a root directory from
 which to begin the search when invoked without an explicit path argument.
@@ -604,15 +621,16 @@ Possible vaules are:
   by the presence of a ".git", ".hg" or similar diretory) and use that as the
   base path. If no such root is found, fall back to using the present working
   directory as a root. The list of SCM markers that Command-T uses to detect an
-  SCM root can be customized with the `root_markers` option (see
-  |command-t-root_markers|).
+  SCM root can be customized with the |commandt.setup.root_markers| option.
 
 - "pwd": traverse upwards looking for an SCM root just like the "file" setting
   (above), but instead of starting from the file currently being edited, start
   from Neovim's present working directory.
 
-                                              *command-t-truncate*
-                                              string (default: 'middle')
+    require('wincent.commandt').setup({ traverse = 'file' })
+
+                                        *commandt.setup.match_listing.truncate*
+                                                   string (default: 'middle')
 
 Controls how entries that are too wide to fit inside the match listing are
 truncated. Possible values are:
@@ -625,28 +643,34 @@ truncated. Possible values are:
 
 Note that when set to `'end'` (or `false`), no ellipsis is shown.
 
+    require('wincent.commandt').setup({
+      match_listing = {
+        truncate = 'beginning',
+      },
+    })
 
-MAPPINGS                                        *command-t-mappings*
+
+MAPPINGS                                                   *command-t-mappings*
 
 See also |command-t-ruby-mappings| for older mappings.
 
 
-OPTIONS                                         *command-t-options*
+OPTIONS                                                     *command-t-options*
 
 See also |command-t-ruby-options| for older options.
 
 
-FAQ                                             *command-t-faq*
+FAQ                                                             *command-t-faq*
 
 See also |command-t-ruby-faq| for older FAQs.
 
 
-TIPS                                            *command-t-tips*
+TIPS                                                           *command-t-tips*
 
 See also |command-t-ruby-tips| for older tips.
 
 
-AUTHORS                                         *command-t-authors*
+AUTHORS                                                     *command-t-authors*
 
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
@@ -712,7 +736,7 @@ LustyExplorer is available from:
   http://www.vim.org/scripts/script.php?script_id=1890
 
 
-DEVELOPMENT                                     *command-t-development*
+DEVELOPMENT                                             *command-t-development*
 
 Development in progress can be inspected at:
 
@@ -722,9 +746,11 @@ the clone URL for which is:
 
   https://github.com/wincent/command-t.git
 
-Mirrors exist on GitLab and BitBucket, and are automatically updated once per
-hour:
+Mirrors exist at various Git repository hosts, and are automatically updated
+once per hour:
 
+  https://git.sr.ht/~wincent/command-t
+  https://codeberg.org/wincent/command-t
   https://gitlab.com/wincent/command-t
   https://bitbucket.org/ghurrell/command-t
 
@@ -736,11 +762,11 @@ means running a version later than the last official release, the intention is
 that the "main" branch should be kept in a stable and reliable state as much
 as possible.
 
-Riskier changes are first cooked on the "next" branch for a period
-before being merged into "main". You can track this branch if you're
-feeling wild and experimental, but note that the "next" branch may
-periodically be rewound (force-updated) to keep it in sync with the
-"main" branch after each official release.
+Riskier changes are first cooked on the "next" branch for a period before
+being merged into "main". You can track this branch if you're feeling wild
+and experimental, but note that the "next" branch may periodically be rewound
+(force-updated) to keep it in sync with the "main" branch after each official
+release.
 
 The release process is:
 
@@ -755,7 +781,7 @@ The release process is:
 8. Upload to vim.org (http://www.vim.org/scripts/script.php?script_id=3025).
 
 
-WEBSITE                                         *command-t-website*
+WEBSITE                                                     *command-t-website*
 
 The official website for Command-T is:
 
@@ -775,7 +801,7 @@ Bug reports should be submitted to the issue tracker at:
   https://github.com/wincent/command-t/issues
 
 
-RELATED PROJECTS                                *command-t-related-projects*
+RELATED PROJECTS                                   *command-t-related-projects*
 
 fuzzy-native ~
 
@@ -798,7 +824,7 @@ Command-T's match-scoring algorithm wrapped in a Python extension:
   https://pypi.python.org/pypi/commandt.score
 
 
-LICENSE                                         *command-t-license*
+LICENSE                                                     *command-t-license*
 
 Copyright 2010-present Greg Hurrell and contributors.
 
@@ -824,20 +850,20 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 
-HISTORY                                         *command-t-history*
+HISTORY                                                     *command-t-history*
 
 main (not yet released) ~
 
 - fix: teach buffer finder to see all buffers passed into Neovim as
   command-line arguments (https://github.com/wincent/command-t/issues/418).
-- feat: add `max_files` settings
+- feat: add |commandt.setup.scanners.max_files| settings
   (https://github.com/wincent/command-t/issues/420).
 - fix: fix compilation error reported on Linux
   (https://github.com/wincent/command-t/pull/423).
 - feat: add `match_listing` / `border` and `prompt` / `border` settings.
-- feat: add `traverse` and `root_markers` settings
+- feat: add |commandt.setup.traverse| and |commandt.setup.root_markers| settings
   (https://github.com/wincent/command-t/issues/416).
-- feat: add `match_listing` / `truncate` setting
+- feat: add |commandt.setup.match_listing.truncate| setting
   (https://github.com/wincent/command-t/discussions/429).
 
 6.0.0-b.1 (16 December 2022) ~
