@@ -421,6 +421,7 @@ are documented and they could change without notice at any time; for example:
         -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
         -- list of strings.
         border = { '', '', '', '│', '┘', '─', '└', '│' },
+        truncate = 'middle', -- 'beginning', 'end', true, false.
       },
       never_show_dot_files = false,
       order = 'forward', -- 'forward' or 'reverse'.
@@ -609,6 +610,20 @@ Possible vaules are:
 - "pwd": traverse upwards looking for an SCM root just like the "file" setting
   (above), but instead of starting from the file currently being edited, start
   from Neovim's present working directory.
+
+                                              *command-t-truncate*
+                                              string (default: 'middle')
+
+Controls how entries that are too wide to fit inside the match listing are
+truncated. Possible values are:
+
+- `'beginning'`: entries are truncated at the beginning (ie. "...bazqux").
+- `'middle'`: entries are truncated in the middle (ie. "foo...qux").
+- `'end'`: entries are truncated at the end (ie. "foobarbaz").
+- `true`: same as `'middle'`.
+- `false`: same as `'end'`).
+
+Note that when set to `'end'` (or `false`), no ellipsis is shown.
 
 
 MAPPINGS                                        *command-t-mappings*
@@ -822,6 +837,8 @@ main (not yet released) ~
 - feat: add `match_listing` / `border` and `prompt` / `border` settings.
 - feat: add `traverse` and `root_markers` settings
   (https://github.com/wincent/command-t/issues/416).
+- feat: add `match_listing` / `truncate` setting
+  (https://github.com/wincent/command-t/discussions/429).
 
 6.0.0-b.1 (16 December 2022) ~
 

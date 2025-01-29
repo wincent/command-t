@@ -22,6 +22,7 @@ function MatchListing.new(options)
     margin = 0,
     position = 'bottom',
     selection_highlight = 'PmenuSel',
+    truncate = 'middle',
   }, options or {})
   -- TODO: validate options
   local m = {
@@ -33,6 +34,7 @@ function MatchListing.new(options)
     _results = nil,
     _selected = nil,
     _selection_highlight = options.selection_highlight,
+    _truncate = options.truncate,
     _window = nil,
   }
   setmetatable(m, mt)
@@ -45,7 +47,7 @@ function MatchListing:close()
   end
 end
 
-local format_line = function(line, width, selected)
+local format_line = function(line, width, selected, truncate)
   local prefix = selected and '> ' or '  '
 
   -- Sanitize some control characters, plus blackslashes.
@@ -57,6 +59,21 @@ local format_line = function(line, width, selected)
     :gsub('\r', '\\r')
     :gsub('\t', '\\t')
     :gsub('\v', '\\v')
+
+  if #line + #prefix < width then
+    -- Line fits without trimming.
+  elseif #line < 5 then
+    -- Line is so short that adding an ellipsis is not practical.
+  elseif truncate == true or truncate == 'true' or truncate == 'middle' then
+    local half = math.floor((width - 2) / 2)
+    local left = line:sub(1, half - 2 + width % 2)
+    local right = line:sub(2 - half)
+    line = left .. '...' .. right
+  elseif truncate == 'beginning' then
+    line = '...' .. line:sub(-width + #prefix + 3)
+  elseif truncate == false or truncate == 'false' or truncate == 'end' then
+    -- Fall through; truncation will happen before the final `return`.
+  end
 
   -- Right pad so that selection highlighting is shown across full width.
   if width < 102 and #line > 99 then
@@ -73,7 +90,7 @@ local format_line = function(line, width, selected)
     end
   end
 
-  -- Trim right to make sure we never wrap.
+  -- Trim to make sure we never wrap.
   return line:sub(1, width)
 end
 
@@ -84,12 +101,12 @@ function MatchListing:select(selected)
   if self._window then
     local width = self._window:width() or vim.o.columns -- BUG: width may be cached/stale
 
-    local previous_selection = format_line(self._results[self._selected], width, false)
+    local previous_selection = format_line(self._results[self._selected], width, false, self._truncate)
     self._window:replace_line(previous_selection, self._selected)
     self._window:unhighlight_line(self._selected)
 
     self._selected = selected
-    local new_selection = format_line(self._results[self._selected], width, true)
+    local new_selection = format_line(self._results[self._selected], width, true, self._truncate)
     self._window:replace_line(new_selection, self._selected)
     self._window:highlight_line(self._selected)
   end
@@ -150,7 +167,7 @@ function MatchListing:update(results, options)
     self._lines = {}
     for i, result in ipairs(results) do
       local selected = i == self._selected
-      local line = format_line(result, width, selected)
+      local line = format_line(result, width, selected, self._truncate)
       table.insert(self._lines, line)
     end
     self._window:unhighlight()

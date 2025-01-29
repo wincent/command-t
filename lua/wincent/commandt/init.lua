@@ -133,6 +133,18 @@ local options_spec = {
             },
           },
         },
+        truncate = {
+          kind = {
+            one_of = {
+              'beginning',
+              'middle',
+              'end',
+              'true',
+              'false',
+              { kind = 'boolean' },
+            },
+          },
+        },
       },
     },
     never_show_dot_files = { kind = 'boolean' },
@@ -461,6 +473,7 @@ local default_options = {
   margin = 10,
   match_listing = {
     border = { '', '', '', '│', '┘', '─', '└', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+    truncate = 'middle',
   },
   never_show_dot_files = false,
   order = 'forward', -- 'forward', 'reverse'.

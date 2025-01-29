@@ -91,6 +91,7 @@ ui.show = function(finder, options)
     margin = options.margin,
     position = options.position,
     selection_highlight = options.selection_highlight,
+    truncate = options.match_listing.truncate,
   })
   match_listing:show()
 
