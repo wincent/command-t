@@ -51,7 +51,7 @@ end
 
 function MatchListing:icon_getter()
   if self._icons and _G.MiniIcons then
-    return function (name)
+    return function(name)
       return _G.MiniIcons.get('file', name)
     end
   end
