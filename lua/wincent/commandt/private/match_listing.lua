@@ -62,7 +62,7 @@ local format_line = function(line, width, selected, truncate, get_icon)
 
   local icon = get_icon and get_icon(line)
   if icon then
-    prefix = prefix .. icon .. ' '
+    prefix = prefix .. icon .. '  '
   end
 
   -- Sanitize some control characters, plus blackslashes.
@@ -77,7 +77,7 @@ local format_line = function(line, width, selected, truncate, get_icon)
 
   if #line + #prefix < width then
     -- Line fits without trimming.
-  elseif #line < (get_icon and 7 or 5) then
+  elseif #line < (get_icon and 8 or 5) then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
