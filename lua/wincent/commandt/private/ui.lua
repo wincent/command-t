@@ -88,6 +88,7 @@ ui.show = function(finder, options)
   match_listing = MatchListing.new({
     border = options.match_listing.border,
     height = options.height,
+    icons = options.kind ~= 'virtual' and options.match_listing.icons or false,
     margin = options.margin,
     position = options.position,
     selection_highlight = options.selection_highlight,

@@ -19,6 +19,7 @@ function MatchListing.new(options)
   options = merge({
     border = { '', '', '', ' ', '', '', '', ' ' },
     height = 15,
+    icons = true,
     margin = 0,
     position = 'bottom',
     selection_highlight = 'PmenuSel',
@@ -28,6 +29,7 @@ function MatchListing.new(options)
   local m = {
     _border = options.border,
     _height = options.height,
+    _icons = options.icons,
     _margin = options.margin,
     _position = options.position,
     _lines = nil,
@@ -47,8 +49,21 @@ function MatchListing:close()
   end
 end
 
-local format_line = function(line, width, selected, truncate)
+function MatchListing:icon_getter()
+  if self._icons and _G.MiniIcons then
+    return function (name)
+      return _G.MiniIcons.get('file', name)
+    end
+  end
+end
+
+local format_line = function(line, width, selected, truncate, get_icon)
   local prefix = selected and '> ' or '  '
+
+  local icon = get_icon and get_icon(line)
+  if icon then
+    prefix = prefix .. icon .. ' '
+  end
 
   -- Sanitize some control characters, plus blackslashes.
   line = line
@@ -62,7 +77,7 @@ local format_line = function(line, width, selected, truncate)
 
   if #line + #prefix < width then
     -- Line fits without trimming.
-  elseif #line < 5 then
+  elseif #line < (get_icon and 7 or 5) then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
@@ -101,12 +116,13 @@ function MatchListing:select(selected)
   if self._window then
     local width = self._window:width() or vim.o.columns -- BUG: width may be cached/stale
 
-    local previous_selection = format_line(self._results[self._selected], width, false, self._truncate)
+    local get_icon = self:icon_getter()
+    local previous_selection = format_line(self._results[self._selected], width, false, self._truncate, get_icon)
     self._window:replace_line(previous_selection, self._selected)
     self._window:unhighlight_line(self._selected)
 
     self._selected = selected
-    local new_selection = format_line(self._results[self._selected], width, true, self._truncate)
+    local new_selection = format_line(self._results[self._selected], width, true, self._truncate, get_icon)
     self._window:replace_line(new_selection, self._selected)
     self._window:highlight_line(self._selected)
   end
@@ -164,10 +180,11 @@ function MatchListing:update(results, options)
   self._results = results
   if self._window then
     local width = self._window:width() or vim.o.columns
+    local get_icon = self:icon_getter()
     self._lines = {}
     for i, result in ipairs(results) do
       local selected = i == self._selected
-      local line = format_line(result, width, selected, self._truncate)
+      local line = format_line(result, width, selected, self._truncate, get_icon)
       table.insert(self._lines, line)
     end
     self._window:unhighlight()

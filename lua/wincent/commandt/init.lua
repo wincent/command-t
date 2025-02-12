@@ -44,6 +44,15 @@ local options_spec = {
             },
             optional = true,
           },
+          kind = {
+            kind = {
+              one_of = {
+                'file',
+                'virtual',
+              },
+            },
+            optional = true,
+          },
           options = {
             kind = 'function',
             optional = true,
@@ -132,6 +141,9 @@ local options_spec = {
               { kind = 'list', of = { kind = 'string' } },
             },
           },
+        },
+        icons = {
+          kind = 'boolean',
         },
         truncate = {
           kind = {
@@ -344,6 +356,7 @@ local default_options = {
         -- TODO: memoize this? (ie. add `memoize = true`)?
         return helptags
       end,
+      kind = 'virtual',
       open = function(item, kind)
         local command = 'help'
         if kind == 'split' then
@@ -385,6 +398,7 @@ local default_options = {
         end
         return result
       end,
+      kind = 'virtual',
       open = function(item)
         -- Extract line number from (eg) "some line contents:100".
         local suffix = string.find(item, '%d+$')
@@ -473,6 +487,7 @@ local default_options = {
   margin = 10,
   match_listing = {
     border = { '', '', '', '│', '┘', '─', '└', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+    icons = true,
     truncate = 'middle',
   },
   never_show_dot_files = false,
@@ -587,6 +602,7 @@ commandt.finder = function(name, directory)
   if config == nil then
     error('commandt.finder(): no finder registered with name ' .. tostring(name))
   end
+  local kind = config.kind
   if config.options then
     -- Optionally transform options.
     local sanitized_options, errors = sanitize_options(config.options(options))
@@ -613,7 +629,10 @@ commandt.finder = function(name, directory)
     finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
   end
   local ui = require('wincent.commandt.private.ui')
-  ui.show(finder, merge(options, { name = name }))
+
+  -- TODO: fix type smell here. we're merging "kind", a property that exists
+  -- inside matcher configs, into the top level, along with "name".
+  ui.show(finder, merge(options, { name = name, kind = kind }))
 end
 
 -- "Smart" open that will switch to an already open window containing the
