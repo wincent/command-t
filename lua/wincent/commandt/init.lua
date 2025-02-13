@@ -143,7 +143,12 @@ local options_spec = {
           },
         },
         icons = {
-          kind = 'boolean',
+          kind = {
+            one_of = {
+              { kind = 'boolean' },
+              { kind = 'function' },
+            },
+          },
         },
         truncate = {
           kind = {

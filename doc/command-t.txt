@@ -631,15 +631,26 @@ Possible vaules are:
     require('wincent.commandt').setup({ traverse = 'file' })
 
                                            *commandt.setup.match_listing.icons*
-                                                      boolean (default: true)
+                                          boolean or function (default: true)
 
-Controls whether to show icons in the match listing window (only for file-like
-results, not for things like |:CommandTHelp| results and other non-file
-entities).
+Controls whether (and how) to show icons in the match listing window (only
+for file-based results, not for things like |:CommandTHelp| results and other
+non-file entities).
 
-Requires the mini.icons plug-in.
+Using the default implementation (`true`) requires the mini.icons plug-in:
 
 - https://github.com/echasnovski/mini.icons
+
+Alternatively you can pass a function that takes a file path and returns an
+icon glyph. For example, here is a function that uses |MiniIcons.get()|:
+
+    require('wincent.commandt').setup({
+      match_listing = {
+        icons = function (name)
+          return _G.MiniIcons.get('file', name)
+        end,
+      },
+    })
 
                                         *commandt.setup.match_listing.truncate*
                                                    string (default: 'middle')

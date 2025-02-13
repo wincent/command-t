@@ -50,10 +50,12 @@ function MatchListing:close()
 end
 
 function MatchListing:icon_getter()
-  if self._icons and _G.MiniIcons then
+  if self._icons == true and _G.MiniIcons then
     return function(name)
       return _G.MiniIcons.get('file', name)
     end
+  elseif type(self._icons) == 'function' then
+    return self._icons
   end
 end
 
@@ -61,7 +63,9 @@ local format_line = function(line, width, selected, truncate, get_icon)
   local prefix = selected and '> ' or '  '
 
   local icon = get_icon and get_icon(line)
+  local icon_length = 0
   if icon then
+    icon_length = #(icon .. '  ')
     prefix = prefix .. icon .. '  '
   end
 
@@ -77,7 +81,7 @@ local format_line = function(line, width, selected, truncate, get_icon)
 
   if #line + #prefix < width then
     -- Line fits without trimming.
-  elseif #line < (get_icon and 8 or 5) then
+  elseif #line < (5 + icon_length) then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
