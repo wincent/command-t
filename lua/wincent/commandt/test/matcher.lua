@@ -58,23 +58,69 @@ describe('matcher.c', function()
       expect(matcher.match('')).to_equal({ 'foo' })
     end)
 
-    it('performs case-insensitive matching', function()
+    context('`ignore_case = false` and `smart_case = false`', function()
+      it('performs case-sensitive matching', function()
+        local matcher = get_matcher({ 'Foo' }, {
+          ignore_case = false,
+          smart_case = false,
+        })
+        expect(matcher.match('F')).to_equal({ 'Foo' })
+        expect(matcher.match('o')).to_equal({ 'Foo' })
+        expect(matcher.match('f')).to_equal({})
+        expect(matcher.match('O')).to_equal({})
+        expect(matcher.match('b')).to_equal({})
+      end)
+    end)
+
+    context('`ignore_case = false` and `smart_case = true`', function()
+      it('performs case-sensitive matching', function()
+        local matcher = get_matcher({ 'Foo' }, {
+          ignore_case = false,
+          smart_case = true,
+        })
+        expect(matcher.match('F')).to_equal({ 'Foo' })
+        expect(matcher.match('o')).to_equal({ 'Foo' })
+        expect(matcher.match('f')).to_equal({})
+        expect(matcher.match('O')).to_equal({})
+        expect(matcher.match('b')).to_equal({})
+      end)
+    end)
+
+    context('`ignore_case = true` and `smart_case = false`', function()
+      it('performs case-insensitive matching', function()
+        local matcher = get_matcher({ 'Foo' }, {
+          ignore_case = true,
+          smart_case = false,
+        })
+        expect(matcher.match('F')).to_equal({ 'Foo' })
+        expect(matcher.match('f')).to_equal({ 'Foo' })
+        expect(matcher.match('O')).to_equal({ 'Foo' })
+        expect(matcher.match('o')).to_equal({ 'Foo' })
+        expect(matcher.match('b')).to_equal({})
+      end)
+    end)
+
+    context('`ignore_case = true` and `smart_case = true`', function()
+      it('performs case-insensitive matching unless search pattern contains uppercase characters', function()
+        local matcher = get_matcher({ 'Foo' }, {
+          ignore_case = true,
+          smart_case = true,
+        })
+        expect(matcher.match('F')).to_equal({ 'Foo' })
+        expect(matcher.match('f')).to_equal({ 'Foo' })
+        expect(matcher.match('O')).to_equal({})
+        expect(matcher.match('o')).to_equal({ 'Foo' })
+        expect(matcher.match('b')).to_equal({})
+      end)
+    end)
+
+    it('defaults `ignore_case` and `smart_case` to `true`', function()
       local matcher = get_matcher({ 'Foo' })
-      expect(matcher.match('f')).to_equal({ 'Foo' })
-    end)
-
-    it('performs case-sensitive matching when configured to do so', function()
-      local matcher = get_matcher({ 'Foo' }, { ignore_case = false })
-      expect(matcher.match('b')).to_equal({})
-      expect(matcher.match('f')).to_equal({})
       expect(matcher.match('F')).to_equal({ 'Foo' })
-    end)
-
-    it('performs smart-case matching when configured to do so', function()
-      local matcher = get_matcher({ 'Foo' }, { smart_case = true })
-      expect(matcher.match('b')).to_equal({})
       expect(matcher.match('f')).to_equal({ 'Foo' })
-      expect(matcher.match('F')).to_equal({ 'Foo' })
+      expect(matcher.match('O')).to_equal({})
+      expect(matcher.match('o')).to_equal({ 'Foo' })
+      expect(matcher.match('b')).to_equal({})
     end)
 
     -- We don't expect to see these in practice, but we still want to test it.
