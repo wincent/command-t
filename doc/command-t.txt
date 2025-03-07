@@ -464,7 +464,17 @@ are documented and they could change without notice at any time; for example:
     })
 <
 See below for description of specific properties that can be used in the table
-passed to |commandt.setup()|.
+passed to |commandt.setup()|:
+
+- |commandt.setup.always_show_dot_files|
+- |commandt.setup.ignore_case|
+- |commandt.setup.match_listing.icons|
+- |commandt.setup.match_listing.truncate|
+- |commandt.setup.never_show_dot_files|
+- |commandt.setup.root_markers|
+- |commandt.setup.scanners.max_files|
+- |commandt.setup.smart_case|
+- |commandt.setup.traverse|
 
                                          *commandt.setup.always_show_dot_files*
                                                      boolean (default: false)
@@ -488,7 +498,96 @@ commands like |:CommandT|, |:CommandTFind|, and so on); the buffer listing (show
 by |:CommandTBuffer|) treats dot-files like any other file and will show them
 whenever they match the search query.
 
-See also |commandt.setup.never_show_dot_files|
+See also |commandt.setup.never_show_dot_files|.
+
+                                                   *commandt.setup.ignore_case*
+                                                      boolean (default: none)
+
+Ignore case when searching. When unset (which is the default), the value of
+Neovim's |'ignorecase'| setting is used instead. See also
+|commandt.setup.smart_case|.
+
+                                           *commandt.setup.match_listing.icons*
+                                          boolean or function (default: true)
+
+Controls whether (and how) to show icons in the match listing window (only
+for file-based results, not for things like |:CommandTHelp| results and other
+non-file entities).
+
+Using the default implementation (`true`) requires the mini.icons plug-in:
+
+- https://github.com/echasnovski/mini.icons
+
+Alternatively you can pass a function that takes a file path and returns an
+icon glyph. For example, here is a function that uses |MiniIcons.get()|:
+
+    require('wincent.commandt').setup({
+      match_listing = {
+        icons = function (name)
+          return _G.MiniIcons.get('file', name)
+        end,
+      },
+    })
+
+                                        *commandt.setup.match_listing.truncate*
+                                                   string (default: 'middle')
+
+Controls how entries that are too wide to fit inside the match listing are
+truncated. Possible values are:
+
+- `'beginning'`: entries are truncated at the beginning (ie. "...bazqux").
+- `'middle'`: entries are truncated in the middle (ie. "foo...qux").
+- `'end'`: entries are truncated at the end (ie. "foobarbaz").
+- `true`: same as `'middle'`.
+- `false`: same as `'end'`).
+
+Note that when set to `'end'` (or `false`), no ellipsis is shown.
+
+    require('wincent.commandt').setup({
+      match_listing = {
+        truncate = 'beginning',
+      },
+    })
+
+                                          *commandt.setup.never_show_dot_files*
+                                                     boolean (default: false)
+
+In the file listing, Command-T will by default show dot-files if the entered
+search string contains a dot that could cause a dot-file to match. Otherwise,
+dot-files are suppressed. For example, given a search query like ".init", the
+following path would match and be shown in the match listing:
+
+    .config/nvim/init.lua
+
+but a query like "init" would not show the path.
+
+When set to a true, this setting instructs Command-T to never show dot-files
+under any circumstances, so a search like ".init" would not show the
+corresponding path.
+
+Note that it is contradictory to set both this setting and
+|commandt.setup.always_show_dot_files| to true.
+
+Note that this setting has no effect in buffer listings (ie. those shown by
+|:CommandTBuffer|), where dot files are treated like any other file.
+
+
+    require('wincent.commandt').setup({ never_show_dot_files = true })
+
+                                                  *commandt.setup.root_markers*
+                                           list of strings (default: various)
+
+|commandt.setup.root_markers| is used in conjunction with the
+|commandt.setup.traverse| setting to control how commands like |:CommandT| choose
+a root directory at which to begin the search when invoked without an
+explicit path argument.
+
+The default value is a list-like table containing the following strings:
+'.git', '.hg', '.svn', '.bzr', '_darcs'.
+
+    require('wincent.commandt').setup({
+      root_markers = { 'tsconfig.json', 'package.json' },
+    })
 
                                             *commandt.setup.scanners.max_files*
                                               number or function (default: 0)
@@ -567,45 +666,13 @@ them with a `SIGKILL` signal. Depending on whether or how the forked process's
 output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
 
-                                          *commandt.setup.never_show_dot_files*
-                                                     boolean (default: false)
+                                                    *commandt.setup.smart_case*
+                                                      boolean (default: none)
 
-In the file listing, Command-T will by default show dot-files if the entered
-search string contains a dot that could cause a dot-file to match. Otherwise,
-dot-files are suppressed. For example, given a search query like ".init", the
-following path would match and be shown in the match listing:
-
-    .config/nvim/init.lua
-
-but a query like "init" would not show the path.
-
-When set to a true, this setting instructs Command-T to never show dot-files
-under any circumstances, so a search like ".init" would not show the
-corresponding path.
-
-Note that it is contradictory to set both this setting and
-|commandt.setup.always_show_dot_files| to true.
-
-Note that this setting has no effect in buffer listings (ie. those shown by
-|:CommandTBuffer|), where dot files are treated like any other file.
-
-
-    require('wincent.commandt').setup({ never_show_dot_files = true })
-
-                                                  *commandt.setup.root_markers*
-                                           list of strings (default: various)
-
-|commandt.setup.root_markers| is used in conjunction with the
-|commandt.setup.traverse| setting to control how commands like |:CommandT| choose
-a root directory at which to begin the search when invoked without an
-explicit path argument.
-
-The default value is a list-like table containing the following strings:
-'.git', '.hg', '.svn', '.bzr', '_darcs'.
-
-    require('wincent.commandt').setup({
-      root_markers = { 'tsconfig.json', 'package.json' },
-    })
+Overrides the |commandt.setup.ignore_case| setting if the search pattern
+contains uppercase characters, forcing the match to be case-sensitive. If
+unset (which is the default), the value of Neovim's |'smartcase'| setting will
+be used instead.
 
                                                       *commandt.setup.traverse*
                                                      string (default: 'none')
@@ -629,48 +696,6 @@ Possible vaules are:
   from Neovim's present working directory.
 
     require('wincent.commandt').setup({ traverse = 'file' })
-
-                                           *commandt.setup.match_listing.icons*
-                                          boolean or function (default: true)
-
-Controls whether (and how) to show icons in the match listing window (only
-for file-based results, not for things like |:CommandTHelp| results and other
-non-file entities).
-
-Using the default implementation (`true`) requires the mini.icons plug-in:
-
-- https://github.com/echasnovski/mini.icons
-
-Alternatively you can pass a function that takes a file path and returns an
-icon glyph. For example, here is a function that uses |MiniIcons.get()|:
-
-    require('wincent.commandt').setup({
-      match_listing = {
-        icons = function (name)
-          return _G.MiniIcons.get('file', name)
-        end,
-      },
-    })
-
-                                        *commandt.setup.match_listing.truncate*
-                                                   string (default: 'middle')
-
-Controls how entries that are too wide to fit inside the match listing are
-truncated. Possible values are:
-
-- `'beginning'`: entries are truncated at the beginning (ie. "...bazqux").
-- `'middle'`: entries are truncated in the middle (ie. "foo...qux").
-- `'end'`: entries are truncated at the end (ie. "foobarbaz").
-- `true`: same as `'middle'`.
-- `false`: same as `'end'`).
-
-Note that when set to `'end'` (or `false`), no ellipsis is shown.
-
-    require('wincent.commandt').setup({
-      match_listing = {
-        truncate = 'beginning',
-      },
-    })
 
 
 MAPPINGS                                                   *command-t-mappings*
