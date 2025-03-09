@@ -1,6 +1,5 @@
 ---
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
-Language: Cpp
 AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveMacros: None
 AlignEscapedNewlines: DontAlign
