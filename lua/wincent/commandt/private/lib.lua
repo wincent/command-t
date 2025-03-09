@@ -4,6 +4,7 @@
 local ffi = require('ffi')
 
 local merge = require('wincent.commandt.private.merge')
+local toboolean = require('wincent.commandt.private.toboolean')
 
 local lib = {}
 
@@ -191,6 +192,12 @@ lib.matcher_new = function(scanner, options)
   }, { limit = options.height }, options)
   if options.limit < 1 then
     error('limit must be > 0')
+  end
+  if type(options.ignore_case) == 'function' then
+    options.ignore_case = toboolean(options.ignore_case())
+  end
+  if type(options.smart_case) == 'function' then
+    options.smart_case = toboolean(options.smart_case())
   end
 
   local matcher = c.commandt_matcher_new(

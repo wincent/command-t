@@ -101,7 +101,16 @@ local options_spec = {
     },
     height = { kind = 'number' },
     ignore_case = {
-      kind = 'boolean',
+      kind = {
+        one_of = {
+          {
+            kind = 'boolean',
+          },
+          {
+            kind = 'function',
+          },
+        },
+      },
       optional = true,
     },
     mappings = {
@@ -237,7 +246,16 @@ local options_spec = {
     },
     selection_highlight = { kind = 'string' },
     smart_case = {
-      kind = 'boolean',
+      kind = {
+        one_of = {
+          {
+            kind = 'boolean',
+          },
+          {
+            kind = 'function',
+          },
+        },
+      },
       optional = true,
     },
     threads = {
@@ -438,7 +456,11 @@ local default_options = {
     },
   },
   height = 15,
-  ignore_case = nil, -- If nil, will infer from Neovim's `'ignorecase'`.
+
+  -- If nil, will infer from Neovim's `'ignorecase'`.
+  ignore_case = function()
+    return vim.o.ignorecase
+  end,
 
   -- Note that because of the way we merge mappings recursively, you can _add_
   -- or _replace_ a mapping easily, but to _remove_ it you have to assign it to
@@ -520,7 +542,12 @@ local default_options = {
     },
   },
   selection_highlight = 'PmenuSel',
-  smart_case = nil, -- If nil, will infer from Neovim's `'smartcase'`.
+
+  -- If nil, will infer from Neovim's `'smartcase'`.
+  smart_case = function()
+    return vim.o.smartcase
+  end,
+
   threads = nil, -- Let heuristic apply.
   traverse = 'none', -- 'file', 'pwd' or 'none'.
 }
@@ -528,10 +555,8 @@ local default_options = {
 local _options = copy(default_options)
 
 -- Have to add some of these explicitly otherwise the ones with `nil` defaults
--- won't come through (eg. `ignore_case` etc).
+-- (eg. `threads`) won't come through.
 local allowed_options = concat(keys(default_options), {
-  'ignore_case',
-  'smart_case',
   'threads',
 })
 
@@ -586,14 +611,6 @@ local sanitize_options = function(options, base)
   end
   if base ~= nil then
     options = merge(base, options)
-  end
-
-  -- Inferred from Neovim settings if not explicitly set.
-  if options.ignore_case == nil then
-    options.ignore_case = vim.o.ignorecase
-  end
-  if options.smart_case == nil then
-    options.smart_case = vim.o.smartcase
   end
 
   local validate = require('wincent.commandt.private.validate')

@@ -501,11 +501,13 @@ whenever they match the search query.
 See also |commandt.setup.never_show_dot_files|.
 
                                                    *commandt.setup.ignore_case*
-                                                      boolean (default: none)
+                                          boolean or function (default: none)
 
-Ignore case when searching. When unset (which is the default), the value of
-Neovim's |'ignorecase'| setting is used instead. See also
-|commandt.setup.smart_case|.
+Either a boolean, or a function that returns a boolean, that instructs
+Command-T to ignore case when searching. When unset (which is the default),
+the value of Neovim's |'ignorecase'| setting is used instead.
+
+See also |commandt.setup.smart_case|.
 
                                            *commandt.setup.match_listing.icons*
                                           boolean or function (default: true)
@@ -667,12 +669,13 @@ output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
 
                                                     *commandt.setup.smart_case*
-                                                      boolean (default: none)
+                                          boolean or function (default: none)
 
-Overrides the |commandt.setup.ignore_case| setting if the search pattern
-contains uppercase characters, forcing the match to be case-sensitive. If
-unset (which is the default), the value of Neovim's |'smartcase'| setting will
-be used instead.
+Either a boolean, or a function that returns a boolean, that instructs
+Command-T to override the |commandt.setup.ignore_case| setting if the search
+pattern contains uppercase characters, forcing the match to be case-sensitive.
+If unset (which is the default), the value of Neovim's |'smartcase'| setting
+will be used instead.
 
                                                       *commandt.setup.traverse*
                                                      string (default: 'none')
