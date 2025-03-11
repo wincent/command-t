@@ -7,6 +7,7 @@ local is_integer = require('wincent.commandt.private.is_integer')
 local is_table = require('wincent.commandt.private.is_table')
 local keys = require('wincent.commandt.private.keys')
 local merge = require('wincent.commandt.private.merge')
+local sub = require('wincent.commandt.private.sub')
 
 local commandt = {}
 
@@ -313,7 +314,7 @@ local default_options = {
     fd = {
       command = function(directory, options)
         if vim.startswith(directory, './') then
-          directory = directory:sub(3, -1)
+          directory = sub(directory, 3)
         end
         if directory ~= '' and directory ~= '.' then
           directory = vim.fn.shellescape(directory)
@@ -337,7 +338,7 @@ local default_options = {
     find = {
       command = function(directory, options)
         if vim.startswith(directory, './') then
-          directory = directory:sub(3, -1)
+          directory = sub(directory, 3)
         end
         if directory ~= '' and directory ~= '.' then
           directory = vim.fn.shellescape(directory)
@@ -464,7 +465,7 @@ local default_options = {
     rg = {
       command = function(directory, options)
         if vim.startswith(directory, './') then
-          directory = directory:sub(3, -1)
+          directory = sub(directory, 3)
         end
         if directory ~= '' and directory ~= '.' then
           directory = vim.fn.shellescape(directory)

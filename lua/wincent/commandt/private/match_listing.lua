@@ -5,6 +5,7 @@ local match_listing = {}
 
 local Window = require('wincent.commandt.private.window').Window
 local merge = require('wincent.commandt.private.merge')
+local sub = require('wincent.commandt.private.sub')
 
 local border_height = 2
 local prompt_height = 1 + border_height
@@ -62,13 +63,6 @@ end
 -- Unicode-aware `len` implementation.
 local function len(str)
   return vim.str_utfindex(str, 'utf-32')
-end
-
--- Unicode-aware `sub` implementation.
-local function sub(str, start_char, end_char)
-  local start_byte = vim.str_byteindex(str, 'utf-32', start_char, false)
-  local end_byte = end_char and vim.str_byteindex(str, 'utf-32', end_char, false)
-  return str:sub(start_byte, end_byte)
 end
 
 local format_line = function(line, width, selected, truncate, get_icon)
