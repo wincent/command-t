@@ -3,11 +3,7 @@
 
 local path = {}
 
-function endswith(str, letter)
-  return #str > 0 and str:sub(#str, #str) == letter
-end
-
-function startswith(str, letter)
+local function startswith(str, letter)
   return #str > 0 and str:sub(1, 1) == letter
 end
 
