@@ -140,13 +140,15 @@ function Window:highlight_line(index)
     vim.api.nvim_win_set_cursor(self._main_window, { index, 0 })
   end
   if self._main_buffer then
-    vim.api.nvim_buf_add_highlight(
+    vim.api.nvim_buf_set_extmark(
       self._main_buffer,
       self._namespace,
-      self._selection_highlight,
       index - 1, -- line (0-indexed)
       0, -- col_start
-      -1 -- col_end (end-of-line)
+      {
+        end_col = #vim.api.nvim_buf_get_lines(self._main_buffer, index - 1, index, false)[1],
+        hl_group = self._selection_highlight,
+      }
     )
   end
 end
