@@ -15,7 +15,7 @@ local mt = {
 
     local components = a:components()
 
-    for i, component in ipairs(b_path:components()) do
+    for _, component in ipairs(b_path:components()) do
       if component ~= '/' then
         table.insert(components, component)
       end
