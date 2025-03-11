@@ -59,13 +59,17 @@ function MatchListing:icon_getter()
   end
 end
 
+local function len(str)
+  return vim.str_utfindex(str, 'utf-32')
+end
+
 local format_line = function(line, width, selected, truncate, get_icon)
   local prefix = selected and '> ' or '  '
 
   local icon = get_icon and get_icon(line)
   local icon_length = 0
   if icon then
-    icon_length = #(icon .. '  ')
+    icon_length = len(icon .. '  ')
     prefix = prefix .. icon .. '  '
   end
 
@@ -79,9 +83,9 @@ local format_line = function(line, width, selected, truncate, get_icon)
     :gsub('\t', '\\t')
     :gsub('\v', '\\v')
 
-  if #line + #prefix < width then
+  if len(line) + len(prefix) < width then
     -- Line fits without trimming.
-  elseif #line < (5 + icon_length) then
+  elseif len(line) < (5 + icon_length) then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
@@ -89,28 +93,25 @@ local format_line = function(line, width, selected, truncate, get_icon)
     local right = line:sub(2 - half)
     line = left .. '...' .. right
   elseif truncate == 'beginning' then
-    line = '...' .. line:sub(-width + #prefix + 3)
+    line = '...' .. line:sub(-width + len(prefix) + 3)
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end
 
   -- Right pad so that selection highlighting is shown across full width.
-  if width < 102 and #line > 99 then
+  if width < 102 and len(line) > 99 then
     -- No padding needed.
     line = prefix .. line
-  elseif width < 102 then
-    line = prefix .. string.format('%-' .. (width - #prefix) .. 's', line)
   else
-    -- Avoid: "invalid option" caused by format argument > 99.
-    line = prefix .. string.format('%-99s', line)
-    local diff = width - line:len()
+    line = prefix .. line
+    local diff = width - len(line)
     if diff > 0 then
       line = line .. string.rep(' ', diff)
     end
   end
 
   -- Trim to make sure we never wrap.
-  return line:sub(1, width)
+  return line:sub(1, vim.str_byteindex(line, 'utf-32', width, false))
 end
 
 function MatchListing:select(selected)
