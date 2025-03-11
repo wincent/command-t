@@ -67,12 +67,8 @@ end
 -- Unicode-aware `sub` implementation.
 local function sub(str, start_char, end_char)
   local start_byte = vim.str_byteindex(str, 'utf-32', start_char, false)
-  if end_char == nil then
-    return str:sub(start_byte)
-  else
-    local end_byte = vim.str_byteindex(str, 'utf-32', end_char, false)
-    return str:sub(start_byte, end_byte)
-  end
+  local end_byte = end_char and vim.str_byteindex(str, 'utf-32', end_char, false)
+  return str:sub(start_byte, end_byte)
 end
 
 local format_line = function(line, width, selected, truncate, get_icon)
