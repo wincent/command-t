@@ -199,6 +199,13 @@ local options_spec = {
     scanners = {
       kind = 'table',
       keys = {
+        fd = {
+          kind = 'table',
+          keys = {
+            max_files = { kind = 'number' },
+          },
+          optional = true,
+        },
         find = {
           kind = 'table',
           keys = {
@@ -302,6 +309,30 @@ local default_options = {
         return paths
       end,
       options = force_dot_files,
+    },
+    fd = {
+      command = function(directory, options)
+        if vim.startswith(directory, './') then
+          directory = directory:sub(3, -1)
+        end
+        if directory ~= '' and directory ~= '.' then
+          directory = vim.fn.shellescape(directory)
+        elseif directory == '' then
+          directory = '.'
+        end
+        local drop = 0
+        if directory == '.' then
+          drop = 2
+        end
+        local command = 'fd --hidden --print0 --search-path'
+        command = command .. ' ' .. directory
+        command = command .. ' 2> /dev/null'
+        return command, drop
+      end,
+      fallback = true,
+      max_files = function(options)
+        return options.scanners.fd.max_files
+      end,
     },
     find = {
       command = function(directory, options)
@@ -526,6 +557,9 @@ local default_options = {
   open = open,
   root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
   scanners = {
+    fd = {
+      max_files = 0,
+    },
     file = {
       max_files = 0,
     },

@@ -313,6 +313,11 @@ COMMANDS                                                   *command-t-commands*
                   except that the selection is limited to files that
                   you already have open in buffers.
 
+                                                              *:CommandTFd
+|:CommandTFd|       Brings up the Command-T file window, starting in the current
+                  working directory as returned by the |:pwd| command. Scans
+                  for files using `fd`.
+
                                                                 *:CommandTFind*
 |:CommandTFind|     Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
@@ -918,6 +923,8 @@ main (not yet released) ~
   (https://github.com/wincent/command-t/discussions/429).
 - feat: add |commandt.setup.match_listing.icons| setting
   (https://github.com/wincent/command-t/issues/430).
+- feat: add |:CommandTFd|
+  (https://github.com/wincent/command-t/issues/433).
 
 6.0.0-b.1 (16 December 2022) ~
 
