@@ -59,8 +59,20 @@ function MatchListing:icon_getter()
   end
 end
 
+-- Unicode-aware `len` implementation.
 local function len(str)
   return vim.str_utfindex(str, 'utf-32')
+end
+
+-- Unicode-aware `sub` implementation.
+local function sub(str, start_char, end_char)
+  local start_byte = vim.str_byteindex(str, 'utf-32', start_char, false)
+  if end_char == nil then
+    return str:sub(start_byte)
+  else
+    local end_byte = vim.str_byteindex(str, 'utf-32', end_char, false)
+    return str:sub(start_byte, end_byte)
+  end
 end
 
 local format_line = function(line, width, selected, truncate, get_icon)
@@ -89,11 +101,11 @@ local format_line = function(line, width, selected, truncate, get_icon)
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
-    local left = line:sub(1, half - 2 + width % 2)
-    local right = line:sub(2 - half)
+    local left = sub(line, 1, half - 2 + width % 2)
+    local right = sub(line, 2 - half)
     line = left .. '...' .. right
   elseif truncate == 'beginning' then
-    line = '...' .. line:sub(-width + len(prefix) + 3)
+    line = '...' .. sub(line, -width + len(prefix) + 3)
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end
@@ -111,7 +123,7 @@ local format_line = function(line, width, selected, truncate, get_icon)
   end
 
   -- Trim to make sure we never wrap.
-  return line:sub(1, vim.str_byteindex(line, 'utf-32', width, false))
+  return sub(line, 1, width)
 end
 
 function MatchListing:select(selected)
