@@ -42,8 +42,11 @@ jobs:
       - name: Run unit tests (release)
         run: bin/test
 
-      - name: Run stress tests (release, benchmarks)
+      - name: Run stress tests (release, matcher benchmarks)
         run: TIMES=1 bin/benchmarks/matcher.lua
+
+      - name: Run stress tests (release, scanner benchmarks)
+        run: TIMES=1 bin/benchmarks/scanner.lua
 
       # Repeat the tests in DEBUG mode (ie. with `assert()` calls active).
       - name: Build extension (debug)
@@ -55,5 +58,8 @@ jobs:
       - name: Run unit tests (debug)
         run: bin/test
 
-      - name: Run stress tests (debug, benchmarks)
+      - name: Run stress tests (debug, matcher benchmarks)
         run: TIMES=1 bin/benchmarks/matcher.lua
+
+      - name: Run stress tests (debug, scanner benchmarks)
+        run: TIMES=1 bin/benchmarks/scanner.lua

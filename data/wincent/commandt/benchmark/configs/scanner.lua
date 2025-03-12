@@ -3,6 +3,10 @@
 
 local times = 100
 
+local function skip_in_ci()
+  return os.getenv('CI')
+end
+
 return {
   variants = {
     {
@@ -17,7 +21,6 @@ return {
         }
       end,
       times = times * 100, -- Scanner is too fast (misleadingly fast).
-      skip_in_ci = false,
       stub = function()
         -- Note this is all a bit fake because the real scanner would burn some
         -- unknown amount of cycles actually asking Vim for these, and in a
@@ -216,7 +219,6 @@ return {
       name = 'file',
       source = 'wincent.commandt.private.scanners.file',
       times = times,
-      skip_in_ci = false,
     },
     {
       name = 'find',
@@ -241,7 +243,6 @@ return {
         _G.vim = nil
       end,
       times = times,
-      skip_in_ci = false,
     },
     {
       name = 'git',
@@ -256,7 +257,6 @@ return {
         }
       end,
       times = times,
-      skip_in_ci = false,
     },
     {
       name = 'rg',
@@ -281,13 +281,13 @@ return {
         _G.vim = nil
       end,
       times = times,
-      skip_in_ci = true,
+      skip = skip_in_ci,
     },
     {
       name = 'watchman',
       source = 'wincent.commandt.private.scanners.watchman',
       times = times,
-      skip_in_ci = true,
+      skip = skip_in_ci,
       stub = function()
         assert(_G.vim == nil)
         _G.vim = {

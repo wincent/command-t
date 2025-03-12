@@ -273,7 +273,7 @@ local benchmark = function(options)
       local cumulative_wall_delta = 0
       for _, variant in ipairs(config.variants) do
         if variant.skip and variant.skip(variant) then
-          print('Skipping: ' .. variant.name)
+          print(string.format('%-22s  %9s', variant.name, 'skipping'))
         else
           local setup = options.setup and options.setup(variant)
           local wall_delta

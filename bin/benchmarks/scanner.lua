@@ -44,10 +44,6 @@ benchmark({
     return scanner
   end,
 
-  skip = function(config)
-    return config.skip_in_ci and os.getenv('CI')
-  end,
-
   run = function(config, setup)
     local scanner = setup.scanner(pwd) -- For now, only Watchman wants pwd.
     for i = 1, scanner.count do
