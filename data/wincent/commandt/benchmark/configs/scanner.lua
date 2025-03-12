@@ -186,6 +186,9 @@ return {
             nvim_buf_is_valid = function()
               return true
             end,
+            nvim_get_option_value = function()
+              return true
+            end,
             nvim_list_bufs = function()
               local handles = {}
               for i = 1, #names do
