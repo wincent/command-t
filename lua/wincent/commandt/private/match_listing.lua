@@ -4,6 +4,7 @@
 local match_listing = {}
 
 local Window = require('wincent.commandt.private.window').Window
+local len = require('wincent.commandt.private.len')
 local merge = require('wincent.commandt.private.merge')
 local sub = require('wincent.commandt.private.sub')
 
@@ -58,11 +59,6 @@ function MatchListing:icon_getter()
   elseif type(self._icons) == 'function' then
     return self._icons
   end
-end
-
--- Unicode-aware `len` implementation.
-local function len(str)
-  return vim.str_utfindex(str, 'utf-32')
 end
 
 local format_line = function(line, width, selected, truncate, get_icon)
