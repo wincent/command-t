@@ -87,11 +87,11 @@ local format_line = function(line, width, selected, truncate, get_icon)
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
-    local left = sub(line, 1, half - 2 + width % 2)
-    local right = sub(line, 2 - half)
-    line = left .. '...' .. right
+    local left = sub(line, 1, half - 3 + width % 2)
+    local right = sub(line, 3 - half)
+    line = left .. ' … ' .. right
   elseif truncate == 'beginning' then
-    line = '...' .. sub(line, -width + vim.fn.strwidth(prefix) + 3)
+    line = '…' .. sub(line, -width + vim.fn.strwidth(prefix) + 1)
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end
