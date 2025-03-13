@@ -4,7 +4,7 @@
 local sub = require('wincent.commandt.private.sub')
 local mocks = require('wincent.commandt.private.mocks')
 
-describe('len()', function()
+describe('sub()', function()
   before(function()
     mocks.vim({
       str_byteindex = true,
