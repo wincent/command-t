@@ -81,7 +81,7 @@ local format_line = function(line, width, selected, truncate, get_icon)
     :gsub('\t', '\\t')
     :gsub('\v', '\\v')
 
-  if vim.fn.strwidth(prefix .. line) < width then
+  if vim.fn.strwidth(prefix .. line) <= width then
     -- Line fits without trimming.
   elseif vim.fn.strwidth(line) < (5 + icon_length) then
     -- Line is so short that adding an ellipsis is not practical.
