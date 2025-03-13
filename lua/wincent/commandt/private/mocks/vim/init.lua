@@ -18,6 +18,12 @@ return function(spec)
         else
           vim.iter = nil
         end
+      elseif key == 'startswith' then
+        if value then
+          require('wincent.commandt.private.mocks.vim.startswith').setup()
+        else
+          vim.startswith = nil
+        end
       else
         error('unsupported key: ' .. key)
       end

@@ -1,6 +1,8 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
+local mocks = require('wincent.commandt.private.mocks')
+
 local times = 100
 
 local function skip_in_ci()
@@ -221,6 +223,26 @@ return {
       times = times,
     },
     {
+      name = 'fd',
+      source = function()
+        local command = require('wincent.commandt').default_options().finders.fd.command('')
+        local scanner = require('wincent.commandt.private.scanners.command').scanner
+        return {
+          scanner = function()
+            return scanner(command)
+          end,
+        }
+      end,
+      stub = function()
+        mocks.vim({startswith = true})
+      end,
+      unstub = function()
+        mocks.vim(false)
+      end,
+      times = times,
+      skip = skip_in_ci,
+    },
+    {
       name = 'find',
       source = function()
         local command = require('wincent.commandt').default_options().finders.find.command('')
@@ -232,15 +254,10 @@ return {
         }
       end,
       stub = function()
-        assert(_G.vim == nil)
-        _G.vim = {
-          startswith = function()
-            return false
-          end,
-        }
+        mocks.vim({startswith = true})
       end,
       unstub = function()
-        _G.vim = nil
+        mocks.vim(false)
       end,
       times = times,
     },
@@ -270,15 +287,10 @@ return {
         }
       end,
       stub = function()
-        assert(_G.vim == nil)
-        _G.vim = {
-          startswith = function()
-            return false
-          end,
-        }
+        mocks.vim({startswith = true})
       end,
       unstub = function()
-        _G.vim = nil
+        mocks.vim(false)
       end,
       times = times,
       skip = skip_in_ci,
