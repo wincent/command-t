@@ -142,7 +142,6 @@ _G.expect = function(value)
       if value ~= other then
         print('\nExpected:\n\n' .. inspect(other, 2) .. '\n')
         print('Actual:\n\n' .. inspect(value, 2) .. '\n')
-        inspect(value)
         error('not ==', 2)
       end
     end,
