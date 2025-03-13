@@ -301,17 +301,14 @@ return {
       times = times,
       skip = skip_in_ci,
       stub = function()
-        assert(_G.vim == nil)
-        _G.vim = {
+        mocks.vim({
           fn = {
-            fnamemodify = function(name, _modifier)
-              return name
-            end,
+            fnamemodify = true,
           },
-        }
+        })
       end,
       unstub = function()
-        _G.vim = nil
+        mocks.vim(false)
       end,
     },
   },

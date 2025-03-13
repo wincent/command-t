@@ -4,9 +4,27 @@
 return function(spec)
   if type(spec) == 'table' then
     assert(_G.vim == nil)
-    _G.vim = {}
+    _G.vim = {
+      fn = {},
+    }
     for key, value in pairs(spec) do
-      if key == 'inspect' then
+      if key == 'fn' then
+        if type(value) == 'table' then
+          for inner_key, inner_value in pairs(value) do
+            if inner_key == 'fnamemodify' then
+              if inner_value then
+                require('wincent.commandt.private.mocks.vim.fn.fnamemodify').setup()
+              else
+                vim.fn.fnamemodify = nil
+              end
+            else
+              error('unsupported key: fn.' .. inner_key)
+            end
+          end
+        else
+          error('unsupported type for "fn": ' .. type(inner_value))
+        end
+      elseif key == 'inspect' then
         if value then
           require('wincent.commandt.private.mocks.vim.inspect').setup()
         else
