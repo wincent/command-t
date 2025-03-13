@@ -50,7 +50,7 @@ Neovim nightly release. Command-T generally also runs on recent versions of
 Vim, although they are not explicitly tested.
 
 The core of Command-T is written in C for speed, and it optionally makes use
-of a number of external programs -- such as `git`, `rg`, and `watchman` --
+of a number of external programs -- such as `fd`, `git`, `rg`, and `watchman` --
 for finding files.
 
 Run `:checkhealth wincent.commandt` to confirm that the C library has been
@@ -318,16 +318,22 @@ COMMANDS                                                   *command-t-commands*
                   working directory as returned by the |:pwd| command. Scans
                   for files using `fd`.
 
+                  See: https://github.com/sharkdp/fd
+
                                                                 *:CommandTFind*
 |:CommandTFind|     Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files by executing the `find` executable.
+
+                  See: https://en.wikipedia.org/wiki/Find_(Unix)
 
                                                                  *:CommandTGit*
 |:CommandTGit|      Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files using `git`, so only works inside Git
                   repositories.
+
+                  See: https://git-scm.com/
 
                                                                 *:CommandTHelp*
 |:CommandTHelp|     Brings up the Command-T help search window. This works
@@ -345,11 +351,15 @@ COMMANDS                                                   *command-t-commands*
                   working directory as returned by the |:pwd| command. Scans
                   for files using `rg`.
 
+                  See: https://github.com/BurntSushi/ripgrep
+
                                                             *:CommandTWatchman*
 |:CommandTWatchman| Brings up the Command-T file window, starting in the current
                   working directory as returned by the |:pwd| command. Scans
                   for files by connecting to the `watchman` daemon, which must
                   be installed on your system.
+
+                  See: https://github.com/facebook/watchman
 
 See also |command-t-ruby-commands| for commands that exist specifically within
 the Ruby-powered version of Command-T.
