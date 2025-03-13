@@ -36,6 +36,7 @@ local check_external_dependencies = function()
   health.start('Checking for optional external dependencies')
 
   for executable, finder in pairs({
+    fd = 'commandt.fd_finder',
     find = 'commandt.find_finder',
     git = 'commandt.git_finder',
     rg = 'commandt.rg_finder',
