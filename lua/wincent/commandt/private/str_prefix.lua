@@ -1,0 +1,24 @@
+-- SPDX-FileCopyrightText: Copyright 2025-present Greg Hurrell and contributors.
+-- SPDX-License-Identifier: BSD-2-Clause
+
+local sub = require('wincent.commandt.private.sub')
+
+-- Attempts to return a prefix of `str` of size `length`, as measured in screen
+-- cells. If `str` if overlength, and the final character that must be trimmed
+-- to bring it down to the desired length is a double-cell one, the actual
+-- returned link may be off (specifically, underlength) by 1 screen cell.
+local function str_prefix(str, length)
+  if length < 1 then
+    return ''
+  end
+  local trim = 0
+  while vim.fn.strwidth(str) > length do
+    -- For typical strings, we'll do at most one `sub()`. For the degenerate
+    -- case with many multi-cell glyphs, we'll loop as many times as needed.
+    str = sub(str, 1, length - trim)
+    trim = trim + 1
+  end
+  return str
+end
+
+return str_prefix

@@ -5,7 +5,8 @@ local match_listing = {}
 
 local Window = require('wincent.commandt.private.window').Window
 local merge = require('wincent.commandt.private.merge')
-local sub = require('wincent.commandt.private.sub')
+local str_prefix = require('wincent.commandt.private.str_prefix')
+local str_suffix = require('wincent.commandt.private.str_suffix')
 
 local border_height = 2
 local prompt_height = 1 + border_height
@@ -60,28 +61,6 @@ function MatchListing:icon_getter()
   end
 end
 
-local function str_prefix(str, length)
-  local trim = 0
-  while vim.fn.strwidth(str) > length do
-    -- For typical strings, we'll do one `sub()`. For the degenerate case with
-    -- many multi-cell glyphs, we'll loop as many times as needed.
-    trim = trim + 1
-    str = sub(str, 1, length - trim)
-  end
-  return str
-end
-
-local function str_suffix(str, length)
-  local trim = 0
-  while vim.fn.strwidth(str) > length do
-    -- For typical strings, we'll do one `sub()`. For the degenerate case with
-    -- many multi-cell glyphs, we'll loop as many times as needed.
-    trim = trim + 1
-    str = sub(str, -(length - trim))
-  end
-  return str
-end
-
 local format_line = function(line, width, selected, truncate, get_icon)
   local prefix = selected and '> ' or '  '
 
@@ -106,12 +85,17 @@ local format_line = function(line, width, selected, truncate, get_icon)
   elseif vim.fn.strwidth(prefix .. line) < 5 then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
-    local half = math.floor((width - 2) / 2)
-    local left = str_prefix(line, half - 2 + width % 2)
-    local right = str_suffix(line, half - 2)
-    line = left .. ' … ' .. right
+    local half = math.floor((width - vim.fn.strwidth(prefix)) / 2)
+    local left_width = half + (width % 2) - 1
+    local left = str_prefix(line, left_width)
+
+    -- Note that segment might be 1 display cell shorter than we wanted.
+    local excess = left_width - vim.fn.strwidth(left)
+
+    local right = str_suffix(line, half + excess)
+    line = left .. '…' .. right
   elseif truncate == 'beginning' then
-    line = '…' .. str_suffix(line, width - vim.fn.strwidth(prefix))
+    line = '…' .. str_suffix(line, width - vim.fn.strwidth(prefix) - 1)
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end

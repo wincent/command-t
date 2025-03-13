@@ -17,6 +17,12 @@ return function(spec)
               else
                 vim.fn.fnamemodify = nil
               end
+            elseif inner_key == 'strwidth' then
+              if inner_value then
+                require('wincent.commandt.private.mocks.vim.fn.strwidth').setup()
+              else
+                vim.fn.strwidth = nil
+              end
             else
               error('unsupported key: fn.' .. inner_key)
             end
