@@ -234,7 +234,7 @@ return {
         }
       end,
       stub = function()
-        mocks.vim({startswith = true})
+        mocks.vim({ startswith = true })
       end,
       unstub = function()
         mocks.vim(false)
@@ -254,7 +254,7 @@ return {
         }
       end,
       stub = function()
-        mocks.vim({startswith = true})
+        mocks.vim({ startswith = true })
       end,
       unstub = function()
         mocks.vim(false)
@@ -287,7 +287,7 @@ return {
         }
       end,
       stub = function()
-        mocks.vim({startswith = true})
+        mocks.vim({ startswith = true })
       end,
       unstub = function()
         mocks.vim(false)
