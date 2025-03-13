@@ -325,7 +325,7 @@ local default_options = {
         if directory == '.' then
           drop = 2
         end
-        local command = 'fd --hidden --print0 --search-path'
+        local command = 'fd --hidden --print0 --type file --search-path'
         command = command .. ' ' .. directory
         command = command .. ' 2> /dev/null'
         return command, drop
