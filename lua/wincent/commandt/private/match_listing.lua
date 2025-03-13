@@ -85,8 +85,9 @@ local format_line = function(line, width, selected, truncate, get_icon)
   elseif vim.fn.strwidth(gutter .. line) < 5 then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
-    local half = math.floor((width - vim.fn.strwidth(gutter)) / 2)
-    local left_width = half + (width % 2) - 1
+    local available = width - vim.fn.strwidth(gutter)
+    local half = math.floor(available / 2)
+    local left_width = half + (available % 2) - 1
     local left = str_prefix(line, left_width)
 
     -- Note that segment might be 1 display cell shorter than we wanted.
