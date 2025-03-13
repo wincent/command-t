@@ -60,13 +60,33 @@ function MatchListing:icon_getter()
   end
 end
 
+local function str_prefix(str, length)
+  local trim = 0
+  while vim.fn.strwidth(str) > length do
+    -- For typical strings, we'll do one `sub()`. For the degenerate case with
+    -- many multi-cell glyphs, we'll loop as many times as needed.
+    trim = trim + 1
+    str = sub(str, 1, length - trim)
+  end
+  return str
+end
+
+local function str_suffix(str, length)
+  local trim = 0
+  while vim.fn.strwidth(str) > length do
+    -- For typical strings, we'll do one `sub()`. For the degenerate case with
+    -- many multi-cell glyphs, we'll loop as many times as needed.
+    trim = trim + 1
+    str = sub(str, -(length - trim))
+  end
+  return str
+end
+
 local format_line = function(line, width, selected, truncate, get_icon)
   local prefix = selected and '> ' or '  '
 
   local icon = get_icon and get_icon(line)
-  local icon_length = 0
   if icon then
-    icon_length = vim.fn.strwidth(icon .. '  ')
     prefix = prefix .. icon .. '  '
   end
 
@@ -83,15 +103,15 @@ local format_line = function(line, width, selected, truncate, get_icon)
 
   if vim.fn.strwidth(prefix .. line) <= width then
     -- Line fits without trimming.
-  elseif vim.fn.strwidth(line) < (5 + icon_length) then
+  elseif vim.fn.strwidth(prefix .. line) < 5 then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
-    local left = sub(line, 1, half - 3 + width % 2)
-    local right = sub(line, 3 - half)
+    local left = str_prefix(line, half - 2 + width % 2)
+    local right = str_suffix(line, half - 2)
     line = left .. ' … ' .. right
   elseif truncate == 'beginning' then
-    line = '…' .. sub(line, -width + vim.fn.strwidth(prefix) + 1)
+    line = '…' .. str_suffix(line, width - vim.fn.strwidth(prefix))
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end
@@ -108,14 +128,7 @@ local format_line = function(line, width, selected, truncate, get_icon)
   end
 
   -- Trim to make sure we never wrap.
-  local trim = 0
-  while vim.fn.strwidth(line) > width do
-    -- For typical strings, we'll do one `sub()`. For the degenerate case with
-    -- many multi-cell glyphs, we'll loop as many times as needed.
-    trim = trim + 1
-    line = sub(line, 1, width - trim)
-  end
-  return line
+  return str_prefix(line, width)
 end
 
 function MatchListing:select(selected)
