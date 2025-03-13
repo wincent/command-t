@@ -4,7 +4,6 @@
 local match_listing = {}
 
 local Window = require('wincent.commandt.private.window').Window
-local len = require('wincent.commandt.private.len')
 local merge = require('wincent.commandt.private.merge')
 local sub = require('wincent.commandt.private.sub')
 
@@ -67,11 +66,12 @@ local format_line = function(line, width, selected, truncate, get_icon)
   local icon = get_icon and get_icon(line)
   local icon_length = 0
   if icon then
-    icon_length = len(icon .. '  ')
+    icon_length = vim.fn.strwidth(icon .. '  ')
     prefix = prefix .. icon .. '  '
   end
 
   -- Sanitize some control characters, plus blackslashes.
+  -- NOTE: may not be safe if unicode?
   line = line
     :gsub('\\', '\\\\')
     :gsub('\b', '\\b')
@@ -81,9 +81,9 @@ local format_line = function(line, width, selected, truncate, get_icon)
     :gsub('\t', '\\t')
     :gsub('\v', '\\v')
 
-  if len(line) + len(prefix) < width then
+  if vim.fn.strwidth(prefix .. line) < width then
     -- Line fits without trimming.
-  elseif len(line) < (5 + icon_length) then
+  elseif vim.fn.strwidth(line) < (5 + icon_length) then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
     local half = math.floor((width - 2) / 2)
@@ -91,25 +91,31 @@ local format_line = function(line, width, selected, truncate, get_icon)
     local right = sub(line, 2 - half)
     line = left .. '...' .. right
   elseif truncate == 'beginning' then
-    line = '...' .. sub(line, -width + len(prefix) + 3)
+    line = '...' .. sub(line, -width + vim.fn.strwidth(prefix) + 3)
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end
 
   -- Right pad so that selection highlighting is shown across full width.
-  if width < 102 and len(line) > 99 then
+  line = prefix .. line
+  if vim.fn.strwidth(line) > width then
     -- No padding needed.
-    line = prefix .. line
   else
-    line = prefix .. line
-    local diff = width - len(line)
+    local diff = width - vim.fn.strwidth(line)
     if diff > 0 then
       line = line .. string.rep(' ', diff)
     end
   end
 
   -- Trim to make sure we never wrap.
-  return sub(line, 1, width)
+  local trim = 0
+  while vim.fn.strwidth(line) > width do
+    -- For typical strings, we'll do one `sub()`. For the degenerate case with
+    -- many multi-cell glyphs, we'll loop as many times as needed.
+    trim = trim + 1
+    line = sub(line, 1, width - trim)
+  end
+  return line
 end
 
 function MatchListing:select(selected)
