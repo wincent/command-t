@@ -19,7 +19,7 @@ function M.setup()
 
   function Iter.new(list)
     if not is_list(list) then
-      error('non-list table passed to Iter.new()')
+      error('non-list table passed to Iter.new() stub')
     end
     local self = setmetatable({}, Iter)
     self._list = list
