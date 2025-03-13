@@ -1,6 +1,8 @@
 -- SPDX-FileCopyrightText: Copyright 2025-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
+local len = require('wincent.commandt.private.len')
+
 -- Temporary wrapper to give us compatibility between Neovim v0.10.4 and
 -- more recent nightlies; see: https://github.com/wincent/command-t/issues/434
 --
@@ -54,10 +56,28 @@ local function str_byteindex(str, encoding, start_char, strict_indexing)
 end
 
 -- Unicode-aware `sub` implementation.
+--
+-- Like Lua's `string.sub()`, the `start_char` and (optional) `end_char`
+-- indices are 1-based (and inclusive/closed).
+--
 local function sub(str, start_char, end_char)
-  local start_byte = str_byteindex(str, 'utf-32', start_char, false)
+  -- Negative numbers count backwards from back of string.
+  if start_char < 0 or (end_char ~= nil and end_char < 0) then
+    local length = len(str)
+    if start_char < 0 then
+      start_char = math.max(1, length + start_char + 1)
+    end
+    if end_char ~= nil and end_char < 0 then
+      end_char = math.max(1, length + end_char + 1)
+    end
+  end
+
+  -- Convert 1-based indices to 0-based ones.
+  local start_byte = str_byteindex(str, 'utf-32', start_char - 1, false)
   local end_byte = end_char and str_byteindex(str, 'utf-32', end_char, false)
-  return str:sub(start_byte, end_byte)
+
+  -- Convert 0-based indices back to 1-based ones.
+  return str:sub(start_byte + 1, end_char and end_byte)
 end
 
 return sub

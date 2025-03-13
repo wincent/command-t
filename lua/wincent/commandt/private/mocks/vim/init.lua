@@ -42,6 +42,18 @@ return function(spec)
         else
           vim.startswith = nil
         end
+      elseif key == 'str_byteindex' then
+        if value then
+          require('wincent.commandt.private.mocks.vim.str_byteindex').setup()
+        else
+          vim.str_byteindex = nil
+        end
+      elseif key == 'str_utfindex' then
+        if value then
+          require('wincent.commandt.private.mocks.vim.str_utfindex').setup()
+        else
+          vim.str_utfindex = nil
+        end
       else
         error('unsupported key: ' .. key)
       end
