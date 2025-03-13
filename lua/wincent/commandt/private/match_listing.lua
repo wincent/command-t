@@ -62,11 +62,11 @@ function MatchListing:icon_getter()
 end
 
 local format_line = function(line, width, selected, truncate, get_icon)
-  local prefix = selected and '> ' or '  '
+  local gutter = selected and '> ' or '  '
 
   local icon = get_icon and get_icon(line)
   if icon then
-    prefix = prefix .. icon .. '  '
+    gutter = gutter .. icon .. '  '
   end
 
   -- Sanitize some control characters, plus blackslashes.
@@ -80,12 +80,12 @@ local format_line = function(line, width, selected, truncate, get_icon)
     :gsub('\t', '\\t')
     :gsub('\v', '\\v')
 
-  if vim.fn.strwidth(prefix .. line) <= width then
+  if vim.fn.strwidth(gutter .. line) <= width then
     -- Line fits without trimming.
-  elseif vim.fn.strwidth(prefix .. line) < 5 then
+  elseif vim.fn.strwidth(gutter .. line) < 5 then
     -- Line is so short that adding an ellipsis is not practical.
   elseif truncate == true or truncate == 'true' or truncate == 'middle' then
-    local half = math.floor((width - vim.fn.strwidth(prefix)) / 2)
+    local half = math.floor((width - vim.fn.strwidth(gutter)) / 2)
     local left_width = half + (width % 2) - 1
     local left = str_prefix(line, left_width)
 
@@ -95,13 +95,13 @@ local format_line = function(line, width, selected, truncate, get_icon)
     local right = str_suffix(line, half + excess)
     line = left .. '…' .. right
   elseif truncate == 'beginning' then
-    line = '…' .. str_suffix(line, width - vim.fn.strwidth(prefix) - 1)
+    line = '…' .. str_suffix(line, width - vim.fn.strwidth(gutter) - 1)
   elseif truncate == false or truncate == 'false' or truncate == 'end' then
     -- Fall through; truncation will happen before the final `return`.
   end
 
   -- Right pad so that selection highlighting is shown across full width.
-  line = prefix .. line
+  line = gutter .. line
   if vim.fn.strwidth(line) > width then
     -- No padding needed.
   else
