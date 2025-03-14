@@ -281,13 +281,13 @@ local options_spec = {
   end,
 }
 
--- Function that returns a copy of `options` with
--- `always_show_dot_files = true` and `never_show_dot_files = false`.
+-- Sets `always_show_dot_files = true` and `never_show_dot_files = false` in
+-- `options` and returns the mutated table (`options` is a copy, so we're free
+-- to mutate it).
 local force_dot_files = function(options)
-  return merge(options, {
-    always_show_dot_files = true,
-    never_show_dot_files = false,
-  })
+  options.always_show_dot_files = true
+  options.never_show_dot_files = false
+  return options
 end
 
 local default_options = {
