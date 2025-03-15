@@ -5,6 +5,7 @@ local ui = {}
 
 local MatchListing = require('wincent.commandt.private.match_listing').MatchListing
 local Prompt = require('wincent.commandt.private.prompt').Prompt
+local Settings = require('wincent.commandt.private.settings')
 
 local candidate_count = nil
 local cmdline_enter_autocmd = nil
@@ -14,6 +15,7 @@ local match_listing = nil
 local prompt = nil
 local results = nil
 local selected = nil
+local settings = Settings.new()
 
 -- Reverses `list` in place.
 local reverse = function(list)
@@ -35,6 +37,9 @@ end
 -- do anything that would move you out)
 
 local close = function()
+  -- Restore global settings.
+  settings.hlsearch = nil
+
   if match_listing then
     match_listing:close()
     match_listing = nil
@@ -69,15 +74,16 @@ ui.open = function(kind)
   end
 end
 
--- TODO save/restore global options, like `hlsearch' (which we want to turn off
--- temporarily when our windows are visible) — either that, or figure out how to
--- make the highlighting not utterly suck.
--- in any case, review the list at ruby/command-t/lib/command-t/match_window.rb
 ui.show = function(finder, options)
   -- TODO validate options
   current_finder = finder
 
   current_window = vim.api.nvim_get_current_win()
+
+  -- Temporarily override global settings.
+  -- For now just 'hlsearch', but may add more later (see
+  -- ruby/command-t/lib/command-t/match_window.rb)
+  settings.hlsearch = false
 
   -- Work around an autocommand bug. We don't reliably get `WinClosed` events,
   -- or if we do, our call to `nvim_del_autocmd()` doesn't always clean up for
