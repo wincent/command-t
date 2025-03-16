@@ -13,13 +13,13 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
-      - uses: JohnnyMorganz/stylua-action@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: JohnnyMorganz/stylua-action@b6661824b86c9c33121bed87a778b660ba90cf77 # v4.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --check .
           version: "0.20.0"
-      - uses: jidicula/clang-format-action@v4.13.0
+      - uses: jidicula/clang-format-action@d05cecd4a1a5b7e64c22f5a468456135a43f13f6 # v4.14.0
         with:
           clang-format-version: "18"
           check-path: lua
@@ -28,8 +28,8 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@v4
-      - uses: leafo/gh-actions-lua@v10
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: leafo/gh-actions-lua@8aace3457a2fcf3f3c4e9007ecc6b869ff6d74d6 # v11
         with:
           luaVersion: luajit-openresty
 
