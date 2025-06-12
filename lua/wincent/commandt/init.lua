@@ -627,22 +627,23 @@ commandt.file_finder = function(directory)
   end
 
   local finder = require('wincent.commandt.private.finders.file')('.', options)
-  ui.show(finder, merge(options, {
-    name = 'file',
-    on_open = function(result)
-      if previous_cwd ~= next_cwd then
-        result = vim.fs.normalize(
-          vim.fs.joinpath(next_cwd, result)
-        )
-      end
-      return result
-    end,
-    on_close = function()
-      if previous_cwd ~= next_cwd then
-        vim.fn.chdir(previous_cwd)
-      end
-    end,
-  }))
+  ui.show(
+    finder,
+    merge(options, {
+      name = 'file',
+      on_open = function(result)
+        if previous_cwd ~= next_cwd then
+          result = vim.fs.normalize(vim.fs.joinpath(next_cwd, result))
+        end
+        return result
+      end,
+      on_close = function()
+        if previous_cwd ~= next_cwd then
+          vim.fn.chdir(previous_cwd)
+        end
+      end,
+    })
+  )
 end
 
 local report_errors = function(errors, heading)
