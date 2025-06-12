@@ -704,7 +704,7 @@ Possible vaules are:
 
 - "file": starting from the file currently being edited, traverse upwards
   through the filesystem hierarchy until finding an SCM root (as indicated
-  by the presence of a ".git", ".hg" or similar diretory) and use that as the
+  by the presence of a ".git", ".hg" or similar directory) and use that as the
   base path. If no such root is found, fall back to using the present working
   directory as a root. The list of SCM markers that Command-T uses to detect an
   SCM root can be customized with the |commandt.setup.root_markers| option.
