@@ -12,6 +12,8 @@ local cmdline_enter_autocmd = nil
 local current_finder = nil -- Reference to avoid premature garbage collection.
 local current_window = nil
 local match_listing = nil
+local on_close = nil
+local on_open = nil
 local prompt = nil
 local results = nil
 local selected = nil
@@ -61,17 +63,26 @@ local close = function()
     current_window = nil
     vim.api.nvim_set_current_win(win)
   end
+  if on_close then
+    on_close()
+    on_close = nil
+  end
 end
 
 ui.open = function(kind)
   close()
   if results and #results > 0 then
-    -- Defer, to give autocommands a chance to run.
     local result = results[selected]
+    if on_open then
+      result = on_open(result)
+    end
+
+    -- Defer, to give autocommands a chance to run.
     vim.defer_fn(function()
       current_finder.open(result, kind)
     end, 0)
   end
+  on_open = nil
 end
 
 ui.show = function(finder, options)
@@ -79,6 +90,9 @@ ui.show = function(finder, options)
   current_finder = finder
 
   current_window = vim.api.nvim_get_current_win()
+
+  on_close = options.on_close
+  on_open = options.on_open
 
   -- Temporarily override global settings.
   -- For now just 'hlsearch', but may add more later (see
