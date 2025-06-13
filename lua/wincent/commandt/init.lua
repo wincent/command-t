@@ -379,31 +379,18 @@ local default_options = {
     },
     find = {
       command = function(directory, options)
-        if vim.startswith(directory, './') then
-          directory = sub(directory, 3)
-        end
-        if directory ~= '' then
-          directory = vim.fn.shellescape(directory)
-        end
-        local drop = 0
-        if directory == '' or directory == '.' then
-          -- Drop 2 characters because `find` will prefix every result with "./",
-          -- making it look like a dotfile.
-          directory = '.'
-          drop = 2
-          -- TODO: decide what to do if somebody passes '..' or similar, because that
-          -- will also make the results get filtered out as though they were dotfiles.
-          -- I may end up needing to do some fancy, separate micromanagement of
-          -- prefixes and let the matcher operate on paths without prefixes.
-        end
-        -- TODO: support dot directory filter etc
-        local command = 'find -L ' .. directory .. ' -type f -print0 2> /dev/null'
+        pushd(directory)
+        local command = 'find -L . -type f -print0 2> /dev/null'
+        local drop = 2 -- drop './'
         return command, drop
       end,
       fallback = true,
       max_files = function(options)
         return options.scanners.find.max_files
       end,
+      on_close = popd,
+      on_directory = on_directory,
+      open = on_open,
     },
     git = {
       command = function(directory, options)
