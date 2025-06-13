@@ -734,6 +734,13 @@ commandt.finder = function(name, directory)
   )
 end
 
+-- Expose these functions publicly for use by custom finders.
+commandt.popd = popd
+commandt.pushd = pushd
+commandt.on_directory = on_directory
+-- TODO: maybe rename this
+commandt.on_open = on_open
+-- TODO: probably rename this to smart_open
 commandt.open = smart_open
 
 commandt.options = function()
