@@ -439,7 +439,6 @@ local default_options = {
             end
           end
         end
-        -- TODO: memoize this? (ie. add `memoize = true`)?
         return helptags
       end,
       kind = 'virtual',
