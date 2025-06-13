@@ -11,7 +11,7 @@ local sub = require('wincent.commandt.private.sub')
 
 local commandt = {}
 
-local open = function(buffer, command)
+local function open(buffer, command)
   buffer = vim.fn.fnameescape(buffer)
   local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
   if is_visible then
@@ -19,6 +19,30 @@ local open = function(buffer, command)
     vim.cmd('sbuffer ' .. buffer)
   else
     vim.cmd(command .. ' ' .. buffer)
+  end
+end
+
+local directory_stack = {}
+
+local function pushd(directory)
+  table.insert(directory_stack, vim.uv.cwd())
+  vim.fn.chdir(directory)
+end
+
+local function popd()
+  local directory = table.remove(directory_stack)
+  if directory then
+    vim.fn.chdir(directory)
+  end
+end
+
+-- Common `on_directory` implementation that infers the appropriate directory if
+-- none is explicitly provided.
+local function on_directory(directory)
+  if directory == '' or directory == nil then
+    return commandt._directory()
+  else
+    return directory
   end
 end
 
@@ -52,6 +76,10 @@ local options_spec = {
                 'virtual',
               },
             },
+            optional = true,
+          },
+          on_close = {
+            kind = 'function',
             optional = true,
           },
           on_directory = {
@@ -320,7 +348,7 @@ local default_options = {
         if vim.startswith(directory, './') then
           directory = sub(directory, 3)
         end
-        if directory ~= '' and directory ~= '.' then
+        if directory ~= '' then
           directory = vim.fn.shellescape(directory)
         elseif directory == '' then
           directory = '.'
@@ -344,7 +372,7 @@ local default_options = {
         if vim.startswith(directory, './') then
           directory = sub(directory, 3)
         end
-        if directory ~= '' and directory ~= '.' then
+        if directory ~= '' then
           directory = vim.fn.shellescape(directory)
         end
         local drop = 0
@@ -368,13 +396,6 @@ local default_options = {
       end,
     },
     git = {
-      on_directory = function(directory)
-        if directory == '' or directory == nil then
-          return commandt._directory()
-        else
-          return directory
-        end
-      end,
       command = function(directory, options)
         if directory ~= '' then
           directory = vim.fn.shellescape(directory)
@@ -396,6 +417,7 @@ local default_options = {
       max_files = function(options)
         return options.scanners.git.max_files
       end,
+      on_directory = on_directory,
       open = function(item, kind, directory, opener)
         -- Note: this `directory` is not the shell-escaped local above but
         -- rather the one that was passed in originally to the command function.
@@ -483,26 +505,26 @@ local default_options = {
     },
     rg = {
       command = function(directory, options)
-        if vim.startswith(directory, './') then
-          directory = sub(directory, 3)
+        local previous_cwd = vim.uv.cwd()
+        local next_cwd = directory
+        if previous_cwd ~= next_cwd then
+          pushd(next_cwd)
         end
-        if directory ~= '' and directory ~= '.' then
-          directory = vim.fn.shellescape(directory)
-        end
+        local command = 'rg --files --null 2> /dev/null'
         local drop = 0
-        if directory == '.' then
-          drop = 2 -- drop "./"
-        end
-        local command = 'rg --files --null'
-        if #directory > 0 then
-          command = command .. ' ' .. directory
-        end
-        command = command .. ' 2> /dev/null'
         return command, drop
       end,
       fallback = true,
       max_files = function(options)
         return options.scanners.rg.max_files
+      end,
+      on_close = popd,
+      on_directory = on_directory,
+      open = function(item, kind, directory, opener)
+        if directory ~= '' then
+          item = vim.fs.normalize(vim.fs.joinpath(directory, item))
+        end
+        opener(item, kind)
       end,
     },
   },
@@ -642,7 +664,7 @@ commandt.file_finder = function(directory)
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   if previous_cwd ~= next_cwd then
-    vim.fn.chdir(get_directory())
+    pushd(get_directory())
   end
 
   local finder = require('wincent.commandt.private.finders.file')('.', options)
@@ -656,11 +678,7 @@ commandt.file_finder = function(directory)
         end
         return result
       end,
-      on_close = function()
-        if previous_cwd ~= next_cwd then
-          vim.fn.chdir(previous_cwd)
-        end
-      end,
+      on_close = popd,
     })
   )
 end
@@ -733,7 +751,14 @@ commandt.finder = function(name, directory)
 
   -- TODO: fix type smell here. we're merging "kind", a property that exists
   -- inside matcher configs, into the top level, along with "name".
-  ui.show(finder, merge(options, { name = name, kind = kind }))
+  ui.show(
+    finder,
+    merge(options, {
+      name = name,
+      kind = kind,
+      on_close = config.on_close,
+    })
+  )
 end
 
 -- "Smart" open that will switch to an already open window containing the
