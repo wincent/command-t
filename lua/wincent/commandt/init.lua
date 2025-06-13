@@ -771,10 +771,21 @@ end
 
 commandt.watchman_finder = function(directory)
   directory = vim.trim(directory)
+  if directory == '' then
+    directory = get_directory()
+  end
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.watchman')(directory, options)
-  ui.show(finder, merge(options, { name = 'watchman' }))
+  ui.show(
+    finder,
+    merge(options, {
+      name = 'watchman',
+      on_open = function(result)
+        return relativize(directory, result)
+      end,
+    })
+  )
 end
 
 return commandt
