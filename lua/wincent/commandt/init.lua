@@ -11,11 +11,15 @@ local sub = require('wincent.commandt.private.sub')
 
 local commandt = {}
 
-local function open(buffer, command)
+-- "Smart" open that will switch to an already open window containing the
+-- specified `buffer`, if one exists; otherwise, it will open a new window using
+-- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
+local function smart_open(buffer, command)
   buffer = vim.fn.fnameescape(buffer)
   local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
   if is_visible then
-    -- In order to be useful, `:sbuffer` needs `vim.o.switchbuf = 'usetab'`.
+    -- Note that, in order to be useful, `:sbuffer` needs
+    -- `vim.o.switchbuf = 'usetab'` to be set.
     vim.cmd('sbuffer ' .. buffer)
   else
     vim.cmd(command .. ' ' .. buffer)
@@ -44,6 +48,21 @@ local function on_directory(directory)
   else
     return directory
   end
+end
+
+local function relativize(directory, file)
+  if directory ~= '' then
+    return vim.fs.normalize(vim.fs.joinpath(directory, file))
+  else
+    return file
+  end
+end
+
+-- Common `on_open` implementation used by several "command" finders that equips
+-- them to deal with automatic directory changes caused by the `traverse`
+-- setting.
+local function on_open(item, kind, directory, opener)
+  opener(relativize(directory, item), kind)
 end
 
 local help_opened = false
@@ -345,27 +364,18 @@ local default_options = {
     },
     fd = {
       command = function(directory, options)
-        if vim.startswith(directory, './') then
-          directory = sub(directory, 3)
-        end
-        if directory ~= '' then
-          directory = vim.fn.shellescape(directory)
-        elseif directory == '' then
-          directory = '.'
-        end
-        local drop = 0
-        if directory == '.' then
-          drop = 2 -- drop "./"
-        end
-        local command = 'fd --hidden --print0 --type file --search-path'
-        command = command .. ' ' .. directory
-        command = command .. ' 2> /dev/null'
+        pushd(directory)
+        local command = 'fd --hidden --print0 --type file --search-path . 2> /dev/null'
+        local drop = 2 -- drop './'
         return command, drop
       end,
       fallback = true,
       max_files = function(options)
         return options.scanners.fd.max_files
       end,
+      on_close = popd,
+      on_directory = on_directory,
+      open = on_open,
     },
     find = {
       command = function(directory, options)
@@ -418,14 +428,7 @@ local default_options = {
         return options.scanners.git.max_files
       end,
       on_directory = on_directory,
-      open = function(item, kind, directory, opener)
-        -- Note: this `directory` is not the shell-escaped local above but
-        -- rather the one that was passed in originally to the command function.
-        if directory ~= '' then
-          item = vim.fs.normalize(vim.fs.joinpath(directory, item))
-        end
-        opener(item, kind)
-      end,
+      open = on_open,
     },
     help = {
       candidates = function(_directory)
@@ -505,11 +508,7 @@ local default_options = {
     },
     rg = {
       command = function(directory, options)
-        local previous_cwd = vim.uv.cwd()
-        local next_cwd = directory
-        if previous_cwd ~= next_cwd then
-          pushd(next_cwd)
-        end
+        pushd(directory)
         local command = 'rg --files --null 2> /dev/null'
         local drop = 0
         return command, drop
@@ -520,12 +519,7 @@ local default_options = {
       end,
       on_close = popd,
       on_directory = on_directory,
-      open = function(item, kind, directory, opener)
-        if directory ~= '' then
-          item = vim.fs.normalize(vim.fs.joinpath(directory, item))
-        end
-        opener(item, kind)
-      end,
+      open = on_open,
     },
   },
   height = 15,
@@ -596,7 +590,7 @@ local default_options = {
   prompt = {
     border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
   },
-  open = open,
+  open = smart_open,
   root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
   scanners = {
     fd = {
@@ -656,27 +650,19 @@ end
 
 commandt.file_finder = function(directory)
   directory = vim.trim(directory)
-  local previous_cwd = vim.uv.cwd()
-  local next_cwd = previous_cwd
   if directory == '' then
-    next_cwd = get_directory()
+    directory = get_directory()
   end
+  pushd(directory)
   local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
-  if previous_cwd ~= next_cwd then
-    pushd(get_directory())
-  end
-
   local finder = require('wincent.commandt.private.finders.file')('.', options)
   ui.show(
     finder,
     merge(options, {
       name = 'file',
       on_open = function(result)
-        if previous_cwd ~= next_cwd then
-          result = vim.fs.normalize(vim.fs.joinpath(next_cwd, result))
-        end
-        return result
+        return relativize(directory, result)
       end,
       on_close = popd,
     })
@@ -761,10 +747,7 @@ commandt.finder = function(name, directory)
   )
 end
 
--- "Smart" open that will switch to an already open window containing the
--- specified `buffer`, if one exists; otherwise, it will open a new window using
--- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
-commandt.open = open
+commandt.open = smart_open
 
 commandt.options = function()
   return copy(_options)
