@@ -335,7 +335,7 @@ local options_spec = {
 -- Sets `always_show_dot_files = true` and `never_show_dot_files = false` in
 -- `options` and returns the mutated table (`options` is a copy, so we're free
 -- to mutate it).
-local force_dot_files = function(options)
+local function force_dot_files(options)
   options.always_show_dot_files = true
   options.never_show_dot_files = false
   return options
