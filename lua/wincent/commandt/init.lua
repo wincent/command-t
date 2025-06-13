@@ -54,6 +54,10 @@ local options_spec = {
             },
             optional = true,
           },
+          on_directory = {
+            kind = 'function',
+            optional = true,
+          },
           options = {
             kind = 'function',
             optional = true,
@@ -295,7 +299,7 @@ local default_options = {
   finders = {
     -- Returns the list of paths currently loaded into buffers.
     buffer = {
-      candidates = function()
+      candidates = function(_directory)
         local handles = vim.api.nvim_list_bufs()
         local paths = {}
         for _, handle in ipairs(handles) do
@@ -323,7 +327,7 @@ local default_options = {
         end
         local drop = 0
         if directory == '.' then
-          drop = 2
+          drop = 2 -- drop "./"
         end
         local command = 'fd --hidden --print0 --type file --search-path'
         command = command .. ' ' .. directory
@@ -364,18 +368,25 @@ local default_options = {
       end,
     },
     git = {
+      on_directory = function(directory)
+        if directory == '' or directory == nil then
+          return commandt._directory()
+        else
+          return directory
+        end
+      end,
       command = function(directory, options)
         if directory ~= '' then
           directory = vim.fn.shellescape(directory)
         end
         local command = 'git ls-files --exclude-standard --cached -z'
+        if directory ~= '' then
+          command = 'git -C ' .. directory .. ' ls-files --exclude-standard --cached -z'
+        end
         if options.scanners.git.submodules then
           command = command .. ' --recurse-submodules'
         elseif options.scanners.git.untracked then
           command = command .. ' --others'
-        end
-        if directory ~= '' then
-          command = command .. ' -- ' .. directory
         end
         command = command .. ' 2> /dev/null'
         local drop = 0
@@ -385,9 +396,17 @@ local default_options = {
       max_files = function(options)
         return options.scanners.git.max_files
       end,
+      open = function(item, kind, directory, opener)
+        -- Note: this `directory` is not the shell-escaped local above but
+        -- rather the one that was passed in originally to the command function.
+        if directory ~= '' then
+          item = vim.fs.normalize(vim.fs.joinpath(directory, item))
+        end
+        opener(item, kind)
+      end,
     },
     help = {
-      candidates = function()
+      candidates = function(_directory)
         -- Neovim doesn't provide an easy way to get a list of all help tags.
         -- `tagfiles()` only shows the tagfiles for the current buffer, so you need
         -- to already be in a buffer of `'buftype'` `help` for that to work.
@@ -442,7 +461,7 @@ local default_options = {
       options = force_dot_files,
     },
     line = {
-      candidates = function()
+      candidates = function(_directory)
         local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
         local result = {}
         for i, line in ipairs(lines) do
@@ -472,7 +491,7 @@ local default_options = {
         end
         local drop = 0
         if directory == '.' then
-          drop = 2
+          drop = 2 -- drop "./"
         end
         local command = 'rg --files --null'
         if #directory > 0 then
@@ -691,10 +710,13 @@ commandt.finder = function(name, directory)
   if directory ~= nil then
     directory = vim.trim(directory)
   end
+  if config.on_directory then
+    directory = config.on_directory(directory)
+  end
   local finder = nil
   options.open = function(item, kind)
     if config.open then
-      config.open(item, kind)
+      config.open(item, kind, directory, commandt.open)
     else
       commandt.open(item, kind)
     end
