@@ -11,7 +11,13 @@ return function(spec)
       if key == 'fn' then
         if type(value) == 'table' then
           for inner_key, inner_value in pairs(value) do
-            if inner_key == 'fnamemodify' then
+            if inner_key == 'chdir' then
+              if inner_value then
+                require('wincent.commandt.private.mocks.vim.fn.chdir').setup()
+              else
+                vim.fn.chdir = nil
+              end
+            elseif inner_key == 'fnamemodify' then
               if inner_value then
                 require('wincent.commandt.private.mocks.vim.fn.fnamemodify').setup()
               else
@@ -28,7 +34,7 @@ return function(spec)
             end
           end
         else
-          error('unsupported type for "fn": ' .. type(inner_value))
+          error('unsupported type for "fn": ' .. type(value))
         end
       elseif key == 'inspect' then
         if value then
@@ -59,6 +65,22 @@ return function(spec)
           require('wincent.commandt.private.mocks.vim.str_utfindex').setup()
         else
           vim.str_utfindex = nil
+        end
+      elseif key == 'uv' then
+        if type(value) == 'table' then
+          for inner_key, inner_value in pairs(value) do
+            if inner_key == 'cwd' then
+              if inner_value then
+                require('wincent.commandt.private.mocks.vim.uv.cwd').setup()
+              else
+                vim.uv.cwd = nil
+              end
+            else
+              error('unsupported key: uv.' .. inner_key)
+            end
+          end
+        else
+          error('unsupported type for "uv": ' .. type(value))
         end
       else
         error('unsupported key: ' .. key)

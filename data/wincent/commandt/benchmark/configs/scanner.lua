@@ -234,7 +234,15 @@ return {
         }
       end,
       stub = function()
-        mocks.vim({ startswith = true })
+        mocks.vim({
+          fn = {
+            chdir = true,
+          },
+          startswith = true,
+          uv = {
+            cwd = true,
+          },
+        })
       end,
       unstub = function()
         mocks.vim(false)
@@ -254,7 +262,15 @@ return {
         }
       end,
       stub = function()
-        mocks.vim({ startswith = true })
+        mocks.vim({
+          fn = {
+            chdir = true,
+          },
+          startswith = true,
+          uv = {
+            cwd = true,
+          },
+        })
       end,
       unstub = function()
         mocks.vim(false)
@@ -273,6 +289,17 @@ return {
           end,
         }
       end,
+      stub = function()
+        mocks.vim({
+          startswith = true,
+          uv = {
+            cwd = true,
+          },
+        })
+      end,
+      unstub = function()
+        mocks.vim(false)
+      end,
       times = times,
     },
     {
@@ -287,7 +314,11 @@ return {
         }
       end,
       stub = function()
-        mocks.vim({ startswith = true })
+        mocks.vim({
+          fn = { chdir = true },
+          startswith = true,
+          uv = { cwd = true },
+        })
       end,
       unstub = function()
         mocks.vim(false)
