@@ -3,8 +3,8 @@
 
 return {
   major = 6,
-  minor = 0,
+  minor = 1,
   patch = 0,
-  prerelease = 'b.1',
-  version = '6.0.0-b.1',
+  prerelease = '',
+  version = '6.1',
 }
