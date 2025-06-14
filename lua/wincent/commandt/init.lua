@@ -11,9 +11,14 @@ local sub = require('wincent.commandt.private.sub')
 
 local commandt = {}
 
--- "Smart" open that will switch to an already open window containing the
--- specified `buffer`, if one exists; otherwise, it will open a new window using
--- `command` (which should be one of `edit`, `tabedit`, `split`, or `vsplit`).
+--- "Smart" open that will switch to an already open window containing the
+--- specified `buffer`, if one exists; otherwise, it will open a new window
+--- using `command` (which should be one of `edit`, `tabedit`, `split`, or
+--- `vsplit`).
+---
+--- @param buffer string
+--- @param command 'edit' | 'split' | 'tabedit' | 'vsplit'
+--- @return nil
 local function smart_open(buffer, command)
   buffer = vim.fn.fnameescape(buffer)
   local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
@@ -28,11 +33,18 @@ end
 
 local directory_stack = {}
 
+--- Push a directory onto the stack.
+---
+--- @param directory string
+--- @return nil
 local function pushd(directory)
   table.insert(directory_stack, vim.uv.cwd())
   vim.fn.chdir(directory)
 end
 
+--- Pop a directory from the stack.
+---
+--- @return nil
 local function popd()
   local directory = table.remove(directory_stack)
   if directory then
@@ -40,8 +52,11 @@ local function popd()
   end
 end
 
--- Common `on_directory` implementation that infers the appropriate directory if
--- none is explicitly provided.
+--- Common `on_directory` implementation that infers the appropriate directory
+--- if none is explicitly provided.
+---
+--- @param directory string | nil
+--- @return string
 local function on_directory(directory)
   if directory == '' or directory == nil then
     return commandt._directory()
@@ -341,11 +356,16 @@ local function force_dot_files(options)
   return options
 end
 
+--- @alias CandidatesFunction
+--- | fun(directory: string): string[]
+--- | # Function that returns a list of candidate strings
+
 local default_options = {
   always_show_dot_files = false,
   finders = {
     -- Returns the list of paths currently loaded into buffers.
     buffer = {
+      --- @type CandidatesFunction
       candidates = function(_directory)
         local handles = vim.api.nvim_list_bufs()
         local paths = {}
