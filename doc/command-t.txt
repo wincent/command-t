@@ -943,6 +943,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
+main (not yet released) ~
+
+- ...
+
 6.1 (14 June 2025) ~
 
 - fix: teach buffer finder to see all buffers passed into Neovim as
