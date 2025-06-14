@@ -398,11 +398,12 @@ provided by Neovim. That is, to require and use a function like
 >
     require('wincent.commandt').setup()
 <
-The are a number of private functions that are defined inside the plug-in that
-are for internal use only. To make clear where the public/private boundary
-falls, all internal functions are nested under `wincent.commandt.private`. As
-such, if you were to require one of these, be aware that none of these APIs
-are documented and they could change without notice at any time; for example:
+There are a number of private functions that are defined inside the
+plug-in that are for internal use only. To make clear where the
+public/private boundary falls, all internal functions are nested under
+`wincent.commandt.private`. As such, if you were to require one of these, be
+aware that none of these APIs are documented and they could change without
+notice at any time; for example:
 >
     local Window = require('wincent.commandt.private.window').Window
 <
