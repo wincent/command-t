@@ -301,95 +301,89 @@ See also |command-t-ruby-usage| for older usage information.
 
 COMMANDS                                                   *command-t-commands*
 
-                                                                    *:CommandT*
-|:CommandT|
-|:CommandT| [directory]
-                  Brings up the Command-T file window, starting in [directory]
-                  (if it is provided). If [directory] is not provided,
-                  Command-T will either start in the current working directory
-                  as returned by the |:pwd| command, or in an inferred
-                  directory as determined by the  |commandt.setup.traverse|
-                  setting. Scans for files using the `fts` facilities provided
-                  by the C standard library.
+|:CommandT| [directory]                                               *:CommandT*
 
-                                                              *:CommandTBuffer*
-|:CommandTBuffer|   Brings up the Command-T buffer window.
-                  This works exactly like the standard file window,
-                  except that the selection is limited to files that
-                  you already have open in buffers.
+                Brings up the Command-T file window, starting in [directory]
+                (if it is provided). If [directory] is not provided, Command-T
+                will either start in the current working directory as returned
+                by the |:pwd| command, or in an inferred directory as
+                determined by the |commandt.setup.traverse| setting. Scans for
+                files using the `fts` facilities provided by the C standard
+                library.
 
-                                                              *:CommandTFd
-|:CommandTFd|
-|:CommandTFd| [directory]
-                  Brings up the Command-T file window, starting in [directory]
-                  (if it is provided). If [directory] is not provided,
-                  Command-T will either start in the current working directory
-                  as returned by the |:pwd| command, or in an inferred
-                  directory as determined by the |commandt.setup.traverse|
-                  setting. Scans for files using `fd`.
+|:CommandTBuffer|                                               *:CommandTBuffer*
 
-                  See: https://github.com/sharkdp/fd
+                Brings up the Command-T buffer window. This works exactly like
+                the standard file window, except that the selection is limited
+                to files that you already have open in buffers.
 
-                                                                *:CommandTFind*
-|:CommandTFind|
-|:CommandTFind| [directory]
-                  Brings up the Command-T file window, starting in [directory]
-                  (if it is provided). If [directory] is not provided,
-                  Command-T will either start in the current working directory
-                  as returned by the |:pwd| command, or in an inferred
-                  directory as determined by the |commandt.setup.traverse|
-                  setting. Scans for files by executing the `find` executable.
+|:CommandTFd| [directory]                                            *:CommandTFd
 
-                  See: https://en.wikipedia.org/wiki/Find_(Unix)
+                Brings up the Command-T file window, starting in [directory]
+                (if it is provided). If [directory] is not provided, Command-T
+                will either start in the current working directory as returned
+                by the |:pwd| command, or in an inferred directory as
+                determined by the |commandt.setup.traverse| setting. Scans for
+                files using `fd`.
 
-                                                                 *:CommandTGit*
-|:CommandTGit|
-|:CommandTGit| [directory]
-                  Brings up the Command-T file window, starting in [directory]
-                  (if it is provided). If [directory] is not provided,
-                  Command-T will either start in the current working directory
-                  as returned by the |:pwd| command, or in an inferred
-                  directory as determined by the |commandt.setup.traverse|
-                  setting. Scans for files using `git`, so only works inside
-                  Git repositories.
+                See: https://github.com/sharkdp/fd
 
-                  See: https://git-scm.com/
+|:CommandTFind| [directory]                                       *:CommandTFind*
 
-                                                                *:CommandTHelp*
-|:CommandTHelp|     Brings up the Command-T help search window. This works
-                  exactly like the standard file window, except that it shows
-                  help topics found in any documentation under Vim's
-                  |'runtimepath'|.
+                Brings up the Command-T file window, starting in [directory]
+                (if it is provided). If [directory] is not provided, Command-T
+                will either start in the current working directory as returned
+                by the |:pwd| command, or in an inferred directory as
+                determined by the |commandt.setup.traverse| setting. Scans for
+                files by executing the `find` executable.
 
-                                                                *:CommandTLine*
-|:CommandTLine|     Brings up the Command-T line search window. This works
-                  exactly like the standard file window, except that it shows
-                  the lines in the current buffer.
+                See: https://en.wikipedia.org/wiki/Find_(Unix)
 
-                                                              *:CommandTRipgrep*
-|:CommandTRipgrep|
-|:CommandTRipgrep| [directory]
-                  Brings up the Command-T file window, starting in [directory]
-                  (if it is provided). If [directory] is not provided,
-                  Command-T will either start in the current working directory
-                  as returned by the |:pwd| command, or in an inferred
-                  directory as determined by the |commandt.setup.traverse|
-                  setting. Scans for files using `rg`.
+|:CommandTGit| [directory]                                         *:CommandTGit*
 
-                  See: https://github.com/BurntSushi/ripgrep
+                Brings up the Command-T file window, starting in [directory]
+                (if it is provided). If [directory] is not provided, Command-T
+                will either start in the current working directory as returned
+                by the |:pwd| command, or in an inferred directory as
+                determined by the |commandt.setup.traverse| setting. Scans for
+                files using `git`, so only works inside Git repositories.
 
-                                                            *:CommandTWatchman*
-|:CommandTWatchman|
-|:CommandTWatchman| [directory]
-                  Brings up the Command-T file window, starting in [directory]
-                  (if it is provided). If [directory] is not provided,
-                  Command-T will either start in the current working directory
-                  as returned by the |:pwd| command, or in an inferred
-                  directory as determined by the |commandt.setup.traverse|
-                  setting. Scans for files by connecting to the `watchman`
-                  daemon, which must be installed on your system.
+                See: https://git-scm.com/
 
-                  See: https://github.com/facebook/watchman
+|:CommandTHelp|                                                   *:CommandTHelp*
+
+                Brings up the Command-T help search window. This works exactly
+                like the standard file window, except that it shows help
+                topics found in any documentation under Vim's |'runtimepath'|.
+
+|:CommandTLine|                                                   *:CommandTLine*
+
+                Brings up the Command-T line search window. This works exactly
+                like the standard file window, except that it shows the lines
+                in the current buffer.
+
+|:CommandTRipgrep| [directory]                                 *:CommandTRipgrep*
+
+                Brings up the Command-T file window, starting in [directory]
+                (if it is provided). If [directory] is not provided, Command-T
+                will either start in the current working directory as returned
+                by the |:pwd| command, or in an inferred directory as
+                determined by the |commandt.setup.traverse| setting. Scans for
+                files using `rg`.
+
+                See: https://github.com/BurntSushi/ripgrep
+
+|:CommandTWatchman| [directory]                               *:CommandTWatchman*
+
+                Brings up the Command-T file window, starting in [directory]
+                (if it is provided). If [directory] is not provided, Command-T
+                will either start in the current working directory as returned
+                by the |:pwd| command, or in an inferred directory as
+                determined by the |commandt.setup.traverse| setting. Scans for
+                files by connecting to the `watchman` daemon, which must be
+                installed on your system.
+
+                See: https://github.com/facebook/watchman
 
 See also |command-t-ruby-commands| for commands that exist specifically within
 the Ruby-powered version of Command-T.
