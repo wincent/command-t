@@ -512,6 +512,7 @@ passed to |commandt.setup()|:
 - |commandt.setup.match_listing.icons|
 - |commandt.setup.match_listing.truncate|
 - |commandt.setup.never_show_dot_files|
+- |commandt.setup.position|
 - |commandt.setup.prompt.border|
 - |commandt.setup.root_markers|
 - |commandt.setup.scanners.max_files|
@@ -603,6 +604,14 @@ Note that when set to `'end'` (or `false`), no ellipsis is shown.
         truncate = 'beginning',
       },
     })
+
+                                                      *commandt.setup.position*
+                                                   string (default: 'center')
+
+When set to "center" (the default), renders the Command-T match listing
+centered within the main editor area. When set to "top", the match listing is
+rendered at the top. When set to "bottom", the match listing is rendered at
+the bottom, with the prompt underneath the results.
 
                                           *commandt.setup.never_show_dot_files*
                                                      boolean (default: false)
@@ -971,6 +980,9 @@ main (not yet released) ~
 - feat: |commandt.setup.match_listing.border| and |commandt.setup.prompt.border|
   now accept "winborder" as a possible value, instructing Command-T to use the
   value of the |'winborder'| setting to control the border appearance
+  (https://github.com/wincent/command-t/issues/436).
+- fix: make the default borders and prompt title render correctly when
+  |commandt.setup.position| is set to `'bottom'`
   (https://github.com/wincent/command-t/issues/436).
 
 6.1 (14 June 2025) ~
