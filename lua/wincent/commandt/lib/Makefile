@@ -53,6 +53,17 @@ LIBS = -lpthread
 HDRS = $(wildcard *.h)
 SRCS = $(wildcard *.c)
 
+MIMALLOC_BASE = vendor/github/microsoft/mimalloc
+MIMALLOC_INCLUDE = $(MIMALLOC_BASE)/include
+MIMALLOC_SRC = $(MIMALLOC_BASE)/src
+MIMALLOC_OVERRIDE = mimalloc-override.o
+
+ifdef USE_MIMALLOC
+	MIMALLOC_HDRS = $(wildcard $(MIMALLOC_INCLUDE)/*.h)
+	MIMALLOC_SRCS = $(wildcard $(MIMALLOC_SRC)/*.c)
+	MALLOC_OBJ = $(MIMALLOC_OVERRIDE)
+endif
+
 all: commandt.$(DLLEXT)
 
 # Rebuild whenever CCFLAGS change (eg. when DEBUG/PROFILE passed or not passed).
@@ -63,12 +74,17 @@ define DEPEND_ON
 	@if [[ `cat .make/$1 2>&1` != '$($1)' ]]; then echo $($1) > .make/$1; fi
 endef
 $(eval $(call DEPEND_ON,CCFLAGS))
+$(eval $(call DEPEND_ON,USE_MIMALLOC))
 
-commandt.$(DLLEXT): $(HDRS) $(SRCS) Makefile .make/CCFLAGS
-	$(CC) $(CCFLAGS) -shared -fPIC -o commandt.$(DLLEXT) $(SRCS)
+$(MIMALLOC_OVERRIDE): $(MIMALLOC_HDRS) $(MIMALLOC_SRCS) Makefile .make/CCFLAGS
+	$(CC) $(CCFLAGS) -I$(MIMALLOC_INCLUDE) -c -fPIC -o $(MIMALLOC_OVERRIDE) $(MIMALLOC_SRC)/static.c
+
+commandt.$(DLLEXT): $(HDRS) $(SRCS) $(MIMALLOC_OVERRIDE) Makefile .make/CCFLAGS .make/USE_MIMALLOC
+	$(CC) $(CCFLAGS) -shared -fPIC -o commandt.$(DLLEXT) $(MALLOC_OBJ) $(SRCS)
 
 .PHONY: clean
 clean:
 	rm -f *.$(DLLEXT)
+	rm -f *.o
 	rm -f .make/*
 	rm -rf *.so.dSYM
