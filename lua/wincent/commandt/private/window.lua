@@ -94,8 +94,6 @@ function Window.new(options)
     _resize_autocmd = nil,
     _selection_highlight = options.selection_highlight,
     _title = options.title,
-    _title_buffer = nil,
-    _title_window = nil,
     _top = options.top,
     _width = nil,
   }
@@ -107,10 +105,6 @@ function Window:close()
   if self._main_window then
     vim.api.nvim_win_close(self._main_window, true)
     self._main_window = nil
-  end
-  if self._title_window then
-    vim.api.nvim_win_close(self._title_window, true)
-    self._title_window = nil
   end
 end
 
@@ -207,13 +201,11 @@ function Window:set_title(title)
   self._title = title
   self._padded_title = title ~= '' and (' ' .. title .. ' ') or ''
   self:_reposition()
-  vim.api.nvim_buf_set_lines(
-    self._title_buffer,
-    0, -- start
-    -1, -- end
-    false, -- strict indexing
-    { self._padded_title }
-  )
+  if self._main_window then
+    vim.api.nvim_win_set_config(self._main_window, {
+      title = { { self._padded_title, 'FloatBorder' } },
+    })
+  end
 end
 
 function Window:show()
@@ -277,6 +269,7 @@ function Window:show()
         noautocmd = true,
         relative = 'editor',
         style = 'minimal',
+        title = { { self._padded_title, 'FloatBorder' } },
       }, position)
     )
     if self._main_window == 0 then
@@ -294,10 +287,6 @@ function Window:show()
         if self._main_buffer then
           vim.api.nvim_buf_delete(self._main_buffer, { force = true })
           self._main_buffer = nil
-        end
-        if self._title_window then
-          vim.api.nvim_win_close(self._title_window, true)
-          self._title_window = nil
         end
         if self._resize_autocmd ~= nil then
           vim.api.nvim_del_autocmd(self._resize_autocmd)
@@ -331,53 +320,6 @@ function Window:show()
       -1, -- end
       false, -- strict indexing = false
       {} -- replacement lines
-    )
-  end
-  if self._padded_title ~= '' then
-    if self._title_buffer == nil then
-      self._title_buffer = vim.api.nvim_create_buf(
-        false, -- listed = false
-        true -- scratch = true
-      )
-      if self._title_buffer == 0 then
-        error('Window:show(): nvim_create_buf() failed')
-      end
-      vim.api.nvim_buf_set_name(self._title_buffer, self:description() .. ' (title)')
-      vim.api.nvim_set_option_value('modifiable', true, { buf = self._title_buffer })
-      vim.api.nvim_set_option_value('filetype', 'CommandTTitle', { buf = self._title_buffer })
-    end
-    -- TODO: trim title if too wide
-    if self._title_window == nil then
-      self._title_window = vim.api.nvim_open_win(
-        self._title_buffer,
-        false, -- enter = false
-        merge(
-          {
-            focusable = false,
-            noautocmd = true,
-            relative = 'editor',
-            style = 'minimal',
-            zindex = 60, -- Default for floats is 50
-          },
-          position,
-          {
-            col = position.col + #self._prompt,
-            height = 1,
-            row = math.max(0, position.row),
-            width = #self._padded_title,
-          }
-        )
-      )
-      if self._title_window == 0 then
-        error('Window:show(): nvim_open_win() failed')
-      end
-    end
-    vim.api.nvim_buf_set_lines(
-      self._title_buffer,
-      0, -- start
-      -1, -- end
-      false, -- strict indexing
-      { self._padded_title }
     )
   end
 end
@@ -423,17 +365,6 @@ function Window:_reposition()
   if self._main_window ~= nil then
     vim.api.nvim_win_set_config(self._main_window, position)
     self._width = position.width
-  end
-  if self._title_window ~= nil then
-    vim.api.nvim_win_set_config(
-      self._title_window,
-      merge(position, {
-        col = position.col + #self._prompt,
-        height = 1,
-        row = math.max(0, position.row),
-        width = #self._padded_title,
-      })
-    )
   end
 end
 
