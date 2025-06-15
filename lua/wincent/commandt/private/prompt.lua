@@ -21,7 +21,7 @@ local mt = {
 
 function Prompt.new(options)
   options = merge({
-    border = 'single',
+    border = nil,
     mappings = {},
     margin = 0,
     height = 15,

@@ -19,7 +19,7 @@ local mt = {
 
 function MatchListing.new(options)
   options = merge({
-    border = { '', '', '', ' ', '', '', '', ' ' },
+    border = nil,
     height = 15,
     icons = true,
     margin = 0,

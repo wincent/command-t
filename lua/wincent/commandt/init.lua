@@ -214,6 +214,7 @@ local options_spec = {
               'shadow',
               'single',
               'solid',
+              'winborder',
               { kind = 'list', of = { kind = 'string' } },
             },
           },
@@ -255,6 +256,7 @@ local options_spec = {
               'shadow',
               'single',
               'solid',
+              'winborder',
               { kind = 'list', of = { kind = 'string' } },
             },
           },
@@ -586,7 +588,7 @@ local default_options = {
   },
   margin = 10,
   match_listing = {
-    border = { '', '', '', '│', '┘', '─', '└', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+    border = { '', '', '', '│', '┘', '─', '└', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', 'winborder', or a list of strings.
     icons = true,
     truncate = 'middle',
   },
@@ -594,7 +596,7 @@ local default_options = {
   order = 'forward', -- 'forward', 'reverse'.
   position = 'center', -- 'bottom', 'center', 'top'.
   prompt = {
-    border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a list of strings.
+    border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', 'winborder', or a list of strings.
   },
   open = smart_open,
   root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },

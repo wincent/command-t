@@ -462,8 +462,8 @@ notice at any time; for example:
       },
       margin = 10,
       match_listing = {
-        -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
-        -- list of strings.
+        -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid',
+        -- 'winborder', or a list of strings.
         border = { '', '', '', '│', '┘', '─', '└', '│' },
         icons = true,
         truncate = 'middle', -- 'beginning', 'end', true, false.
@@ -472,8 +472,8 @@ notice at any time; for example:
       order = 'forward', -- 'forward' or 'reverse'.
       position = 'center', -- 'bottom', 'center' or 'top'.
       prompt = {
-        -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', or a
-        -- list of strings.
+        -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid',
+        -- 'winborder', or a list of strings.
         border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' },
 
       },
@@ -508,9 +508,11 @@ passed to |commandt.setup()|:
 
 - |commandt.setup.always_show_dot_files|
 - |commandt.setup.ignore_case|
+- |commandt.setup.match_listing.border|
 - |commandt.setup.match_listing.icons|
 - |commandt.setup.match_listing.truncate|
 - |commandt.setup.never_show_dot_files|
+- |commandt.setup.prompt.border|
 - |commandt.setup.root_markers|
 - |commandt.setup.scanners.max_files|
 - |commandt.setup.smart_case|
@@ -548,6 +550,17 @@ Command-T to ignore case when searching. When unset (which is the default),
 the value of Neovim's |'ignorecase'| setting is used instead.
 
 See also |commandt.setup.smart_case|.
+
+                                          *commandt.setup.match_listing.border*
+            string or list (default: { '', '', '', '│', '┘', '─', '└', '│' })
+
+Controls the border of the match listing window. Valid string values are
+"double", "none", "rounded", "shadow", "single", or "solid". The special
+value, "winborder", can be used to indicate that the value of the
+|'winborder'| setting should be used instead.
+
+Alternatively, a list of characters can be used to completely control the
+appearance of the border.
 
                                            *commandt.setup.match_listing.icons*
                                           boolean or function (default: true)
@@ -616,6 +629,16 @@ Note that this setting has no effect in buffer listings (ie. those shown by
 
     require('wincent.commandt').setup({ never_show_dot_files = true })
 
+                                                 *commandt.setup.prompt.border*
+         string or list (default: { '┌', '─', '┐', '│', '┤', '─', '├', '│' })
+
+Controls the border of the prompt window. Valid string values are "double",
+"none", "rounded", "shadow", "single", or "solid". The special value,
+"winborder", can be used to indicate that the value of the |'winborder'|
+setting should be used instead.
+
+Alternatively, a list of characters can be used to completely control the
+appearance of the border.
                                                   *commandt.setup.root_markers*
                                            list of strings (default: various)
 
@@ -945,7 +968,10 @@ HISTORY                                                     *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- feat: |commandt.setup.match_listing.border| and |commandt.setup.prompt.border|
+  now accept "winborder" as a possible value, instructing Command-T to use the
+  value of the |'winborder'| setting to control the border appearance
+  (https://github.com/wincent/command-t/issues/436).
 
 6.1 (14 June 2025) ~
 

@@ -58,7 +58,7 @@ end
 
 function Window.new(options)
   options = merge({
-    border = 'single',
+    border = nil,
     bottom = nil,
     buftype = 'nofile', -- Also, 'prompt'.
     filetype = nil,

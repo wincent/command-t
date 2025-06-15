@@ -105,8 +105,9 @@ ui.show = function(finder, options)
   -- reset every time we show a new UI.
   vim.api.nvim_create_augroup('CommandTWindow', { clear = true })
 
+  local border = options.match_listing.border ~= 'winborder' and options.match_listing.border or nil
   match_listing = MatchListing.new({
-    border = options.match_listing.border,
+    border = border,
     height = options.height,
     icons = options.kind ~= 'virtual' and options.match_listing.icons or false,
     margin = options.margin,
@@ -118,8 +119,9 @@ ui.show = function(finder, options)
 
   results = nil
   selected = nil
+  border = options.prompt.border ~= 'winborder' and options.prompt.border or nil
   prompt = Prompt.new({
-    border = options.prompt.border,
+    border = border,
     height = options.height,
     mappings = options.mappings,
     margin = options.margin,
