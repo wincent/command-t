@@ -174,6 +174,7 @@ function MatchListing:show()
           self:update(self._results, { selected = self._selected })
         end
       end,
+      position = self._position,
       selection_highlight = self._selection_highlight,
       title = '',
       top = top,

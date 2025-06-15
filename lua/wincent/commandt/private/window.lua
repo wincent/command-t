@@ -48,6 +48,9 @@ local validate_options = function(options)
   if options.on_resize ~= nil and type(options.on_resize) ~= 'function' then
     error('Window.new(): `on_resize` must be a function')
   end
+  if options.position ~= 'bottom' and options.position ~= 'center' and options.position ~= 'top' then
+    error("Window.new(): `position` must be 'bottom', 'center', or 'top'")
+  end
   if options.selection_highlight ~= nil and type(options.selection_highlight) ~= 'string' then
     error('Window.new(): `selection_highlight` must be a string')
   end
@@ -68,6 +71,7 @@ function Window.new(options)
     on_close = nil,
     on_leave = nil,
     on_resize = nil,
+    position = 'top',
     prompt = '> ', -- Has no effect unless `buftype` is 'prompt'.
     selection_highlight = 'PmenuSel',
     title = 'Command-T', -- Set to '' to suppress.
@@ -90,6 +94,7 @@ function Window.new(options)
     _on_leave = options.on_leave,
     _on_resize = options.on_resize,
     _padded_title = options.title ~= '' and (' ' .. options.title .. ' ') or '',
+    _position = options.position,
     _prompt = options.prompt,
     _resize_autocmd = nil,
     _selection_highlight = options.selection_highlight,
@@ -203,7 +208,8 @@ function Window:set_title(title)
   self:_reposition()
   if self._main_window then
     vim.api.nvim_win_set_config(self._main_window, {
-      title = { { self._padded_title, 'FloatBorder' } },
+      title = self._position ~= 'bottom' and { { self._padded_title, 'FloatBorder' } } or nil,
+      footer = self._position == 'bottom' and { { self._padded_title, 'FloatBorder' } } or nil,
     })
   end
 end
@@ -269,7 +275,8 @@ function Window:show()
         noautocmd = true,
         relative = 'editor',
         style = 'minimal',
-        title = { { self._padded_title, 'FloatBorder' } },
+        title = self._position ~= 'bottom' and { { self._padded_title, 'FloatBorder' } } or nil,
+        footer = self._position == 'bottom' and { { self._padded_title, 'FloatBorder' } } or nil,
       }, position)
     )
     if self._main_window == 0 then

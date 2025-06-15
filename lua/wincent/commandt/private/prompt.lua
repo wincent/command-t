@@ -99,6 +99,7 @@ function Prompt:show()
         self._window = nil
       end,
       on_leave = self._on_leave,
+      position = self._position,
       title = self:title(),
       top = top,
     })

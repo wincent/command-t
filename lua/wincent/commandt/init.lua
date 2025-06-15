@@ -630,7 +630,7 @@ local default_options = {
   traverse = 'none', -- 'file', 'pwd' or 'none'.
 }
 
-local _options = copy(default_options)
+local _options = nil
 
 -- Have to add some of these explicitly otherwise the ones with `nil` defaults
 -- (eg. `threads`) won't come through.
@@ -639,7 +639,7 @@ local allowed_options = concat(keys(default_options), {
 })
 
 local get_directory = function()
-  local options = _options -- No need for deep copy provided by `commandt.options()`.
+  local options = commandt.options()
   if options.traverse == 'file' then
     local file = vim.fn.expand('%:p:h') -- If no current file, returns current dir.
     return require('wincent.commandt.private.find_root')(file, options.root_markers)
@@ -652,8 +652,16 @@ end
 
 commandt._directory = get_directory
 
-commandt.default_options = function()
-  return copy(default_options)
+commandt.default_options = function(options)
+  local result = copy(default_options)
+
+  -- Swap border definitions if `position = 'bottom'` is set.
+  if type(options) == 'table' and options.position == 'bottom' then
+    result.match_listing.border = default_options.prompt.border
+    result.prompt.border = default_options.match_listing.border
+  end
+
+  return result
 end
 
 commandt.file_finder = function(directory)
@@ -702,7 +710,7 @@ local sanitize_options = function(options, base)
   end
 
   local validate = require('wincent.commandt.private.validate')
-  errors = merge(errors, validate('', nil, options, options_spec, default_options))
+  errors = merge(errors, validate('', nil, options, options_spec, commandt.default_options(options)))
   return options, errors
 end
 
@@ -765,11 +773,11 @@ commandt.on_open = on_open
 commandt.open = smart_open
 
 commandt.options = function()
-  return copy(_options)
+  return copy(_options or commandt.default_options())
 end
 
 commandt.setup = function(options)
-  local sanitized_options, errors = sanitize_options(options, _options)
+  local sanitized_options, errors = sanitize_options(options, _options or commandt.default_options(options))
   _options = sanitized_options
 
   if vim.g.CommandTPreferredImplementation == 'ruby' then
