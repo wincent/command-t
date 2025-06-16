@@ -79,7 +79,8 @@ void str_append(str_t *str, const char *source, size_t length) {
             xrealloc((void *)str->contents, new_length + STR_OVERALLOC);
         str->capacity = new_length + STR_OVERALLOC;
     }
-    memcpy((void *)str->contents + str->length, source, length + NULL_PADDING);
+    memcpy((void *)str->contents + str->length, source, length);
+    ((char *)str->contents)[new_length] = '\0';
     str->length = new_length;
 }
 
