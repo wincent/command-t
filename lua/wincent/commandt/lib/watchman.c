@@ -341,7 +341,7 @@ void commandt_watchman_watch_project_free(watchman_watch_project_t *result) {
 
 void commandt_watchman_query_free(watchman_query_t *result) {
     xmunmap(result->files, result->files_size);
-    free(result->response);
+    watchman_response_free(result->response);
     free((void *)result->error);
     free(result);
 }
