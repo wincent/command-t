@@ -681,6 +681,7 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
     // Actually read the PDU.
     assert(payload_size > 0);
     if ((size_t)payload_size > r->capacity) {
+        r->capacity = payload_size;
         r->payload = xrealloc(r->payload, payload_size);
     }
 
@@ -691,7 +692,6 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
 
     r->ptr = r->payload + peek_size;
     r->end = r->payload + payload_size;
-    r->capacity = payload_size;
 
     return r;
 }
