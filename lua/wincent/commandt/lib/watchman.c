@@ -353,7 +353,11 @@ void commandt_watchman_query_free(watchman_query_t *result) {
  */
 static void watchman_append(watchman_request_t *w, const char *data, size_t length) {
     if (w->length + length > w->capacity) {
-        w->capacity += w->length + WATCHMAN_DEFAULT_STORAGE;
+        if (length <= WATCHMAN_DEFAULT_STORAGE) {
+            w->capacity += WATCHMAN_DEFAULT_STORAGE;
+        } else {
+            w->capacity += length + WATCHMAN_DEFAULT_STORAGE;
+        }
         w->payload = xrealloc(w->payload, w->capacity);
     }
     memcpy(w->payload + w->length, data, length);
