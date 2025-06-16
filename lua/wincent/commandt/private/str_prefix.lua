@@ -3,10 +3,14 @@
 
 local sub = require('wincent.commandt.private.sub')
 
--- Attempts to return a prefix of `str` of size `length`, as measured in screen
--- cells. If `str` if overlength, and the final character that must be trimmed
--- to bring it down to the desired length is a double-cell one, the actual
--- returned link may be off (specifically, underlength) by 1 screen cell.
+--- Attempts to return a prefix of `str` of size `length`, as measured in screen
+--- cells. If `str` if overlength, and the final character that must be trimmed
+--- to bring it down to the desired length is a double-cell one, the actual
+--- returned link may be off (specifically, underlength) by 1 screen cell.
+---
+--- @param str string
+--- @param length integer
+--- @return string
 local function str_prefix(str, length)
   if length < 1 then
     return ''

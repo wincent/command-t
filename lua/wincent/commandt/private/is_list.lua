@@ -1,7 +1,11 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local is_list = function(value)
+--- Returns `true` if `value` is a list-like table.
+---
+--- @param value any
+--- @return boolean
+local function is_list(value)
   if type(value) ~= 'table' then
     return false
   elseif #value > 0 then

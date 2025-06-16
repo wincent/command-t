@@ -3,7 +3,11 @@
 
 local is_list = require('wincent.commandt.private.is_list')
 
-local is_table = function(value)
+--- Returns `true` if `value` is a dictionary-like table (not a list).
+---
+--- @param value any
+--- @return boolean
+local function is_table(value)
   return type(value) == 'table' and (#value == 0 or not is_list(value))
 end
 

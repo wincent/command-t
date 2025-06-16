@@ -1,14 +1,15 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local buffer_visible = nil
-
--- `vim.fn.bufwinnr()` doesn't see windows in other tabs, meaning we open them
--- again instead of switching to the other tab; but `vim.fn.bufname()` sees
--- hidden buffers, and if we try to open one of those, we get an unwanted split.
--- So, this function does some additional work to check whether `buffer` is
--- _really_ visible.
-buffer_visible = function(buffer)
+--- `vim.fn.bufwinnr()` doesn't see windows in other tabs, meaning we open them
+--- again instead of switching to the other tab; but `vim.fn.bufname()` sees
+--- hidden buffers, and if we try to open one of those, we get an unwanted
+--- split. So, this function does some additional work to check whether `buffer`
+--- is _really_ visible.
+---
+--- @param buffer string|number
+--- @return boolean
+local function buffer_visible(buffer)
   -- TODO: port this to use lower-level nvim APIs, if there are any that could
   -- be used here...
   if vim.fn.bufwinnr('^' .. buffer .. '$') ~= -1 then
