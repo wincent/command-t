@@ -151,6 +151,11 @@ watchman_query_t *commandt_watchman_query(
     }
     watchman_response_t *r = watchman_send(w, socket);
     watchman_request_free(w);
+    if (!r) {
+        watchman_query_t *result = xcalloc(1, sizeof(watchman_query_t));
+        result->error = "commandt_watchman_query(): watchman_send() failed";
+        return result;
+    }
 
     // Process the response:
     //
@@ -241,6 +246,11 @@ watchman_watch_project_t *commandt_watchman_watch_project(
     watchman_write_string(w, root, strlen(root));
     watchman_response_t *r = watchman_send(w, socket);
     watchman_request_free(w);
+    if (!r) {
+        watchman_watch_project_t *result = xcalloc(1, sizeof(watchman_watch_project_t));
+        result->error = "commandt_watchman_watch_project(): watchman_send() failed";
+        return result;
+    }
 
     // Process the response:
     //
@@ -650,7 +660,7 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
     ssize_t length = w->length;
     ssize_t sent = send(socket, w->payload, w->length, 0);
     if (sent == -1 || sent != length) {
-        return NULL; // TODO: don't leak response for these early returns
+        goto error;
     }
 
     // Sniff to see how large the header is.
@@ -658,13 +668,13 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
         socket, r->payload, WATCHMAN_SNIFF_BUFFER_SIZE, MSG_PEEK | MSG_WAITALL
     );
     if (received == -1 || received != WATCHMAN_SNIFF_BUFFER_SIZE) {
-        return NULL;
+        goto error;
     }
 
     // Peek at size of PDU.
     int8_t sizes_idx = r->ptr[sizeof(WATCHMAN_BINARY_MARKER) - 1];
     if (sizes_idx < WATCHMAN_INT8_MARKER || sizes_idx > WATCHMAN_INT64_MARKER) {
-        return NULL;
+        goto error;
     }
     int8_t sizes[] = {0, 0, 0, 1, 2, 4, 8};
     ssize_t peek_size =
@@ -672,14 +682,14 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
 
     received = recv(socket, r->payload, peek_size, MSG_PEEK);
     if (received == -1 || received != peek_size) {
-        return NULL;
+        goto error;
     }
     r->ptr = r->ptr + sizeof(WATCHMAN_BINARY_MARKER) - sizeof(int8_t);
     r->end = r->ptr + peek_size;
     const char *error = NULL;
     int64_t payload_size = peek_size + watchman_read_int(r, &error);
     if (error) {
-        return NULL;
+        goto error;
     }
 
     // Actually read the PDU.
@@ -691,13 +701,17 @@ static watchman_response_t *watchman_send(watchman_request_t *w, int socket) {
 
     received = recv(socket, r->payload, payload_size, MSG_WAITALL);
     if (received == -1 || received != payload_size) {
-        return NULL;
+        goto error;
     }
 
     r->ptr = r->payload + peek_size;
     r->end = r->payload + payload_size;
 
     return r;
+
+error:
+    watchman_response_free(r);
+    return NULL;
 }
 
 static void watchman_skip_value(watchman_response_t *r, const char **error) {
