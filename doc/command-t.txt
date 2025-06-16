@@ -125,7 +125,7 @@ Since then, a number of things have occurred: competitive pressure from Neovim
 has lead to a proliferation of features in both editors, including floating
 windows which make building plug-in UIs like the one needed by Command-T
 much easier than before. While Vim has doubled down on its bespoke scripting
-language in the form of "Vim9 script", Neovim has leveraged Lua, which is
+language in the form of |Vim9script|, Neovim has leveraged Lua, which is
 broadly used across a range of technology ecosystems and offers excellent
 performance. Many core editor APIs are now easily accessible from Lua, and for
 those that aren't, running pieces of Vimscript from Lua is possible, albeit
@@ -141,7 +141,7 @@ means that the performance critical parts of the code are even faster than
 before, up to twice as fast according to the benchmarks. In addition, by
 targeting newer APIs and writing the UI code in Lua, that portion of the core
 is also significantly more responsive and robust. Various UI quirks have been
-eliminated in this way, including the aforementioned inability to paste
+eliminated in this way, including the aforementioned problems with pasting
 queries (Command-T uses a real buffer for input now, which means that all
 standard Vim editing commands can be used inside the prompt area).
 
