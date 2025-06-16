@@ -25,10 +25,10 @@ ifdef DEBUG
 	CCFLAGS += -DDEBUG -g -O0
 else
 	ifdef PROFILE
-		CCFLAGS += -DNDEBUG -g -Ofast
+		CCFLAGS += -DNDEBUG -g -O3 -ffast-math
 	else
 		# As per `man 3 assert`, defining `NDEBUG` elides all `assert()` macros.
-		CCFLAGS += -DNDEBUG -Ofast
+		CCFLAGS += -DNDEBUG -O3 -ffast-math
 	endif
 endif
 
