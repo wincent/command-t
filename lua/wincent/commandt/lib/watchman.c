@@ -367,7 +367,7 @@ static void watchman_append(watchman_request_t *w, const char *data, size_t leng
  */
 static void watchman_append_char(watchman_request_t *w, char c) {
     if (w->length + 1 > w->capacity) {
-        w->capacity += w->length + WATCHMAN_DEFAULT_STORAGE;
+        w->capacity += WATCHMAN_DEFAULT_STORAGE;
         w->payload = xrealloc(w->payload, w->capacity);
     }
     w->payload[w->length++] = c;
