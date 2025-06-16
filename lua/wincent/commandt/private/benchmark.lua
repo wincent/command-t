@@ -43,20 +43,6 @@ local center = function(text)
   }
 end
 
-local left = function(text)
-  return {
-    align = 'left',
-    text = text,
-  }
-end
-
-local right = function(text)
-  return {
-    align = 'left',
-    text = text,
-  }
-end
-
 local float = function(number)
   return string.format('%.5f', number)
 end
