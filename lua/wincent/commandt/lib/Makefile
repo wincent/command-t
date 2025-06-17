@@ -56,10 +56,16 @@ SRCS = $(wildcard *.c)
 all: commandt.$(DLLEXT)
 
 # Rebuild whenever CCFLAGS change (eg. when DEBUG/PROFILE passed or not passed).
-# See: https://stackoverflow.com/a/26147844/2103996
+# See: https://stackoverflow.com/a/74378629/2103996
+.PHONY: .FORCE
 define DEPEND_ON
 .make/$1:
-	@if [[ `cat .make/$1 2>&1` != '$($1)' ]]; then echo $($1) > .make/$1; fi
+	@if [[ `cat .make/$1 2>&1` != "$($1)" ]]; then \
+		printf '%s' "$($1)" > .make/$1; \
+	fi
+ifneq ("$(file <.make/$1)","$($1)")
+.make/$1: .FORCE
+endif
 endef
 $(eval $(call DEPEND_ON,CCFLAGS))
 
