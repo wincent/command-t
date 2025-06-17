@@ -57,9 +57,8 @@ all: commandt.$(DLLEXT)
 
 # Rebuild whenever CCFLAGS change (eg. when DEBUG/PROFILE passed or not passed).
 # See: https://stackoverflow.com/a/26147844/2103996
-.PHONY: variable
 define DEPEND_ON
-.make/$1: variable
+.make/$1:
 	@if [[ `cat .make/$1 2>&1` != '$($1)' ]]; then echo $($1) > .make/$1; fi
 endef
 $(eval $(call DEPEND_ON,CCFLAGS))
