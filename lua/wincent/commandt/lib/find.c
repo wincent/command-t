@@ -96,7 +96,11 @@ scanner_t *commandt_file_scanner(const char *directory, unsigned max_files) {
     scanner_t *scanner = scanner_new(
         result->count, result->files, result->files_size, result->buffer, result->buffer_size
     );
+
+    // The scanner has taken ownership of `result->files` and `result->buffer`,
+    // but we still have to free the rest.
     free((void *)result->error);
     free(result);
+
     return scanner;
 }
