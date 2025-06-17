@@ -43,7 +43,6 @@ typedef struct {
 } find_result_t;
 
 find_result_t *commandt_find(const char *directory, unsigned max_files);
-void commandt_find_result_free(find_result_t *result);
 
 /**
  * Wrapper that calls `commandt_find()` with `directory` to obtain a `find_result_t`.

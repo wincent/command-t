@@ -87,13 +87,6 @@ find_result_t *commandt_find(const char *directory, unsigned max_files) {
     return result;
 }
 
-void commandt_find_result_free(find_result_t *result) {
-    xmunmap(result->files, result->files_size);
-    xmunmap(result->buffer, result->buffer_size);
-    free((void *)result->error);
-    free(result);
-}
-
 scanner_t *commandt_file_scanner(const char *directory, unsigned max_files) {
     find_result_t *result = commandt_find(directory, max_files);
     // BUG: if there is an error here, we effectively swallow it...
