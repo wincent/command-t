@@ -12,7 +12,6 @@
 // Define short names for convenience, but all external symbols need prefixes.
 #define scanner_new_copy commandt_scanner_new_copy
 #define scanner_new_command commandt_scanner_new_command
-#define scanner_new_str commandt_scanner_new_str
 #define scanner_new_external commandt_scanner_new_external
 #define scanner_new commandt_scanner_new
 #define scanner_dump commandt_scanner_dump
@@ -38,21 +37,11 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count);
 scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_files);
 
 /**
- * Create a new `scanner_t` struct initialized with `candidates`.
- *
- * Copies of the candidates are _not_ made, as they are assumed to belong to an
- * `mmap()`-ed slab allocation and initialized with `str_init()`.
- *
- * Takes ownership of the passed in candidates.
- */
-scanner_t *scanner_new_str(str_t *candidates, unsigned count);
-
-/**
  * Create a new `scanner_t` struct initialized with `candidates` provided by
  * the caller.
  *
- * Like `scanner_new_str`, but doesn't take ownership of the memory (the caller
- * is responsible for keeping the `candidates` memory alive and freeing it).
+ * Does not take ownership of the memory (the caller is responsible for keeping
+ * the `candidates` memory alive and freeing it).
  */
 scanner_t *scanner_new_external(str_t *candidates, unsigned count);
 
