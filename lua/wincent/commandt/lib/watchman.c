@@ -247,8 +247,10 @@ watchman_watch_project_t *commandt_watchman_watch_project(
     watchman_response_t *r = watchman_send(w, socket);
     watchman_request_free(w);
     if (!r) {
-        watchman_watch_project_t *result = xcalloc(1, sizeof(watchman_watch_project_t));
-        result->error = "commandt_watchman_watch_project(): watchman_send() failed";
+        watchman_watch_project_t *result =
+            xcalloc(1, sizeof(watchman_watch_project_t));
+        result->error =
+            "commandt_watchman_watch_project(): watchman_send() failed";
         return result;
     }
 

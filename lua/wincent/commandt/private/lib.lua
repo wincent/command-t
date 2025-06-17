@@ -254,7 +254,6 @@ lib.scanner_new_external = function(candidates, count)
   return scanner
 end
 
-
 lib.watchman_connect = function(name)
   -- TODO: validate name is a string/path
   local socket = c.commandt_watchman_connect(name)
