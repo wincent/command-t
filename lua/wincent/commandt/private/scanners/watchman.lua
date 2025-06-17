@@ -81,9 +81,8 @@ local watch_project = function(root)
   return lib.watchman_watch_project(root, get_socket())
 end
 
--- BUG: We leak this forever, but I want its lifetime to be bonded to that of
--- the scanner object
-local result = nil
+-- Weak table to store query results keyed by scanner to prevent GC.
+local scanner_results = setmetatable({}, { __mode = 'k' })
 
 watchman.scanner = function(directory)
   local lib = require('wincent.commandt.private.lib')
@@ -94,15 +93,16 @@ watchman.scanner = function(directory)
     -- instead; for now, explode loudly.
   end
 
-  -- Result needs to persist until scanner is garbage collected.
-  -- TODO: figure out the right way to do that...
-  result = query(project.watch, project.relative_path)
+  local result = query(project.watch, project.relative_path)
   if result.error ~= nil then
     -- TODO: in the future (once Watchman is more solid), degrade gracefully
     -- instead; for now, explode loudly.
     error(result.error)
   end
-  local scanner = lib.scanner_new_str(result.raw.files, result.raw.count)
+  local scanner = lib.scanner_new_external(result.raw.files, result.raw.count)
+
+  -- Protect results from GC as long as `scanner` exists.
+  scanner_results[scanner] = result
   return scanner
 end
 

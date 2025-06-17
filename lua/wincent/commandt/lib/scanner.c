@@ -180,6 +180,14 @@ scanner_t *scanner_new_str(str_t *candidates, unsigned count) {
     return scanner;
 }
 
+scanner_t *scanner_new_external(str_t *candidates, unsigned count) {
+    scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
+    scanner->candidates = candidates;
+    scanner->candidates_size = 0; // Hint to not `munmap()` this memory.
+    scanner->count = count;
+    return scanner;
+}
+
 scanner_t *scanner_new(
     unsigned count,
     str_t *candidates,
@@ -223,15 +231,17 @@ str_t *scanner_dump(scanner_t *scanner) {
 }
 
 void scanner_free(scanner_t *scanner) {
-    for (unsigned i = 0; i < scanner->count; i++) {
-        str_t str = scanner->candidates[i];
-        if (str.capacity >= 0) {
-            free((void *)str.contents);
+    if (scanner->candidates_size > 0) {
+        for (unsigned i = 0; i < scanner->count; i++) {
+            str_t str = scanner->candidates[i];
+            if (str.capacity >= 0) {
+                free((void *)str.contents);
+            }
         }
-    }
 
-    if (scanner->candidates) {
-        xmunmap(scanner->candidates, scanner->candidates_size);
+        if (scanner->candidates) {
+            xmunmap(scanner->candidates, scanner->candidates_size);
+        }
     }
 
     if (scanner->buffer) {
