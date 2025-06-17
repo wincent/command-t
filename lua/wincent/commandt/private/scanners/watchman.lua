@@ -99,7 +99,7 @@ watchman.scanner = function(directory)
     -- instead; for now, explode loudly.
     error(result.error)
   end
-  local scanner = lib.scanner_new_external(result.raw.files, result.raw.count)
+  local scanner = lib.scanner_new_str(result.raw.files, result.raw.count)
 
   -- Protect results from GC as long as `scanner` exists.
   scanner_results[scanner] = result

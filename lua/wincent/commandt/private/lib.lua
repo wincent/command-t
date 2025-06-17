@@ -109,7 +109,7 @@ setmetatable(c, {
       scanner_t *commandt_file_scanner(const char *directory, unsigned max_files);
       scanner_t *commandt_scanner_new_command(const char *command, unsigned drop, unsigned max_files);
       scanner_t *commandt_scanner_new_copy(const char **candidates, unsigned count);
-      scanner_t *commandt_scanner_new_external(str_t *candidates, unsigned count);
+      scanner_t *commandt_scanner_new_str(str_t *candidates, unsigned count);
       void commandt_scanner_free(scanner_t *scanner);
       void commandt_print_scanner(scanner_t *scanner);
 
@@ -241,8 +241,8 @@ lib.scanner_new_copy = function(candidates)
   return scanner
 end
 
-lib.scanner_new_external = function(candidates, count)
-  local scanner = c.commandt_scanner_new_external(candidates, count)
+lib.scanner_new_str = function(candidates, count)
+  local scanner = c.commandt_scanner_new_str(candidates, count)
   ffi.gc(scanner, c.commandt_scanner_free)
   return scanner
 end

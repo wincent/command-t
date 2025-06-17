@@ -12,7 +12,7 @@
 // Define short names for convenience, but all external symbols need prefixes.
 #define scanner_new_copy commandt_scanner_new_copy
 #define scanner_new_command commandt_scanner_new_command
-#define scanner_new_external commandt_scanner_new_external
+#define scanner_new_str commandt_scanner_new_str
 #define scanner_new commandt_scanner_new
 #define scanner_dump commandt_scanner_dump
 #define scanner_free commandt_scanner_free
@@ -43,14 +43,14 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
  * Does not take ownership of the memory (the caller is responsible for keeping
  * the `candidates` memory alive and freeing it).
  */
-scanner_t *scanner_new_external(str_t *candidates, unsigned count);
+scanner_t *scanner_new_str(str_t *candidates, unsigned count);
 
 /**
  * Create a `scanner_t` struct initialized with the provide values.
  *
- * This is a low-level sibling of `scanner_new_str`; just like that function,
- * this one does not make copies of the provided values but does take
- * "ownership" of them.
+ * This is a low-level counterpart to `scanner_new_str`; like that function,
+ * this one does not make copies of the provided values but note that _unlike_
+ * `scanner_new_str`, it _does_ take "ownership" of them.
  */
 scanner_t *scanner_new(
     unsigned count,
