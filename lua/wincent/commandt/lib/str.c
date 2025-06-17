@@ -17,7 +17,7 @@
 #define STR_OVERALLOC 256
 
 // Special `capacity` value to flag a `str_t` as having been "slab" allocated.
-#define SLAB_ALLOCATION -1
+#define SLAB_ALLOCATION (-1)
 
 #define NULL_PADDING 1
 

@@ -34,7 +34,7 @@ typedef struct {
      *
      * Book-keeping detail, needed for call to `munmap()`.
      */
-    size_t candidates_size;
+    ssize_t candidates_size;
 
     /**
      * @internal
@@ -48,7 +48,7 @@ typedef struct {
      *
      * Book-keeping detail, needed for call to `munmap()`.
      */
-    size_t buffer_size;
+    ssize_t buffer_size;
 
     /**
      * @internal

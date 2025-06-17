@@ -22,6 +22,11 @@
 
 // TODO: make this capable of producing asynchronously?
 
+// Special `candidates_size`/`buffer_size` value to indicate that this scanner
+// does not own its storage, but rather that the caller will be responsible for
+// managing its lifecycle.
+#define UNOWNED (-1)
+
 static long MAX_FILES = MAX_FILES_CONF;
 static size_t buffer_size = MMAP_SLAB_SIZE_CONF;
 
@@ -175,7 +180,11 @@ out:
 scanner_t *scanner_new_str(str_t *candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates = candidates;
-    scanner->candidates_size = 0; // Hint to not `munmap()` this memory.
+
+    // Hint to not `munmap()` memory in `scanner_free();
+    scanner->candidates_size = UNOWNED;
+    scanner->buffer_size = UNOWNED;
+
     scanner->count = count;
     return scanner;
 }
@@ -223,7 +232,7 @@ str_t *scanner_dump(scanner_t *scanner) {
 }
 
 void scanner_free(scanner_t *scanner) {
-    if (scanner->candidates_size > 0) {
+    if (scanner->candidates && scanner->candidates_size != UNOWNED) {
         for (unsigned i = 0; i < scanner->count; i++) {
             str_t str = scanner->candidates[i];
             if (str.capacity >= 0) {
@@ -231,12 +240,10 @@ void scanner_free(scanner_t *scanner) {
             }
         }
 
-        if (scanner->candidates) {
-            xmunmap(scanner->candidates, scanner->candidates_size);
-        }
+        xmunmap(scanner->candidates, scanner->candidates_size);
     }
 
-    if (scanner->buffer) {
+    if (scanner->buffer && scanner->buffer_size != UNOWNED) {
         xmunmap(scanner->buffer, scanner->buffer_size);
     }
 
