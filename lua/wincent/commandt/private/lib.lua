@@ -19,7 +19,7 @@ setmetatable(c, {
       typedef struct {
           const char *contents;
           size_t length;
-          size_t capacity;
+          ssize_t capacity;
       } str_t;
 
       typedef struct {
