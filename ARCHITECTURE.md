@@ -48,9 +48,9 @@ This is the most common form of scanning in Command-T, used by anything that wra
         - Once traversal is finished, `commandt_file_scanner()` passes the two slabs into `scanner_new()`, which takes ownership of them rather than copying them.
         - `commandt_file_scanner()` then frees (with `free()`) the left-over book-keeping data structures used by `commandt_find()`, taking care to ensure that it does _not_ free the slabs.
       - `lib.file_scanner()` uses `ffi.gc()` to mark the returned `scanner` such that when it is garbage-collected, the `commandt_scanner_free()` function will be called:
-        - `commandt_scanner_free()` calls `free()` on the string `contents` of all the candidate strings (seeing as they were created by copying).
         - `commandt_scanner_free()` will free its `candidates` slab (containing `str_t` objects) (with `xmunmap()`).
         - It will also free (with `xmunmap()`) its `buffer` (string storage) and the `scanner_t` struct itself.
+        - Note that it also contains a `for` loop that _would_ call `free` on all of the `str_t` records in `candidates`, but the `for` loop is a no-op because all of those strings are slab-allocated and there is an `if` that checks this condition. (It does this `if` check rather than calling `str_free()` in order to save an unnecessary function call; `str_free()` on a slab-allocated `str_t` is a no-op.)
   - `finders.file()` passes the `scanner` into `lib.matcher_new()`, and returns a `finder` object that exposes a `run()` function (calling `lib.matcher_run()`); the `finder` object has a reference to the `scanner`, which keeps it alive until the `finder` itself falls out of scope.
 - The returned `finder` is passed into `ui.show()`, which stores a reference in the module-local `current_finder` variable, keeping the `finder` alive until the next time `ui.show()` is called and a different `finder` is passed in.
 
