@@ -11,11 +11,9 @@
 #include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
-#include <sys/errno.h> /* for errno */
 #include <sys/wait.h> /* for wait() */
 #include <unistd.h> /* _exit(), close(), fork(), pipe(), read() */
 
-#include "debug.h"
 #include "str.h"
 #include "xmalloc.h"
 #include "xmap.h" /* for xmap(), xmunmap() */
@@ -34,7 +32,6 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = count * sizeof(str_t);
     if (count) {
-        DEBUG_LOG("scanner_new_copy() -> xmap() %llu\n", scanner->candidates_size);
         scanner->candidates = xmap(scanner->candidates_size);
         for (unsigned i = 0; i < count; i++) {
             size_t length = strlen(candidates[i]);
@@ -48,74 +45,50 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
 scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_files) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
-    DEBUG_LOG(
-        "scanner_new_command() -> xmap() candidates %llu\n", scanner->candidates_size
-    );
     scanner->candidates = xmap(scanner->candidates_size);
     scanner->buffer_size = buffer_size;
-    DEBUG_LOG(
-        "scanner_new_command() -> xmap() buffer %llu\n", scanner->buffer_size
-    );
     scanner->buffer = xmap(scanner->buffer_size);
 
     // Index 0 = read end of pipe; index 1 = write end of pipe.
     int stdout_pipe[2];
 
     if (pipe(stdout_pipe) != 0) {
-        DEBUG_LOG("scanner_new_command(): failed pipe() - %s\n", strerror(errno));
         goto out;
     }
 
     pid_t child_pid = fork();
     if (child_pid == -1) {
-        DEBUG_LOG("scanner_new_command(): failed fork() - %s\n", strerror(errno));
         goto out;
     } else if (child_pid == 0) {
         // In child.
-        DEBUG_LOG("scanner_new_command(): forked child\n");
         if (close(stdout_pipe[0]) != 0) {
-            DEBUG_LOG(
-                "scanner_new_command(): failed close() - %s\n", strerror(errno)
-            );
+            goto bail_child;
         }
         if (dup2(stdout_pipe[1], 1) == -1) {
-            DEBUG_LOG(
-                "scanner_new_command(): failed dup2() - %s\n", strerror(errno)
-            );
+            goto bail_child;
         }
         if (close(stdout_pipe[1]) != 0) {
-            DEBUG_LOG(
-                "scanner_new_command(): failed close() - %s\n", strerror(errno)
-            );
+            goto bail_child;
         }
 
         // Fork a shell to mimic behavior of `popen()`.
         execl("/bin/sh", "sh", "-c", command, NULL);
-        DEBUG_LOG("scanner_new_command(): failed execl() - %s\n", strerror(errno));
+
+bail_child:
         _exit(1);
     }
 
     // In parent.
-    DEBUG_LOG(
-        "scanner_new_command(): parent forked child with PID %d\n", child_pid
-    );
     int status = close(stdout_pipe[1]);
     if (status != 0) {
-        DEBUG_LOG(
-            "commandt_scanner_new_command(): failed close() - %s\n",
-            strerror(errno)
-        );
+        goto bail_parent;
     }
     char *start = scanner->buffer;
     char *end = scanner->buffer;
     ssize_t read_count;
     while ((read_count = read(stdout_pipe[0], end, 4096)) != 0) {
-        DEBUG_LOG("scanner_new_command(): read %d bytes\n", read_count);
         if (read_count < 0) {
             // A read error, but we may as well try and proceed gracefully.
-            DEBUG_LOG(
-                "scanner_new_command(): failed read() - %s\n", strerror(errno)
-            );
             break;
         }
         end += read_count;
@@ -131,49 +104,24 @@ scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_
             char *path = start + drop;
             int length = next_end - start - drop;
             if (length < 0) {
-                DEBUG_LOG(
-                    "commandt_scanner_new_command(): not enough output to skip %u characters\n",
-                    drop
-                );
-                goto bail;
+                goto bail_parent;
             }
             start = next_end + 1;
             str_init(&scanner->candidates[scanner->count++], path, length);
-            DEBUG_LOG(
-                "commandt_scanner_new_command(): scanned %s\n",
-                str_c_string(&scanner->candidates[scanner->count - 1])
-            );
 
             if (max_files && scanner->count >= max_files) {
-                DEBUG_LOG(
-                    "commandt_scanner_new_command(): killing process %d because count %d\n",
-                    child_pid,
-                    scanner->count
-                );
-                if (kill(child_pid, SIGKILL)) {
-                    DEBUG_LOG(
-                        "commandt_scanner_new_command(): failed kill() - %s\n",
-                        strerror(errno)
-                    );
-                }
-                goto bail;
+                kill(child_pid, SIGKILL);
+                goto bail_parent;
             }
         }
     }
 
-bail:
-    DEBUG_LOG("commandt_scanner_new_command(): waiting %d\n", child_pid);
+bail_parent:
     if (wait(&child_pid) == -1) {
-        DEBUG_LOG(
-            "commandt_scanner_new_command(): failed wait() - %s\n", strerror(errno)
-        );
+        // Swallow the error.
     }
 
 out:
-    DEBUG_LOG(
-        "commandt_scanner_new_command(): returning scanner with count %d\n",
-        scanner->count
-    );
     return scanner;
 }
 
