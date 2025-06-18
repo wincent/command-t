@@ -50,7 +50,7 @@ scanner_t *scanner_new_str(str_t *candidates, unsigned count);
  *
  * This is a low-level counterpart to `scanner_new_str`; like that function,
  * this one does not make copies of the provided values but note that _unlike_
- * `scanner_new_str`, it _does_ take "ownership" of them.
+ * `scanner_new_str`, it _does_ take ownership of them.
  */
 scanner_t *scanner_new(
     unsigned count,
