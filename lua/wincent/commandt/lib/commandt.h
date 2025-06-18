@@ -49,13 +49,6 @@ typedef struct {
      * Book-keeping detail, needed for call to `munmap()`.
      */
     ssize_t buffer_size;
-
-    /**
-     * @internal
-     *
-     * Counter that increments any time the candidates change.
-     */
-    unsigned clock; // TODO: figure out whether I need this
 } scanner_t;
 
 // TODO flesh this out; basically make it a container for instance variables

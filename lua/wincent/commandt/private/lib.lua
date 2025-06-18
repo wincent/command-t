@@ -34,7 +34,6 @@ setmetatable(c, {
           ssize_t candidates_size;
           char *buffer;
           ssize_t buffer_size;
-          unsigned clock;
       } scanner_t;
 
       typedef struct {
