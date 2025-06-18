@@ -19,7 +19,16 @@ Ideally this would all be self-documenting and fool-proof, but for now it relies
 
 ## Four patterns for memory ownership
 
-So, at the risk of producing documentation that is very prone to becoming out-of-date as things get refactored, these are the four patterns of memory ownership as manifested in the four different varieties of scanner.
+So, at the risk of producing documentation that is very prone to becoming out-of-date as things get refactored, these are the four patterns of memory ownership as manifested in the four different varieties of scanner. In summary:
+
+| Scanner pattern         | Has `candidates`? | `candidates` owner           | Has `buffer`? | `buffer` owner                   | `str_t` are slab-allocated? |
+| ----------------------- | ----------------- | ---------------------------- | ------------- | -------------------------------- | --------------------------- |
+| `scanner_new_command()` | Yes               | `scanner_t` (created)        | Yes           | `scanner_t` (created)            | Yes                         |
+| `scanner_new()`         | Yes               | `scanner_t` (assigned)       | Yes           | `scanner_t` (assigned)           | Yes                         |
+| `scanner_new_copy()`    | Yes               | `scanner_t` (created)        | No            | n/a                              | No                          |
+| `scanner_new_str()`     | Yes               | `watchman_query_t` (`files`) | Yes           | `wathcman_reponse_t` (`payload`) | Yes                         |
+
+Details follow.
 
 ### `scanner_new_command()`
 
@@ -35,6 +44,8 @@ This is the most common form of scanning in Command-T, used by anything that wra
       - Note that it also contains a `for` loop that _would_ call `free` on all of the `str_t` records in `candidates`, but the `for` loop is a no-op because all of those strings are slab-allocated and there is an `if` that checks this condition. (It does this `if` check rather than calling `str_free()` in order to save an unnecessary function call; `str_free()` on a slab-allocated `str_t` is a no-op.)
   - `finders.command()` passes the `scanner` into `lib.matcher_new()`, and returns a `finder` object that exposes a `run()` function (calling `lib.matcher_run()`); the `finder` object has a reference to the `scanner`, which keeps it alive until the `finder` itself falls out of scope.
 - The returned `finder` is passed into `ui.show()`, which stores a reference in the module-local `current_finder` variable, keeping the `finder` alive until the next time `ui.show()` is called and a different `finder` is passed in.
+
+The overall ownership chain, then, is: the `finder` owns the `scanner`, the `scanner` owns its `candidates` slab and `buffer` slab, and the `str_t` structs in the `candidates` slab do not own their individual `contents` because those are all slab-allocated.
 
 ### `scanner_new()` as used by the built-in `:CommandT` finder
 
@@ -54,6 +65,8 @@ This is the most common form of scanning in Command-T, used by anything that wra
   - `finders.file()` passes the `scanner` into `lib.matcher_new()`, and returns a `finder` object that exposes a `run()` function (calling `lib.matcher_run()`); the `finder` object has a reference to the `scanner`, which keeps it alive until the `finder` itself falls out of scope.
 - The returned `finder` is passed into `ui.show()`, which stores a reference in the module-local `current_finder` variable, keeping the `finder` alive until the next time `ui.show()` is called and a different `finder` is passed in.
 
+The overall ownership chain, then, is: the `finder` owns the `scanner`, the `scanner` assumes ownership of the `candidates` and `buffer` slabs passed into it, and the `str_t` structs in `candidates` do not own their individual `contents` because those are all slab-allocated.
+
 ### `scanner_new_copy()` as used to create "list" scanners
 
 - The main controller (defined in `init.lua`) calls `finders.list()` to obtain a `finder`:
@@ -63,10 +76,13 @@ This is the most common form of scanning in Command-T, used by anything that wra
         - `commandt_scanner_new_copy()` uses `xmap()` to create `candidates` storage (for `str_t` structs).
         - It uses `str_init_copy()` to create `str_t` objects in the slab which themselves reference storage obtained via `xmalloc()` and populated with `memcpy()`. This is why, as mentioned above, "list" scanners are only suitable for smaller sets of candidates.
       - `lib.scanner_new_copy()` uses `ffi.gc()` to mark the returned `scanner` such that when it is garbage-collected, the `commandt_scanner_free()` function will be called:
-        - `commandt_scanner_free()` will free its `candidates` (with `xmunmap()`).
-        - It will also free (with `xmunmap()`) its `buffer` (string storage) and the `scanner_t` struct itself.
+        - `commandt_scanner_free()` will free its `candidates` (with `xmunmap()`) after calling `free()` on the `contents` storage of each `str_t` in the `candidates` slab.
+        - It will not free its `buffer` because it does not use one.
+        - It will free the `scanner_t` struct itself.
   - `finders.list()` passes the `scanner` into `lib.matcher_new()`, and returns a `finder` object that exposes a `run()` function (calling `lib.matcher_run()`); the `finder` object has a reference to the `scanner`, which keeps it alive until the `finder` itself falls out of scope.
 - The returned `finder` is passed into `ui.show()`, which stores a reference in the module-local `current_finder` variable, keeping the `finder` alive until the next time `ui.show()` is called and a different `finder` is passed in.
+
+The overall ownership chain, then, is: the `finder` owns the `scanner`, the `scanner` owns its `candidates` slab (but has no `buffer` slab), and the `str_t` structs in the `candidates` slab own individual `contents` allocations.
 
 ### `scanner_new_str()` as used by `:CommandTWatchman`
 
