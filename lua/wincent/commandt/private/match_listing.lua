@@ -69,10 +69,9 @@ local format_line = function(line, width, selected, truncate, get_icon)
     gutter = gutter .. icon .. '  '
   end
 
-  -- Sanitize some control characters, plus blackslashes.
+  -- Sanitize some control characters.
   -- NOTE: may not be safe if unicode?
   line = line
-    :gsub('\\', '\\\\')
     :gsub('\b', '\\b')
     :gsub('\f', '\\f')
     :gsub('\n', '\\n')
