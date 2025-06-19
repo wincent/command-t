@@ -362,6 +362,15 @@ COMMANDS                                                   *command-t-commands*
                 exactly like the standard file window, except that it shows
                 the history of previously entered commands.
 
+|:CommandTJump|                                                   *:CommandTJump*
+
+                Brings up the Command-T jump search window. This works exactly
+                like the standard file window, except that the selection
+                is limited to files that you already have in the jumplist.
+                Note that jumps can persist across Vim sessions (see Vim's
+                |jumplist| documentation for more info).
+
+
 |:CommandTLine|                                                   *:CommandTLine*
 
                 Brings up the Command-T line search window. This works exactly
@@ -999,6 +1008,7 @@ main (not yet released) ~
   (https://github.com/wincent/command-t/issues/436).
 - feat: port |:CommandTHistory| to Lua.
 - feat: port |:CommandTSearch| to Lua.
+- feat: port |:CommandTJump| to Lua.
 
 6.1 (14 June 2025) ~
 

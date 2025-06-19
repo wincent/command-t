@@ -14,6 +14,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   CommandTGit = 'CommandTGit'
   CommandTHelp = 'CommandTHelp'
   CommandTHistory = 'CommandTHistory'
+  CommandTJump = 'CommandTJump'
   CommandTLine = 'CommandTLine'
   CommandTRipgrep = 'CommandTRipgrep'
   CommandTSearch = 'CommandTSearch'
@@ -26,6 +27,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   vim.keymap.set('n', '<Plug>(CommandTGit)', ':CommandTGit<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTHistory)', ':CommandTHistory<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTHelp)', ':CommandTHelp<CR>', { silent = true })
+  vim.keymap.set('n', '<Plug>(CommandTJump)', ':CommandTJump<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTLine)', ':CommandTLine<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTRipgrep)', ':CommandTRipgrep<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTSearch)', ':CommandTSearch<CR>', { silent = true })
@@ -38,6 +40,7 @@ else
   CommandTGit = 'KommandTGit'
   CommandTHelp = 'KommandTHelp'
   CommandTHistory = 'KommandTHistory'
+  CommandTJump = 'KommandTJump'
   CommandTLine = 'KommandTLine'
   CommandTRipgrep = 'KommandTRipgrep'
   CommandTSearch = 'KommandTSearch'
@@ -86,6 +89,12 @@ end, {
 
 vim.api.nvim_create_user_command(CommandTHistory, function()
   require('wincent.commandt').finder('history')
+end, {
+  nargs = 0,
+})
+
+vim.api.nvim_create_user_command(CommandTJump, function()
+  require('wincent.commandt').finder('jump')
 end, {
   nargs = 0,
 })
