@@ -368,6 +368,13 @@ COMMANDS                                                   *command-t-commands*
                 like the standard file window, except that it shows the lines
                 in the current buffer.
 
+|:CommandTSearch|                                               *:CommandTSearch*
+
+                Brings up the Command-T history search window. This works
+                exactly like the standard file window, except that it shows
+                the history of previously used searches.
+
+
 |:CommandTRipgrep| [directory]                                 *:CommandTRipgrep*
 
                 Brings up the Command-T file window, starting in [directory]
@@ -991,6 +998,7 @@ main (not yet released) ~
   |commandt.setup.position| is set to `'bottom'`
   (https://github.com/wincent/command-t/issues/436).
 - feat: port |:CommandTHistory| to Lua.
+- feat: port |:CommandTSearch| to Lua.
 
 6.1 (14 June 2025) ~
 

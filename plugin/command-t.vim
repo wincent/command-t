@@ -66,6 +66,7 @@ else
   command! -nargs=? -complete=dir KommandT call commandt#FileFinder(<q-args>)
   command! KommandTBuffer call commandt#BufferFinder()
   command! KommandTHelp call commandt#HelpFinder()
+  command! KommandTSearch call commandt#SearchFinder()
   command! KommandTHistory call commandt#HistoryFinder()
   command! KommandTLine call commandt#LineFinder()
 
@@ -75,7 +76,6 @@ else
   command! CommandTJump call commandt#JumpFinder()
   command! CommandTLoad call commandt#Load()
   command! CommandTMRU call commandt#MRUFinder()
-  command! CommandTSearch call commandt#SearchFinder()
   command! CommandTTag call commandt#TagFinder()
 
   command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)
@@ -85,7 +85,6 @@ endif
 nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
 nnoremap <silent> <Plug>(CommandTJump) :CommandTJump<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
-nnoremap <silent> <Plug>(CommandTSearch) :CommandTSearch<CR>
 nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
 
 if s:prefers_ruby

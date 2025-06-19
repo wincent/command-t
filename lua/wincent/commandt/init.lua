@@ -509,6 +509,22 @@ local default_options = {
       end,
       options = force_dot_files,
     },
+    search = {
+      candidates = function(_directory)
+        local result = vim.api.nvim_exec2('history /', {output = true})
+        local commands = {}
+        for line in result.output:gmatch("[^\r\n]+") do
+          local command = line:gsub("^%s*%d+%s+", "")
+          table.insert(commands, command)
+        end
+        return commands
+      end,
+      kind = 'virtual',
+      open = function(item)
+        vim.api.nvim_feedkeys('/' .. item, 'nt', true)
+      end,
+      options = force_dot_files,
+    },
     line = {
       candidates = function(_directory)
         local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)

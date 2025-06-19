@@ -16,6 +16,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   CommandTHistory = 'CommandTHistory'
   CommandTLine = 'CommandTLine'
   CommandTRipgrep = 'CommandTRipgrep'
+  CommandTSearch = 'CommandTSearch'
   CommandTWatchman = 'CommandTWatchman'
 
   vim.keymap.set('n', '<Plug>(CommandT)', ':CommandT<CR>', { silent = true })
@@ -27,6 +28,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   vim.keymap.set('n', '<Plug>(CommandTHelp)', ':CommandTHelp<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTLine)', ':CommandTLine<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTRipgrep)', ':CommandTRipgrep<CR>', { silent = true })
+  vim.keymap.set('n', '<Plug>(CommandTSearch)', ':CommandTSearch<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTWatchman)', ':CommandTWatchman<CR>', { silent = true })
 else
   CommandT = 'KommandT'
@@ -38,6 +40,7 @@ else
   CommandTHistory = 'KommandTHistory'
   CommandTLine = 'KommandTLine'
   CommandTRipgrep = 'KommandTRipgrep'
+  CommandTSearch = 'KommandTSearch'
   CommandTWatchman = 'KommandTWatchman'
 end
 
@@ -98,6 +101,12 @@ vim.api.nvim_create_user_command(CommandTRipgrep, function(command)
 end, {
   complete = 'dir',
   nargs = '?',
+})
+
+vim.api.nvim_create_user_command(CommandTSearch, function()
+  require('wincent.commandt').finder('search')
+end, {
+  nargs = 0,
 })
 
 vim.api.nvim_create_user_command(CommandTWatchman, function(command)
