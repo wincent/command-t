@@ -495,10 +495,10 @@ local default_options = {
     },
     history = {
       candidates = function(_directory)
-        local result = vim.api.nvim_exec2('history :', {output = true})
+        local result = vim.api.nvim_exec2('history :', { output = true })
         local commands = {}
-        for line in result.output:gmatch("[^\r\n]+") do
-          local command = line:gsub("^%s*%d+%s+", "")
+        for line in result.output:gmatch('[^\r\n]+') do
+          local command = line:gsub('^%s*%d+%s+', '')
           table.insert(commands, command)
         end
         return commands
@@ -561,10 +561,10 @@ local default_options = {
     },
     search = {
       candidates = function(_directory)
-        local result = vim.api.nvim_exec2('history /', {output = true})
+        local result = vim.api.nvim_exec2('history /', { output = true })
         local commands = {}
-        for line in result.output:gmatch("[^\r\n]+") do
-          local command = line:gsub("^%s*%d+%s+", "")
+        for line in result.output:gmatch('[^\r\n]+') do
+          local command = line:gsub('^%s*%d+%s+', '')
           table.insert(commands, command)
         end
         return commands

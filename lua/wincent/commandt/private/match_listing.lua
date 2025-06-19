@@ -71,13 +71,8 @@ local format_line = function(line, width, selected, truncate, get_icon)
 
   -- Sanitize some control characters.
   -- NOTE: may not be safe if unicode?
-  line = line
-    :gsub('\b', '\\b')
-    :gsub('\f', '\\f')
-    :gsub('\n', '\\n')
-    :gsub('\r', '\\r')
-    :gsub('\t', '\\t')
-    :gsub('\v', '\\v')
+  line =
+    line:gsub('\b', '\\b'):gsub('\f', '\\f'):gsub('\n', '\\n'):gsub('\r', '\\r'):gsub('\t', '\\t'):gsub('\v', '\\v')
 
   if vim.fn.strwidth(gutter .. line) <= width then
     -- Line fits without trimming.
