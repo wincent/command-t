@@ -7,7 +7,7 @@ return function(directory, candidates, options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   if type(candidates) == 'function' then
-    finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates(directory))
+    finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates(directory, options))
   elseif type(candidates) == 'table' then
     finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates)
   else

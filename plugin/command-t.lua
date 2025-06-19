@@ -18,6 +18,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   CommandTLine = 'CommandTLine'
   CommandTRipgrep = 'CommandTRipgrep'
   CommandTSearch = 'CommandTSearch'
+  CommandTTag = 'CommandTTag'
   CommandTWatchman = 'CommandTWatchman'
 
   vim.keymap.set('n', '<Plug>(CommandT)', ':CommandT<CR>', { silent = true })
@@ -31,6 +32,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
   vim.keymap.set('n', '<Plug>(CommandTLine)', ':CommandTLine<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTRipgrep)', ':CommandTRipgrep<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTSearch)', ':CommandTSearch<CR>', { silent = true })
+  vim.keymap.set('n', '<Plug>(CommandTTag)', ':CommandTTag<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTWatchman)', ':CommandTWatchman<CR>', { silent = true })
 else
   CommandT = 'KommandT'
@@ -44,6 +46,7 @@ else
   CommandTLine = 'KommandTLine'
   CommandTRipgrep = 'KommandTRipgrep'
   CommandTSearch = 'KommandTSearch'
+  CommandTTag = 'KommandTTag'
   CommandTWatchman = 'KommandTWatchman'
 end
 
@@ -114,6 +117,12 @@ end, {
 
 vim.api.nvim_create_user_command(CommandTSearch, function()
   require('wincent.commandt').finder('search')
+end, {
+  nargs = 0,
+})
+
+vim.api.nvim_create_user_command(CommandTTag, function()
+  require('wincent.commandt').finder('tag')
 end, {
   nargs = 0,
 })

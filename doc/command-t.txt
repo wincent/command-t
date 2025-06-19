@@ -383,6 +383,14 @@ COMMANDS                                                   *command-t-commands*
                 exactly like the standard file window, except that it shows
                 the history of previously used searches.
 
+|:CommandTTag|                                                     *:CommandTTag*
+
+                Brings up the Command-T tags window, which can be used
+                to select from the tags, if any, returned by Neovim's
+                |taglist()| function. By default, tag names are shown
+                without filenames; to change this behavior, use
+                |commandt.setup.scanners.tag.include_filenames|. See Vim's
+                |tag| documentation for general info on tags.
 
 |:CommandTRipgrep| [directory]                                 *:CommandTRipgrep*
 
@@ -504,6 +512,9 @@ notice at any time; for example:
       end,
       root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
       scanners = {
+        fd = {
+          max_files = 0,
+        },
         file = {
           max_files = 0,
         },
@@ -517,6 +528,9 @@ notice at any time; for example:
         },
         rg = {
           max_files = 0,
+        },
+        tag = {
+          include_filenames = false,
         },
       },
       selection_highlight = 'PmenuSel',
@@ -538,6 +552,12 @@ passed to |commandt.setup()|:
 - |commandt.setup.prompt.border|
 - |commandt.setup.root_markers|
 - |commandt.setup.scanners.max_files|
+- |commandt.setup.scanners.fd.max_files|
+- |commandt.setup.scanners.file.max_files|
+- |commandt.setup.scanners.find.max_files|
+- |commandt.setup.scanners.git.max_files|
+- |commandt.setup.scanners.rg.max_files|
+- |commandt.setup.scanners.tag.include_filenames|
 - |commandt.setup.smart_case|
 - |commandt.setup.traverse|
 
@@ -686,17 +706,25 @@ The default value is a list-like table containing the following strings:
     })
 
                                             *commandt.setup.scanners.max_files*
+                                         *commandt.setup.scanners.fd.max_files*
+                                       *commandt.setup.scanners.file.max_files*
+                                       *commandt.setup.scanners.find.max_files*
+                                        *commandt.setup.scanners.git.max_files*
+                                         *commandt.setup.scanners.rg.max_files*
                                               number or function (default: 0)
 
-|commandt.setup.scanners.max_files| can be used to limit the number of files
-that Command-T will scan before terminating the scan. A value of 0 (the
-default), means no limit. The following example shows how to configure
-different limits for each of the built-in scanners:
+The various |commandt.setup.scanners.max_files| settings can be used to limit
+the number of files that Command-T will scan before terminating the scan. A
+value of 0 (the default), means no limit. The following example shows how to
+configure different limits for each of the built-in scanners:
 >
     require('wincent.commandt').setup({
       scanners = {
         file = {
           max_files = 100000, -- A "big" limit.
+        },
+        fd = {
+          max_files = 1000000, -- An even bigger limit.
         },
         find = {
           max_files = 10, -- A small limit.
@@ -705,7 +733,7 @@ different limits for each of the built-in scanners:
           max_files = 0, -- Same as no limit.
         },
         rg = {
-          -- No setting, no limit.
+          -- No setting: same as no limit.
         },
       },
     })
@@ -761,6 +789,16 @@ detects that they have returned `max_files` or more results it will terminate
 them with a `SIGKILL` signal. Depending on whether or how the forked process's
 output is buffered, it's possible that slightly more than `max_files` items
 may be returned.
+
+                                *commandt.setup.scanners.tag.include_filenames*
+                                                     boolean (default: false)
+
+When this setting is `false` (the default) the matches in the `:CommandTTag`
+listing do not include filenames. Selecting a tag will cause Neovim to jump to
+the first matching tag.
+
+If the setting is `true`, the listing will contain entries of the form
+"tagname:filename".
 
                                                     *commandt.setup.smart_case*
                                           boolean or function (default: none)
@@ -1009,6 +1047,7 @@ main (not yet released) ~
 - feat: port |:CommandTHistory| to Lua.
 - feat: port |:CommandTSearch| to Lua.
 - feat: port |:CommandTJump| to Lua.
+- feat: port |:CommandTTag| to Lua.
 
 6.1 (14 June 2025) ~
 

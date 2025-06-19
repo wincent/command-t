@@ -70,13 +70,13 @@ else
   command! KommandTHistory call commandt#HistoryFinder()
   command! KommandTJump call commandt#JumpFinder()
   command! KommandTLine call commandt#LineFinder()
+  command! KommandTTag call commandt#TagFinder()
 
   " Not implemented on the Lua side yet, so these ones continue to use "CommandT" prefix:
   command! CommandTCommand call commandt#CommandFinder()
   command! CommandTFlush call commandt#Flush()
   command! CommandTLoad call commandt#Load()
   command! CommandTMRU call commandt#MRUFinder()
-  command! CommandTTag call commandt#TagFinder()
 
   command! -nargs=+ CommandTOpen call commandt#GotoOrOpen(<q-args>)
 endif
@@ -84,7 +84,6 @@ endif
 " These ones not implemented on the Lua side yet:
 nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
-nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
 
 if s:prefers_ruby
   nnoremap <silent> <Plug>(CommandT) :CommandT<CR>

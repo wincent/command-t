@@ -76,7 +76,7 @@ end
 -- Common `on_open` implementation used by several "command" finders that equips
 -- them to deal with automatic directory changes caused by the `traverse`
 -- setting.
-local function on_open(item, kind, directory, opener)
+local function on_open(item, kind, directory, _options, opener)
   opener(relativize(directory, item), kind)
 end
 
@@ -318,6 +318,16 @@ local options_spec = {
           },
           optional = true,
         },
+        tag = {
+          kind = 'table',
+          keys = {
+            include_filenames = {
+              kind = 'boolean',
+              optional = true,
+            },
+          },
+          optional = true,
+        },
       },
     },
     selection_highlight = { kind = 'string' },
@@ -368,7 +378,7 @@ local default_options = {
     -- Returns the list of paths currently loaded into buffers.
     buffer = {
       --- @type CandidatesFunction
-      candidates = function(_directory)
+      candidates = function(_directory, _options)
         local handles = vim.api.nvim_list_bufs()
         local paths = {}
         for _, handle in ipairs(handles) do
@@ -385,7 +395,7 @@ local default_options = {
       options = force_dot_files,
     },
     fd = {
-      command = function(directory, options)
+      command = function(directory, _options)
         pushd(directory)
         local command = 'fd --hidden --print0 --type file --search-path . 2> /dev/null'
         local drop = 2 -- drop './'
@@ -400,7 +410,7 @@ local default_options = {
       open = on_open,
     },
     find = {
-      command = function(directory, options)
+      command = function(directory, _options)
         pushd(directory)
         local command = 'find -L . -type f -print0 2> /dev/null'
         local drop = 2 -- drop './'
@@ -440,7 +450,7 @@ local default_options = {
       open = on_open,
     },
     help = {
-      candidates = function(_directory)
+      candidates = function(_directory, _options)
         -- Neovim doesn't provide an easy way to get a list of all help tags.
         -- `tagfiles()` only shows the tagfiles for the current buffer, so you need
         -- to already be in a buffer of `'buftype'` `help` for that to work.
@@ -464,7 +474,7 @@ local default_options = {
         return helptags
       end,
       kind = 'virtual',
-      open = function(item, kind)
+      open = function(item, kind, _directory, _options, _opener)
         local command = 'help'
         if kind == 'split' then
           -- Split is the default, so for this finder, we abuse "split" mode to do
@@ -494,7 +504,7 @@ local default_options = {
       options = force_dot_files,
     },
     history = {
-      candidates = function(_directory)
+      candidates = function(_directory, _options)
         local result = vim.api.nvim_exec2('history :', { output = true })
         local commands = {}
         for line in result.output:gmatch('[^\r\n]+') do
@@ -504,13 +514,13 @@ local default_options = {
         return commands
       end,
       kind = 'virtual',
-      open = function(item)
+      open = function(item, _kind, _directory, _options, _opener)
         vim.api.nvim_feedkeys(':' .. item, 'nt', true)
       end,
       options = force_dot_files,
     },
     jump = {
-      candidates = function(_directory)
+      candidates = function(_directory, _options)
         local filename_candidates = {}
         local bufnr_candidates = {}
 
@@ -559,24 +569,8 @@ local default_options = {
       end,
       options = force_dot_files,
     },
-    search = {
-      candidates = function(_directory)
-        local result = vim.api.nvim_exec2('history /', { output = true })
-        local commands = {}
-        for line in result.output:gmatch('[^\r\n]+') do
-          local command = line:gsub('^%s*%d+%s+', '')
-          table.insert(commands, command)
-        end
-        return commands
-      end,
-      kind = 'virtual',
-      open = function(item)
-        vim.api.nvim_feedkeys('/' .. item, 'nt', true)
-      end,
-      options = force_dot_files,
-    },
     line = {
-      candidates = function(_directory)
+      candidates = function(_directory, _options)
         local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
         local result = {}
         for i, line in ipairs(lines) do
@@ -588,7 +582,7 @@ local default_options = {
         return result
       end,
       kind = 'virtual',
-      open = function(item)
+      open = function(item, _kind, _directory, _options, _opener)
         -- Extract line number from (eg) "some line contents:100".
         local suffix = string.find(item, '%d+$')
         local index = tonumber(item:sub(suffix))
@@ -597,7 +591,7 @@ local default_options = {
       options = force_dot_files,
     },
     rg = {
-      command = function(directory, options)
+      command = function(directory, _options)
         pushd(directory)
         local command = 'rg --files --null 2> /dev/null'
         local drop = 0
@@ -610,6 +604,54 @@ local default_options = {
       on_close = popd,
       on_directory = on_directory,
       open = on_open,
+    },
+    search = {
+      candidates = function(_directory)
+        local result = vim.api.nvim_exec2('history /', { output = true })
+        local commands = {}
+        for line in result.output:gmatch('[^\r\n]+') do
+          local command = line:gsub('^%s*%d+%s+', '')
+          table.insert(commands, command)
+        end
+        return commands
+      end,
+      kind = 'virtual',
+      open = function(item, _kind, _directory, _options, opener)
+        vim.api.nvim_feedkeys('/' .. item, 'nt', true)
+      end,
+      options = force_dot_files,
+    },
+    tag = {
+      candidates = function(_directory, options)
+        local include_filenames = options.scanners.tag.include_filenames
+        local tags = vim.fn.taglist('.')
+        local candidates = {}
+
+        for _, tag in ipairs(tags) do
+          local item = tag.name
+          if include_filenames and tag.filename then
+            item = item .. ':' .. tag.filename
+          end
+          candidates[item] = true
+        end
+
+        local result = keys(candidates)
+        table.sort(result)
+        return result
+      end,
+      kind = 'virtual',
+      open = function(item, _kind, _directory, options, _opener)
+        local tag_name = item
+        if options.scanners.tag.include_filenames then
+          -- Strip off filename part.
+          local colon_pos = item:find(':')
+          if colon_pos then
+            tag_name = item:sub(1, colon_pos - 1)
+          end
+        end
+        vim.cmd('silent! tag ' .. tag_name .. ' | normal! zz')
+      end,
+      options = force_dot_files,
     },
   },
   height = 15,
@@ -699,6 +741,9 @@ local default_options = {
     },
     rg = {
       max_files = 0,
+    },
+    tag = {
+      include_filenames = false,
     },
   },
   selection_highlight = 'PmenuSel',
@@ -818,7 +863,7 @@ commandt.finder = function(name, directory)
   local finder = nil
   options.open = function(item, kind)
     if config.open then
-      config.open(item, kind, directory, commandt.open)
+      config.open(item, kind, directory, options, commandt.open)
     else
       commandt.open(item, kind)
     end
