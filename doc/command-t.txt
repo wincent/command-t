@@ -356,6 +356,12 @@ COMMANDS                                                   *command-t-commands*
                 like the standard file window, except that it shows help
                 topics found in any documentation under Vim's |'runtimepath'|.
 
+|:CommandTHistory|                                             *:CommandTHistory*
+
+                Brings up the Command-T history search window. This works
+                exactly like the standard file window, except that it shows
+                the history of previously entered commands.
+
 |:CommandTLine|                                                   *:CommandTLine*
 
                 Brings up the Command-T line search window. This works exactly
@@ -984,6 +990,7 @@ main (not yet released) ~
 - fix: make the default borders and prompt title render correctly when
   |commandt.setup.position| is set to `'bottom'`
   (https://github.com/wincent/command-t/issues/436).
+- feat: port |:CommandTHistory| to Lua.
 
 6.1 (14 June 2025) ~
 
