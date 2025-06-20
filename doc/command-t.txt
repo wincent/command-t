@@ -795,10 +795,13 @@ may be returned.
 
 When this setting is `false` (the default) the matches in the `:CommandTTag`
 listing do not include filenames. Selecting a tag will cause Neovim to jump to
-the first matching tag.
+the first matching tag, and you can skip to the following tag (or tags) with
+|:tn| or |:tnext|.
 
 If the setting is `true`, the listing will contain entries of the form
-"tagname:filename".
+"tagname:filename", and selecting one will take you to the tag in the selected
+file.
+
 
                                                     *commandt.setup.smart_case*
                                           boolean or function (default: none)

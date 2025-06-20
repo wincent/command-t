@@ -76,7 +76,7 @@ end
 -- Common `on_open` implementation used by several "command" finders that equips
 -- them to deal with automatic directory changes caused by the `traverse`
 -- setting.
-local function on_open(item, kind, directory, _options, opener)
+local function on_open(item, kind, directory, _options, opener, _context)
   opener(relativize(directory, item), kind)
 end
 
@@ -474,7 +474,7 @@ local default_options = {
         return helptags
       end,
       kind = 'virtual',
-      open = function(item, kind, _directory, _options, _opener)
+      open = function(item, kind, _directory, _options, _opener, _context)
         local command = 'help'
         if kind == 'split' then
           -- Split is the default, so for this finder, we abuse "split" mode to do
@@ -514,7 +514,7 @@ local default_options = {
         return commands
       end,
       kind = 'virtual',
-      open = function(item, _kind, _directory, _options, _opener)
+      open = function(item, _kind, _directory, _options, _opener, _context)
         vim.api.nvim_feedkeys(':' .. item, 'nt', true)
       end,
       options = force_dot_files,
@@ -582,7 +582,7 @@ local default_options = {
         return result
       end,
       kind = 'virtual',
-      open = function(item, _kind, _directory, _options, _opener)
+      open = function(item, _kind, _directory, _options, _opener, _context)
         -- Extract line number from (eg) "some line contents:100".
         local suffix = string.find(item, '%d+$')
         local index = tonumber(item:sub(suffix))
@@ -616,7 +616,7 @@ local default_options = {
         return commands
       end,
       kind = 'virtual',
-      open = function(item, _kind, _directory, _options, opener)
+      open = function(item, _kind, _directory, _options, _opener, _context)
         vim.api.nvim_feedkeys('/' .. item, 'nt', true)
       end,
       options = force_dot_files,
@@ -632,23 +632,35 @@ local default_options = {
           if include_filenames and tag.filename then
             item = item .. ':' .. tag.filename
           end
-          candidates[item] = true
+          candidates[item] = tag
         end
 
         local result = keys(candidates)
         table.sort(result)
-        return result
+
+        -- In addition to returning `result`, return `candidates` as context.
+        return result, candidates
       end,
       kind = 'virtual',
-      open = function(item, _kind, _directory, options, _opener)
-        local tag_name = item
+      -- TODO: rename "kind" because it is very overloaded (it is "edit" etc)
+      open = function(item, kind, _directory, options, opener, context)
+        local tag = context[item]
+        local tag_name = tag.name
         if options.scanners.tag.include_filenames then
-          -- Strip off filename part.
-          local colon_pos = item:find(':')
-          if colon_pos then
-            tag_name = item:sub(1, colon_pos - 1)
+          if tag.filename and tag.cmd then
+            opener(tag.filename, kind)
+
+            -- Strip leading and trailing slashes, and use \M ('nomagic'):
+            -- ie. "/^int main()$/" → "\M^int main()$"
+            local pattern = '\\M' .. tag.cmd:match('^/(.-)/$')
+            local line, column = unpack(vim.fn.searchpos(pattern, 'w'))
+            if line ~= 0 and column ~= 0 then
+              vim.cmd('normal! zz')
+            end
+            return
           end
         end
+
         vim.cmd('silent! tag ' .. tag_name .. ' | normal! zz')
       end,
       options = force_dot_files,
@@ -861,15 +873,16 @@ commandt.finder = function(name, directory)
     directory = config.on_directory(directory)
   end
   local finder = nil
+  local context = nil
   options.open = function(item, kind)
     if config.open then
-      config.open(item, kind, directory, options, commandt.open)
+      config.open(item, kind, directory, options, commandt.open, context)
     else
       commandt.open(item, kind)
     end
   end
   if config.candidates then
-    finder = require('wincent.commandt.private.finders.list')(directory, config.candidates, options)
+    finder, context = require('wincent.commandt.private.finders.list')(directory, config.candidates, options)
   else
     finder = require('wincent.commandt.private.finders.command')(directory, config.command, options, name)
   end

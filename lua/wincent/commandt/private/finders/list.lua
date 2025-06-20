@@ -6,8 +6,12 @@ local ffi = require('ffi')
 return function(directory, candidates, options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
+  local context = nil
   if type(candidates) == 'function' then
-    finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates(directory, options))
+    local candidates_for_scanner, candidates_context = candidates(directory, options)
+    context = candidates_context
+    finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates_for_scanner)
+    finder.context = context
   elseif type(candidates) == 'table' then
     finder.scanner = require('wincent.commandt.private.scanners.list').scanner(candidates)
   else
@@ -24,5 +28,5 @@ return function(directory, candidates, options)
     return strings, results.candidate_count
   end
   finder.open = options.open
-  return finder
+  return finder, context
 end
