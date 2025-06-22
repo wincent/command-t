@@ -103,7 +103,7 @@ local options_spec = {
             },
             optional = true,
           },
-          kind = {
+          mode = {
             kind = {
               one_of = {
                 'file',
@@ -473,7 +473,7 @@ local default_options = {
         end
         return helptags
       end,
-      kind = 'virtual',
+      mode = 'virtual',
       open = function(item, kind, _directory, _options, _opener, _context)
         local command = 'help'
         if kind == 'split' then
@@ -513,7 +513,7 @@ local default_options = {
         end
         return commands
       end,
-      kind = 'virtual',
+      mode = 'virtual',
       open = function(item, _kind, _directory, _options, _opener, _context)
         vim.api.nvim_feedkeys(':' .. item, 'nt', true)
       end,
@@ -581,7 +581,7 @@ local default_options = {
         end
         return result
       end,
-      kind = 'virtual',
+      mode = 'virtual',
       open = function(item, _kind, _directory, _options, _opener, _context)
         -- Extract line number from (eg) "some line contents:100".
         local suffix = string.find(item, '%d+$')
@@ -615,7 +615,7 @@ local default_options = {
         end
         return commands
       end,
-      kind = 'virtual',
+      mode = 'virtual',
       open = function(item, _kind, _directory, _options, _opener, _context)
         vim.api.nvim_feedkeys('/' .. item, 'nt', true)
       end,
@@ -641,7 +641,7 @@ local default_options = {
         -- In addition to returning `result`, return `candidates` as context.
         return result, candidates
       end,
-      kind = 'virtual',
+      mode = 'virtual',
       -- TODO: rename "kind" because it is very overloaded (it is "edit" etc)
       open = function(item, kind, _directory, options, opener, context)
         local tag = context[item]
@@ -859,7 +859,7 @@ commandt.finder = function(name, directory)
   if config == nil then
     error('commandt.finder(): no finder registered with name ' .. tostring(name))
   end
-  local kind = config.kind
+  local mode = config.mode
   if config.options then
     -- Optionally transform options.
     local sanitized_options, errors = sanitize_options(config.options(options))
@@ -891,13 +891,13 @@ commandt.finder = function(name, directory)
   end
   local ui = require('wincent.commandt.private.ui')
 
-  -- TODO: fix type smell here. we're merging "kind", a property that exists
+  -- TODO: fix type smell here. we're merging "mode", a property that exists
   -- inside matcher configs, into the top level, along with "name".
   ui.show(
     finder,
     merge(options, {
       name = name,
-      kind = kind,
+      mode = mode,
       on_close = config.on_close,
     })
   )
