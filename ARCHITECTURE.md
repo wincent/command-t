@@ -1,3 +1,77 @@
+# Life-cycle of a Command-T search
+
+"finders" use "scanners" to generate a list of haystacks to search (usually but not always files).
+
+There are two generic classes of "finders", that are paired with corresponding generic classes of scanners:
+
+1. **"List"-based finders and scanners.** These take a list of candidate haystacks, like a list of buffers, a list of help tags, or a list of search patterns. These are accessed by commands like `:CommandTBuffer`, `:CommandTHelp`, and `:CommandTSearch`.
+2. **"Command"-based finders and scanners.** These run a command to generate the list of candidate haystacks. These are accessed by commands like `:CommandTGit` and `:CommandTRipgrep`.
+
+Each instance of a list or command-based finder is defined using a Lua table. Finders definitions are found under `finders`, and define either `candidates` (a list of candidates, or a function that returns such a list) or `command` (a command string, or a function that returns such a string).
+
+There are also two specialised "finder" and "scanner" pairs:
+
+1. **The built-in "file" finder.** This uses POSIX APIs to traverse the filesystem and generate a list of candidates.
+2. **The watchman finder.** This communicates with watchman using its binary protocol to obtain a list of candidates.
+
+These finders are hard-coded in the Command-T source code as functions.
+
+In the following discussion, note that there are a few sets of confusing, overlapping, or overloading terms that would make a good target for refactoring:
+
+- "open", "on_open", "opener", "smart_open": used at various layers of abstraction for configuration key names, callbacks, parameters, and so on.
+- "config" vs "options": used to describe user-supplied settings, defaults, and also function-level parameters.
+
+## List-based finder life-cycle
+
+1.  (Optional) User configures a mapping in their personal config (eg. `vim.keymap.set('n', '<Leader>b', '<Plug>(CommandTBuffer)')`)
+2.  (Optional) User uses the mapping, which passes through the built-in `<Plug>` mapping to a command (eg. `vim.keymap.set('n', '<Plug>(CommandTBuffer)', ':CommandTBuffer<CR>', { silent = true })`)
+3.  The command invokes the `commandt.finder` function defined in `init.lua`, passing `'buffer'` as a parameter:
+
+    ```
+    vim.api.nvim_create_user_command(CommandTBuffer, function()
+      require('wincent.commandt').finder('buffer')
+    end, {
+      nargs = 0,
+    })
+    ```
+
+4.  `commandt.finder()` takes two params, a finder `name`, and an optional `directory` (not passed in the case of `:CommandTBuffer`, `:CommandTHelp`, `:CommandTHistory`, `:CommandTJump`, `:CommandTLine`, `:CommandTSearch`, or `:CommandTTag`, but passed in the case of `:CommandTFd`, `:CommandTFind`, `:CommandTGit`, and `:CommandTRipgrep`).
+    1.  It looks up the finder config under the `name` key (`'buffer'`, for example) of the user's settings (obtained via a call to `commandt.options()`, which returns a _copy_ of the user's settings, or falls back to the defaults if there are no explicit user settings).
+    2.  If the config defines an `options` callback, it calls the callback with the existing options so that it has an opportunity to transform those options, and then sanitizes them. This is used by several finders to force the display of dotfiles (ie. by unconditionally setting `always_show_dot_files` to `true`, and `never_show_dot_files` to `false`); specifically, the `'buffer'`, `'help'`, `'history'`, `'jump'`, `'line'`, `'search'`, and `'tag'` finders.
+    3.  If the config defines an `on_directory` callback, it calls the callback with the directory to give it the opportunity to transform the directory. This is used by finders which change their root directory based on the `commandt.traverse` setting; if no directory is provided, and the user settings require it, the callback will attempt to infer an appropriate directory, using the current working directory as a fallback. Finders which use `on_directory` include `'fd'`, `'find'`, `'git'`, and `'rg'`.
+    4.  It prepares an `open` callback with signature `open(item, ex_command)` and assigns it back to the `options` object that will be passed into the `finders.list` or `finders.command` implementation, and also into `ui.show()`. This `open` callback will in turn forward to the `open` implementation specified in the config, if provided, otherwise falling back to `commandt.open(item, ex_command)` which is otherwise known as `smart_open(buffer, command)` (it's called "smart" because it tries to intelligently pick the right place to open the requested buffer). Finders which specify a custom `'open'` in their config include `'fd'`, `'find'`, `'git'`, and `'rg'`; which all pass in an `on_open(item, ex_command, directory, _options, opener, _context)` implementation which uses the `opener` to open a relativized path (ie. `opener(relativize(directory, item), ex_command)`); note that the `opener` here is actually `commandt.open` (ie. `smart_open()`). In contrast, the `'help'`, `'history'`, `'line'`, `'search'`, and `'tag'` finders define totally custom open callbacks. Finally, the `'buffer'` and `'jump'` finders define nothing, which means they use the fallback.
+    5.  If the finder config provides a `candidates` field, it obtains the actual list finder and context by passing in the `directory`, `config.candidates`, and `options`. Otherwise, it must contain a `command` field and it obtains a command finder passing in `directory`, `config.command`, `options`, and `name` (the `name` is used to look up finder-specific settings in the `options`).
+    6.  If the finder config provides a `fallback` field set to `true`, it adds the fallback finder to the `finder` object, passing in the original `finder`, `directory`, and `options` (this fallback finder is a lazy wrapper around the built-in file finder, which gets invoked if the primary finder fails.
+    7.  It invokes `ui.show()`, passing in the `finder` and `options`, merging in three additional settings: `name`, `mode` (`mode` is `'virtual'`, `'file'` or `nil`), and an `on_close` callback set to `config.on_close`. Finders which actually specify an `on_close` are `'fd'`, `'find'`, `'rg'`, and the built-in file finders; they all use `popd` for this purpose, to reset to the original working directory in case the user specified a temporary directory as an argument to those finders (the watchman finder doesn't need this as it does not change into a temporary directory even when the user specifies a directory argument).
+5.  `ui.show()` sets some module-level state based on the passed in `finder`, `options.on_close`, and `options.on_open`.
+6.  It calls `MatchListing.new()`, passing in specific options, and then `match_listing:show()`.
+7.  It calls `Prompt.new()`, again passing in specific options, including passing `ui.open` via the `on_open` property, then `prompt:show()`.
+    1. `Prompt.new()` captures various settings, including `on_open` and `mappings`. It creates a window with `Window.new()` and `self._window:show()`, and sets up mappings inside that window with `self._window:map()`. When the user chooses to open a selection via a mapping, the prompt will call the `on_open` callback with either `'edit'`, `'split'`, `'tabedit'`, or `'vsplit'` as an argument.
+8.  The `on_open` callback, which is actually `ui.open(ex_command)` (`ex_command` is `'edit'`, `'split'` etc), calls `close()`, which closes the windows and invokes any `on_close` callback.
+9.  If the UI has an `on_open` callback, it calls it so that it can transform the result. Only the built-in file finder and the watchman finder use this, and they both use it to relativize the result in relation to the `directory`.
+10. The thing that actually opens the result is called with `vim.defer_fn()`, to give autocommands a chance to run. The called function is `current_finder.open(result, ex_command)`. Recall from the above that finders like `'fd'` pass in an `options.open` that relativizes the path and uses the `opener` (`commandt.open()`) to do a "smart open". Finders like the `'help'` finder define a custom callback. Finders like `'buffer'` and `'jump'` define no `on_open`, so use the default.
+
+## Command-based finder life-cycle
+
+In most ways, the command finders follow the same life-cycle described above (and in fact we mention some of them in the descriptions of the steps) so I won't repeat the details here. The main differences are in terms of how they interact with the scanners, but they don't have any implications for how opening works. See the "Memory model" section further down for important differences that exist between the different types in relation to memory ownership.
+
+## Built-in "file" finder life-cycle
+
+Here I'll document only the differences from the other finders:
+
+1. Instead of `commandt.finder(name, directory)`, we call `commandt.file_finder(directory)`.
+2. We don't look at `candidates`, `list` (etc) config because there is no specific config required to build this finder. We just `require` the finder directly and forward all the `options` to it.
+3. We use `pushd()` to optionally move to another directory, preserving a record of the previous working directory so that we can go back to it.
+4. In the call to `ui.show()`, we pass an `on_open(result)` that uses `relativize(directory, result)` to transform the result. `on_close` is `popd`, as mentioned previously.
+
+## Watchman finder life-cycle
+
+Again, only documenting the differences:
+
+1. Like `commandt.file_finder(directory)`, the function we call just takes one param: `commandt.watchman_finder(directory)`.
+2. Like `commandt.file_finder()`, this function doesn't do anything special with config; it just forwards `options`.
+3. Unlike `commandt.file_finder()`, we don't `pushd`, and we don't pass in an `on_close` that does `popd` either, because watchman doesn't need to change directory to do its job. However, it _does_ require us to pass an `on_open()` that does the `relativize()` trick.
+
 # Memory model
 
 For maximum performance, Command-T takes great pains to avoid unnecessary copying. This, combined with the fact that memory is passing across Lua's FFI boundary to and from C code, means that there are some subtleties to the question of which code owns any particular piece of memory, and who is responsible for freeing it (either manually from the C code, or automatically via garbage collection initiated on the Lua side).
