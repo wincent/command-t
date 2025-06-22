@@ -69,7 +69,7 @@ local close = function()
   end
 end
 
-ui.open = function(kind)
+ui.open = function(ex_command)
   close()
   if results and #results > 0 then
     local result = results[selected]
@@ -79,7 +79,7 @@ ui.open = function(kind)
 
     -- Defer, to give autocommands a chance to run.
     vim.defer_fn(function()
-      current_finder.open(result, kind)
+      current_finder.open(result, ex_command)
     end, 0)
   end
   on_open = nil

@@ -507,8 +507,8 @@ notice at any time; for example:
         border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' },
 
       },
-      open = function(item, kind)
-        commandt.open(item, kind)
+      open = function(item, ex_command)
+        commandt.open(item, ex_command)
       end,
       root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
       scanners = {

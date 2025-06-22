@@ -76,8 +76,8 @@ end
 -- Common `on_open` implementation used by several "command" finders that equips
 -- them to deal with automatic directory changes caused by the `traverse`
 -- setting.
-local function on_open(item, kind, directory, _options, opener, _context)
-  opener(relativize(directory, item), kind)
+local function on_open(item, ex_command, directory, _options, opener, _context)
+  opener(relativize(directory, item), ex_command)
 end
 
 local help_opened = false
@@ -474,9 +474,9 @@ local default_options = {
         return helptags
       end,
       mode = 'virtual',
-      open = function(item, kind, _directory, _options, _opener, _context)
+      open = function(item, ex_command, _directory, _options, _opener, _context)
         local command = 'help'
-        if kind == 'split' then
+        if ex_command == 'split' then
           -- Split is the default, so for this finder, we abuse "split" mode to do
           -- the opposite of the default, using tricks noted in `:help help-curwin`.
           --
@@ -491,9 +491,9 @@ local default_options = {
           if vim.fn.empty(vim.fn.getcompletion(item, 'help')) == 0 then
             vim.cmd('silent noautocmd keepalt edit ' .. vim.o.helpfile)
           end
-        elseif kind == 'tabedit' then
+        elseif ex_command == 'tabedit' then
           command = 'tab help'
-        elseif kind == 'vsplit' then
+        elseif ex_command == 'vsplit' then
           command = 'vertical help'
         end
 
@@ -514,7 +514,7 @@ local default_options = {
         return commands
       end,
       mode = 'virtual',
-      open = function(item, _kind, _directory, _options, _opener, _context)
+      open = function(item, _ex_command, _directory, _options, _opener, _context)
         vim.api.nvim_feedkeys(':' .. item, 'nt', true)
       end,
       options = force_dot_files,
@@ -582,7 +582,7 @@ local default_options = {
         return result
       end,
       mode = 'virtual',
-      open = function(item, _kind, _directory, _options, _opener, _context)
+      open = function(item, _ex_command, _directory, _options, _opener, _context)
         -- Extract line number from (eg) "some line contents:100".
         local suffix = string.find(item, '%d+$')
         local index = tonumber(item:sub(suffix))
@@ -616,7 +616,7 @@ local default_options = {
         return commands
       end,
       mode = 'virtual',
-      open = function(item, _kind, _directory, _options, _opener, _context)
+      open = function(item, _ex_command, _directory, _options, _opener, _context)
         vim.api.nvim_feedkeys('/' .. item, 'nt', true)
       end,
       options = force_dot_files,
@@ -642,13 +642,12 @@ local default_options = {
         return result, candidates
       end,
       mode = 'virtual',
-      -- TODO: rename "kind" because it is very overloaded (it is "edit" etc)
-      open = function(item, kind, _directory, options, opener, context)
+      open = function(item, ex_command, _directory, options, opener, context)
         local tag = context[item]
         local tag_name = tag.name
         if options.scanners.tag.include_filenames then
           if tag.filename and tag.cmd then
-            opener(tag.filename, kind)
+            opener(tag.filename, ex_command)
 
             -- Strip leading and trailing slashes, and use \M ('nomagic'):
             -- ie. "/^int main()$/" → "\M^int main()$"
@@ -874,11 +873,11 @@ commandt.finder = function(name, directory)
   end
   local finder = nil
   local context = nil
-  options.open = function(item, kind)
+  options.open = function(item, ex_command)
     if config.open then
-      config.open(item, kind, directory, options, commandt.open, context)
+      config.open(item, ex_command, directory, options, commandt.open, context)
     else
-      commandt.open(item, kind)
+      commandt.open(item, ex_command)
     end
   end
   if config.candidates then
