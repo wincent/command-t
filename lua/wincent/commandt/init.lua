@@ -19,7 +19,7 @@ local commandt = {}
 --- @param buffer string
 --- @param command 'edit' | 'split' | 'tabedit' | 'vsplit'
 --- @return nil
-local function smart_open(buffer, command)
+local function sbuffer(buffer, command)
   buffer = vim.fn.fnameescape(buffer)
   local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
   if is_visible then
@@ -733,7 +733,7 @@ local default_options = {
   prompt = {
     border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', 'winborder', or a list of strings.
   },
-  open = smart_open,
+  open = sbuffer,
   root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
   scanners = {
     fd = {
@@ -908,8 +908,8 @@ commandt.pushd = pushd
 commandt.on_directory = on_directory
 -- TODO: maybe rename this
 commandt.on_open = on_open
--- TODO: probably rename this to smart_open
-commandt.open = smart_open
+-- TODO: rename `commandt.open` to `commandt.sbuffer`?
+commandt.open = sbuffer
 
 commandt.options = function()
   return copy(_options or commandt.default_options())
