@@ -229,11 +229,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         qsort(matches, count, sizeof(haystack_t *), cmp_score_p);
     }
 
-    if (count > limit) {
-        count = limit;
-    }
     result_t *results = xmalloc(sizeof(result_t));
-    results->matches = xmalloc(count * sizeof(const char *));
+    results->matches = xmalloc(limit * sizeof(const char *));
     results->match_count = 0;
     results->candidate_count = candidate_count;
 
