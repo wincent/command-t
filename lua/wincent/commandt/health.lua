@@ -9,13 +9,13 @@ local lua_build_directory = vim.fn.fnamemodify((path.caller() + '../lib'):normal
 local ruby_build_directory =
   vim.fn.fnamemodify((path.caller() + '../../../../ruby/command-t/ext/command-t'):normalize(), ':~')
 
-local report_info = function()
+local function report_info()
   health.info('Command-T version: ' .. require('wincent.commandt.version').version)
   health.info('Lua build directory:\n' .. lua_build_directory)
   health.info('Ruby build directory:\n' .. ruby_build_directory)
 end
 
-local check_lua_c_library = function()
+local function check_lua_c_library()
   health.start('Checking that Lua C library has been built')
 
   local lib = require('wincent.commandt.private.lib')
@@ -32,7 +32,7 @@ local check_lua_c_library = function()
   end
 end
 
-local check_external_dependencies = function()
+local function check_external_dependencies()
   health.start('Checking for optional external dependencies')
 
   for executable, finder in pairs({
@@ -52,7 +52,7 @@ local check_external_dependencies = function()
   end
 end
 
-local check_ruby_c_extension = function()
+local function check_ruby_c_extension()
   health.start('Checking that Ruby C extension has been built')
 
   if vim.fn.has('ruby') == 1 then
