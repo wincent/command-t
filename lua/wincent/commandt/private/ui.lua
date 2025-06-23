@@ -1,23 +1,11 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local ui = {}
+local UI = {}
 
 local MatchListing = require('wincent.commandt.private.match_listing')
 local Prompt = require('wincent.commandt.private.prompt')
 local Settings = require('wincent.commandt.private.settings')
-
-local candidate_count = nil
-local cmdline_enter_autocmd = nil
-local current_finder = nil -- Reference to avoid premature garbage collection.
-local current_window = nil
-local match_listing = nil
-local on_close = nil
-local on_open = nil
-local prompt = nil
-local results = nil
-local selected = nil
-local settings = Settings.new()
 
 -- Reverses `list` in place.
 local reverse = function(list)
@@ -30,6 +18,24 @@ local reverse = function(list)
   end
 end
 
+function UI.new()
+  local self = {
+    candidate_count = nil,
+    cmdline_enter_autocmd = nil,
+    current_finder = nil,
+    current_window = nil,
+    match_listing = nil,
+    on_close = nil,
+    on_open = nil,
+    prompt = nil,
+    results = nil,
+    selected = nil,
+    settings = Settings.new(),
+  }
+  setmetatable(self, { __index = UI })
+  return self
+end
+
 -- TODO: reasons to delete a window
 -- 1. [DONE] user explicitly closes it with ESC
 -- 2. [DONE] user explicitly accepts a selection
@@ -38,66 +44,66 @@ end
 -- (we get this "for free" kind of thanks to WinLeave happening as soon as you
 -- do anything that would move you out)
 
-local close = function()
+function UI:close()
   -- Restore global settings.
-  settings.hlsearch = nil
+  self.settings.hlsearch = nil
 
-  if match_listing then
-    match_listing:close()
-    match_listing = nil
+  if self.match_listing then
+    self.match_listing:close()
+    self.match_listing = nil
   end
-  if prompt then
-    prompt:close()
-    prompt = nil
+  if self.prompt then
+    self.prompt:close()
+    self.prompt = nil
   end
-  if cmdline_enter_autocmd ~= nil then
-    vim.api.nvim_del_autocmd(cmdline_enter_autocmd)
-    cmdline_enter_autocmd = nil
+  if self.cmdline_enter_autocmd ~= nil then
+    vim.api.nvim_del_autocmd(self.cmdline_enter_autocmd)
+    self.cmdline_enter_autocmd = nil
   end
-  if current_window then
+  if self.current_window then
     -- Due to autocommand nesting, and the fact that we call `close()` for
     -- `WinLeave`, `WinClosed`, or us calling `:close()`, we have to be careful
     -- to avoid infinite recursion here, by setting `current_window` to `nil`
     -- _before_ calling `nvim_set_current_win()`:
-    local win = current_window
-    current_window = nil
+    local win = self.current_window
+    self.current_window = nil
     vim.api.nvim_set_current_win(win)
   end
-  if on_close then
-    on_close()
-    on_close = nil
+  if self.on_close then
+    self.on_close()
+    self.on_close = nil
   end
 end
 
-ui.open = function(ex_command)
-  close()
-  if results and #results > 0 then
-    local result = results[selected]
-    if on_open then
-      result = on_open(result)
+function UI:open(ex_command)
+  self:close()
+  if self.results and #self.results > 0 then
+    local result = self.results[self.selected]
+    if self.on_open then
+      result = self.on_open(result)
     end
 
     -- Defer, to give autocommands a chance to run.
     vim.defer_fn(function()
-      current_finder.open(result, ex_command)
+      self.current_finder.open(result, ex_command)
     end, 0)
   end
-  on_open = nil
+  self.on_open = nil
 end
 
-ui.show = function(finder, options)
+function UI:show(finder, options)
   -- TODO validate options
-  current_finder = finder
+  self.current_finder = finder
 
-  current_window = vim.api.nvim_get_current_win()
+  self.current_window = vim.api.nvim_get_current_win()
 
-  on_close = options.on_close
-  on_open = options.on_open
+  self.on_close = options.on_close
+  self.on_open = options.on_open
 
   -- Temporarily override global settings.
   -- For now just 'hlsearch', but may add more later (see
   -- ruby/command-t/lib/command-t/match_window.rb)
-  settings.hlsearch = false
+  self.settings.hlsearch = false
 
   -- Work around an autocommand bug. We don't reliably get `WinClosed` events,
   -- or if we do, our call to `nvim_del_autocmd()` doesn't always clean up for
@@ -106,7 +112,7 @@ ui.show = function(finder, options)
   vim.api.nvim_create_augroup('CommandTWindow', { clear = true })
 
   local border = options.match_listing.border ~= 'winborder' and options.match_listing.border or nil
-  match_listing = MatchListing.new({
+  self.match_listing = MatchListing.new({
     border = border,
     height = options.height,
     icons = options.mode ~= 'virtual' and options.match_listing.icons or false,
@@ -115,72 +121,78 @@ ui.show = function(finder, options)
     selection_highlight = options.selection_highlight,
     truncate = options.match_listing.truncate,
   })
-  match_listing:show()
+  self.match_listing:show()
 
-  results = nil
-  selected = nil
+  self.results = nil
+  self.selected = nil
   border = options.prompt.border ~= 'winborder' and options.prompt.border or nil
-  prompt = Prompt.new({
+  self.prompt = Prompt.new({
     border = border,
     height = options.height,
     mappings = options.mappings,
     margin = options.margin,
     name = options.name,
     on_change = function(query)
-      results, candidate_count = current_finder.run(query)
-      if #results > 0 or candidate_count > 0 then
+      self.results, self.candidate_count = self.current_finder.run(query)
+      if #self.results > 0 or self.candidate_count > 0 then
         -- Once we've proved a finder works, we don't ever want to use fallback.
-        current_finder.fallback = nil
-      elseif current_finder.fallback then
-        current_finder, name = current_finder.fallback()
-        prompt.name = name or 'fallback'
-        results = current_finder.run(query)
+        self.current_finder.fallback = nil
+      elseif self.current_finder.fallback then
+        self.current_finder, name = self.current_finder.fallback()
+        self.prompt.name = name or 'fallback'
+        self.results = self.current_finder.run(query)
       end
-      if #results == 0 then
-        selected = nil
+      if #self.results == 0 then
+        self.selected = nil
       else
         if options.order == 'reverse' then
-          reverse(results)
-          selected = #results
+          reverse(self.results)
+          self.selected = #self.results
         else
-          selected = 1
+          self.selected = 1
         end
       end
-      match_listing:update(results, { selected = selected })
+      self.match_listing:update(self.results, { selected = self.selected })
     end,
-    on_leave = close,
+    on_leave = function()
+      self:close()
+    end,
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
-    on_open = ui.open,
+    on_open = function(ex_command)
+      self:open(ex_command)
+    end,
     on_select = function(choice)
-      if results and #results > 0 then
+      if self.results and #self.results > 0 then
         if choice.absolute then
           if choice.absolute > 0 then
-            selected = math.min(choice.absolute, #results)
+            self.selected = math.min(choice.absolute, #self.results)
           elseif choice.absolute < 0 then
-            selected = math.max(#results + choice.absolute + 1, 1)
+            self.selected = math.max(#self.results + choice.absolute + 1, 1)
           else -- Absolute "middle".
-            selected = math.min(math.floor(#results / 2) + 1, #results)
+            self.selected = math.min(math.floor(#self.results / 2) + 1, #self.results)
           end
         elseif choice.relative then
           if choice.relative > 0 then
-            selected = math.min(selected + choice.relative, #results)
+            self.selected = math.min(self.selected + choice.relative, #self.results)
           else
-            selected = math.max(selected + choice.relative, 1)
+            self.selected = math.max(self.selected + choice.relative, 1)
           end
         end
-        match_listing:select(selected)
+        self.match_listing:select(self.selected)
       end
     end,
     position = options.position,
   })
-  prompt:show()
+  self.prompt:show()
 
-  if cmdline_enter_autocmd == nil then
-    cmdline_enter_autocmd = vim.api.nvim_create_autocmd('CmdlineEnter', {
-      callback = close,
+  if self.cmdline_enter_autocmd == nil then
+    self.cmdline_enter_autocmd = vim.api.nvim_create_autocmd('CmdlineEnter', {
+      callback = function()
+        self:close()
+      end,
     })
   end
 end
 
-return ui
+return UI

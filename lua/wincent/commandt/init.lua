@@ -8,8 +8,11 @@ local is_table = require('wincent.commandt.private.is_table')
 local keys = require('wincent.commandt.private.keys')
 local merge = require('wincent.commandt.private.merge')
 local sub = require('wincent.commandt.private.sub')
+local UI = require('wincent.commandt.private.ui')
 
 local commandt = {}
+
+local ui = nil
 
 --- "Smart" open that will switch to an already open window containing the
 --- specified `buffer`, if one exists; otherwise, it will open a new window
@@ -800,10 +803,11 @@ commandt.file_finder = function(directory)
     directory = get_directory()
   end
   pushd(directory)
-  local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.file')('.', options)
-  ui.show(
+
+  ui = UI.new()
+  ui:show(
     finder,
     merge(options, {
       name = 'file',
@@ -880,11 +884,11 @@ commandt.finder = function(name, directory)
   if config.fallback then
     finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
   end
-  local ui = require('wincent.commandt.private.ui')
 
   -- TODO: fix type smell here. we're merging "mode", a property that exists
   -- inside matcher configs, into the top level, along with "name".
-  ui.show(
+  ui = UI.new()
+  ui:show(
     finder,
     merge(options, {
       name = name,
@@ -934,10 +938,11 @@ commandt.watchman_finder = function(directory)
   if directory == '' then
     directory = get_directory()
   end
-  local ui = require('wincent.commandt.private.ui')
   local options = commandt.options()
   local finder = require('wincent.commandt.private.finders.watchman')(directory, options)
-  ui.show(
+
+  ui = UI.new()
+  ui:show(
     finder,
     merge(options, {
       name = 'watchman',
