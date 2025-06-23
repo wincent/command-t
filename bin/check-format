@@ -12,7 +12,7 @@ EXIT=0
 
 stylua --check . || EXIT=1
 
-npx -y prettier --list-different "**/*.md" || EXIT=1
+npx -y dprint check "**/*.md" || EXIT=1
 
 set -o pipefail
 

@@ -12,7 +12,7 @@ cd "$REPO_ROOT"
 
 stylua .
 
-npx -y prettier --write "**/*.md"
+npx -y dprint fmt "**/*.md"
 
 # -i = inplace edit
 find . -iname '*.[ch]' | xargs clang-format -i

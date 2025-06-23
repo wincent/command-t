@@ -185,8 +185,7 @@ cd FlameGraph
 ./flamegraph.pl dtrace.collapsed > dtrace.svg
 ```
 
-[^tricks]:
-    Tricks which didn't work included running from inside `lua/wincent/commandt/lib` (where the dSYM bundle is), and moving the dSYM bundle up to the root and running from there.
+[^tricks]: Tricks which didn't work included running from inside `lua/wincent/commandt/lib` (where the dSYM bundle is), and moving the dSYM bundle up to the root and running from there.
 
     The probable reason why automatic symbol discovery doesn't work is the UUID mismatch between the library and the process that `dtrace` is executing:
 
