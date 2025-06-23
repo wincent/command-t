@@ -44,7 +44,7 @@ end
 -- (we get this "for free" kind of thanks to WinLeave happening as soon as you
 -- do anything that would move you out)
 
-function UI:close()
+function UI:_close()
   -- Restore global settings.
   self.settings.hlsearch = nil
 
@@ -75,8 +75,8 @@ function UI:close()
   end
 end
 
-function UI:open(ex_command)
-  self:close()
+function UI:_open(ex_command)
+  self:_close()
   if self.results and #self.results > 0 then
     local result = self.results[self.selected]
     if self.on_open then
@@ -155,12 +155,12 @@ function UI:show(finder, options)
       self.match_listing:update(self.results, { selected = self.selected })
     end,
     on_leave = function()
-      self:close()
+      self:_close()
     end,
     -- TODO: decide whether we want an `index`, a string, or just to base it off
     -- our notion of current selection
     on_open = function(ex_command)
-      self:open(ex_command)
+      self:_open(ex_command)
     end,
     on_select = function(choice)
       if self.results and #self.results > 0 then
@@ -189,7 +189,7 @@ function UI:show(finder, options)
   if self.cmdline_enter_autocmd == nil then
     self.cmdline_enter_autocmd = vim.api.nvim_create_autocmd('CmdlineEnter', {
       callback = function()
-        self:close()
+        self:_close()
       end,
     })
   end
