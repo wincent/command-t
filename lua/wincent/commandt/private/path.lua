@@ -1,7 +1,7 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local path = {}
+local M = {}
 
 local function startswith(str, letter)
   return #str > 0 and str:sub(1, 1) == letter
@@ -140,10 +140,10 @@ function Path:prepend_to_package_path()
   package.path = addition .. '/?.lua;' .. addition .. '/?/init.lua;' .. package.path
 end
 
-path.Path = Path
+M.Path = Path
 
 -- Returns the path of the caller's file.
-path.caller = function()
+M.caller = function()
   local source = debug.getinfo(2).source
   if startswith(source, '@') then
     return Path.new(source:sub(2, -1))
@@ -152,4 +152,4 @@ path.caller = function()
   end
 end
 
-return path
+return M

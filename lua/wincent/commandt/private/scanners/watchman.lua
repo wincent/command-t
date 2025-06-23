@@ -1,7 +1,7 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local watchman = {}
+local M = {}
 
 local sockname = nil
 
@@ -46,11 +46,11 @@ end
 
 -- Internal: Used by the benchmark suite so that we can identify this scanner
 -- from among others.
-watchman.name = 'watchman'
+M.name = 'watchman'
 
 -- Internal: Used by the benchmark suite so that we can avoid calling `vim` functions
 -- inside `get_sockname()` from our pure-C benchmark harness.
-watchman.set_sockname = function(name)
+M.set_sockname = function(name)
   sockname = name
 end
 
@@ -84,7 +84,7 @@ end
 -- Weak table to store query results keyed by scanner to prevent GC.
 local scanner_results = setmetatable({}, { __mode = 'k' })
 
-watchman.scanner = function(directory)
+M.scanner = function(directory)
   local lib = require('wincent.commandt.private.lib')
   local project = watch_project(vim.fn.fnamemodify(directory, ':p'))
   if project.error then
@@ -106,4 +106,4 @@ watchman.scanner = function(directory)
   return scanner
 end
 
-return watchman
+return M

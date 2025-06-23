@@ -6,7 +6,7 @@
 -- Manages a floating window and associated buffer, and provides methods for
 -- positioning, updating, setting a title etc.
 
-local window = {}
+local M = {}
 
 local is_integer = require('wincent.commandt.private.is_integer')
 local merge = require('wincent.commandt.private.merge')
@@ -415,6 +415,6 @@ function Window:_calculate_position()
   end
 end
 
-window.Window = Window
+M.Window = Window
 
-return window
+return M

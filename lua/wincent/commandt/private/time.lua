@@ -2,13 +2,13 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 --- @class time
-local time = {}
+local M = {}
 
 --- Returns the CPU-time elapsed while executing the `callback`.
 ---
 --- @param callback function
 --- @return number
-time.cpu = function(callback)
+M.cpu = function(callback)
   local start_cpu = os.clock()
   callback()
   return os.clock() - start_cpu
@@ -18,7 +18,7 @@ end
 ---
 --- @param callback function
 --- @return number
-time.wall = function(callback)
+M.wall = function(callback)
   local lib = require('wincent.commandt.private.lib')
   local start_wall_s, start_wall_us = lib.epoch()
   callback()
@@ -30,4 +30,4 @@ time.wall = function(callback)
   return (end_wall_s - start_wall_s) + (end_wall_us - start_wall_us) / 1000000
 end
 
-return time
+return M

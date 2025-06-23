@@ -1,8 +1,6 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local prompt = {}
-
 local Window = require('wincent.commandt.private.window').Window
 local merge = require('wincent.commandt.private.merge')
 
@@ -169,6 +167,4 @@ function Prompt:show()
   self._window:focus()
 end
 
-prompt.Prompt = Prompt
-
-return prompt
+return Prompt

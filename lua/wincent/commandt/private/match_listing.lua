@@ -1,8 +1,6 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local match_listing = {}
-
 local Window = require('wincent.commandt.private.window').Window
 local merge = require('wincent.commandt.private.merge')
 local str_prefix = require('wincent.commandt.private.str_prefix')
@@ -197,6 +195,4 @@ function MatchListing:update(results, options)
   end
 end
 
-match_listing.MatchListing = MatchListing
-
-return match_listing
+return MatchListing

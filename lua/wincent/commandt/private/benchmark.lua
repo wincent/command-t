@@ -225,7 +225,7 @@ local significance = function(last, current)
   return p_value
 end
 
-local benchmark = function(options)
+local function benchmark(options)
   assert(type(options) == 'table')
   assert(type(options.config) == 'string')
   assert(type(options.log) == 'string')

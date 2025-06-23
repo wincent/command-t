@@ -3,8 +3,8 @@
 
 local ui = {}
 
-local MatchListing = require('wincent.commandt.private.match_listing').MatchListing
-local Prompt = require('wincent.commandt.private.prompt').Prompt
+local MatchListing = require('wincent.commandt.private.match_listing')
+local Prompt = require('wincent.commandt.private.prompt')
 local Settings = require('wincent.commandt.private.settings')
 
 local candidate_count = nil

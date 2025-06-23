@@ -20,14 +20,14 @@ local commandt = {}
 --- @param command 'edit' | 'split' | 'tabedit' | 'vsplit'
 --- @return nil
 local function sbuffer(buffer, command)
-  buffer = vim.fn.fnameescape(buffer)
-  local is_visible = require('wincent.commandt.private.buffer_visible')(buffer)
+  local escaped_name = vim.fn.fnameescape(buffer)
+  local is_visible = require('wincent.commandt.private.buffer_visible')(escaped_name)
   if is_visible then
-    -- Note that, in order to be useful, `:sbuffer` needs
-    -- `vim.o.switchbuf = 'usetab'` to be set.
-    vim.cmd('sbuffer ' .. buffer)
+    -- Note that, in order to be useful, `:sbuffer` needs `vim.o.switchbuf =
+    -- 'usetab'` to be set.
+    vim.cmd('sbuffer ' .. escaped_name)
   else
-    vim.cmd(command .. ' ' .. buffer)
+    vim.cmd(command .. ' ' .. escaped_name)
   end
 end
 
