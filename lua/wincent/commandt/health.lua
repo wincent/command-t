@@ -32,6 +32,18 @@ local function check_lua_c_library()
   end
 end
 
+local function check_settings()
+  health.start('Checking settings')
+
+  if vim.o.switchbuf == 'usetab' then
+    health.ok('\'switchbuf\' is set to recommended setting ("usetab")')
+  else
+    health.warn(
+      string.format('\'switchbuf\' is set to %s instead of recommended setting ("usetab")', vim.inspect(vim.o.switchbuf))
+    )
+  end
+end
+
 local function check_external_dependencies()
   health.start('Checking for optional external dependencies')
 
@@ -81,6 +93,7 @@ return {
   -- Run with `:checkhealth wincent.commandt`
   check = function()
     report_info()
+    check_settings()
     check_lua_c_library()
     check_external_dependencies()
     check_ruby_c_extension()
