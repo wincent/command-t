@@ -644,23 +644,15 @@ local default_options = {
       mode = 'virtual',
       open = function(item, ex_command, _directory, options, opener, context)
         local tag = context[item]
-        local tag_name = tag.name
-        if options.scanners.tag.include_filenames then
-          if tag.filename and tag.cmd then
-            opener(tag.filename, ex_command)
+        opener(tag.filename, ex_command)
 
-            -- Strip leading and trailing slashes, and use \M ('nomagic'):
-            -- ie. "/^int main()$/" → "\M^int main()$"
-            local pattern = '\\M' .. tag.cmd:match('^/(.-)/$')
-            local line, column = unpack(vim.fn.searchpos(pattern, 'w'))
-            if line ~= 0 and column ~= 0 then
-              vim.cmd('normal! zz')
-            end
-            return
-          end
+        -- Strip leading and trailing slashes, and use \M ('nomagic'):
+        -- ie. "/^int main()$/" → "\M^int main()$"
+        local pattern = '\\M' .. tag.cmd:match('^/(.-)/?$')
+        local line, column = unpack(vim.fn.searchpos(pattern, 'w'))
+        if line ~= 0 and column ~= 0 then
+          vim.cmd('normal! zz')
         end
-
-        vim.cmd('silent! tag ' .. tag_name .. ' | normal! zz')
       end,
       options = force_dot_files,
     },
