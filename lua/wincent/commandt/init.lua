@@ -497,7 +497,7 @@ local default_options = {
         local helptags = {}
         local tagfiles = vim.api.nvim_get_runtime_file('doc/tags', true)
         for _, tagfile in ipairs(tagfiles) do
-          if vim.fn.filereadable(tagfile) then
+          if vim.fn.filereadable(tagfile) == 1 then
             for _, tag in ipairs(vim.fn.readfile(tagfile)) do
               local _, _, tag_text = tag:find('^%s*(%S+)%s+')
               if tag_text ~= nil then
