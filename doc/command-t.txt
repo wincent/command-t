@@ -1045,6 +1045,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
+main (not yet released) ~
+
+- ...
+
 7.0 (23 June 2025) ~
 
 - Unless the user has specified a preference for the Ruby version of Command-T
