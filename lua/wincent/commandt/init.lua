@@ -400,7 +400,7 @@ local default_options = {
       candidates = function(_directory, _options)
         -- Maybe Neovim will support builtins here too one day, but it doesn't
         -- yet.
-        local commands = keys(vim.api.nvim_get_commands({builtin = false}))
+        local commands = keys(vim.api.nvim_get_commands({ builtin = false }))
 
         -- For now, read builtins from `:help ex-cmd-index`.
         local ex_cmd_index = vim.fn.expand(vim.fn.findfile('doc/index.txt', vim.o.runtimepath))
@@ -415,12 +415,11 @@ local default_options = {
           --     (continues for 100s of lines...)
           --
           for line in io.lines(ex_cmd_index) do
-            local command = line:match("^|:([^|]+)|%s+")
+            local command = line:match('^|:([^|]+)|%s+')
             if command then
               table.insert(commands, command)
             end
           end
-
         end
         return commands
       end,
