@@ -250,7 +250,6 @@ watchman 0.00488 0.00784 0.00646 [+75.7%] 0.0005 (10.99634) (11.09394) (0.26660)
 ## TODO
 
 - Keep adding tests.
-
   - Add integration tests (seeing as I removed vroom).
 
 - FEAT: toggle mark with space in normal mode to do a multiselection?

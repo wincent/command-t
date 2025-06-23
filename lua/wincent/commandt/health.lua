@@ -39,7 +39,10 @@ local function check_settings()
     health.ok('\'switchbuf\' is set to recommended setting ("usetab")')
   else
     health.warn(
-      string.format('\'switchbuf\' is set to %s instead of recommended setting ("usetab")', vim.inspect(vim.o.switchbuf))
+      string.format(
+        '\'switchbuf\' is set to %s instead of recommended setting ("usetab")',
+        vim.inspect(vim.o.switchbuf)
+      )
     )
   end
 end
