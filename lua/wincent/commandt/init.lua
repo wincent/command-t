@@ -414,7 +414,7 @@ local default_options = {
           --
           --     (continues for 100s of lines...)
           --
-          for line in io.lines(ex_cmd_index) do
+          for _, line in ipairs(vim.fn.readfile(ex_cmd_index)) do
             local command = line:match('^|:([^|]+)|%s+')
             if command then
               table.insert(commands, command)
