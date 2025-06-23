@@ -1,7 +1,7 @@
 -- SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local Window = require('wincent.commandt.private.window').Window
+local Window = require('wincent.commandt.private.window')
 local merge = require('wincent.commandt.private.merge')
 local str_prefix = require('wincent.commandt.private.str_prefix')
 local str_suffix = require('wincent.commandt.private.str_suffix')
