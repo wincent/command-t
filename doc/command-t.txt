@@ -1044,6 +1044,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
+main (not yet released) ~
+
+- ...
+
 6.2 (23 June 2025) ~
 
 - feat: |commandt.setup.match_listing.border| and |commandt.setup.prompt.border|
