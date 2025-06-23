@@ -67,31 +67,6 @@ local function check_external_dependencies()
   end
 end
 
-local function check_ruby_c_extension()
-  health.start('Checking that Ruby C extension has been built')
-
-  if vim.fn.has('ruby') == 1 then
-    health.ok('Has Ruby support')
-  else
-    health.warn('No Ruby support')
-    return
-  end
-
-  if vim.fn.exists(':CommandTLoad') ~= 0 then
-    vim.cmd('CommandTLoad')
-    local result = vim.fn.rubyeval('$command_t && $command_t.class.respond_to?(:guard) ? 1 : 0')
-    if result == 1 then
-      health.ok('Has working Ruby C extension')
-    else
-      health.warn('Ruby C extension missing or broken', {
-        'Try running `ruby extconf.rb && make` from\n' .. ruby_build_directory,
-      })
-    end
-  else
-    health.warn(':CommandTLoad does not exist')
-  end
-end
-
 return {
   -- Run with `:checkhealth wincent.commandt`
   check = function()
@@ -99,6 +74,5 @@ return {
     check_settings()
     check_lua_c_library()
     check_external_dependencies()
-    check_ruby_c_extension()
   end,
 }

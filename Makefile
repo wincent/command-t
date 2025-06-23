@@ -2,13 +2,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 LUA_DIR = lua/wincent/commandt/lib
-RUBY_DIR = ruby/command-t/ext/command-t
 
 .PHONY: build
 build:
 	$(MAKE) -C $(LUA_DIR)
-	(cd $(RUBY_DIR) && ruby extconf.rb)
-	$(MAKE) -C $(RUBY_DIR)
 
 .PHONY: check
 check:
@@ -32,5 +29,3 @@ test:
 .PHONY: clean
 clean:
 	$(MAKE) -C $(LUA_DIR) clean
-	if test -f $(RUBY_DIR)/Makefile; then $(MAKE) -C $(RUBY_DIR) clean; fi
-	rm -f $(RUBY_DIR)/Makefile

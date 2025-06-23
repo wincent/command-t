@@ -5,7 +5,13 @@
 
 # Command-T
 
-Command-T is a Neovim and Vim plug-in that provides an extremely fast "fuzzy" mechanism for:
+> [!IMPORTANT]
+>
+> This is the Lua-powered rewrite of Command-T, and requires Neovim.
+>
+> See [the `7-x-release` branch](https://github.com/wincent/command-t/tree/7-x-release) for an older Ruby-powered version that also supports Vim.
+
+Command-T is a Neovim plug-in that provides an extremely fast "fuzzy" mechanism for:
 
 - Opening files and buffers
 - Jumping to tags and help

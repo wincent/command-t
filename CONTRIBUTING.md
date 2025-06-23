@@ -100,9 +100,6 @@ require('packer').startup(function(use)
   use {
     'wincent/command-t',
     run = 'cd lua/wincent/commandt/lib && make',
-    setup = function ()
-      vim.g.CommandTPreferredImplementation = 'lua'
-    end,
     config = function()
       require('wincent.commandt').setup()
     end,

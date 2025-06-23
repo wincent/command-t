@@ -1,13 +1,9 @@
 *swp
 *~
-.ruby-version
 .un~
 /*.zip
-/.bundle
 /.vagrant
 /Vagrantfile
-/data/log.yml
 /media
 /tags
 commandt-debug.log
-vendor/bundle

@@ -1,142 +1,105 @@
 -- SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local CommandT = nil
-local CommandTBuffer = nil
-local CommandTHelp = nil
-local CommandTWatchman = nil
+vim.keymap.set('n', '<Plug>(CommandT)', ':CommandT<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTBuffer)', ':CommandTBuffer<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTCommand)', ':CommandTCommand<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTFd)', ':CommandTFd<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTFind)', ':CommandTFind<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTGit)', ':CommandTGit<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTHistory)', ':CommandTHistory<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTHelp)', ':CommandTHelp<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTJump)', ':CommandTJump<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTLine)', ':CommandTLine<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTRipgrep)', ':CommandTRipgrep<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTSearch)', ':CommandTSearch<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTTag)', ':CommandTTag<CR>', { silent = true })
+vim.keymap.set('n', '<Plug>(CommandTWatchman)', ':CommandTWatchman<CR>', { silent = true })
 
-if vim.g.CommandTPreferredImplementation == 'lua' then
-  CommandT = 'CommandT'
-  CommandTBuffer = 'CommandTBuffer'
-  CommandTCommand = 'CommandTCommand'
-  CommandTFd = 'CommandTFd'
-  CommandTFind = 'CommandTFind'
-  CommandTGit = 'CommandTGit'
-  CommandTHelp = 'CommandTHelp'
-  CommandTHistory = 'CommandTHistory'
-  CommandTJump = 'CommandTJump'
-  CommandTLine = 'CommandTLine'
-  CommandTRipgrep = 'CommandTRipgrep'
-  CommandTSearch = 'CommandTSearch'
-  CommandTTag = 'CommandTTag'
-  CommandTWatchman = 'CommandTWatchman'
-
-  vim.keymap.set('n', '<Plug>(CommandT)', ':CommandT<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTBuffer)', ':CommandTBuffer<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTCommand)', ':CommandTCommand<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTFd)', ':CommandTFd<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTFind)', ':CommandTFind<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTGit)', ':CommandTGit<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTHistory)', ':CommandTHistory<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTHelp)', ':CommandTHelp<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTJump)', ':CommandTJump<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTLine)', ':CommandTLine<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTRipgrep)', ':CommandTRipgrep<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTSearch)', ':CommandTSearch<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTTag)', ':CommandTTag<CR>', { silent = true })
-  vim.keymap.set('n', '<Plug>(CommandTWatchman)', ':CommandTWatchman<CR>', { silent = true })
-else
-  CommandT = 'KommandT'
-  CommandTBuffer = 'KommandTBuffer'
-  CommandTCommand = 'KommandTCommand'
-  CommandTFd = 'KommandTFd'
-  CommandTFind = 'KommandTFind'
-  CommandTGit = 'KommandTGit'
-  CommandTHelp = 'KommandTHelp'
-  CommandTHistory = 'KommandTHistory'
-  CommandTJump = 'KommandTJump'
-  CommandTLine = 'KommandTLine'
-  CommandTRipgrep = 'KommandTRipgrep'
-  CommandTSearch = 'KommandTSearch'
-  CommandTTag = 'KommandTTag'
-  CommandTWatchman = 'KommandTWatchman'
-end
-
-vim.api.nvim_create_user_command(CommandT, function(command)
+vim.api.nvim_create_user_command('CommandT', function(command)
   require('wincent.commandt').file_finder(command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
-vim.api.nvim_create_user_command(CommandTBuffer, function()
+vim.api.nvim_create_user_command('CommandTBuffer', function()
   require('wincent.commandt').finder('buffer')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTCommand, function()
+vim.api.nvim_create_user_command('CommandTCommand', function()
   require('wincent.commandt').finder('command')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTFd, function(command)
+vim.api.nvim_create_user_command('CommandTFd', function(command)
   require('wincent.commandt').finder('fd', command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
-vim.api.nvim_create_user_command(CommandTFind, function(command)
+vim.api.nvim_create_user_command('CommandTFind', function(command)
   require('wincent.commandt').finder('find', command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
-vim.api.nvim_create_user_command(CommandTGit, function(command)
+vim.api.nvim_create_user_command('CommandTGit', function(command)
   require('wincent.commandt').finder('git', command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
-vim.api.nvim_create_user_command(CommandTHelp, function()
+vim.api.nvim_create_user_command('CommandTHelp', function()
   require('wincent.commandt').finder('help')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTHistory, function()
+vim.api.nvim_create_user_command('CommandTHistory', function()
   require('wincent.commandt').finder('history')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTJump, function()
+vim.api.nvim_create_user_command('CommandTJump', function()
   require('wincent.commandt').finder('jump')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTLine, function()
+vim.api.nvim_create_user_command('CommandTLine', function()
   require('wincent.commandt').finder('line')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTRipgrep, function(command)
+vim.api.nvim_create_user_command('CommandTRipgrep', function(command)
   require('wincent.commandt').finder('rg', command.args)
 end, {
   complete = 'dir',
   nargs = '?',
 })
 
-vim.api.nvim_create_user_command(CommandTSearch, function()
+vim.api.nvim_create_user_command('CommandTSearch', function()
   require('wincent.commandt').finder('search')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTTag, function()
+vim.api.nvim_create_user_command('CommandTTag', function()
   require('wincent.commandt').finder('tag')
 end, {
   nargs = 0,
 })
 
-vim.api.nvim_create_user_command(CommandTWatchman, function(command)
+vim.api.nvim_create_user_command('CommandTWatchman', function(command)
   require('wincent.commandt').watchman_finder(command.args)
 end, {
   complete = 'dir',

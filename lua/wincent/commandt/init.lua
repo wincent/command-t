@@ -947,12 +947,6 @@ commandt.setup = function(options)
   local sanitized_options, errors = sanitize_options(options, _options or commandt.default_options(options))
   _options = sanitized_options
 
-  if vim.g.CommandTPreferredImplementation == 'ruby' then
-    table.insert(errors, 1, '`commandt.setup()` was called, but `g:CommandTPreferredImplementation` is set to "ruby"')
-  else
-    vim.g.CommandTPreferredImplementation = 'lua'
-  end
-
   if
     not pcall(function()
       local lib = require('wincent.commandt.private.lib') -- We can require it.

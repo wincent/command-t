@@ -1,8 +1,0 @@
-# SPDX-FileCopyrightText: Copyright 2010-present Greg Hurrell and contributors.
-# SPDX-License-Identifier: BSD-2-Clause
-
-CFLAGS += -Wall -Wextra -Wno-unused-parameter
-
-ifdef DEBUG
-CFLAGS += -DDEBUG
-endif
