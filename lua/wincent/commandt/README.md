@@ -6,6 +6,8 @@ Similar to existing Command-T model, have a "Finder" instance that maintains a r
 
 For returning results back, we only ever have a small number (say, 10), and can easily copy those strings back.
 
+See [ARCHITECTURE](../../../ARCHITECTURE.md) for way more details on the memory model.
+
 ## Benchmarks
 
 On Apple Silicon, where the `luajit` package is not currently available in Homebrew, but `neovim` itself requires `luajit-openresty` package, you can add a working `luajit` executable to your `$PATH` with:
