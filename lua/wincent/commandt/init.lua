@@ -7,7 +7,6 @@ local is_integer = require('wincent.commandt.private.is_integer')
 local is_table = require('wincent.commandt.private.is_table')
 local keys = require('wincent.commandt.private.keys')
 local merge = require('wincent.commandt.private.merge')
-local sub = require('wincent.commandt.private.sub')
 local UI = require('wincent.commandt.private.ui')
 
 local commandt = {}
