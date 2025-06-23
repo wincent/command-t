@@ -133,17 +133,17 @@ ugly. Interestingly, from the perspective of Command-T, interfacing with a
 C library from Lua is relatively straightforward due to the excellent FFI
 support.
 
-From version 6.0, as the result of a complete rewrite, the core of Command-T
-is now written in Lua and C, and it only supports Neovim. The C library is now
-pure POSIX-compliant C, free from any references to the Ruby virtual machine.
-This, combined with the low overhead of calling into C from Lua via the FFI
-means that the performance critical parts of the code are even faster than
-before, up to twice as fast according to the benchmarks. In addition, by
-targeting newer APIs and writing the UI code in Lua, that portion of the core
-is also significantly more responsive and robust. Various UI quirks have been
-eliminated in this way, including the aforementioned problems with pasting
-queries (Command-T uses a real buffer for input now, which means that all
-standard Vim editing commands can be used inside the prompt area).
+From version 6.0, as the result of a complete rewrite, Command-T now includes
+a new core written in Lua and C, and the new core only supports Neovim. The
+new C library is pure POSIX-compliant C, free from any references to the Ruby
+virtual machine. This, combined with the low overhead of calling into C from
+Lua via the FFI means that the performance critical parts of the code are
+even faster than before, up to twice as fast according to the benchmarks. In
+addition, by targeting newer APIs and writing the UI code in Lua, that portion
+of the core is also significantly more responsive and robust. Various UI
+quirks have been eliminated in this way, including the aforementioned problems
+with pasting queries (Command-T uses a real buffer for input now, which means
+that all standard Vim editing commands can be used inside the prompt area).
 
 There is a cost, however. Most notably, the rewrite is not yet a
 feature-complete copy of the original Ruby-powered version, and filling in
@@ -191,7 +191,7 @@ Call:
 >
     require('wincent.commandt').setup()
 <
-early on in your |vimrc|,  before the Ruby plug-in code has had a chance to
+early on in your |vimrc|, before the Ruby plug-in code has had a chance to
 execute. Alternatively, if you wish to defer calling |commandt.setup()| until
 later on in the |startup| process, you can instead define early on:
 >
@@ -240,17 +240,18 @@ implementation via one of the above means. You can either follow this prompt,
 or ignore it, but it will appear every time that you open Neovim until you
 make a decision.
 
-If you don't opt-in explicitly, Command-T version 6.0 will behave as though
-you had chosen Ruby. Starting with version 7.0, it will behave as though you
-had chosen Lua.
+In the absence of an explicit opt-in, Command-T version 6.0 behaved as though
+you had chosen Ruby. Starting with version 7.0, it behaves as though you had
+chosen Lua. In version 8.0, the Ruby implementation will be entirely removed.
 
-If you are running Vim instead of Neovim, Command-T will behave as though you
-had chosen Ruby.
+In the meantime, if you are running Vim instead of Neovim, Command-T will
+behave as though you had chosen Ruby.
 
 If you wish to avoid the entire business of upgrading, you can set up your
 plug-in manager to track the Command-T `5-x-release` branch instead of `main`.
 That branch only contains the Ruby code, and none of the Lua changes that
-started with the 6.0 release.
+started with the 6.0 release. `6-x-release` and `7-x-release` branches will be
+made available as well for people who wish to track those instead.
 
 
 TROUBLE-SHOOTING                                   *command-t-trouble-shooting*
@@ -1044,9 +1045,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
-main (not yet released) ~
+7.0 (23 June 2025) ~
 
-- ...
+- Unless the user has specified a preference for the Ruby version of Command-T
+  by setting `g:CommandTPreferredImplementation` to `'ruby'`, the Lua version
+  will be used by default.
 
 6.2 (23 June 2025) ~
 

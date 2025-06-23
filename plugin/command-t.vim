@@ -12,12 +12,12 @@ let s:has_preference=s:prefers_ruby || s:prefers_lua
 
 if has('nvim') && !s:has_preference
   let s:lua_suppression=[
-        \   ['To select Ruby (for the v6.0 series, the default):', "vim.g.CommandTPreferredImplementation = 'ruby'"],
-        \   ['To select Lua (from v7.0, will be the new default):', "require('wincent.commandt').setup()"]
+        \   ['To select Ruby:', "vim.g.CommandTPreferredImplementation = 'ruby'"],
+        \   ['To select Lua (the default):', "require('wincent.commandt').setup()"]
         \ ]
   let s:vimscript_suppression=[
-        \   ['To select Ruby (for the v6.0 series, the default):', "let g:CommandTPreferredImplementation='ruby'"],
-        \   ['To select Lua (from v7.0, will be the new default):', "let g:CommandTPreferredImplementation='lua'"]
+        \   ['To select Ruby:', "let g:CommandTPreferredImplementation='ruby'"],
+        \   ['To select Lua (the default):', "let g:CommandTPreferredImplementation='lua'"]
         \ ]
   let s:suppression=exists('$MYVIMRC') && match($MYVIMRC, '\c\.lua') > 0
         \ ? s:lua_suppression
@@ -26,9 +26,9 @@ if has('nvim') && !s:has_preference
   echo 'Notice'
   echo '------'
   echo "\n"
-  echo 'Starting with Command-T version 6.0, Command-T has been rewritten in'
-  echo 'Lua (rather than Ruby), and supports only Neovim (rather than Vim and'
-  echo 'Neovim). The new version is faster and more robust.'
+  echo 'Starting with Command-T version 6.0, Command-T ships with a new core'
+  echo 'written in Lua (rather than Ruby). The new core supports only Neovim'
+  echo '(rather than Vim and Neovim), and is faster and more robust.'
   echo "\n"
   echo 'See `:help command-t-upgrading` for information on how to choose'
   echo 'between the Lua and the Ruby implementations.'
@@ -41,7 +41,7 @@ if has('nvim') && !s:has_preference
     echo "\n"
   endfor
   echohl none
-  let s:prefers_ruby=1
+  let s:prefers_lua=1
 endif
 
 if empty(&switchbuf)
