@@ -1022,7 +1022,7 @@ main (not yet released) ~
 - Close match listing after buffer deletion to avoid likely errors on
   subsequent interactions (#357, patch from Andrius Grabauskas).
 - Fix |E116| error opening filenames containing single quotes.
-- Deal with |'wildignore'| (and |g:CommandTWildIgnore|) patterns of the form
+- Deal with |'wildignore'| (and `g:CommandTWildIgnore`) patterns of the form
   "*pattern" (eg. "*~", which would ignore files created with Vim's default
   |'backupext'|) (#369, patch from Steve Herrell).
 - Turn off |'signcolumn'| in the match listing (#376).
@@ -1034,7 +1034,7 @@ main (not yet released) ~
 - Fix unlisted buffers showing up in |:CommandTBuffer| listing on Neovim.
 - Fix edge cases with opening selections in tabs (#315).
 - Fix possible degenerate performance of |:CommandTBuffer| and
-  |:CommandTMRU| on Neovim.
+  `:CommandTMRU` on Neovim.
 - Handle missing match listing buffer in Neovim (#342).
 
 5.0.2 (7 September 2017) ~
@@ -1067,16 +1067,16 @@ main (not yet released) ~
   (whichever one you used first would be used for both).
 - Added mapping (<C-d>) to delete a buffer from the buffer list (patch from
   Max Timkovich).
-- Added |g:CommandTGitIncludeUntracked| option (patch from Steven Stallion).
+- Added `g:CommandTGitIncludeUntracked` option (patch from Steven Stallion).
 - Added |:CommandTOpen|, which implements smart "goto or open" functionality,
-  and adjust |g:CommandTAcceptSelectionCommand|,
-  |g:CommandTAcceptSelectionTabCommand|,
-  |g:CommandTAcceptSelectionSplitCommand|, and
-  |g:CommandTAcceptSelectionVSplitCommand| to use it by default. Their default
+  and adjust `g:CommandTAcceptSelectionCommand`,
+  `g:CommandTAcceptSelectionTabCommand`,
+  `g:CommandTAcceptSelectionSplitCommand`, and
+  `g:CommandTAcceptSelectionVSplitCommand` to use it by default. Their default
   values have been changed from "e", "tabe", "sp" and "vs" to "CommandTOpen
   e", "CommandTOpen tabe", "CommandTOpen sp" and "CommandTOpen vs",
   respectively. Use with |'switchbuf'| set to "usetab" for maximum effect.
-- Added |g:CommandTWindowFilter| for customizing the filtering expression that
+- Added `g:CommandTWindowFilter` for customizing the filtering expression that
   is used to determine which windows Command-T should not open selected
   files in.
 
@@ -1085,7 +1085,7 @@ main (not yet released) ~
 - A non-leading dot in the search query can now match against dot-files and
   "dot-directories" in non-leading path components.
 - Matching algorithm sped up by about 17x (with help from Hanson Wang).
-- |g:CommandTInputDebounce| now defaults to 0, as the recent optimizations
+- `g:CommandTInputDebounce` now defaults to 0, as the recent optimizations
   make debouncing largely unnecessary.
 - Added |:CommandTHelp| for jumping to locations in the help, and an
   accompanying mapping, |<Plug>(CommandTHelp)|.
@@ -1103,12 +1103,12 @@ main (not yet released) ~
 - Removed functionality that was previously deprecated in 2.0.
 - Fix inability to type "^" and "|" at the prompt.
 - Make it possible to completely disable |'wildignore'|-based filtering by
-  setting |g:CommandTWildIgnore| to an empty string.
+  setting `g:CommandTWildIgnore` to an empty string.
 - The "watchman" file scanner now respects |'wildignore'| and
-  |g:CommandTWildIgnore| by constructing an equivalent regular expression and
+  `g:CommandTWildIgnore` by constructing an equivalent regular expression and
   using that for filtering.
-- Show a warning when hitting |g:CommandTMaxFiles|, and add a corresponding
-  |g:CommandTSuppressMaxFilesWarning| setting to suppress the warning.
+- Show a warning when hitting `g:CommandTMaxFiles`, and add a corresponding
+  `g:CommandTSuppressMaxFilesWarning` setting to suppress the warning.
 
 3.0.2 (9 February 2016) ~
 
@@ -1118,13 +1118,13 @@ main (not yet released) ~
 
 3.0.1 (25 January 2016) ~
 
-- restore compatibility with Ruby 1.8.7.
+- restore compatibility wWth Ruby 1.8.7.
 
 3.0 (19 January 2016) ~
 
-- change |g:CommandTIgnoreSpaces| default value to 1.
-- change |g:CommandTMatchWindowReverse| default value to 1.
-- change |g:CommandTMaxHeight| default value to 15.
+- change `g:CommandTIgnoreSpaces` default value to 1.
+- change `g:CommandTMatchWindowReverse` default value to 1.
+- change `g:CommandTMaxHeight` default value to 15.
 - try harder to avoid scrolling other buffer when showing or hiding the match
   listing
 
@@ -1170,11 +1170,11 @@ main (not yet released) ~
   - `CommandTSelectNext()` is now `commandt#private#SelectNext()`
   - `CommandTSelectPrev()` is now `commandt#private#SelectPrev()`
   - `CommandTToggleFocus()` is now `commandt#private#ToggleFocus()`
-- add |g:CommandTRecursiveMatch| option
+- add `g:CommandTRecursiveMatch` option
 - stop distribution as a vimball in favor of a zip archive
 - don't clobber |alternate-file| name when opening Command-T match listing
   (patch from Jerome Castaneda)
-- add |g:CommandTCursorColor| option
+- add `g:CommandTCursorColor` option
 - expose mappings for |:CommandT| and |:CommandTBuffer| using `<Plug>`
   mappings |<Plug>(CommandT)| and |<Plug>(CommandTBuffer)|
 - add `<Leader>j` mapping to |:CommandTJump|, via |<Plug>(CommandTJump)|
@@ -1194,20 +1194,20 @@ main (not yet released) ~
 - doc fixes and updates (patches from Daniel Hahler and Nicholas T.)
 - make it possible to force reloading of the plug-in (patch from Daniel
   Hahler)
-- add |g:CommandTEncoding| option, to work around rare encoding compatibility
+- add `g:CommandTEncoding` option, to work around rare encoding compatibility
   issues
 - fix error restoring cursor highlights involving some configurations (patch
   from Daniel Hahler)
 - skip set-up of |<Esc>| key mapping on rxvt terminals (patch from Daniel
   Hahler)
-- add |g:CommandTGitScanSubmodules| option, which can be used to recursively
+- add `g:CommandTGitScanSubmodules` option, which can be used to recursively
   scan submodules when the "git" file scanner is used (patch from Ben Boeckel)
 - fix for not falling back to "find"-based scanner when a Watchman-related
   error occurs
 
 1.11.4 (4 November 2014) ~
 
-- fix infinite loop on Windows when |g:CommandTTraverseSCM| is set to a value
+- fix infinite loop on Windows when `g:CommandTTraverseSCM` is set to a value
   other than "pwd" (bug present since 1.11)
 - handle unwanted split edgecase when |'hidden'| is set, the current buffer is
   modified, and it is visible in more than one window
@@ -1216,7 +1216,7 @@ main (not yet released) ~
 
 - ignore impromperly encoded filenames (patch from Sherzod Gapirov)
 - fix failure to update path when using |:cd| in conjunction with
-  |g:CommandTTraverseSCM| set to "pwd" (bug present since 1.11.2)
+  `g:CommandTTraverseSCM` set to "pwd" (bug present since 1.11.2)
 
 1.11.2 (2 September 2014) ~
 
@@ -1228,7 +1228,7 @@ main (not yet released) ~
 - compatibility fixes with Ruby 1.8.6 (patch from Emily Strickland)
 - compatibility fixes with Ruby 1.8.5
 - fix 'wildignore' being ignored (bug present since 1.11)
-- fix current working directory being ignored when |g:CommandTTraverseSCM| is
+- fix current working directory being ignored when `g:CommandTTraverseSCM` is
   set to "pwd" (bug present since 1.11)
 - performance improvements
 
@@ -1238,7 +1238,7 @@ main (not yet released) ~
   Richard Feldman)
 - add "git" file scanner (patch from Patrick Hayes)
 - speed-up when 'wildignore' is unset (patch from Patrick Hayes)
-- add |g:CommandTTraverseSCM| setting which anchors Command-T's file finder to
+- add `g:CommandTTraverseSCM` setting which anchors Command-T's file finder to
   the nearest SCM directory (based on patches from David Szotten and Ben
   Osheroff)
 - add AppStream metadata (patch from Vít Ondruch)
@@ -1256,7 +1256,7 @@ main (not yet released) ~
   (patch from Ton van den Heuvel)
 - don't allow MRU autocommands to produce errors when the extension has not
   been compiled
-- add |g:CommandTIgnoreCase| and |g:CommandTSmartCase| options, providing
+- add `g:CommandTIgnoreCase` and `g:CommandTSmartCase` options, providing
   support for case-sensitive matching (based on patch from Jacek Wysocki)
 
 1.9.1 (30 May 2014) ~
@@ -1284,13 +1284,13 @@ main (not yet released) ~
 
 1.7 (9 March 2014) ~
 
-- added |g:CommandTInputDebounce|, which can be used to improve responsiveness
+- added `g:CommandTInputDebounce`, which can be used to improve responsiveness
   in large file hierarchies (based on patch from Yiding Jia)
 - added a potentially faster file scanner which uses the `find` executable
   (based on patch from Yiding Jia)
 - added a file scanner that knows how to talk to Watchman
   (https://github.com/facebook/watchman)
-- added |g:CommandTFileScanner|, which can be used to switch file scanners
+- added `g:CommandTFileScanner`, which can be used to switch file scanners
 - fix processor count detection on some platforms (patch from Pavel Sergeev)
 
 1.6.1 (22 December 2013) ~
@@ -1316,12 +1316,12 @@ main (not yet released) ~
 - gracefully handle files starting with "+" (patch from Ivan Ukhov)
 - switch default selection highlight color for better readability (suggestion
   from André Arko), but make it possible to configure via the
-  |g:CommandTHighlightColor| setting
+  `g:CommandTHighlightColor` setting
 - added a mapping to take the current matches and put then in the quickfix
   window
 - performance improvements, particularly noticeable with large file
   hierarchies
-- added |g:CommandTWildIgnore| setting (patch from Paul Jolly)
+- added `g:CommandTWildIgnore` setting (patch from Paul Jolly)
 
 1.4 (20 June 2012) ~
 
@@ -1343,7 +1343,7 @@ main (not yet released) ~
 1.3 (27 November 2011) ~
 
 - added the option to maintain multiple caches when changing among
-  directories; see the accompanying |g:CommandTMaxCachedDirectories| setting
+  directories; see the accompanying `g:CommandTMaxCachedDirectories` setting
 - added the ability to navigate using the Vim jumplist (patch from Marian
   Schubert)
 
@@ -1356,7 +1356,7 @@ main (not yet released) ~
 
 1.2 (30 April 2011) ~
 
-- added |g:CommandTMatchWindowReverse| option, to reverse the order of items
+- added `g:CommandTMatchWindowReverse` option, to reverse the order of items
   in the match listing (patch from Steven Moazami)
 
 1.1b2 (26 March 2011) ~
@@ -1449,13 +1449,13 @@ main (not yet released) ~
 
 0.4 (27 March 2010) ~
 
-- add |g:CommandTMatchWindowAtTop| setting (patch from Zak Johnson)
+- add `g:CommandTMatchWindowAtTop` setting (patch from Zak Johnson)
 - documentation fixes and enhancements
 - internal refactoring and simplification
 
 0.3 (24 March 2010) ~
 
-- add |g:CommandTMaxHeight| setting for controlling the maximum height of the
+- add `g:CommandTMaxHeight` setting for controlling the maximum height of the
   match window (patch from Lucas de Vries)
 - fix bug where |'list'| setting might be inappropriately set after dismissing
   Command-T
