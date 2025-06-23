@@ -9,6 +9,7 @@ local CommandTWatchman = nil
 if vim.g.CommandTPreferredImplementation == 'lua' then
   CommandT = 'CommandT'
   CommandTBuffer = 'CommandTBuffer'
+  CommandTCommand = 'CommandTCommand'
   CommandTFd = 'CommandTFd'
   CommandTFind = 'CommandTFind'
   CommandTGit = 'CommandTGit'
@@ -23,6 +24,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
 
   vim.keymap.set('n', '<Plug>(CommandT)', ':CommandT<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTBuffer)', ':CommandTBuffer<CR>', { silent = true })
+  vim.keymap.set('n', '<Plug>(CommandTCommand)', ':CommandTCommand<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTFd)', ':CommandTFd<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTFind)', ':CommandTFind<CR>', { silent = true })
   vim.keymap.set('n', '<Plug>(CommandTGit)', ':CommandTGit<CR>', { silent = true })
@@ -37,6 +39,7 @@ if vim.g.CommandTPreferredImplementation == 'lua' then
 else
   CommandT = 'KommandT'
   CommandTBuffer = 'KommandTBuffer'
+  CommandTCommand = 'KommandTCommand'
   CommandTFd = 'KommandTFd'
   CommandTFind = 'KommandTFind'
   CommandTGit = 'KommandTGit'
@@ -59,6 +62,12 @@ end, {
 
 vim.api.nvim_create_user_command(CommandTBuffer, function()
   require('wincent.commandt').finder('buffer')
+end, {
+  nargs = 0,
+})
+
+vim.api.nvim_create_user_command(CommandTCommand, function()
+  require('wincent.commandt').finder('command')
 end, {
   nargs = 0,
 })

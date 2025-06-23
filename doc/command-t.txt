@@ -317,6 +317,12 @@ COMMANDS                                                   *command-t-commands*
                 the standard file window, except that the selection is limited
                 to files that you already have open in buffers.
 
+|:CommandTCommand|                                             *:CommandTCommand*
+
+                Brings up the Command-T command window. This works exactly
+                like the standard file window, except that it shows the
+                available comands to run.
+
 |:CommandTFd| [directory]                                            *:CommandTFd
 
                 Brings up the Command-T file window, starting in [directory]
@@ -1051,6 +1057,8 @@ main (not yet released) ~
 - feat: port |:CommandTSearch| to Lua.
 - feat: port |:CommandTJump| to Lua.
 - feat: port |:CommandTTag| to Lua.
+- feat: port |:CommandTCommand| to Lua.
+
 
 6.1 (14 June 2025) ~
 

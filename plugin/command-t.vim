@@ -65,6 +65,7 @@ if s:prefers_ruby
 else
   command! -nargs=? -complete=dir KommandT call commandt#FileFinder(<q-args>)
   command! KommandTBuffer call commandt#BufferFinder()
+  command! KommandTCommand call commandt#CommandFinder()
   command! KommandTHelp call commandt#HelpFinder()
   command! KommandTSearch call commandt#SearchFinder()
   command! KommandTHistory call commandt#HistoryFinder()
@@ -73,7 +74,6 @@ else
   command! KommandTTag call commandt#TagFinder()
 
   " Not implemented on the Lua side yet, so these ones continue to use "CommandT" prefix:
-  command! CommandTCommand call commandt#CommandFinder()
   command! CommandTFlush call commandt#Flush()
   command! CommandTLoad call commandt#Load()
   command! CommandTMRU call commandt#MRUFinder()
@@ -82,12 +82,12 @@ else
 endif
 
 " These ones not implemented on the Lua side yet:
-nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
 nnoremap <silent> <Plug>(CommandTMRU) :CommandTMRU<CR>
 
 if s:prefers_ruby
   nnoremap <silent> <Plug>(CommandT) :CommandT<CR>
   nnoremap <silent> <Plug>(CommandTBuffer) :CommandTBuffer<CR>
+  nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
   nnoremap <silent> <Plug>(CommandTHelp) :CommandTHelp<CR>
   nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
 
