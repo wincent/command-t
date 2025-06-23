@@ -190,12 +190,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         if (i == worker_count - 1) {
             // For the last worker, we'll just use the main thread.
             heap_t *heap = get_matches(&worker_args[i]);
+            unsigned offset = atomic_fetch_add(&matches_count, heap->count);
             memcpy(
-                matches + atomic_load(&matches_count),
-                heap->entries,
-                heap->count * sizeof(haystack_t *)
+                matches + offset, heap->entries, heap->count * sizeof(haystack_t *)
             );
-            atomic_fetch_add(&matches_count, heap->count);
             heap_free(heap);
         } else {
             int err = pthread_create(
@@ -213,12 +211,10 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         if (err != 0) {
             die("phtread_join() failed", err);
         }
+        unsigned offset = atomic_fetch_add(&matches_count, heap->count);
         memcpy(
-            matches + atomic_load(&matches_count),
-            heap->entries,
-            heap->count * sizeof(haystack_t *)
+            matches + offset, heap->entries, heap->count * sizeof(haystack_t *)
         );
-        atomic_fetch_add(&matches_count, heap->count);
         heap_free(heap);
     }
 
