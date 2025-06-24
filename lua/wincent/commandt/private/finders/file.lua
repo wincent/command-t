@@ -10,7 +10,7 @@ return function(directory, options)
   local finder = {}
   local max_files = options.scanners.file.max_files or 0
   finder.scanner = require('wincent.commandt.private.scanners.file').scanner(directory, max_files)
-  finder.matcher = lib.matcher_new(finder.scanner, options)
+  finder.matcher = lib.matcher_new(finder.scanner, options, { lines = vim.o.lines })
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)
     local strings = {}

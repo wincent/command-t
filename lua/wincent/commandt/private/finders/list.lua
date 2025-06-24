@@ -17,7 +17,7 @@ return function(directory, candidates, options)
   else
     error('wincent.commandt.private.finders.list() expected function or table')
   end
-  finder.matcher = lib.matcher_new(finder.scanner, options)
+  finder.matcher = lib.matcher_new(finder.scanner, options, { lines = vim.o.lines })
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)
     local strings = {}

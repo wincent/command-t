@@ -3,7 +3,7 @@
 
 local ffi = require('ffi')
 
-local merge = require('wincent.commandt.private.merge')
+local fetch = require('wincent.commandt.private.fetch')
 local toboolean = require('wincent.commandt.private.toboolean')
 
 local lib = {}
@@ -178,37 +178,35 @@ local default_thread_count = function()
   end
 end
 
-lib.matcher_new = function(scanner, options)
-  options = merge({
-    always_show_dot_files = false,
-    ignore_case = true,
-    ignore_spaces = true,
-    limit = 15,
-    never_show_dot_files = false,
-    recurse = true,
-    smart_case = true,
-    threads = default_thread_count(),
-  }, { limit = options.height }, options)
-  if options.limit < 1 then
+lib.matcher_new = function(scanner, options, context)
+  local always_show_dot_files = fetch(options, 'always_show_dot_files', false)
+  local ignore_case = fetch(options, 'ignore_case', true)
+  local ignore_spaces = fetch(options, 'ignore_spaces', true)
+  local height = fetch(options, 'height', 15)
+  local limit = math.min(height, context and context.lines or 1000)
+  local never_show_dot_files = fetch(options, 'never_show_dot_files', false)
+  local recurse = fetch(options, 'recurse', true)
+  local smart_case = fetch(options, 'smart_case', true)
+  local threads = fetch(options, 'threads', default_thread_count())
+  if limit < 1 then
     error('limit must be > 0')
   end
-  if type(options.ignore_case) == 'function' then
-    options.ignore_case = toboolean(options.ignore_case())
+  if type(ignore_case) == 'function' then
+    ignore_case = toboolean(ignore_case())
   end
-  if type(options.smart_case) == 'function' then
-    options.smart_case = toboolean(options.smart_case())
+  if type(smart_case) == 'function' then
+    smart_case = toboolean(smart_case())
   end
-
   local matcher = c.commandt_matcher_new(
     scanner,
-    options.always_show_dot_files,
-    options.ignore_case,
-    options.ignore_spaces,
-    options.limit,
-    options.never_show_dot_files,
-    options.recurse,
-    options.smart_case,
-    options.threads
+    always_show_dot_files,
+    ignore_case,
+    ignore_spaces,
+    limit,
+    never_show_dot_files,
+    recurse,
+    smart_case,
+    threads
   )
   ffi.gc(matcher, c.commandt_matcher_free)
   return matcher

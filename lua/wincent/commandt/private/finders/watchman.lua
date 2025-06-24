@@ -10,7 +10,7 @@ return function(directory, options)
   local lib = require('wincent.commandt.private.lib')
   local finder = {}
   finder.scanner = require('wincent.commandt.private.scanners.watchman').scanner(directory)
-  finder.matcher = lib.matcher_new(finder.scanner, options)
+  finder.matcher = lib.matcher_new(finder.scanner, options, { lines = vim.o.lines })
   finder.run = function(query)
     local results = lib.matcher_run(finder.matcher, query)
     local strings = {}

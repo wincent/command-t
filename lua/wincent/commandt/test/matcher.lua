@@ -392,7 +392,7 @@ describe('matcher.c', function()
       -- returning about 3K files in a non-determinstic order. Given the order I
       -- captured in the fixtures file, the matcher was returning about 396
       -- results instead of the desired 400.
-      local matcher = get_matcher(fixtures.dotfiles_fd, { limit = 400 })
+      local matcher = get_matcher(fixtures.dotfiles_fd, { height = 400 })
       expect(matcher.match('')).to_equal({
         'CHANGELOG.md',
         'CONTRIBUTING.md',
