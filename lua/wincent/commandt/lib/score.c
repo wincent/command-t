@@ -6,6 +6,9 @@
 #include "score.h"
 
 #include <stddef.h> /* for size_t */
+#ifdef DEBUG_SCORING
+#include <stdio.h> /* for fprintf, stdout, snprintf */
+#endif
 #include <stdlib.h> /* for NULL */
 
 // Use a struct to make passing params during recursion easier.
@@ -39,11 +42,6 @@ static float recursive_match(
         for (size_t j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
             char c, d;
 
-            // Do we have a memoized result we can return?
-            memoized = &m->memo[j * m->needle_length + i];
-            if (*memoized != UNSET_SCORE) {
-                return *memoized > seen_score ? *memoized : seen_score;
-            }
             c = m->needle_p[i];
             d = m->haystack->candidate->contents[j];
             if (d == '.') {
@@ -53,7 +51,11 @@ static float recursive_match(
                     int dot_search = c == '.'; // Searching for a dot.
                     if (m->never_show_dot_files ||
                         (!dot_search && !m->always_show_dot_files)) {
-                        return *memoized = 0.0f;
+                        memoized = &m->memo[j * m->needle_length + i];
+                        if (*memoized == UNSET_SCORE) {
+                            *memoized = 0.0f;
+                        }
+                        return 0.0f;
                     }
                 }
             } else if (d >= 'A' && d <= 'Z' && m->ignore_case) {
@@ -61,6 +63,11 @@ static float recursive_match(
             }
 
             if (c == d) {
+                memoized = &m->memo[j * m->needle_length + i];
+                if (*memoized != UNSET_SCORE) {
+                    return *memoized > seen_score ? *memoized : seen_score;
+                }
+
                 // Calculate score.
                 float score_for_char = m->max_score_per_char;
                 size_t distance = j - last_idx;
@@ -205,7 +212,37 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
             memo[i] = UNSET_SCORE;
         }
         m.memo = memo;
-        return recursive_match(&m, 0, 0, 0, 0.0f);
+        float score = recursive_match(&m, 0, 0, 0, 0.0f);
+#ifdef DEBUG_SCORING
+        fprintf(stdout, "   ");
+        for (size_t i = 0; i < m.needle_length; i++) {
+            fprintf(stdout, "    %c   ", m.needle_p[i]);
+        }
+        fprintf(stdout, "\n");
+        for (size_t i = 0; i < memo_size; i++) {
+            char formatted[8];
+            if (i % m.needle_length == 0) {
+                long haystack_idx = i / m.needle_length;
+                fprintf(
+                    stdout, "%c: ", m.haystack->candidate->contents[haystack_idx]
+                );
+            }
+            if (memo[i] == UNSET_SCORE) {
+                snprintf(formatted, sizeof(formatted), "    -  ");
+            } else {
+                snprintf(formatted, sizeof(formatted), " %-.4f", memo[i]);
+            }
+            fprintf(stdout, "%s", formatted);
+            if ((i + 1) % m.needle_length == 0) {
+                fprintf(stdout, "\n");
+            } else {
+                fprintf(stdout, " ");
+            }
+        }
+
+        fprintf(stdout, "Final score: %f\n\n", score);
+#endif
+        return score;
     }
     return 1.0f;
 }
