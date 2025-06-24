@@ -234,7 +234,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     results->match_count = 0;
     results->candidate_count = candidate_count;
 
-    for (long i = 0; i < count && results->match_count <= limit; i++) {
+    for (long i = 0; i < count && results->match_count < limit; i++) {
         if (matches[i]->score > 0.0f) {
             results->matches[results->match_count++] = matches[i]->candidate;
         }
