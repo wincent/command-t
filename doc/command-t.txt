@@ -929,7 +929,6 @@ main (not yet released) ~
 - feat: port |:CommandTTag| to Lua.
 - feat: port |:CommandTCommand| to Lua.
 
-
 6.1 (14 June 2025) ~
 
 - fix: teach buffer finder to see all buffers passed into Neovim as
