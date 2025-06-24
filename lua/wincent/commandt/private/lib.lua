@@ -43,7 +43,6 @@ setmetatable(c, {
           bool ignore_case;
           bool ignore_spaces;
           bool never_show_dot_files;
-          bool recurse;
           bool smart_case;
           unsigned limit;
           unsigned threads;
@@ -95,7 +94,6 @@ setmetatable(c, {
           bool ignore_spaces,
           unsigned limit,
           bool never_show_dot_files,
-          bool recurse,
           bool smart_case,
           uint64_t threads
       );
@@ -185,7 +183,6 @@ lib.matcher_new = function(scanner, options, context)
   local height = fetch(options, 'height', 15)
   local limit = math.min(height, context and context.lines or 1000)
   local never_show_dot_files = fetch(options, 'never_show_dot_files', false)
-  local recurse = fetch(options, 'recurse', true)
   local smart_case = fetch(options, 'smart_case', true)
   local threads = fetch(options, 'threads', default_thread_count())
   if limit < 1 then
@@ -204,7 +201,6 @@ lib.matcher_new = function(scanner, options, context)
     ignore_spaces,
     limit,
     never_show_dot_files,
-    recurse,
     smart_case,
     threads
   )

@@ -31,7 +31,6 @@ matcher_t *commandt_matcher_new(
     bool ignore_spaces,
     unsigned limit,
     bool never_show_dot_files,
-    bool recurse,
     bool smart_case,
 
     // For Apple/ARM64: this would be `unsigned`, but their ABI require 64-bit

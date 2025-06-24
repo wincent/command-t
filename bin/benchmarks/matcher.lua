@@ -15,14 +15,11 @@ local benchmark = require('wincent.commandt.private.benchmark')
 local lib = require('wincent.commandt.private.lib')
 
 local options = {
-  recurse = os.getenv('RECURSE') == nil or os.getenv('RECURSE') == '1',
   threads = tonumber(os.getenv('THREADS')),
   -- TODO may want to put something in here (like a high limit) to make this an
   -- apples-to-apples comparison
   -- although in reality, no client will (or should) ever ask for more than,
   -- say, 100 matches...
-  -- TODO figure out why RECURSE makes a big difference in Lua port but almost
-  -- none in Ruby one
 }
 
 benchmark({

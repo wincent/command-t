@@ -18,7 +18,6 @@ typedef struct {
     bool always_show_dot_files;
     bool never_show_dot_files;
     bool ignore_case;
-    bool recurse;
     float *memo; // Memoization.
 } matchinfo_t;
 
@@ -89,7 +88,7 @@ static float recursive_match(
                     score_for_char *= factor;
                 }
 
-                if (j < m->rightmost_match_p[i] && m->recurse) {
+                if (j < m->rightmost_match_p[i]) {
                     float sub_score =
                         recursive_match(m, j + 1, i, last_idx, score);
                     if (sub_score > seen_score) {
@@ -103,9 +102,6 @@ static float recursive_match(
                 if (i == m->needle_length - 1) {
                     // Whole string matched.
                     return *memoized;
-                }
-                if (!m->recurse) {
-                    break;
                 }
             }
         }
@@ -125,7 +121,6 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
     m.always_show_dot_files = matcher->always_show_dot_files;
     m.never_show_dot_files = matcher->never_show_dot_files;
     m.ignore_case = ignore_case;
-    m.recurse = matcher->recurse;
 
     // Special case for zero-length search string.
     if (m.needle_length == 0) {

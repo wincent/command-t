@@ -64,7 +64,6 @@ typedef struct {
     bool ignore_case;
     bool ignore_spaces;
     bool never_show_dot_files;
-    bool recurse;
     bool smart_case;
     // bool sort;
 
