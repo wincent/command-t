@@ -160,9 +160,10 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
         size_t haystack_idx = haystack_len ? haystack_len - 1 : 0;
         long mask = 0;
         bool found_needle = false;
+        const char *haystack_contents = m.haystack->candidate->contents;
         if (haystack_len) {
             while (haystack_idx >= needle_idx) {
-                char c = m.haystack->candidate->contents[haystack_idx];
+                char c = haystack_contents[haystack_idx];
                 char lower = c >= 'A' && c <= 'Z' ? c | 0x20 : c;
                 if (m.ignore_case) {
                     c = lower;
@@ -193,7 +194,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
             if (haystack_len) {
                 // In case we broke out of the loop early, compute rest of mask.
                 for (size_t i = 0; i <= haystack_idx; i++) {
-                    char c = m.haystack->candidate->contents[i];
+                    char c = haystack_contents[i];
                     char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
                     mask |= (1 << (lower - 'a'));
                 }
