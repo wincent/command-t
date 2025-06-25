@@ -58,8 +58,8 @@ static float recursive_match(
                         return 0.0f;
                     }
                 }
-            } else if (d >= 'A' && d <= 'Z' && m->ignore_case) {
-                d += 'a' - 'A'; // Add 32 to downcase.
+            } else if (m->ignore_case && d >= 'A' && d <= 'Z') {
+                d |= 0x20; // Lowercase (same as adding 32).
             }
 
             if (c == d) {
@@ -163,7 +163,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
         if (haystack_len) {
             while (haystack_idx >= needle_idx) {
                 char c = m.haystack->candidate->contents[haystack_idx];
-                char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
+                char lower = c >= 'A' && c <= 'Z' ? c | 0x20 : c;
                 if (m.ignore_case) {
                     c = lower;
                 }
