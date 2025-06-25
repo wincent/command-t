@@ -38,16 +38,16 @@ static float recursive_match(
 
     // Iterate over needle.
     for (size_t i = needle_idx; i < m->needle_length; i++) {
+        char needle_char = m->needle_p[i];
+        const char *haystack_contents = m->haystack->candidate->contents;
+
         // Iterate over (valid range of) haystack.
         for (size_t j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
-            char c, d;
-
-            c = m->needle_p[i];
-            d = m->haystack->candidate->contents[j];
+            char c = needle_char;
+            char d = haystack_contents[j];
             if (d == '.') {
                 if (j == 0 ||
-                    m->haystack->candidate->contents[j - 1] ==
-                        '/') { // This is a dot-file.
+                    haystack_contents[j - 1] == '/') { // This is a dot-file.
                     int dot_search = c == '.'; // Searching for a dot.
                     if (m->never_show_dot_files ||
                         (!dot_search && !m->always_show_dot_files)) {
@@ -74,9 +74,9 @@ static float recursive_match(
 
                 if (distance > 1) {
                     float factor = 1.0f;
-                    char last = m->haystack->candidate->contents[j - 1];
+                    char last = haystack_contents[j - 1];
                     char curr =
-                        m->haystack->candidate->contents[j]; // Case matters, so get again.
+                        haystack_contents[j]; // Case matters, so get again.
                     if (last == '/') {
                         factor = 0.9f;
                     } else if (last == '-' || last == '_' || last == ' ' ||
