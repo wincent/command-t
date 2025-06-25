@@ -195,7 +195,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
                 // In case we broke out of the loop early, compute rest of mask.
                 for (size_t i = 0; i <= haystack_idx; i++) {
                     char c = haystack_contents[i];
-                    char lower = c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
+                    char lower = c >= 'A' && c <= 'Z' ? c | 0x20 : c;
                     mask |= (1 << (lower - 'a'));
                 }
             }
