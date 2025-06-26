@@ -443,6 +443,7 @@ See below for description of specific properties that can be used in the table
 passed to |commandt.setup()|:
 
 - |commandt.setup.always_show_dot_files|
+- |commandt.setup.height|
 - |commandt.setup.ignore_case|
 - |commandt.setup.match_listing.border|
 - |commandt.setup.match_listing.icons|
@@ -484,6 +485,13 @@ by |:CommandTBuffer|) treats dot-files like any other file and will show them
 whenever they match the search query.
 
 See also |commandt.setup.never_show_dot_files|.
+
+                                                        *commandt.setup.height*
+                                                         number (default: 15)
+
+Sets the desired height for the Command-T match listing. Must be an integer
+greater than 0. Set a very large value (eg. 10000) if you want Command-T to
+use all available space.
 
                                                    *commandt.setup.ignore_case*
                                           boolean or function (default: none)
@@ -812,25 +820,14 @@ the project issue tracker etc).
 As many users choose to track Command-T using Pathogen or similar, which often
 means running a version later than the last official release, the intention is
 that the "main" branch should be kept in a stable and reliable state as much
-as possible.
+as possible. For maximum safety, follow the "release" branch instead, which is
+fast-forwarded to point at the latest tagged version on each release.
 
 Riskier changes are first cooked on the "next" branch for a period before
 being merged into "main". You can track this branch if you're feeling wild
 and experimental, but note that the "next" branch may periodically be rewound
 (force-updated) to keep it in sync with the "main" branch after each official
 release.
-
-The release process is:
-
-1. Update the version in `lua/wincent/commandt/version.lua`.
-2. Update |command-t-history|.
-3. Commit with a message like "chore: prepare for 6.0.0 release".
-4. Create a signed tag with `git tag -s -m '6.0.0 release` (or similar).
-5. Publish with `git push origin --follow-tags` (or similar).
-6. Create GitHub release and publish release notes.
-7. Create archive (eg. `git archive -o command-t-6.0.0-b.1.zip HEAD -- .` or
-   similar).
-8. Upload to vim.org (http://www.vim.org/scripts/script.php?script_id=3025).
 
 
 WEBSITE                                                     *command-t-website*
@@ -904,9 +901,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
-main (not yet released) ~
+8.0 (26 June 2025) ~
 
-- ...
+- Removed the Ruby implementation. Switch to the `7-x-release` branch if you
+  still need it.
+- Fixed possible missing results when |commandt.setup.height| was set to a
+  large value.
+- Improve performance when passing very large values for
+  |commandt.setup.height|.
+- Fixed a race that could cause some results to be omitted.
+- Improve performance of scoring code by about 4% (wall-time).
 
 7.0 (23 June 2025) ~
 

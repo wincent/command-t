@@ -168,7 +168,15 @@ local options_spec = {
         return errors
       end,
     },
-    height = { kind = 'number' },
+    height = {
+      kind = 'number',
+      meta = function(context)
+        if not is_integer(context.height) or context.height < 1 then
+          context.height = 15
+          return { '`height` must be a positive integer' }
+        end
+      end,
+    },
     ignore_case = {
       kind = {
         one_of = {

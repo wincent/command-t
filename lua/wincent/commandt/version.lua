@@ -2,9 +2,9 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 return {
-  major = 7,
+  major = 8,
   minor = 0,
   patch = 0,
   prerelease = '',
-  version = '7.0',
+  version = '8.0',
 }
