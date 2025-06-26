@@ -10,7 +10,11 @@ local ruby_build_directory =
   vim.fn.fnamemodify((path.caller() + '../../../../ruby/command-t/ext/command-t'):normalize(), ':~')
 
 local function report_info()
-  health.info('Command-T version: ' .. require('wincent.commandt.version').version)
+  local version = require('wincent.commandt.version')
+  health.info('Command-T version: ' .. version.version)
+  if version.prerelease ~= '' then
+    health.info('This is a prerelease (track the `release` branch for maximum stability)')
+  end
   health.info('Lua build directory:\n' .. lua_build_directory)
   health.info('Ruby build directory:\n' .. ruby_build_directory)
 end

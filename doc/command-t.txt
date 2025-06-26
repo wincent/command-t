@@ -901,6 +901,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
+main (not yet released) ~
+
+- ...
+
 8.0 (26 June 2025) ~
 
 - Removed the Ruby implementation. Switch to the `7-x-release` branch if you
