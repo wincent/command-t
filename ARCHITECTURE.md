@@ -72,6 +72,36 @@ Again, only documenting the differences:
 2. Like `commandt.file_finder()`, this function doesn't do anything special with config; it just forwards `options`.
 3. Unlike `commandt.file_finder()`, we don't `pushd`, and we don't pass in an `on_close` that does `popd` either, because watchman doesn't need to change directory to do its job. However, it _does_ require us to pass an `on_open()` that does the `relativize()` trick.
 
+## Summary of finder life-cycles
+
+| Command             | Argument? | Finder function   | Variant | Mode      | Context? | `on_directory`? | `pushd`? | `on_close`/`popd`? |
+| ------------------- | --------- | ----------------- | ------- | --------- | -------- | --------------- | -------- | ------------------ |
+| `:CommandTBuffer`   | none      | `finder`          | list    | 'file'    | no       | no              | no       | no                 |
+| `:CommandTCommand`  | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
+| `:CommandTFd`       | directory | `finder`          | command | 'file'    | no       | yes             | yes      | yes                |
+| `:CommandTFind`     | directory | `finder`          | command | 'file'    | no       | yes             | yes      | yes                |
+| `:CommandTGit`      | directory | `finder`          | command | 'file'    | no       | yes             | no       | no                 |
+| `:CommandTHelp`     | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
+| `:CommandTHistory`  | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
+| `:CommandTJump`     | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
+| `:CommandTLine`     | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
+| `:CommandTRipgrep`  | directory | `finder`          | command | 'file'    | no       | yes             | yes      | yes                |
+| `:CommandTSearch`   | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
+| `:CommandTTag`      | none      | `finder`          | list    | 'virtual' | yes      | no              | no       | no                 |
+| `:CommandTWatchman` | directory | `watchman_finder` | n/a     | 'file'    | no       | no              | no       | no                 |
+| `:CommandT`         | directory | `file_finder`     | n/a     | 'file'    | no       | no              | yes      | yes                |
+
+Legend:
+
+- Argument?: Does the commmand accept an argument?
+- Finder function: What is the `commandt` function that serves as entry point?
+- Variant: Does the finder use a list scanner (ie. `candidates`) or a command scanner (ie. `command`)?
+- Mode: Is the finder a "file" finder (shows icons) or a "virtual" one?
+- Context?: Does the finder make use of the `context` parameter to pass state?
+- `on_directory`?: Does the finder use an `on_directory` callback to infer a starting directory if appropriate?
+- `pushd`?: Does the finder use `pushd()` before scanning?
+- `on_close`/`popd`?: Does the finder use an `on_close` callback and `popd` to go back to the previous directory when closing its UI (and optionally opening a selection)?
+
 # Memory model
 
 For maximum performance, Command-T takes great pains to avoid unnecessary copying. This, combined with the fact that memory is passing across Lua's FFI boundary to and from C code, means that there are some subtleties to the question of which code owns any particular piece of memory, and who is responsible for freeing it (either manually from the C code, or automatically via garbage collection initiated on the Lua side).
