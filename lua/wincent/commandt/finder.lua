@@ -11,10 +11,7 @@ local relativize = require('wincent.commandt.private.relativize')
 local ui = nil
 
 local function file_finder(directory)
-  directory = vim.trim(directory)
-  if directory == '' then
-    directory = require('wincent.commandt.private.get_directory')()
-  end
+  directory = require('wincent.commandt.get_directory')(directory)
   pushd(directory)
   local options = require('wincent.commandt.private.options'):get()
   local finder = require('wincent.commandt.private.finders.file')('.', options)
@@ -33,10 +30,7 @@ local function file_finder(directory)
 end
 
 local function watchman_finder(directory)
-  directory = vim.trim(directory)
-  if directory == '' then
-    directory = require('wincent.commandt.private.get_directory')()
-  end
+  directory = require('wincent.commandt.get_directory')(directory)
   local options = require('wincent.commandt.private.options'):get()
   local finder = require('wincent.commandt.private.finders.watchman')(directory, options)
 

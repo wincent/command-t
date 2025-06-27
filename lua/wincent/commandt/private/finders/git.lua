@@ -1,7 +1,7 @@
 -- SPDX-FileCopyrightText: Copyright 2025-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local on_directory = require('wincent.commandt.on_directory')
+local get_directory = require('wincent.commandt.get_directory')
 local on_open = require('wincent.commandt.on_open')
 
 local git = {
@@ -26,7 +26,7 @@ local git = {
   max_files = function(options)
     return options.scanners.git.max_files
   end,
-  on_directory = on_directory,
+  on_directory = get_directory,
   open = on_open,
 }
 
