@@ -42,7 +42,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count) {
     return scanner;
 }
 
-scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_files) {
+scanner_t *scanner_new_exec(const char *command, unsigned drop, unsigned max_files) {
     scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
     scanner->candidates_size = sizeof(str_t) * MAX_FILES;
     scanner->candidates = xmap(scanner->candidates_size);

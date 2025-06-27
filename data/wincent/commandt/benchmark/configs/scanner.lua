@@ -14,7 +14,7 @@ return {
     {
       name = 'buffer',
       source = function()
-        local command = require('wincent.commandt').default_options().finders.buffer.candidates()
+        local command = require('wincent.commandt.private.options.defaults'):clone().finders.buffer.candidates()
         local scanner = require('wincent.commandt.private.scanners.list').scanner
         return {
           scanner = function()
@@ -225,8 +225,8 @@ return {
     {
       name = 'fd',
       source = function()
-        local command = require('wincent.commandt').default_options().finders.fd.command('')
-        local scanner = require('wincent.commandt.private.scanners.command').scanner
+        local command = require('wincent.commandt.private.options.defaults'):clone().finders.fd.command('')
+        local scanner = require('wincent.commandt.private.scanners.exec').scanner
         return {
           scanner = function()
             return scanner(command)
@@ -253,8 +253,8 @@ return {
     {
       name = 'find',
       source = function()
-        local command = require('wincent.commandt').default_options().finders.find.command('')
-        local scanner = require('wincent.commandt.private.scanners.command').scanner
+        local command = require('wincent.commandt.private.options.defaults'):clone().finders.find.command('')
+        local scanner = require('wincent.commandt.private.scanners.exec').scanner
         return {
           scanner = function()
             return scanner(command)
@@ -280,9 +280,9 @@ return {
     {
       name = 'git',
       source = function()
-        local options = require('wincent.commandt').default_options()
+        local options = require('wincent.commandt.private.options.defaults'):clone()
         local command = options.finders.git.command('', options)
-        local scanner = require('wincent.commandt.private.scanners.command').scanner
+        local scanner = require('wincent.commandt.private.scanners.exec').scanner
         return {
           scanner = function()
             return scanner(command)
@@ -305,8 +305,8 @@ return {
     {
       name = 'rg',
       source = function()
-        local command = require('wincent.commandt').default_options().finders.rg.command('')
-        local scanner = require('wincent.commandt.private.scanners.command').scanner
+        local command = require('wincent.commandt.private.options.defaults'):clone().finders.rg.command('')
+        local scanner = require('wincent.commandt.private.scanners.exec').scanner
         return {
           scanner = function()
             return scanner(command)

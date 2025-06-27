@@ -5,7 +5,7 @@ local M = {}
 
 M.scanner = function(user_command, drop, max_files)
   local lib = require('wincent.commandt.private.lib')
-  local scanner = lib.scanner_new_command(user_command, drop, max_files)
+  local scanner = lib.scanner_new_exec(user_command, drop, max_files)
   return scanner
 end
 

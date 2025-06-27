@@ -5,9 +5,9 @@
 There are two generic classes of "finders", that are paired with corresponding generic classes of scanners:
 
 1. **"List"-based finders and scanners.** These take a list of candidate haystacks, like a list of buffers, a list of help tags, or a list of search patterns. These are accessed by commands like `:CommandTBuffer`, `:CommandTHelp`, and `:CommandTSearch`.
-2. **"Command"-based finders and scanners.** These run a command to generate the list of candidate haystacks. These are accessed by commands like `:CommandTGit` and `:CommandTRipgrep`.
+2. **"Exec"-based finders and scanners.** These run a command to generate the list of candidate haystacks. These are accessed by commands like `:CommandTGit` and `:CommandTRipgrep`.
 
-Each instance of a list or command-based finder is defined using a Lua table. Finder definitions are found under `finders`, and specify either `candidates` (a list of candidates, or a function that returns such a list) or `command` (a command string, or a function that returns such a string).
+Each instance of a list or exec-based finder is defined using a Lua table. Finder definitions are found under `finders`, and specify either `candidates` (a list of candidates, or a function that returns such a list) or `command` (a command string, or a function that returns such a string).
 
 There are also two specialised "finder" and "scanner" pairs:
 
@@ -39,7 +39,7 @@ In the following discussion, note that there are a few sets of confusing, overla
    1. It looks up the finder config under the `name` key (`'buffer'`, for example) of the user's settings (obtained via a call to `commandt.options()`, which returns a _copy_ of the user's settings, or falls back to the defaults if there are no explicit user settings).
    2. If the config defines an `options` callback, it calls the callback with the existing options so that it has an opportunity to transform those options, and then sanitizes them. This is used by several finders to force the display of dotfiles (ie. by unconditionally setting `always_show_dot_files` to `true`, and `never_show_dot_files` to `false`); specifically, the `'buffer'`, `'help'`, `'history'`, `'jump'`, `'line'`, `'search'`, and `'tag'` finders.
    3. If the config defines an `on_directory` callback, it calls the callback with the directory to give it the opportunity to transform the directory. This is used by finders which change their root directory based on the `commandt.traverse` setting; if no directory is provided, and the user settings require it, the callback will attempt to infer an appropriate directory, using the current working directory as a fallback. Finders which use `on_directory` include `'fd'`, `'find'`, `'git'`, and `'rg'`.
-   4. It prepares an `open` callback with signature `open(item, ex_command)` and assigns it back to the `options` object that will be passed into the `finders.list` or `finders.command` implementation, and also into `ui.show()`. This `open` callback will in turn forward to the `open` implementation specified in the config, if provided, otherwise falling back to `commandt.open(item, ex_command)` which is otherwise known as `sbuffer(buffer, command)` (it's called "smart" because it tries to intelligently pick the right place to open the requested buffer). Finders which specify a custom `'open'` in their config include `'fd'`, `'find'`, `'git'`, and `'rg'`; which all pass in an `on_open(item, ex_command, directory, _options, _context)` implementation which uses `sbuffer()` to open a relativized path (ie. `sbuffer(relativize(directory, item), ex_command)`). In contrast, the `'help'`, `'history'`, `'line'`, `'search'`, and `'tag'` finders define totally custom open callbacks. Finally, the `'buffer'` and `'jump'` finders define nothing, which means they use the fallback.
+   4. It prepares an `open` callback with signature `open(item, ex_command)` and assigns it back to the `options` object that will be passed into the `finders.list` or `finders.exec` implementation, and also into `ui.show()`. This `open` callback will in turn forward to the `open` implementation specified in the config, if provided, otherwise falling back to `sbuffer(item, ex_command)` (which tries to intelligently pick the right place to open the requested buffer). Finders which specify a custom `'open'` in their config include `'fd'`, `'find'`, `'git'`, and `'rg'`; which all pass in an `on_open(item, ex_command, directory, _options, _context)` implementation which uses `sbuffer()` to open a relativized path (ie. `sbuffer(relativize(directory, item), ex_command)`). In contrast, the `'help'`, `'history'`, `'line'`, `'search'`, and `'tag'` finders define totally custom open callbacks. Finally, the `'buffer'` and `'jump'` finders define nothing, which means they use the fallback.
    5. If the finder config provides a `candidates` field, it obtains the actual list finder and context by passing in the `directory`, `config.candidates`, and `options`. Otherwise, it must contain a `command` field and it obtains a command finder passing in `directory`, `config.command`, `options`, and `name` (the `name` is used to look up finder-specific settings in the `options`).
    6. If the finder config provides a `fallback` field set to `true`, it adds the fallback finder to the `finder` object, passing in the original `finder`, `directory`, and `options` (this fallback finder is a lazy wrapper around the built-in file finder, which gets invoked if the primary finder fails.
    7. It invokes `ui.show()`, passing in the `finder` and `options`, merging in three additional settings: `name`, `mode` (`mode` is `'virtual'`, `'file'` or `nil`), and an `on_close` callback set to `config.on_close`. Finders which actually specify an `on_close` are `'fd'`, `'find'`, `'rg'`, and the built-in file finders; they all use `popd` for this purpose, to reset to the original working directory in case the user specified a temporary directory as an argument to those finders (the watchman finder doesn't need this as it does not change into a temporary directory even when the user specifies a directory argument).
@@ -51,9 +51,9 @@ In the following discussion, note that there are a few sets of confusing, overla
 9. If the UI has an `on_open` callback, it calls it so that it can transform the result. Only the built-in file finder and the watchman finder use this, and they both use it to relativize the result in relation to the `directory`.
 10. The thing that actually opens the result is called with `vim.defer_fn()`, to give autocommands a chance to run. The called function is `current_finder.open(result, ex_command)`. Recall from the above that finders like `'fd'` pass in an `options.open` that relativizes the path and uses `sbuffer()` to do a "smart open". Finders like the `'help'` finder define a custom callback. Finders like `'buffer'` and `'jump'` define no `on_open`, so use the default.
 
-## Command-based finder life-cycle
+## Exec-based finder life-cycle
 
-In most ways, the command finders follow the same life-cycle described above (and in fact we mention some of them in the descriptions of the steps) so I won't repeat the details here. The main differences are in terms of how they interact with the scanners, but they don't have any implications for how opening works. See the "Memory model" section further down for important differences that exist between the different types in relation to memory ownership.
+In most ways, the exec finders follow the same life-cycle described above (and in fact we mention some of them in the descriptions of the steps) so I won't repeat the details here. The main differences are in terms of how they interact with the scanners, but they don't have any implications for how opening works. See the "Memory model" section further down for important differences that exist between the different types in relation to memory ownership.
 
 ## Built-in "file" finder life-cycle
 
@@ -78,29 +78,31 @@ Again, only documenting the differences:
 | ------------------- | --------- | ----------------- | ------- | --------- | -------- | --------------- | -------- | ------------------ |
 | `:CommandTBuffer`   | none      | `finder`          | list    | 'file'    | no       | no              | no       | no                 |
 | `:CommandTCommand`  | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
-| `:CommandTFd`       | directory | `finder`          | command | 'file'    | no       | yes             | yes      | yes                |
-| `:CommandTFind`     | directory | `finder`          | command | 'file'    | no       | yes             | yes      | yes                |
-| `:CommandTGit`      | directory | `finder`          | command | 'file'    | no       | yes             | no       | no                 |
+| `:CommandTFd`       | directory | `finder`          | exec    | 'file'    | no       | yes             | yes      | yes                |
+| `:CommandTFind`     | directory | `finder`          | exec    | 'file'    | no       | yes             | yes      | yes                |
+| `:CommandTGit`      | directory | `finder`          | exec    | 'file'    | no       | yes             | no       | no                 |
 | `:CommandTHelp`     | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
 | `:CommandTHistory`  | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
 | `:CommandTJump`     | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
 | `:CommandTLine`     | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
-| `:CommandTRipgrep`  | directory | `finder`          | command | 'file'    | no       | yes             | yes      | yes                |
+| `:CommandTRipgrep`  | directory | `finder`          | exec    | 'file'    | no       | yes             | yes      | yes                |
 | `:CommandTSearch`   | none      | `finder`          | list    | 'virtual' | no       | no              | no       | no                 |
 | `:CommandTTag`      | none      | `finder`          | list    | 'virtual' | yes      | no              | no       | no                 |
-| `:CommandTWatchman` | directory | `watchman_finder` | n/a     | 'file'    | no       | no              | no       | no                 |
-| `:CommandT`         | directory | `file_finder`     | n/a     | 'file'    | no       | no              | yes      | yes                |
+| `:CommandTWatchman` | directory | `watchman_finder` | n/a     | 'file'    | no       | no[^direct]     | no       | no                 |
+| `:CommandT`         | directory | `file_finder`     | n/a     | 'file'    | no       | no[^direct]     | yes      | yes                |
 
 Legend:
 
 - Argument?: Does the commmand accept an argument?
 - Finder function: What is the `commandt` function that serves as entry point?
-- Variant: Does the finder use a list scanner (ie. `candidates`) or a command scanner (ie. `command`)?
+- Variant: Does the finder use a list scanner (ie. `candidates`) or an exec scanner (ie. `command`)?
 - Mode: Is the finder a "file" finder (shows icons) or a "virtual" one?
 - Context?: Does the finder make use of the `context` parameter to pass state?
 - `on_directory`?: Does the finder use an `on_directory` callback to infer a starting directory if appropriate?
 - `pushd`?: Does the finder use `pushd()` before scanning?
 - `on_close`/`popd`?: Does the finder use an `on_close` callback and `popd` to go back to the previous directory when closing its UI (and optionally opening a selection)?
+
+[^direct]: These finders don't make use of an `on_directory` callback but instead call `get_directory()` directly.
 
 # Memory model
 
@@ -113,10 +115,10 @@ Ideally this would all be self-documenting and fool-proof, but for now it relies
 - **C strings** are wrapped inside a `str_t` struct with three fields (`contents`, `length`, and `capacity`). These strings are (generally) mutable, and functions are provided for truncating and appending; if additional `capacity` is required in order to accommodate the desired `length`, then the backing allocation of the `contents` storage is automatically grown (and potentially moved). When a string is no longer needed, the struct and associated `contents` are released with a call to `str_free()`, which in turn calls `free()`.
   - As a special case, strings can be part of a "slab allocation", which means that the `str_t` points into a large block of memory containing many `str_t` structs, and their `content` pointers also point into a large slab containing string data. These strings are _mostly_ immutable (producing an error if you try to call `str_append()` or `str_append_char()`), although you _can_ call `str_truncate()` on such strings (ie. effectively reducing the `length` value and writing a terminating `NUL` byte at the required location). Calling `str_free()` on a slab-allocated string does nothing; both the structs and their `contents` will remain in memory until the slab allocations themselves get deallocated. Slab-allocated strings are created by calling `str_init()`. As an implementation detail, slab-allocated strings are marked as such by having their `capacity` field set to `-1`. At the time of writing, there are three places in Command-T that create slab-allocated strings:
     1. The built-in `:CommandT` finder (see `find.c`).
-    2. In the "command" scanner (see `scanner.c`).
+    2. In the "exec" scanner (see `scanner.c`).
     3. `watchman_read_string_no_copy()` in the watchman scanner, which is used to read the `"files"` property of the Watchman response (see `watchman.c`).
 - **Scanners** manage access to a list of haystacks to be searched. The come in four varieties:
-  1. Scanners created by `scanner_new_command()`, called from the "command" scanner (`scanners/command.lua`). As the name suggests, this scanner obtains its candidates by running commands like `git-ls-files`, `fd`, `find`, `rg`, and friends.
+  1. Scanners created by `scanner_new_exec()`, called from the "exec" scanner (`scanners/exec.lua`). As the name suggests, this scanner obtains its candidates by running commands like `git-ls-files`, `fd`, `find`, `rg`, and friends.
   2. Scanners created by `scanner_new()`, called from `find.c`. This scanner does not copy the candidate strings (which are slab-allocated), but it _does_ take ownership of the slabs.
   3. Scanners created by `scanner_new_copy()`, called from `test/matcher.lua`, `benchmarks/matcher.lua` and the "list" scanner (`scanners/list.lua`). As the name indicates, this scanner copies the passed in candidates, creating new `str_t` objects. This scanner is suitable and is used for smaller lists of candidates, like help tags, buffers and so on.
   4. Scanners created by `scanner_new_str()`, called from `watchman.lua`.
@@ -125,28 +127,28 @@ Ideally this would all be self-documenting and fool-proof, but for now it relies
 
 So, at the risk of producing documentation that is very prone to becoming out-of-date as things get refactored, these are the four patterns of memory ownership as manifested in the four different varieties of scanner. In summary:
 
-| Scanner pattern         | Has `candidates`? | `candidates` owner           | Has `buffer`? | `buffer` owner                   | `str_t` are slab-allocated? |
-| ----------------------- | ----------------- | ---------------------------- | ------------- | -------------------------------- | --------------------------- |
-| `scanner_new_command()` | Yes               | `scanner_t` (created)        | Yes           | `scanner_t` (created)            | Yes                         |
-| `scanner_new()`         | Yes               | `scanner_t` (assigned)       | Yes           | `scanner_t` (assigned)           | Yes                         |
-| `scanner_new_copy()`    | Yes               | `scanner_t` (created)        | No            | n/a                              | No                          |
-| `scanner_new_str()`     | Yes               | `watchman_query_t` (`files`) | Yes           | `wathcman_reponse_t` (`payload`) | Yes                         |
+| Scanner pattern      | Has `candidates`? | `candidates` owner           | Has `buffer`? | `buffer` owner                   | `str_t` are slab-allocated? |
+| -------------------- | ----------------- | ---------------------------- | ------------- | -------------------------------- | --------------------------- |
+| `scanner_new_exec()` | Yes               | `scanner_t` (created)        | Yes           | `scanner_t` (created)            | Yes                         |
+| `scanner_new()`      | Yes               | `scanner_t` (assigned)       | Yes           | `scanner_t` (assigned)           | Yes                         |
+| `scanner_new_copy()` | Yes               | `scanner_t` (created)        | No            | n/a                              | No                          |
+| `scanner_new_str()`  | Yes               | `watchman_query_t` (`files`) | Yes           | `wathcman_reponse_t` (`payload`) | Yes                         |
 
 Details follow.
 
-### `scanner_new_command()`
+### `scanner_new_exec()`
 
 This is the most common form of scanning in Command-T, used by anything that wraps an external command (eg. `:CommandTGit`, wrapping `git-ls-files`, `:CommandTRipgrep`, wrapping `rg`, and so on).
 
-- The main controller (defined in `init.lua`) calls `finders.command()` to obtain a `finder`:
-  - `finders.command()` (defined in `finders/command.lua`) calls `scanner()` (defined in `scanners/command.lua`) to obtain a `scanner` instance:
-  - `scanner()` calls `lib.scanner_new_command()` to obtain and return a `scanner`:
-    - `lib.scanner_new_command()` calls the `scanner_new_command()` via FFI:
-      - `scanner_new_command()` creates a `candidates` slab and a `buffer` slab with `xmap()`. The former is used to store zero-copy `str_t` records (created with `str_init()`), while the latter holds the actual command output, into which the `str_t` records index via their `contents` pointers.
-    - `lib.scanner_new_command()` uses `ffi.gc()` to mark the returned `scanner` object such that when it is garbage-collected, the `commandt_scanner_free()` function will be called:
+- The main controller (defined in `init.lua`) calls `finders.exec()` to obtain a `finder`:
+  - `finders.exec()` (defined in `finders/exec.lua`) calls `scanner()` (defined in `scanners/exec.lua`) to obtain a `scanner` instance:
+  - `scanner()` calls `lib.scanner_new_exec()` to obtain and return a `scanner`:
+    - `lib.scanner_new_exec()` calls the `scanner_new_exec()` via FFI:
+      - `scanner_new_exec()` creates a `candidates` slab and a `buffer` slab with `xmap()`. The former is used to store zero-copy `str_t` records (created with `str_init()`), while the latter holds the actual command output, into which the `str_t` records index via their `contents` pointers.
+    - `lib.scanner_new_exec()` uses `ffi.gc()` to mark the returned `scanner` object such that when it is garbage-collected, the `commandt_scanner_free()` function will be called:
       - `commandt_scanner_free()` uses `xmunmap()` to release the `candidates` and `buffer` slabs, and `free()` to deallocate the `scanner_t` struct itself.
       - Note that it also contains a `for` loop that _would_ call `free` on all of the `str_t` records in `candidates`, but the `for` loop is a no-op because all of those strings are slab-allocated and there is an `if` that checks this condition. (It does this `if` check rather than calling `str_free()` in order to save an unnecessary function call; `str_free()` on a slab-allocated `str_t` is a no-op.)
-  - `finders.command()` passes the `scanner` into `lib.matcher_new()`, and returns a `finder` object that exposes a `run()` function (calling `lib.matcher_run()`); the `finder` object has a reference to the `scanner`, which keeps it alive until the `finder` itself falls out of scope.
+  - `finders.exec()` passes the `scanner` into `lib.matcher_new()`, and returns a `finder` object that exposes a `run()` function (calling `lib.matcher_run()`); the `finder` object has a reference to the `scanner`, which keeps it alive until the `finder` itself falls out of scope.
 - The returned `finder` is passed into `ui.show()`, which stores a reference in the module-local `current_finder` variable, keeping the `finder` alive until the next time `ui.show()` is called and a different `finder` is passed in.
 
 The overall ownership chain, then, is: the `finder` owns the `scanner`, the `scanner` owns its `candidates` slab and `buffer` slab, and the `str_t` structs in the `candidates` slab do not own their individual `contents` because those are all slab-allocated.

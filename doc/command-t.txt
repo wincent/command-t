@@ -407,9 +407,7 @@ notice at any time; for example:
         border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' },
 
       },
-      open = function(item, ex_command)
-        commandt.open(item, ex_command)
-      end,
+      open = require('wincent.commandt.sbuffer')
       root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
       scanners = {
         fd = {

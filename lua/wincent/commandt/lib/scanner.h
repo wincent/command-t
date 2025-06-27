@@ -11,11 +11,15 @@
 
 // Define short names for convenience, but all external symbols need prefixes.
 #define scanner_new_copy commandt_scanner_new_copy
-#define scanner_new_command commandt_scanner_new_command
 #define scanner_new_str commandt_scanner_new_str
 #define scanner_new commandt_scanner_new
 #define scanner_dump commandt_scanner_dump
 #define scanner_free commandt_scanner_free
+
+// This one is special: ideally, the underlying symbol would be
+// `commandt_scanner_new_exec()`, but I don't want to break userspace (see the
+// note in lib.lua), so it keeps its old name.
+#define scanner_new_exec commandt_scanner_new_command
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.
@@ -26,7 +30,7 @@
 scanner_t *scanner_new_copy(const char **candidates, unsigned count);
 
 /**
- * Create a new `scanner_t` struct that will be populated by executing the
+ * Create a new `scanner_t` struct that will be populated by `execl()`-ing the
  * NUL-terminated `command` string.
  *
  * The `drop` parameter indicates how many characters of prefix, if any, should
@@ -34,7 +38,7 @@ scanner_t *scanner_new_copy(const char **candidates, unsigned count);
  * 0, but for commands such as `find .` which prefix all paths with "./", `drop`
  * would be 2.
  */
-scanner_t *scanner_new_command(const char *command, unsigned drop, unsigned max_files);
+scanner_t *scanner_new_exec(const char *command, unsigned drop, unsigned max_files);
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates` provided by

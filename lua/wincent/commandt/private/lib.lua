@@ -221,7 +221,12 @@ lib.print_scanner = function(scanner)
   c.commandt_print_scanner(scanner)
 end
 
-lib.scanner_new_command = function(command, drop, max_files)
+lib.scanner_new_exec = function(command, drop, max_files)
+  -- Note that the C-level function would ideally be named
+  -- `commandt_scanner_new_exec()`, for consistency, but I am keeping the old
+  -- name because I don't want to break userspace (ie. by forcing users to do a
+  -- rebuild) just because I felt like refactoring some internal implementation
+  -- details...
   local scanner = c.commandt_scanner_new_command(command, drop or 0, max_files or 0)
   ffi.gc(scanner, c.commandt_scanner_free)
   return scanner
