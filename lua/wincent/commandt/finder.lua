@@ -92,7 +92,6 @@ local function finder(name, directory)
     finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
   end
 
-  local merge = require('wincent.commandt.private.merge')
   -- TODO: fix type smell here. we're merging "mode", a property that exists
   -- inside matcher configs, into the top level, along with "name".
   ui = UI.new()
