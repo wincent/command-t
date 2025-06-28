@@ -91,14 +91,20 @@ function UI:_open(ex_command)
   self.on_open = nil
 end
 
-function UI:show(finder, options)
+--- Display the Command-T UI, consisting of a Prompt window and a MatchListing
+--- window.
+---
+--- @param finder any
+--- @param options any Top-level Command-T options.
+--- @param config any `UI`-specific config.
+function UI:show(finder, options, config)
   -- TODO validate options
   self.current_finder = finder
 
   self.current_window = vim.api.nvim_get_current_win()
 
-  self.on_close = options.on_close
-  self.on_open = options.on_open
+  self.on_close = config.on_close
+  self.on_open = config.on_open
 
   -- Temporarily override global settings.
   -- For now just 'hlsearch', but may add more later (see
@@ -115,7 +121,7 @@ function UI:show(finder, options)
   self.match_listing = MatchListing.new({
     border = border,
     height = options.height,
-    icons = options.mode ~= 'virtual' and options.match_listing.icons or false,
+    icons = config.mode ~= 'virtual' and options.match_listing.icons or false,
     margin = options.margin,
     position = options.position,
     selection_highlight = options.selection_highlight,
@@ -131,7 +137,7 @@ function UI:show(finder, options)
     height = options.height,
     mappings = options.mappings,
     margin = options.margin,
-    name = options.name,
+    name = config.name,
     on_change = function(query)
       self.results, self.candidate_count = self.current_finder.run(query)
       if #self.results > 0 or self.candidate_count > 0 then

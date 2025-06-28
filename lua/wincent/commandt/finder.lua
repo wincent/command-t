@@ -3,7 +3,6 @@
 
 local UI = require('wincent.commandt.private.ui')
 
-local merge = require('wincent.commandt.private.merge')
 local popd = require('wincent.commandt.popd')
 local pushd = require('wincent.commandt.pushd')
 local relativize = require('wincent.commandt.private.relativize')
@@ -17,16 +16,13 @@ local function file_finder(directory)
   local finder = require('wincent.commandt.private.finders.file')('.', options)
 
   ui = UI.new()
-  ui:show(
-    finder,
-    merge(options, {
-      name = 'file',
-      on_open = function(result)
-        return relativize(directory, result)
-      end,
-      on_close = popd,
-    })
-  )
+  ui:show(finder, options, {
+    name = 'file',
+    on_open = function(result)
+      return relativize(directory, result)
+    end,
+    on_close = popd,
+  })
 end
 
 local function watchman_finder(directory)
@@ -35,15 +31,12 @@ local function watchman_finder(directory)
   local finder = require('wincent.commandt.private.finders.watchman')(directory, options)
 
   ui = UI.new()
-  ui:show(
-    finder,
-    merge(options, {
-      name = 'watchman',
-      on_open = function(result)
-        return relativize(directory, result)
-      end,
-    })
-  )
+  ui:show(finder, options, {
+    name = 'watchman',
+    on_open = function(result)
+      return relativize(directory, result)
+    end,
+  })
 end
 
 local function finder(name, directory)
@@ -92,17 +85,12 @@ local function finder(name, directory)
     finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
   end
 
-  -- TODO: fix type smell here. we're merging "mode", a property that exists
-  -- inside matcher configs, into the top level, along with "name".
   ui = UI.new()
-  ui:show(
-    finder,
-    merge(options, {
-      name = name,
-      mode = mode,
-      on_close = config.on_close,
-    })
-  )
+  ui:show(finder, options, {
+    name = name,
+    mode = mode,
+    on_close = config.on_close,
+  })
 end
 
 return finder
