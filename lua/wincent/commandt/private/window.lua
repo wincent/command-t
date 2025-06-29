@@ -110,6 +110,7 @@ function Window.new(options)
     border = nil,
     bottom = nil,
     buftype = 'nofile', -- Also, 'prompt'.
+    description = nil,
     filetype = nil,
     height = 1,
     margin = 0,
