@@ -3,21 +3,73 @@
 
 local is_integer = require('wincent.commandt.private.is_integer')
 
-return {
-  border = {
-    kind = {
-      one_of = {
-        'double',
-        'none',
-        'rounded',
-        'shadow',
-        'single',
-        'solid',
-        'winborder',
-        { kind = 'list', of = { kind = 'string' } },
-      },
+---@alias BorderOption
+---| 'double'
+---| 'none'
+---| 'rounded'
+---| 'shadow'
+---| 'single'
+---| 'solid'
+---| 'winborder'
+---| string[]
+local border = {
+  kind = {
+    one_of = {
+      'double',
+      'none',
+      'rounded',
+      'shadow',
+      'single',
+      'solid',
+      'winborder',
+      { kind = 'list', of = { kind = 'string' } },
     },
   },
+}
+
+---@alias PositionOption 'bottom' | 'center' | 'top'
+local position = { kind = { one_of = { 'bottom', 'center', 'top' } } }
+
+---@alias TruncateOption
+---| 'beginning'
+---| 'middle'
+---| 'end'
+---| 'true'
+---| 'false'
+---| boolean
+local truncate = {
+  kind = {
+    one_of = {
+      'beginning',
+      'middle',
+      'end',
+      'true',
+      'false',
+      { kind = 'boolean' },
+    },
+  },
+}
+
+---@alias MappingsOption {
+---    i?: table<string, string>,
+---    n?: table<string, string>
+---}
+local mappings = {
+  kind = 'table',
+  keys = {
+    i = {
+      kind = 'table',
+      values = { kind = 'string' },
+    },
+    n = {
+      kind = 'table',
+      values = { kind = 'string' },
+    },
+  },
+}
+
+return {
+  border = border,
   height = {
     kind = 'number',
     meta = function(context)
@@ -27,19 +79,7 @@ return {
       end
     end,
   },
-  mappings = {
-    kind = 'table',
-    keys = {
-      i = {
-        kind = 'table',
-        values = { kind = 'string' },
-      },
-      n = {
-        kind = 'table',
-        values = { kind = 'string' },
-      },
-    },
-  },
+  mappings = mappings,
   margin = {
     kind = 'number',
     meta = function(context)
@@ -49,17 +89,6 @@ return {
       end
     end,
   },
-  position = { kind = { one_of = { 'bottom', 'center', 'top' } } },
-  truncate = {
-    kind = {
-      one_of = {
-        'beginning',
-        'middle',
-        'end',
-        'true',
-        'false',
-        { kind = 'boolean' },
-      },
-    },
-  },
+  position = position,
+  truncate = truncate,
 }
