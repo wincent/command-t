@@ -140,11 +140,11 @@ function Defaults:clone(options)
   local copy = require('wincent.commandt.private.copy')
   local result = copy(self._options)
 
-  -- Claims we are passed nil
-  -- Swap border definitions if `position = 'bottom'` is set.
+  -- Swap border definitions if `position = 'bottom'` is set, and reverse order.
   if type(options) == 'table' and options.position == 'bottom' then
     result.match_listing.border = self._options.prompt.border
     result.prompt.border = self._options.match_listing.border
+    result.order = 'reverse'
   end
 
   return result
