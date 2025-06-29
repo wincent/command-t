@@ -4,13 +4,6 @@
 local is_integer = require('wincent.commandt.private.is_integer')
 local is_table = require('wincent.commandt.private.is_table')
 
--- TODO: verify I don't need this
--- Have to add some of these explicitly otherwise the ones with `nil` defaults
--- (eg. `threads`) won't come through.
--- local allowed_options = concat(keys(defaults), {
---   'threads',
--- })
-
 local schema = {
   kind = 'table',
   keys = {
