@@ -8,6 +8,7 @@
 
 local is_integer = require('wincent.commandt.private.is_integer')
 local merge = require('wincent.commandt.private.merge')
+local validate = require('wincent.commandt.private.validate')
 
 local Window = {}
 
@@ -15,45 +16,92 @@ local mt = {
   __index = Window,
 }
 
+local schema = {
+  kind = 'table',
+  keys = {
+    -- TODO: DRY this up.
+    border = {
+      kind = {
+        one_of = {
+          'double',
+          'none',
+          'rounded',
+          'shadow',
+          'single',
+          'solid',
+          'winborder',
+          { kind = 'list', of = { kind = 'string' } },
+        },
+      },
+      optional = true,
+    },
+    bottom = {
+      kind = 'number',
+      optional = true,
+      meta = function(context)
+        if not is_integer(context.bottom) or context.bottom < 0 then
+          return '`bottom` must be a non-negative integer'
+        end
+      end,
+    },
+    buftype = {
+      kind = { one_of = { 'nofile', 'prompt' } },
+    },
+    description = { kind = 'string', optional = true },
+    filetype = { kind = 'string', optional = true },
+    height = {
+      kind = 'number',
+      meta = function(context)
+        if not is_integer(context.height) or context.height < 1 then
+          return '`height` must be a positive integer'
+        end
+      end,
+    },
+    margin = {
+      kind = 'number',
+      meta = function(context)
+        if not is_integer(context.margin) or context.margin < 0 then
+          return '`margin` must be a non-negative integer'
+        end
+      end,
+    },
+    on_change = { kind = 'function', optional = true },
+    on_close = { kind = 'function', optional = true },
+    on_leave = { kind = 'function', optional = true },
+    on_resize = { kind = 'function', optional = true },
+    position = {
+      kind = { one_of = { 'bottom', 'center', 'top' } },
+    },
+    prompt = { kind = 'string' },
+    selection_highlight = { kind = 'string' },
+    title = { kind = 'string' },
+    top = {
+      kind = 'number',
+      optional = true,
+      meta = function(context)
+        if not is_integer(context.top) or context.top < 0 then
+          return '`top` must be a non-negative integer'
+        end
+      end,
+    },
+  },
+  meta = function(context, report)
+    if
+      (type(context.bottom) == 'number' and context.top ~= nil)
+      or (type(context.top) == 'number' and context.bottom ~= nil)
+    then
+      report('cannot set both `bottom` and `top`')
+    end
+    if context.bottom == nil and context.top == nil then
+      report('must provide one of `bottom` or `top`')
+    end
+  end,
+}
+
 local validate_options = function(options)
-  if
-    (type(options.bottom) == 'number' and options.top ~= nil)
-    or (type(options.top) == 'number' and options.bottom ~= nil)
-  then
-    error('Window.new(): cannot set both `bottom` and `top`')
-  end
-  if options.bottom == nil and options.top == nil then
-    error('Window.new(): must provide one of `bottom` or `top`')
-  end
-  if options.bottom ~= nil and (not is_integer(options.bottom) or options.bottom < 0) then
-    error('Window.new(): `bottom` must be a non-negative integer')
-  end
-  if options.buftype ~= 'nofile' and options.buftype ~= 'prompt' then
-    error("Window.new(): `buftype` must be 'nofile' or 'prompt'")
-  end
-  if not is_integer(options.margin) or options.margin < 0 then
-    error('Window.new(): `margin` must be a non-negative integer')
-  end
-  if options.on_change ~= nil and type(options.on_change) ~= 'function' then
-    error('Window.new(): `on_change` must be a function')
-  end
-  if options.on_close ~= nil and type(options.on_close) ~= 'function' then
-    error('Window.new(): `on_close` must be a function')
-  end
-  if options.on_leave ~= nil and type(options.on_leave) ~= 'function' then
-    error('Window.new(): `on_leave` must be a function')
-  end
-  if options.on_resize ~= nil and type(options.on_resize) ~= 'function' then
-    error('Window.new(): `on_resize` must be a function')
-  end
-  if options.position ~= 'bottom' and options.position ~= 'center' and options.position ~= 'top' then
-    error("Window.new(): `position` must be 'bottom', 'center', or 'top'")
-  end
-  if options.selection_highlight ~= nil and type(options.selection_highlight) ~= 'string' then
-    error('Window.new(): `selection_highlight` must be a string')
-  end
-  if options.top ~= nil and (not is_integer(options.top) or options.top < 0) then
-    error('Window.new(): `top` must be a non-negative integer')
+  local errors = validate('', {}, options, schema, {})
+  if #errors > 0 then
+    error('Window.new(): ' .. errors[1])
   end
 end
 
