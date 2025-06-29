@@ -6,6 +6,7 @@ local UI = {}
 local MatchListing = require('wincent.commandt.private.match_listing')
 local Prompt = require('wincent.commandt.private.prompt')
 local Settings = require('wincent.commandt.private.settings')
+local validate = require('wincent.commandt.private.validate')
 
 -- Reverses `list` in place.
 local reverse = function(list)
@@ -91,6 +92,29 @@ function UI:_open(ex_command)
   self.on_open = nil
 end
 
+local schema = {
+  kind = 'table',
+  keys = {
+    mode = { kind = {
+      one_of = {
+        'file',
+        'virtual',
+      },
+      optional = true,
+    } },
+    name = { kind = 'string' },
+    on_close = { kind = 'function', optional = true },
+    on_open = { kind = 'function', optional = true },
+  },
+}
+
+local validate_config = function(config)
+  local errors = validate('', {}, config, schema, {})
+  if #errors > 0 then
+    error('UI:show(): ' .. errors[1])
+  end
+end
+
 --- Display the Command-T UI, consisting of a Prompt window and a MatchListing
 --- window.
 ---
@@ -98,7 +122,7 @@ end
 --- @param options any Top-level Command-T options.
 --- @param config any `UI`-specific config.
 function UI:show(finder, options, config)
-  -- TODO validate config
+  validate_config(config)
   self.current_finder = finder
 
   self.current_window = vim.api.nvim_get_current_win()
