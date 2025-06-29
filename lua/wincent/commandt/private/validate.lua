@@ -14,7 +14,7 @@ local validate_one_of
 local validate_string
 local validate_table
 
-local format_path = function(path)
+local function format_path(path)
   if path == '' then
     return '<top-level>'
   else
@@ -24,12 +24,12 @@ local format_path = function(path)
 end
 
 -- Given `'foo.bar.baz'` return `'baz'`.
-local last = function(list)
+local function last(list)
   return list[#list]
 end
 
 -- Turn `'foo.bar.baz'` into `{ 'foo', 'bar', 'baz' }`.
-local split_option = function(option)
+local function split_option(option)
   local segments = {}
   -- Append trailing '.' to make it easier to split.
   for segment in string.gmatch(option .. '.', '([%a%d_]+)%.') do
@@ -39,7 +39,7 @@ local split_option = function(option)
 end
 
 -- config.dry_run: do validation, but don't mutate/reset bad values.
-local validate = function(path, context, options, spec, defaults, config)
+local function validate(path, context, options, spec, defaults, config)
   config = config or {}
   if spec.kind == 'boolean' then
     return validate_boolean(path, context, options, spec, defaults, config)
