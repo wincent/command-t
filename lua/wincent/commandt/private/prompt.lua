@@ -3,6 +3,8 @@
 
 local Window = require('wincent.commandt.private.window')
 local merge = require('wincent.commandt.private.merge')
+local types = require('wincent.commandt.private.options.types')
+local validate = require('wincent.commandt.private.validate')
 
 local Prompt = {}
 
@@ -17,12 +19,35 @@ local mt = {
   end,
 }
 
+local schema = {
+  kind = 'table',
+  keys = {
+    border = types.border,
+    height = types.height,
+    mappings = types.mappings,
+    margin = types.margin,
+    name = { kind = 'string' },
+    on_change = { kind = 'function', optional = true },
+    on_leave = { kind = 'function', optional = true },
+    on_open = { kind = 'function', optional = true },
+    on_select = { kind = 'function', optional = true },
+    position = types.position,
+  },
+}
+
+local validate_options = function(options)
+  local errors = validate('', {}, options, schema, {})
+  if #errors > 0 then
+    error('Prompt.new(): ' .. errors[1])
+  end
+end
+
 function Prompt.new(options)
   options = merge({
     border = nil,
+    height = 15,
     mappings = {},
     margin = 0,
-    height = 15,
     name = nil,
     on_change = nil,
     on_leave = nil,
@@ -30,7 +55,7 @@ function Prompt.new(options)
     on_select = nil,
     position = 'bottom',
   }, options or {})
-  -- TODO validate options
+  validate_options(options)
   local p = {
     _border = options.border,
     _height = options.height,

@@ -5,6 +5,8 @@ local Window = require('wincent.commandt.private.window')
 local merge = require('wincent.commandt.private.merge')
 local str_prefix = require('wincent.commandt.private.str_prefix')
 local str_suffix = require('wincent.commandt.private.str_suffix')
+local types = require('wincent.commandt.private.options.types')
+local validate = require('wincent.commandt.private.validate')
 
 local border_height = 2
 local prompt_height = 1 + border_height
@@ -14,6 +16,30 @@ local MatchListing = {}
 local mt = {
   __index = MatchListing,
 }
+
+local schema = {
+  kind = 'table',
+  keys = {
+    border = types.border,
+    height = types.height,
+    icons = { kind = 'boolean' },
+    margin = types.margin,
+    on_change = { kind = 'function', optional = true },
+    on_leave = { kind = 'function', optional = true },
+    on_open = { kind = 'function', optional = true },
+    on_select = { kind = 'function', optional = true },
+    position = types.position,
+    selection_highlight = { kind = 'string' },
+    truncate = types.truncate,
+  },
+}
+
+local validate_options = function(options)
+  local errors = validate('', {}, options, schema, {})
+  if #errors > 0 then
+    error('MatchListing.new(): ' .. errors[1])
+  end
+end
 
 function MatchListing.new(options)
   options = merge({
@@ -25,7 +51,7 @@ function MatchListing.new(options)
     selection_highlight = 'PmenuSel',
     truncate = 'middle',
   }, options or {})
-  -- TODO: validate options
+  validate_options(options)
   local m = {
     _border = options.border,
     _height = options.height,

@@ -98,7 +98,7 @@ end
 --- @param options any Top-level Command-T options.
 --- @param config any `UI`-specific config.
 function UI:show(finder, options, config)
-  -- TODO validate options
+  -- TODO validate config
   self.current_finder = finder
 
   self.current_window = vim.api.nvim_get_current_win()

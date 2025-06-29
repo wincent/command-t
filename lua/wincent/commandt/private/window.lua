@@ -42,9 +42,7 @@ local schema = {
     on_close = { kind = 'function', optional = true },
     on_leave = { kind = 'function', optional = true },
     on_resize = { kind = 'function', optional = true },
-    position = {
-      kind = { one_of = { 'bottom', 'center', 'top' } },
-    },
+    position = types.position,
     prompt = { kind = 'string' },
     selection_highlight = { kind = 'string' },
     title = { kind = 'string' },

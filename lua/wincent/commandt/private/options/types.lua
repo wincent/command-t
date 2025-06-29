@@ -27,6 +27,19 @@ return {
       end
     end,
   },
+  mappings = {
+    kind = 'table',
+    keys = {
+      i = {
+        kind = 'table',
+        values = { kind = 'string' },
+      },
+      n = {
+        kind = 'table',
+        values = { kind = 'string' },
+      },
+    },
+  },
   margin = {
     kind = 'number',
     meta = function(context)
@@ -35,5 +48,18 @@ return {
         return '`margin` must be a non-negative integer'
       end
     end,
+  },
+  position = { kind = { one_of = { 'bottom', 'center', 'top' } } },
+  truncate = {
+    kind = {
+      one_of = {
+        'beginning',
+        'middle',
+        'end',
+        'true',
+        'false',
+        { kind = 'boolean' },
+      },
+    },
   },
 }

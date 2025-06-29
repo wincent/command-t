@@ -100,19 +100,7 @@ local schema = {
       },
       optional = true,
     },
-    mappings = {
-      kind = 'table',
-      keys = {
-        i = {
-          kind = 'table',
-          values = { kind = 'string' },
-        },
-        n = {
-          kind = 'table',
-          values = { kind = 'string' },
-        },
-      },
-    },
+    mappings = types.mappings,
     margin = types.margin,
     match_listing = {
       kind = 'table',
@@ -126,23 +114,12 @@ local schema = {
             },
           },
         },
-        truncate = {
-          kind = {
-            one_of = {
-              'beginning',
-              'middle',
-              'end',
-              'true',
-              'false',
-              { kind = 'boolean' },
-            },
-          },
-        },
+        truncate = types.truncate,
       },
     },
     never_show_dot_files = { kind = 'boolean' },
     order = { kind = { one_of = { 'forward', 'reverse' } } },
-    position = { kind = { one_of = { 'bottom', 'center', 'top' } } },
+    position = types.position,
     prompt = {
       kind = 'table',
       keys = {
