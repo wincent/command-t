@@ -1,8 +1,6 @@
 -- SPDX-FileCopyrightText: Copyright 2025-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local sbuffer = require('wincent.commandt.sbuffer')
-
 local Defaults = {}
 
 local mt = {
@@ -98,7 +96,7 @@ function Defaults.new()
     prompt = {
       border = { '┌', '─', '┐', '│', '┤', '─', '├', '│' }, -- 'double', 'none', 'rounded', 'shadow', 'single', 'solid', 'winborder', or a list of strings.
     },
-    open = sbuffer,
+    open = require('wincent.commandt.sbuffer'),
     root_markers = { '.git', '.hg', '.svn', '.bzr', '_darcs' },
     scanners = {
       fd = {
