@@ -1,8 +1,8 @@
 -- SPDX-FileCopyrightText: Copyright 2025-present Greg Hurrell and contributors.
 -- SPDX-License-Identifier: BSD-2-Clause
 
-local is_integer = require('wincent.commandt.private.is_integer')
 local is_table = require('wincent.commandt.private.is_table')
+local types = require('wincent.commandt.private.options.types')
 
 local schema = {
   kind = 'table',
@@ -86,15 +86,7 @@ local schema = {
         end
       end,
     },
-    height = {
-      kind = 'number',
-      meta = function(context)
-        if not is_integer(context.height) or context.height < 1 then
-          context.height = 15
-          return '`height` must be a positive integer'
-        end
-      end,
-    },
+    height = types.height,
     ignore_case = {
       kind = {
         one_of = {
@@ -121,32 +113,11 @@ local schema = {
         },
       },
     },
-    margin = {
-      kind = 'number',
-      meta = function(context)
-        if not is_integer(context.margin) or context.margin < 0 then
-          context.margin = 0
-          return '`margin` must be a non-negative integer'
-        end
-      end,
-    },
+    margin = types.margin,
     match_listing = {
       kind = 'table',
       keys = {
-        border = {
-          kind = {
-            one_of = {
-              'double',
-              'none',
-              'rounded',
-              'shadow',
-              'single',
-              'solid',
-              'winborder',
-              { kind = 'list', of = { kind = 'string' } },
-            },
-          },
-        },
+        border = types.border,
         icons = {
           kind = {
             one_of = {
@@ -175,20 +146,7 @@ local schema = {
     prompt = {
       kind = 'table',
       keys = {
-        border = {
-          kind = {
-            one_of = {
-              'double',
-              'none',
-              'rounded',
-              'shadow',
-              'single',
-              'solid',
-              'winborder',
-              { kind = 'list', of = { kind = 'string' } },
-            },
-          },
-        },
+        border = types.border,
       },
     },
     open = { kind = 'function' },

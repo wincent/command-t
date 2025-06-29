@@ -8,6 +8,7 @@
 
 local is_integer = require('wincent.commandt.private.is_integer')
 local merge = require('wincent.commandt.private.merge')
+local types = require('wincent.commandt.private.options.types')
 local validate = require('wincent.commandt.private.validate')
 
 local Window = {}
@@ -19,27 +20,13 @@ local mt = {
 local schema = {
   kind = 'table',
   keys = {
-    -- TODO: DRY this up.
-    border = {
-      kind = {
-        one_of = {
-          'double',
-          'none',
-          'rounded',
-          'shadow',
-          'single',
-          'solid',
-          'winborder',
-          { kind = 'list', of = { kind = 'string' } },
-        },
-      },
-      optional = true,
-    },
+    border = types.border,
     bottom = {
       kind = 'number',
       optional = true,
       meta = function(context)
         if not is_integer(context.bottom) or context.bottom < 0 then
+          context.bottom = 0
           return '`bottom` must be a non-negative integer'
         end
       end,
@@ -49,22 +36,8 @@ local schema = {
     },
     description = { kind = 'string', optional = true },
     filetype = { kind = 'string', optional = true },
-    height = {
-      kind = 'number',
-      meta = function(context)
-        if not is_integer(context.height) or context.height < 1 then
-          return '`height` must be a positive integer'
-        end
-      end,
-    },
-    margin = {
-      kind = 'number',
-      meta = function(context)
-        if not is_integer(context.margin) or context.margin < 0 then
-          return '`margin` must be a non-negative integer'
-        end
-      end,
-    },
+    height = types.height,
+    margin = types.margin,
     on_change = { kind = 'function', optional = true },
     on_close = { kind = 'function', optional = true },
     on_leave = { kind = 'function', optional = true },
@@ -80,6 +53,7 @@ local schema = {
       optional = true,
       meta = function(context)
         if not is_integer(context.top) or context.top < 0 then
+          context.top = 0
           return '`top` must be a non-negative integer'
         end
       end,
@@ -90,9 +64,11 @@ local schema = {
       (type(context.bottom) == 'number' and context.top ~= nil)
       or (type(context.top) == 'number' and context.bottom ~= nil)
     then
+      context.bottom = nil
       report('cannot set both `bottom` and `top`')
     end
     if context.bottom == nil and context.top == nil then
+      context.top = 0
       report('must provide one of `bottom` or `top`')
     end
   end,
