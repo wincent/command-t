@@ -254,11 +254,18 @@ validate_table = function(path, context, options, spec, defaults, config)
     end
   end
   if spec.meta then
-    local err = spec.meta(config.dry_run and copy(options) or options)
-    if err then
-      for _, e in ipairs(err) do
-        table.insert(errors, { string.format('%s: %s', format_path(path), e) })
-      end
+    -- Schema can either return an error as a string, or a list of errors
+    -- (strings), or add errors by calling the `report()` callback.
+    local reported = {}
+    local returned = spec.meta(config.dry_run and copy(options) or options, function(err)
+      table.insert(reported, err)
+    end)
+    local all = require('wincent.commandt.private.concat')(
+      reported,
+      type(returned) == 'string' and { returned } or returned or {}
+    )
+    for _, e in ipairs(all) do
+      table.insert(errors, { string.format('%s: %s', format_path(path), e) })
     end
   end
   return vim.iter(errors):flatten():totable()

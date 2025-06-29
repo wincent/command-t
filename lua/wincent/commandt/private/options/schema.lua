@@ -75,24 +75,22 @@ local schema = {
           open = { kind = 'function', optional = true },
         },
       },
-      meta = function(t)
-        local errors = {}
+      meta = function(t, report)
         if is_table(t) then
           for key, value in pairs(t) do
             if value.candidates and value.command then
               value.command = nil
-              table.insert(errors, string.format('%s: `candidates` and `command` should not both be set', key))
+              report(string.format('%s: `candidates` and `command` should not both be set', key))
             elseif value.candidates == nil and value.command == nil then
               value.candidates = {}
-              table.insert(errors, string.format('%s: either `candidates` or `command` should be set', key))
+              report(string.format('%s: either `candidates` or `command` should be set', key))
             end
 
             if value.candidates and value.max_files then
-              table.insert(errors, string.format('%s: `max_files` has no effect if `candidates` set', key))
+              report(string.format('%s: `max_files` has no effect if `candidates` set', key))
             end
           end
         end
-        return errors
       end,
     },
     height = {
@@ -100,7 +98,7 @@ local schema = {
       meta = function(context)
         if not is_integer(context.height) or context.height < 1 then
           context.height = 15
-          return { '`height` must be a positive integer' }
+          return '`height` must be a positive integer'
         end
       end,
     },
@@ -135,7 +133,7 @@ local schema = {
       meta = function(context)
         if not is_integer(context.margin) or context.margin < 0 then
           context.margin = 0
-          return { '`margin` must be a non-negative integer' }
+          return '`margin` must be a non-negative integer'
         end
       end,
     },
@@ -243,7 +241,7 @@ local schema = {
             if is_table(t) and t.submodules == true and t.untracked == true then
               t.submodules = false
               t.untracked = false
-              return { '`submodules` and `untracked` should not both be true' }
+              return '`submodules` and `untracked` should not both be true'
             end
           end,
           optional = true,
@@ -291,7 +289,7 @@ local schema = {
     if t.always_show_dot_files == true and t.never_show_dot_files == true then
       t.always_show_dot_files = false
       t.never_show_dot_files = false
-      return { '`always_show_dot_files` and `never_show_dot_files` should not both be true' }
+      return '`always_show_dot_files` and `never_show_dot_files` should not both be true'
     end
   end,
 }
