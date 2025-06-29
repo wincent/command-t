@@ -7,6 +7,7 @@ local MatchListing = require('wincent.commandt.private.match_listing')
 local Prompt = require('wincent.commandt.private.prompt')
 local Settings = require('wincent.commandt.private.settings')
 local validate = require('wincent.commandt.private.validate')
+local types = require('wincent.commandt.private.options.types')
 
 -- Reverses `list` in place.
 local reverse = function(list)
@@ -95,13 +96,7 @@ end
 local schema = {
   kind = 'table',
   keys = {
-    mode = { kind = {
-      one_of = {
-        'file',
-        'virtual',
-      },
-      optional = true,
-    } },
+    mode = types.mode,
     name = { kind = 'string' },
     on_close = { kind = 'function', optional = true },
     on_open = { kind = 'function', optional = true },

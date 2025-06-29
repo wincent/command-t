@@ -4,6 +4,50 @@
 local is_table = require('wincent.commandt.private.is_table')
 local types = require('wincent.commandt.private.options.types')
 
+---@alias CommandTOptions {
+---  always_show_dot_files?: boolean,
+---  finders?: table<string, {
+---    candidates?: (fun(): string[]) | string[],
+---    mode?: ModeOption,
+---    on_close?: fun(),
+---    on_directory?: fun(),
+---    options?: fun(),
+---    command?: fun() | string,
+---    fallback?: boolean,
+---    max_files?: (fun(): number) | number,
+---    open?: fun(),
+---  }>,
+---  height?: number,
+---  ignore_case?: boolean | fun(),
+---  mappings?: MappingsOption,
+---  margin?: number,
+---  match_listing?: {
+---    border?: BorderOption,
+---    icons?: boolean | fun(),
+---    truncate?: TruncateOption,
+---  },
+---  never_show_dot_files?: boolean,
+---  order?: OrderOption,
+---  position?: PositionOption,
+---  prompt?: {
+---    border?: BorderOption,
+---  },
+---  open?: fun(),
+---  root_markers?: string[],
+---  scanners?: {
+---    fd?: { max_files?: number },
+---    find?: { max_files?: number },
+---    file?: { max_files?: number },
+---    git?: { max_files?: number, submodules?: boolean, untracked?: boolean },
+---    rg?: { max_files?: number },
+---    tag?: { include_filenames?: boolean },
+---  },
+---  selection_highlight?: string,
+---  smart_case?: boolean | fun(),
+---  threads?: number,
+---  traverse?: TraverseOption,
+---}
+
 local schema = {
   kind = 'table',
   keys = {
@@ -25,15 +69,7 @@ local schema = {
             },
             optional = true,
           },
-          mode = {
-            kind = {
-              one_of = {
-                'file',
-                'virtual',
-              },
-            },
-            optional = true,
-          },
+          mode = types.mode,
           on_close = {
             kind = 'function',
             optional = true,
@@ -118,7 +154,7 @@ local schema = {
       },
     },
     never_show_dot_files = { kind = 'boolean' },
-    order = { kind = { one_of = { 'forward', 'reverse' } } },
+    order = types.order,
     position = types.position,
     prompt = {
       kind = 'table',
@@ -211,7 +247,7 @@ local schema = {
       kind = 'number',
       optional = true,
     },
-    traverse = { kind = { one_of = { 'file', 'pwd', 'none' } } },
+    traverse = types.traverse,
   },
   meta = function(t)
     if t.always_show_dot_files == true and t.never_show_dot_files == true then

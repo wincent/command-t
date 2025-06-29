@@ -27,8 +27,35 @@ local border = {
   },
 }
 
+---@alias MappingsOption {
+---    i?: table<string, string>,
+---    n?: table<string, string>
+---}
+local mappings = {
+  kind = 'table',
+  keys = {
+    i = {
+      kind = 'table',
+      values = { kind = 'string' },
+    },
+    n = {
+      kind = 'table',
+      values = { kind = 'string' },
+    },
+  },
+}
+
+---@alias ModeOption 'file' | 'virtual'
+local mode = { kind = { one_of = { 'file', 'virtual' } }, optional = true }
+
+---@alias OrderOption 'forward' | 'reverse'
+local order = { kind = { one_of = { 'forward', 'reverse' } } }
+
 ---@alias PositionOption 'bottom' | 'center' | 'top'
 local position = { kind = { one_of = { 'bottom', 'center', 'top' } } }
+
+---@alias TraverseOption 'file' | 'pwd' | 'none'
+local traverse = { kind = { one_of = { 'file', 'pwd', 'none' } } }
 
 ---@alias TruncateOption
 ---| 'beginning'
@@ -46,24 +73,6 @@ local truncate = {
       'true',
       'false',
       { kind = 'boolean' },
-    },
-  },
-}
-
----@alias MappingsOption {
----    i?: table<string, string>,
----    n?: table<string, string>
----}
-local mappings = {
-  kind = 'table',
-  keys = {
-    i = {
-      kind = 'table',
-      values = { kind = 'string' },
-    },
-    n = {
-      kind = 'table',
-      values = { kind = 'string' },
     },
   },
 }
@@ -89,6 +98,9 @@ return {
       end
     end,
   },
+  mode = mode,
+  order = order,
   position = position,
+  traverse = traverse,
   truncate = truncate,
 }
