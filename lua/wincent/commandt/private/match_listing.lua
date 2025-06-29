@@ -169,7 +169,6 @@ function MatchListing:show()
     top = prompt_height
   end
 
-  -- TODO: deal with other options, like reverse
   if self._window == nil then
     self._window = Window.new({
       border = self._border,
