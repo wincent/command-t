@@ -2,6 +2,8 @@
 -- SPDX-License-Identifier: BSD-2-Clause
 
 --- @class time
+--- @field cpu fun(callback: function): number
+--- @field wall fun(callback: function): number
 local M = {}
 
 --- Returns the CPU-time elapsed while executing the `callback`.
