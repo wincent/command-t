@@ -4,10 +4,24 @@
 local ffi = require('ffi')
 local fixtures = require('wincent.commandt.test.fixtures')
 
+--- @alias Matcher {
+---   match: (fun(query: string): string[]),
+---   _scanner: userdata,
+---   _matcher: userdata,
+--- }
+
 describe('matcher.c', function()
   local lib = require('wincent.commandt.private.lib')
 
-  local get_matcher = function(paths, options)
+  --- @param paths string[]
+  --- @param options? {
+  ---   height?: number,
+  ---   ignore_case?: boolean,
+  ---   ignore_spaces?: boolean,
+  ---   smart_case?: boolean,
+  --- }
+  --- @return Matcher
+  local function get_matcher(paths, options)
     options = options or {}
     local scanner = lib.scanner_new_copy(paths)
     local matcher = lib.matcher_new(scanner, options)
@@ -27,6 +41,7 @@ describe('matcher.c', function()
   end
 
   context('with an empty scanner', function()
+    --- @type Matcher
     local matcher = nil
 
     before(function()
