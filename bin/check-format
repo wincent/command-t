@@ -12,7 +12,7 @@ EXIT=0
 
 stylua --check . || EXIT=1
 
-npx -y dprint@0.50.0 check "**/*.md" || EXIT=1
+npx -y dprint@0.50.0 check "**/*.md" "**/*.jsonc" || EXIT=1
 
 set -o pipefail
 
