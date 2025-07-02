@@ -29,7 +29,7 @@ local border = {
 
 ---@alias MappingsOption {
 ---    i?: table<string, string>,
----    n?: table<string, string>
+---    n?: table<string, string>,
 ---}
 local mappings = {
   kind = 'table',
