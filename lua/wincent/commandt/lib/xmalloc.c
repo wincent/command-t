@@ -9,7 +9,7 @@
 #include <stdio.h> /* for snprintf() */
 #include <stdlib.h> /* for malloc(), realloc() */
 
-#include "die.h"
+#include "die.h" /* for die() */
 
 #define BUF_SIZE 256
 

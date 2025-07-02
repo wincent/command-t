@@ -13,12 +13,12 @@
 #include <stdlib.h> /* for qsort(), NULL */
 #include <string.h> /* for strncmp() */
 
-#include "commandt.h"
-#include "die.h"
-#include "heap.h"
-#include "score.h"
+#include "commandt.h" /* for haystack_t, matcher_t, scanner_t */
+#include "die.h" /* for die() */
+#include "heap.h" /* for HEAP_PEEK(), heap_extract(), heap_free(), heap_insert(), heap_new() */
+#include "score.h" /* for commandt_score() */
 #include "str.h" /* for str_t */
-#include "xmalloc.h"
+#include "xmalloc.h" /* for xmalloc() */
 
 // Avoid the overhead of threading when search space is small.
 #define THREAD_THRESHOLD 1000

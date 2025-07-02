@@ -7,7 +7,7 @@
 
 #include <stdlib.h> /* for free(), NULL */
 
-#include "xmalloc.h"
+#include "xmalloc.h" /* for xmalloc() */
 
 #define HEAP_PARENT(index) ((index - 1) / 2)
 #define HEAP_LEFT(index) (2 * index + 1)

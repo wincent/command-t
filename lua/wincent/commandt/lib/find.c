@@ -13,9 +13,9 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for strcmp(), strerror() */
 
-#include "debug.h"
+#include "debug.h" /* for DEBUG_LOG() */
 #include "scanner.h" /* for scanner_new() */
-#include "xmalloc.h"
+#include "xmalloc.h" /* for xcalloc() */
 #include "xmap.h" /* for xmap(), xmunmap() */
 #include "xstrdup.h" /* for xstrdup() */
 

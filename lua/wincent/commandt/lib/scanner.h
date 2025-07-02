@@ -7,7 +7,7 @@
 #define SCANNER_H
 
 #include "commandt.h" /* for scanner_t */
-#include "str.h"
+#include "str.h" /* for str_t */
 
 // Define short names for convenience, but all external symbols need prefixes.
 #define scanner_new_copy commandt_scanner_new_copy

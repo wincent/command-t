@@ -16,8 +16,8 @@
 #include <sys/un.h> /* for sockaddr_un */
 #include <unistd.h> /* for close() */
 
-#include "debug.h"
-#include "str.h"
+#include "debug.h" /* for DEBUG_LOG */
+#include "str.h" /* for str_t, str_c_string(), str_init(), str_free(), str_new_copy() */
 #include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
 #include "xmap.h" /* for xmap(), xmunmap() */
 #include "xstrdup.h" /* for xstrdup() */

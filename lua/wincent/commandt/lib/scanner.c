@@ -14,8 +14,8 @@
 #include <sys/wait.h> /* for wait() */
 #include <unistd.h> /* _exit(), close(), fork(), pipe(), read() */
 
-#include "str.h"
-#include "xmalloc.h"
+#include "str.h" /* for str_append(), str_new(), str_init(), str_init_copy() */
+#include "xmalloc.h" /* for xcalloc() */
 #include "xmap.h" /* for xmap(), xmunmap() */
 
 // TODO: make this capable of producing asynchronously?

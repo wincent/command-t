@@ -10,7 +10,7 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memcpy() */
 
-#include "xmalloc.h"
+#include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
 
 // When allocating memory, reserve a little more than was asked for,
 // which can help to avoid subsequent allocations.
