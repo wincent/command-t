@@ -45,6 +45,7 @@ static float recursive_match(
         for (size_t j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
             char c = needle_char;
             char d = haystack_contents[j];
+            char d_lower = d >= 'A' && d <= 'Z' ? d | 0x20 : d;
             if (d == '.') {
                 if (j == 0 ||
                     haystack_contents[j - 1] == '/') { // This is a dot-file.
@@ -58,11 +59,10 @@ static float recursive_match(
                         return 0.0f;
                     }
                 }
-            } else if (m->ignore_case && d >= 'A' && d <= 'Z') {
-                d |= 0x20; // Lowercase (same as adding 32).
             }
 
-            if (c == d) {
+            char match_char = m->ignore_case ? d_lower : d;
+            if (c == match_char) {
                 memoized = &m->memo[j * m->needle_length + i];
                 if (*memoized != UNSET_SCORE) {
                     return *memoized > seen_score ? *memoized : seen_score;
@@ -75,15 +75,13 @@ static float recursive_match(
                 if (distance > 1) {
                     float factor = 1.0f;
                     char last = haystack_contents[j - 1];
-                    char curr =
-                        haystack_contents[j]; // Case matters, so get again.
                     if (last == '/') {
                         factor = 0.9f;
                     } else if (last == '-' || last == '_' || last == ' ' ||
                                (last >= '0' && last <= '9')) {
                         factor = 0.8f;
-                    } else if (last >= 'a' && last <= 'z' && curr >= 'A' &&
-                               curr <= 'Z') {
+                    } else if (last >= 'a' && last <= 'z' && d >= 'A' &&
+                               d <= 'Z') {
                         factor = 0.8f;
                     } else if (last == '.') {
                         factor = 0.7f;
