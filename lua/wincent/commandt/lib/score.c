@@ -14,6 +14,7 @@
 // Use a struct to make passing params during recursion easier.
 typedef struct {
     haystack_t *haystack;
+    const char *haystack_p;
     const char *needle_p;
     size_t needle_length;
     size_t *rightmost_match_p; // Rightmost match for each char in needle.
@@ -35,7 +36,7 @@ static float recursive_match(
 ) {
     float *memoized = NULL;
     float seen_score = 0.0f;
-    const char *haystack_contents = m->haystack->candidate->contents;
+    const char *haystack_contents = m->haystack_p;
 
     // Iterate over needle.
     for (size_t i = needle_idx; i < m->needle_length; i++) {
@@ -118,6 +119,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
     matchinfo_t m;
     bool compute_bitmasks = haystack->bitmask == UNSET_BITMASK;
     m.haystack = haystack;
+    m.haystack_p = m.haystack->candidate->contents;
     m.needle_p = matcher->needle;
     m.needle_length = matcher->needle_length;
     m.rightmost_match_p = NULL;
@@ -132,9 +134,8 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
         // Filter out dot files.
         if (m.never_show_dot_files || !m.always_show_dot_files) {
             for (size_t i = 0; i < m.haystack->candidate->length; i++) {
-                char c = m.haystack->candidate->contents[i];
-                if (c == '.' &&
-                    (i == 0 || m.haystack->candidate->contents[i - 1] == '/')) {
+                char c = m.haystack_p[i];
+                if (c == '.' && (i == 0 || m.haystack_p[i - 1] == '/')) {
                     return -1.0f;
                 }
             }
@@ -158,7 +159,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
         size_t haystack_idx = haystack_len ? haystack_len - 1 : 0;
         long mask = 0;
         bool found_needle = false;
-        const char *haystack_contents = m.haystack->candidate->contents;
+        const char *haystack_contents = m.haystack_p;
         if (haystack_len) {
             while (haystack_idx >= needle_idx) {
                 char c = haystack_contents[haystack_idx];
@@ -222,9 +223,7 @@ float commandt_score(haystack_t *haystack, matcher_t *matcher, bool ignore_case)
             char formatted[8];
             if (i % m.needle_length == 0) {
                 long haystack_idx = i / m.needle_length;
-                fprintf(
-                    stdout, "%c: ", m.haystack->candidate->contents[haystack_idx]
-                );
+                fprintf(stdout, "%c: ", m.haystack_p[haystack_idx]);
             }
             if (memo[i] == UNSET_SCORE) {
                 snprintf(formatted, sizeof(formatted), "    -  ");
