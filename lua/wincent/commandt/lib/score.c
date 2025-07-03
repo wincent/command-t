@@ -35,11 +35,11 @@ static float recursive_match(
 ) {
     float *memoized = NULL;
     float seen_score = 0.0f;
+    const char *haystack_contents = m->haystack->candidate->contents;
 
     // Iterate over needle.
     for (size_t i = needle_idx; i < m->needle_length; i++) {
         char needle_char = m->needle_p[i];
-        const char *haystack_contents = m->haystack->candidate->contents;
 
         // Iterate over (valid range of) haystack.
         for (size_t j = haystack_idx; j <= m->rightmost_match_p[i]; j++) {
