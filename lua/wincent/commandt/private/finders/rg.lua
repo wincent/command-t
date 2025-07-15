@@ -9,7 +9,7 @@ local pushd = require('wincent.commandt.pushd')
 local rg = {
   command = function(directory, _options)
     pushd(directory)
-    local command = 'rg --files --null 2> /dev/null'
+    local command = 'rg --files --follow --no-messages --null 2> /dev/null'
     local drop = 0
     return command, drop
   end,

@@ -9,7 +9,7 @@ local pushd = require('wincent.commandt.pushd')
 local fd = {
   command = function(directory, _options)
     pushd(directory)
-    local command = 'fd --hidden --print0 --type file --search-path . 2> /dev/null'
+    local command = 'fd --follow --hidden --print0 --type file --search-path . 2> /dev/null'
     local drop = 2 -- drop './'
     return command, drop
   end,
