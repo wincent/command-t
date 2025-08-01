@@ -90,6 +90,7 @@ if s:prefers_ruby
   nnoremap <silent> <Plug>(CommandTCommand) :CommandTCommand<CR>
   nnoremap <silent> <Plug>(CommandTHelp) :CommandTHelp<CR>
   nnoremap <silent> <Plug>(CommandTLine) :CommandTLine<CR>
+  nnoremap <silent> <Plug>(CommandTTag) :CommandTTag<CR>
 
   if !hasmapto('<Plug>(CommandT)') && maparg('<Leader>t', 'n') ==# ''
     nmap <unique> <Leader>t <Plug>(CommandT)
