@@ -4,7 +4,7 @@
 return {
   major = 7,
   minor = 0,
-  patch = 0,
+  patch = 1,
   prerelease = '',
-  version = '7.0',
+  version = '7.0.1',
 }
