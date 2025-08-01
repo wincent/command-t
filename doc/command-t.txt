@@ -972,6 +972,8 @@ The release process is:
 7. Create archive (eg. `git archive -o command-t-7.0.1.zip HEAD -- .` or
    similar).
 8. Upload to vim.org (http://www.vim.org/scripts/script.php?script_id=3025).
+9. Fast-forward `7-x-release` branch to match `7-x-devel`.
+10. Update `version.lua` to use "devel" prerelease suffix.
 
 
 WEBSITE                                                     *command-t-website*
