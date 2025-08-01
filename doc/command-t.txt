@@ -1045,6 +1045,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
+7-x-devel (not yet released) ~
+
+- ...
+
 7.0.1 (1 August 2025) ~
 
 - Restore `(Plug)CommandTTag` mapping
