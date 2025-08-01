@@ -1044,9 +1044,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
-main (not yet released) ~
+6.2.1 (1 August 2025) ~
 
-- ...
+- Restore `<Plug>(CommandTTag)` mapping
+  (https://github.com/wincent/command-t/issues/443).
 
 6.2 (23 June 2025) ~
 
