@@ -11,6 +11,97 @@ local lib = require('wincent.commandt.private.lib')
 
 lib.epoch() -- Force eager loading of C library.
 
+local function get_git_hash()
+  local handle = io.popen('command git rev-parse HEAD 2>/dev/null')
+  if not handle then
+    return nil
+  end
+  local hash = handle:read('*line')
+  handle:close()
+
+  if not hash or hash == '' then
+    return nil
+  end
+
+  -- Check if work tree is dirty
+  handle = io.popen('command git status --porcelain 2>/dev/null')
+  if not handle then
+    return hash
+  end
+
+  local status = handle:read('*all')
+  handle:close()
+
+  if status and status ~= '' then
+    return hash .. '-dirty'
+  else
+    return hash
+  end
+end
+
+local function is_dirty(hash)
+  return string.sub(hash, -string.len('-dirty')) == '-dirty'
+end
+
+local function find_baseline(log, base_input)
+  if not base_input then
+    return nil
+  end
+
+  -- Parse BASE (eg. "deadbeef" or "deadbeef-dirty").
+  local base_hash = base_input
+  local dirty_base = false
+  if base_input:sub(-6) == '-dirty' then
+    base_hash = base_input:sub(1, -7)
+    dirty_base = true
+  end
+
+  -- Scan backwards through log entries.
+  for i = #log, 1, -1 do
+    local entry = log[i]
+    if entry.hash then
+      -- Look for exact match.
+      if entry.hash == base_input then
+        return entry
+      end
+
+      -- Look for prefix match.
+      local dirty_entry = is_dirty(entry.hash)
+      local entry_hash = dirty_entry and entry.hash:sub(1, -7) or entry.hash
+
+      if entry_hash:sub(1, #base_hash) == base_hash then
+        if dirty_base and dirty_entry then
+          -- User wants dirty match and we found one.
+          return entry
+        elseif not dirty_base and not dirty_entry then
+          -- User wants clean match and we found one.
+          return entry
+        end
+      end
+    end
+  end
+
+  -- Scan again looking for fallback dirty match.
+  if not dirty_base then
+    for i = #log, 1, -1 do
+      local entry = log[i]
+      if entry.hash and is_dirty(entry.hash) then
+        local entry_hash = entry.hash:sub(1, -7)
+        if entry_hash:sub(1, #base_hash) == base_hash then
+          print('Warning: Using dirty version of hash ' .. base_hash)
+          return entry
+        end
+      end
+    end
+  end
+
+  return nil
+end
+
+local function red(text)
+  return '\027[31m' .. text .. '\027[0m'
+end
+
 local reduce = function(list, initial, cb)
   local acc = initial
   for i, value in ipairs(list) do
@@ -240,8 +331,22 @@ local function benchmark(options)
   local ok, log = pcall(require, options.log)
   log = ok and log or {}
 
+  local base_hash = os.getenv('BASE')
+  local previous
+
+  if base_hash then
+    previous = find_baseline(log, base_hash)
+    if not previous then
+      print(red('Error: Could not find baseline hash "' .. base_hash .. '" in benchmark logs'))
+      os.exit(1)
+    end
+  else
+    previous = log[#log]
+  end
+
   local results = {
     when = os.date(),
+    hash = get_git_hash(),
     timings = {},
   }
 
@@ -305,8 +410,6 @@ local function benchmark(options)
       end
     end
   end
-
-  local previous = log[#log]
 
   for label, metrics in pairs(results.timings) do
     metrics['cpu (best)'] = math.min(unpack(metrics.cpu))
