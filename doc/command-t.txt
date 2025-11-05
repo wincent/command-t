@@ -868,43 +868,44 @@ AUTHORS                                                     *command-t-authors*
 Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
-  Abhinav Gupta                   Nate Kane
-  Adrian Keet                     Nicholas T.
-  Aleksandrs Ļedovskis            Nicolas Alpi
-  Alexey Terekhov                 Nikolai Aleksandrovich Pavlov
-  Andrea Cedraro                  Nilo César Teixeira
-  Andrius Grabauskas              Noon Silk
-  Andy Waite                      Ole Petter Bang
-  Anthony Panozzo                 Patrick Hayes
-  Artem Nezvigin                  Paul Jolly
-  Ben Boeckel                     Pavel Sergeev
-  Brendan Mulholland              Rainux Luo
-  Cody Buell                      Richard Feldman
-  Daniel Burgess                  Roland Puntaier
-  Daniel Hahler                   Ross Lagerwall
-  David Emett                     Sam Morris
-  David Szotten                   Scott Bronson
-  Douglas Drumond                 Seth Fowler
-  Elanora Manson                  Sherzod Gapirov
-  Emily Strickland                Shlomi Fish
-  Felix Tjandrawibawa             Stefan Schmidt
-  Gary Bernhardt                  Stephen Gelman
-  Henric Trotzig                  Steve Herrell
-  Ivan Ukhov                      Steven Moazami
-  Jakob Pfender                   Steven Stallion
-  Jeff Kreeftmeijer               Sung Pae
-  Jerome Castaneda                Thomas Pelletier
-  Joe Lencioni                    Timothy Reen
-  KJ Tsanaktsidis                 Todd Derr
-  Kevin Webster                   Tom Spurling
-  Kien Nguyen Duc                 Ton van den Heuvel
-  Lucas de Vries                  Victor Hugo Borja
-  Marcus Brito                    Vlad Seghete
-  Marian Schubert                 Vít Ondruch
+  Abhinav Gupta                   Nicholas T.
+  Adrian Keet                     Nicolas Alpi
+  Aleksandrs Ļedovskis            Nikolai Aleksandrovich Pavlov
+  Alexey Terekhov                 Nilo César Teixeira
+  Andrea Cedraro                  Noon Silk
+  Andrius Grabauskas              Ole Petter Bang
+  Andy Waite                      Patrick Hayes
+  Anthony Panozzo                 Paul Jolly
+  Artem Nezvigin                  Pavel Sergeev
+  Ben Boeckel                     Rainux Luo
+  Brendan Mulholland              Richard Feldman
+  Cody Buell                      Roland Puntaier
+  Daniel Burgess                  Ross Lagerwall
+  Daniel Hahler                   Sam Morris
+  David Emett                     Scott Bronson
+  David Szotten                   Seth Fowler
+  Douglas Drumond                 Sherzod Gapirov
+  Elanora Manson                  Shlomi Fish
+  Emily Strickland                Stefan Schmidt
+  Felix Tjandrawibawa             Stephen Gelman
+  Gary Bernhardt                  Steve Herrell
+  Henric Trotzig                  Steven Moazami
+  Ivan Ukhov                      Steven Stallion
+  Jakob Pfender                   Sung Pae
+  Jeff Kreeftmeijer               Thomas Pelletier
+  Jerome Castaneda                Timothy Reen
+  Joe Lencioni                    Todd Derr
+  KJ Tsanaktsidis                 Tom Spurling
+  Kevin Webster                   Ton van den Heuvel
+  Kien Nguyen Duc                 Victor Hugo Borja
+  Lucas de Vries                  Vlad Seghete
+  Marcus Brito                    Vít Ondruch
+  Marian Schubert                 Will Wills
   Matthew Todd                    Woody Peterson
   Max Timkovich                   Yan Pritzker
   Mike Lundy                      Zak Johnson
   Nadav Samet                     xiaodezhang
+  Nate Kane
 
 This list produced with:
 
@@ -1049,7 +1050,8 @@ HISTORY                                                     *command-t-history*
 
 7-x-devel (not yet released) ~
 
-- ...
+- Remove duplicate tags from documentation
+  (https://github.com/wincent/command-t/pull/448, patch from Will Wills).
 
 7.0.1 (1 August 2025) ~
 
