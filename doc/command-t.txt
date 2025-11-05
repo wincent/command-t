@@ -1048,6 +1048,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
+7-x-devel (not yet released) ~
+
+- ...
+
 7.0.2 (5 November 2025) ~
 
 - Remove duplicate tags from documentation

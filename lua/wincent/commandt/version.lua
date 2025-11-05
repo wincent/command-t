@@ -5,6 +5,6 @@ return {
   major = 7,
   minor = 0,
   patch = 2,
-  prerelease = '',
-  version = '7.0.2',
+  prerelease = 'devel',
+  version = '7.0.2-devel',
 }
