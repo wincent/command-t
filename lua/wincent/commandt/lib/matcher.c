@@ -125,7 +125,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         size_t src = 0;
         size_t dest = 0;
         while (src < needle_length) {
-            char c = needle[src];
+            char c = needle_copy[src];
             if (c != ' ') {
                 if (dest == src) {
                     dest++;

@@ -935,6 +935,16 @@ describe('matcher.c', function()
           local matcher = get_matcher(paths, { ignore_spaces = true })
           expect(matcher.match('path space')).to_equal(paths)
         end)
+
+        -- Regression test: `ignore_spaces` was undoing case conversion.
+        it('does not undo case conversion', function()
+          local matcher = get_matcher({ 'foobar' }, {
+            ignore_case = true,
+            ignore_spaces = true,
+            smart_case = false,
+          })
+          expect(matcher.match('FOO BAR')).to_equal({ 'foobar' })
+        end)
       end)
 
       context('when `ignore_spaces` is `false`', function()
