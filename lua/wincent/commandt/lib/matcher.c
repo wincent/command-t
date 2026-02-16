@@ -277,7 +277,7 @@ static int cmp_alpha(const void *a, const void *b) {
     size_t b_len = b_str->length;
     int order = strncmp(a_ptr, b_ptr, b_len);
     if (order == 0) {
-        return a_len - b_len; // Shorter string wins.
+        return (long)a_len - (long)b_len; // Shorter string wins.
     } else {
         return order;
     }

@@ -922,6 +922,12 @@ describe('matcher.c', function()
       })
     end)
 
+    it('sorts a shorter string before a longer one that shares the same prefix', function()
+      -- Regression test: `cmp_alpha()` was doing sketchy unsigned subtraction.
+      local matcher = get_matcher({ 'foobar', 'foo', 'foobarb', 'foob' })
+      expect(matcher.match('')).to_equal({ 'foo', 'foob', 'foobar', 'foobarb' })
+    end)
+
     describe('the `ignore_spaces` option', function()
       local paths = { 'path_no_space', 'path with/space' }
 
