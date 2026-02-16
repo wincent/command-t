@@ -345,6 +345,7 @@ notice at any time; for example:
       always_show_dot_files = false,
       height = 15,
       ignore_case = nil, -- If nil, will infer from Neovim's `'ignorecase'`.
+      ignore_spaces = true,
       mappings = {
         i = {
           ['<C-a>'] = '<Home>',
@@ -443,6 +444,7 @@ passed to |commandt.setup()|:
 - |commandt.setup.always_show_dot_files|
 - |commandt.setup.height|
 - |commandt.setup.ignore_case|
+- |commandt.setup.ignore_spaces|
 - |commandt.setup.match_listing.border|
 - |commandt.setup.match_listing.icons|
 - |commandt.setup.match_listing.truncate|
@@ -499,6 +501,16 @@ Command-T to ignore case when searching. When unset (which is the default),
 the value of Neovim's |'ignorecase'| setting is used instead.
 
 See also |commandt.setup.smart_case|.
+
+                                                 *commandt.setup.ignore_spaces*
+                                                      boolean (default: true)
+
+When `true`, Command-T ignores spaces in the search string. That is, a
+query like "foo bar baz" will match "foobarbaz" and "foo bar baz".
+
+When `false`, Command-T matches spaces in the search string literally. That
+is, a query like "foo bar baz" will only match "foo bar baz" and not
+"foobarbaz".
 
                                           *commandt.setup.match_listing.border*
             string or list (default: { '', '', '', '│', '┘', '─', '└', '│' })
@@ -901,7 +913,9 @@ HISTORY                                                     *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- Expose |commandt.setup.ignore_spaces| setting.
+- Don't let |commandt.setup.ignore_spaces| undo the effects of
+  |commandt.setup.ignore_case| or |commandt.setup.smart_case|.
 
 8.0 (26 June 2025) ~
 

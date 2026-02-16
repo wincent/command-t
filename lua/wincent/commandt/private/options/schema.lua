@@ -19,6 +19,7 @@ local types = require('wincent.commandt.private.options.types')
 ---  }>,
 ---  height?: number,
 ---  ignore_case?: boolean | fun(),
+---  ignore_spaces?: boolean,
 ---  mappings?: MappingsOption,
 ---  margin?: number,
 ---  match_listing?: {
@@ -136,6 +137,7 @@ local schema = {
       },
       optional = true,
     },
+    ignore_spaces = { kind = 'boolean' },
     mappings = types.mappings,
     margin = types.margin,
     match_listing = {

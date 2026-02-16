@@ -34,6 +34,7 @@ function Defaults.new()
     ignore_case = function()
       return vim.o.ignorecase
     end,
+    ignore_spaces = true,
 
     -- Note that because of the way we merge mappings recursively, you can _add_
     -- or _replace_ a mapping easily, but to _remove_ it you have to assign it to
