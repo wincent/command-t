@@ -88,7 +88,7 @@ int commandt_watchman_connect(const char *socket_path) {
     }
 
     struct sockaddr_un addr;
-    memset(&addr, 0, sizeof(struct sockaddr_un) - 1);
+    memset(&addr, 0, sizeof(struct sockaddr_un));
     addr.sun_family = AF_LOCAL;
 
     // On macOS, `sun_path` is 104 bytes long... so good thing the socket path
