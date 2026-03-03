@@ -21,10 +21,10 @@ end
 --- @param callback function
 --- @return number
 M.wall = function(callback)
-  local lib = require('wincent.commandt.private.lib')
-  local start_wall_s, start_wall_us = lib.epoch()
+  local epoch = require('wincent.commandt.private.lib.epoch')
+  local start_wall_s, start_wall_us = epoch()
   callback()
-  local end_wall_s, end_wall_us = lib.epoch()
+  local end_wall_s, end_wall_us = epoch()
   if end_wall_us >= start_wall_s then
     end_wall_us = end_wall_us + 1000000
     end_wall_s = end_wall_s - 1

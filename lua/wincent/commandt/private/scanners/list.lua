@@ -5,8 +5,8 @@ local M = {}
 
 -- Basic scanner that returns the supplied list of candidates.
 M.scanner = function(candidates)
-  local lib = require('wincent.commandt.private.lib')
-  local scanner = lib.scanner_new_copy(candidates)
+  local scanner_new_copy = require('wincent.commandt.private.lib.scanner_new_copy')
+  local scanner = scanner_new_copy(candidates)
   return scanner
 end
 

@@ -11,8 +11,9 @@ commandt.setup = function(new_options)
   options:set(sanitized_options)
   if
     not pcall(function()
-      local lib = require('wincent.commandt.private.lib') -- We can require it.
-      lib.epoch() -- We can use it.
+      -- Test that we can require and use something implemented in C.
+      local epoch = require('wincent.commandt.private.lib.epoch')
+      epoch()
     end)
   then
     table.insert(errors, 'unable to load and use C library - run `:checkhealth wincent.commandt`')

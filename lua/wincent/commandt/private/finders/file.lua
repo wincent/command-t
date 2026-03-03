@@ -6,13 +6,14 @@ local ffi = require('ffi')
 -- TODO: remember cached directories
 return function(directory, options)
   directory = directory or os.getenv('PWD')
-  local lib = require('wincent.commandt.private.lib')
+  local matcher_new = require('wincent.commandt.private.lib.matcher_new')
+  local matcher_run = require('wincent.commandt.private.lib.matcher_run')
   local finder = {}
   local max_files = options.scanners.file.max_files or 0
   finder.scanner = require('wincent.commandt.private.scanners.file').scanner(directory, max_files)
-  finder.matcher = lib.matcher_new(finder.scanner, options, { lines = vim.o.lines })
+  finder.matcher = matcher_new(finder.scanner, options, { lines = vim.o.lines })
   finder.run = function(query)
-    local results = lib.matcher_run(finder.matcher, query)
+    local results = matcher_run(finder.matcher, query)
     local strings = {}
     for i = 0, results.match_count - 1 do
       local str = results.matches[i]

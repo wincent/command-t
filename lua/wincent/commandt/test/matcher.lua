@@ -11,7 +11,9 @@ local fixtures = require('wincent.commandt.test.fixtures')
 --- }
 
 describe('matcher.c', function()
-  local lib = require('wincent.commandt.private.lib')
+  local matcher_new = require('wincent.commandt.private.lib.matcher_new')
+  local matcher_run = require('wincent.commandt.private.lib.matcher_run')
+  local scanner_new_copy = require('wincent.commandt.private.lib.scanner_new_copy')
 
   --- @param paths string[]
   --- @param options? {
@@ -23,11 +25,11 @@ describe('matcher.c', function()
   --- @return Matcher
   local function get_matcher(paths, options)
     options = options or {}
-    local scanner = lib.scanner_new_copy(paths)
-    local matcher = lib.matcher_new(scanner, options)
+    local scanner = scanner_new_copy(paths)
+    local matcher = matcher_new(scanner, options)
     return {
       match = function(query)
-        local results = lib.matcher_run(matcher, query)
+        local results = matcher_run(matcher, query)
         local strings = {}
         for k = 0, results.match_count - 1 do
           local str = results.matches[k]

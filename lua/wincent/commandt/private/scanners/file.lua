@@ -4,9 +4,9 @@
 local M = {}
 
 M.scanner = function(directory, max_files)
-  local lib = require('wincent.commandt.private.lib')
+  local file_scanner = require('wincent.commandt.private.lib.file_scanner')
   -- TODO: support dot directory filter etc
-  local scanner = lib.file_scanner(directory, max_files)
+  local scanner = file_scanner(directory, max_files)
   return scanner
 end
 

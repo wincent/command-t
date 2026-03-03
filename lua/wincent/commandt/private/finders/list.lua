@@ -4,7 +4,8 @@
 local ffi = require('ffi')
 
 return function(directory, candidates, options)
-  local lib = require('wincent.commandt.private.lib')
+  local matcher_new = require('wincent.commandt.private.lib.matcher_new')
+  local matcher_run = require('wincent.commandt.private.lib.matcher_run')
   local finder = {}
   local context = nil
   if type(candidates) == 'function' then
@@ -17,9 +18,9 @@ return function(directory, candidates, options)
   else
     error('wincent.commandt.private.finders.list() expected function or table')
   end
-  finder.matcher = lib.matcher_new(finder.scanner, options, { lines = vim.o.lines })
+  finder.matcher = matcher_new(finder.scanner, options, { lines = vim.o.lines })
   finder.run = function(query)
-    local results = lib.matcher_run(finder.matcher, query)
+    local results = matcher_run(finder.matcher, query)
     local strings = {}
     for i = 0, results.match_count - 1 do
       local str = results.matches[i]

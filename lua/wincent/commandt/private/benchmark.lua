@@ -7,9 +7,9 @@ local data_directory = (path + '../../../../../data')
 data_directory:prepend_to_package_path()
 
 local time = require('wincent.commandt.private.time')
-local lib = require('wincent.commandt.private.lib')
+local epoch = require('wincent.commandt.private.lib.epoch')
 
-lib.epoch() -- Force eager loading of C library.
+epoch() -- Force eager loading of C library.
 
 local function get_git_hash()
   local handle = io.popen('command git rev-parse HEAD 2>/dev/null')

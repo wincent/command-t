@@ -38,8 +38,8 @@ local get_socket = function()
     if name == nil then
       error('wincent.commandt.scanners.watchman.get_socket(): no sockname')
     end
-    local lib = require('wincent.commandt.private.lib')
-    socket = lib.watchman_connect(name)
+    local watchman_connect = require('wincent.commandt.private.lib.watchman_connect')
+    socket = watchman_connect(name)
   end
   return socket
 end
@@ -67,9 +67,9 @@ end
 -- If `relative_root` is `nil`, it will be omitted from the query.
 --
 local query = function(root, relative_root)
-  local lib = require('wincent.commandt.private.lib')
+  local watchman_query = require('wincent.commandt.private.lib.watchman_query')
 
-  return lib.watchman_query(root, relative_root, get_socket())
+  return watchman_query(root, relative_root, get_socket())
 end
 
 -- Equivalent to `watchman watch-project $root`.
@@ -77,15 +77,15 @@ end
 -- Returns a table with `watch` and `relative_path` properties. `relative_path`
 -- my be `nil`.
 local watch_project = function(root)
-  local lib = require('wincent.commandt.private.lib')
-  return lib.watchman_watch_project(root, get_socket())
+  local watchman_watch_project = require('wincent.commandt.private.lib.watchman_watch_project')
+  return watchman_watch_project(root, get_socket())
 end
 
 -- Weak table to store query results keyed by scanner to prevent GC.
 local scanner_results = setmetatable({}, { __mode = 'k' })
 
 M.scanner = function(directory)
-  local lib = require('wincent.commandt.private.lib')
+  local scanner_new_str = require('wincent.commandt.private.lib.scanner_new_str')
   local project = watch_project(vim.fn.fnamemodify(directory, ':p'))
   if project.error then
     error(project.error)
@@ -99,7 +99,7 @@ M.scanner = function(directory)
     -- instead; for now, explode loudly.
     error(result.error)
   end
-  local scanner = lib.scanner_new_str(result.raw.files, result.raw.count)
+  local scanner = scanner_new_str(result.raw.files, result.raw.count)
 
   -- Protect results from GC as long as `scanner` exists.
   scanner_results[scanner] = result

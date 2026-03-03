@@ -19,9 +19,9 @@ end
 local function check_lua_c_library()
   health.start('Checking that Lua C library has been built')
 
-  local lib = require('wincent.commandt.private.lib')
   local result, _ = pcall(function()
-    lib.epoch()
+    local epoch = require('wincent.commandt.private.lib.epoch')
+    epoch()
   end)
 
   if result then

@@ -12,7 +12,9 @@ package.path = lua_directory .. '/?.lua;' .. package.path
 package.path = lua_directory .. '/?/init.lua;' .. package.path
 
 local benchmark = require('wincent.commandt.private.benchmark')
-local lib = require('wincent.commandt.private.lib')
+local matcher_new = require('wincent.commandt.private.lib.matcher_new')
+local matcher_run = require('wincent.commandt.private.lib.matcher_run')
+local scanner_new_copy = require('wincent.commandt.private.lib.scanner_new_copy')
 
 local options = {
   threads = tonumber(os.getenv('THREADS')),
@@ -28,8 +30,8 @@ benchmark({
   log = 'wincent.commandt.benchmark.logs.matcher',
 
   setup = function(config)
-    local scanner = lib.scanner_new_copy(config.paths)
-    local matcher = lib.matcher_new(scanner, options)
+    local scanner = scanner_new_copy(config.paths)
+    local matcher = matcher_new(scanner, options)
     return { matcher, scanner }
   end,
 
@@ -38,14 +40,14 @@ benchmark({
     for _, query in ipairs(config.queries) do
       local input = ''
       for letter in query:gmatch('.') do
-        local matches = lib.matcher_run(matcher, input)
+        local matches = matcher_run(matcher, input)
         for k = 0, matches.match_count - 1 do
           local str = matches.matches[k]
           ffi.string(str.contents, str.length)
         end
         input = input .. letter
       end
-      local matches = lib.matcher_run(matcher, input)
+      local matches = matcher_run(matcher, input)
       for k = 0, matches.match_count - 1 do
         local str = matches.matches[k]
         ffi.string(str.contents, str.length)
