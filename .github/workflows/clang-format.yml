@@ -1,4 +1,4 @@
-name: stylua
+name: clang-format
 
 on:
   push:
@@ -14,8 +14,9 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: JohnnyMorganz/stylua-action@479972f01e665acfcba96ada452c36608bdbbb5e # v4.1.0
+      - uses: jidicula/clang-format-action@6cd220de46c89139a0365edae93eee8eb30ca8fe # v4.16.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --check .
-          version: "0.20.0"
+          # Will bump to v22 once this is merged:
+          # https://github.com/jidicula/clang-format-action/pull/274
+          clang-format-version: "21"
+          check-path: lua
