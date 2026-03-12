@@ -78,11 +78,12 @@ static float recursive_match(
                     char last = haystack_contents[j - 1];
                     if (last == '/') {
                         factor = 0.9f;
-                    } else if (last == '-' || last == '_' || last == ' ' ||
-                               (last >= '0' && last <= '9')) {
+                    } else if (
+                        last == '-' || last == '_' || last == ' ' ||
+                        (last >= '0' && last <= '9')
+                    ) {
                         factor = 0.8f;
-                    } else if (last >= 'a' && last <= 'z' && d >= 'A' &&
-                               d <= 'Z') {
+                    } else if (last >= 'a' && last <= 'z' && d >= 'A' && d <= 'Z') {
                         factor = 0.8f;
                     } else if (last == '.') {
                         factor = 0.7f;
