@@ -913,27 +913,27 @@ HISTORY                                                     *command-t-history*
 
 main (not yet released) ~
 
-- Expose |commandt.setup.ignore_spaces| setting.
-- Don't let |commandt.setup.ignore_spaces| undo the effects of
+- feat: expose |commandt.setup.ignore_spaces| setting.
+- fix: don't let |commandt.setup.ignore_spaces| undo the effects of
   |commandt.setup.ignore_case| or |commandt.setup.smart_case|.
 - fix: allow opening files with literal `$` in their names.
 
 8.0 (26 June 2025) ~
 
-- Removed the Ruby implementation. Switch to the `7-x-release` branch if you
-  still need it.
-- Fixed possible missing results when |commandt.setup.height| was set to a
+- refactor!: removed the Ruby implementation. Switch to the `7-x-release`
+  branch if you still need it.
+- fix: fix possible missing results when |commandt.setup.height| was set to a
   large value.
-- Improve performance when passing very large values for
+- perf: improve performance when passing very large values for
   |commandt.setup.height|.
-- Fixed a race that could cause some results to be omitted.
-- Improve performance of scoring code by about 4% (wall-time).
+- fix: fix a race that could cause some results to be omitted.
+- perf: improve performance of scoring code by about 4% (wall-time).
 
 7.0 (23 June 2025) ~
 
-- Unless the user has specified a preference for the Ruby version of Command-T
-  by setting `g:CommandTPreferredImplementation` to `'ruby'`, the Lua version
-  will be used by default.
+- refactor!: unless the user has specified a preference for the Ruby version
+  of Command-T by setting `g:CommandTPreferredImplementation` to `'ruby'`, the
+  Lua version will be used by default.
 
 6.2 (23 June 2025) ~
 
