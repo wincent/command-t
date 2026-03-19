@@ -916,6 +916,7 @@ main (not yet released) ~
 - Expose |commandt.setup.ignore_spaces| setting.
 - Don't let |commandt.setup.ignore_spaces| undo the effects of
   |commandt.setup.ignore_case| or |commandt.setup.smart_case|.
+- fix: allow opening files with literal `$` in their names.
 
 8.0 (26 June 2025) ~
 

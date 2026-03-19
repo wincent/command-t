@@ -3,7 +3,7 @@
 
 local function relativize(directory, file)
   if directory ~= '' then
-    return vim.fs.normalize(vim.fs.joinpath(directory, file))
+    return vim.fs.normalize(vim.fs.joinpath(directory, file), { expand_env = false })
   else
     return file
   end
