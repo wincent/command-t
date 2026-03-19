@@ -7,7 +7,7 @@ For more details, see the "command-t-development" section in [the documentation]
 # Releasing
 
 1. Update "command-t-history" section in `doc/command-t.txt`.
-2. Edit metadata in `lua/wincent/commandt/version.lua` to reflect new `$VERSION`.
+2. Edit metadata in `lua/wincent/commandt/version.lua` to reflect new `$VERSION` (remove `prerelease = '6-x-devel'`).
 3. Commit using `git commit -p -m "chore: prepare for $VERSION release"`.
 4. Create tag with `git tag -s $VERSION -m "$VERSION release"`.
 5. Check release readiness with `make check`.
@@ -16,6 +16,7 @@ For more details, see the "command-t-development" section in [the documentation]
 8. Push with `git push --follow-tags`.
 9. Update [release notes on GitHub](https://github.com/wincent/command-t/releases).
 10. Start a new entry under "command-t-history" in `doc/command-t.txt` for subsequent development.
+11. Edit metadata in `lua/wincent/commandt/version.lua` to show `prerelease = '6-x-devel'` and `version = 'x.y.z-6-x-devel'`.
 
 # Reproducing bugs
 
