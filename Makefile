@@ -11,6 +11,7 @@ build:
 check:
 	$(MAKE) clean build test
 	bin/check-format
+	bin/check-spdx
 	bin/check-tag
 
 .PHONY: help
@@ -23,7 +24,6 @@ help:
 
 .PHONY: test
 test:
-	bin/spec
 	bin/test
 
 .PHONY: clean

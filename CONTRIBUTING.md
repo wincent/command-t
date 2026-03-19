@@ -7,17 +7,15 @@ For more details, see the "command-t-development" section in [the documentation]
 # Releasing
 
 1. Update "command-t-history" section in `doc/command-t.txt`.
-2. Edit metadata in `lua/wincent/commandt/version.lua` to reflect new `$VERSION`.
+2. Edit metadata in `lua/wincent/commandt/version.lua` to reflect new `$VERSION` (remove `prelease = 'main'`).
 3. Commit using `git commit -p -m "chore: prepare for $VERSION release"`.
 4. Create tag with `git tag -s $VERSION -m "$VERSION release"`.
 5. Fast-forward the `release` branch to match the tag.
 6. Check release readiness with `make check`.
-7. Produce ZIP archive with `bin/create-archive`.
-8. Upload new release to [vim.org](http://www.vim.org/scripts/script.php?script_id=3025).
-9. Push with `git push --follow-tags`.
-10. Update [release notes on GitHub](https://github.com/wincent/command-t/releases).
-11. Start a new entry under "command-t-history" in `doc/command-t.txt` for subsequent development.
-12. Edit metadata in `lua/wincent/comamndt/version.lua` to show `prelease = 'main'` and `version = 'x.y.z-main`.
+7. Push with `git push --follow-tags`.
+8. Update [release notes on GitHub](https://github.com/wincent/command-t/releases).
+9. Start a new entry under "command-t-history" in `doc/command-t.txt` for subsequent development.
+10. Edit metadata in `lua/wincent/comamndt/version.lua` to show `prelease = 'main'` and `version = 'x.y.z-main`.
 
 # Reproducing bugs
 
