@@ -911,7 +911,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                     *command-t-history*
 
-main (not yet released) ~
+8.1 (19 March 2026) ~
 
 - feat: expose |commandt.setup.ignore_spaces| setting.
 - fix: don't let |commandt.setup.ignore_spaces| undo the effects of

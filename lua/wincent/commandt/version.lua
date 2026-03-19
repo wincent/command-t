@@ -3,8 +3,8 @@
 
 return {
   major = 8,
-  minor = 0,
+  minor = 1,
   patch = 0,
   prerelease = 'main',
-  version = '8.0-main',
+  version = '8.1',
 }
