@@ -15,7 +15,7 @@ For more details, see the "command-t-development" section in [the documentation]
 7. Push with `git push --follow-tags`.
 8. Update [release notes on GitHub](https://github.com/wincent/command-t/releases).
 9. Start a new entry under "command-t-history" in `doc/command-t.txt` for subsequent development.
-10. Edit metadata in `lua/wincent/comamndt/version.lua` to show `prelease = 'main'` and `version = 'x.y.z-main`.
+10. Edit metadata in `lua/wincent/commandt/version.lua` to show `prelease = 'main'` and `version = 'x.y.z-main`.
 
 # Reproducing bugs
 
