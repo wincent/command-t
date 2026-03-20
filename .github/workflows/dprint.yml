@@ -16,4 +16,4 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: dprint/check@9cb3a2b17a8e606d37aae341e49df3654933fc23 # v2.3
         with:
-          dprint-version: 0.51.1
+          dprint-version: 0.53.0
