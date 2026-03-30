@@ -19,49 +19,41 @@ For more details, see the "command-t-development" section in [the documentation]
 
 # Reproducing bugs
 
-Sometimes [user bug reports](https://github.com/wincent/command-t/issues) depend on characteristics of their local setup. Reproducing this may require copying configuration and installing dependencies, something I'd rather not do to my own development system. So, here are some notes about setting up Vagrant on macOS to provide a disposable VM on which to try things out in a controlled environment.
+Sometimes [user bug reports](https://github.com/wincent/command-t/issues) depend on characteristics of their local setup. Reproducing this may require copying configuration and installing dependencies, something I'd rather not do to my own development system. So, here are some notes about setting up a disposable [Tart](https://tart.run/) VM on macOS (Apple Silicon) to try things out in a controlled environment.
 
-## Installing Vagrant and VirtualBox
-
-```bash
-brew install vagrant
-brew install --cask virtualbox
-```
-
-## Creating a Vagrant VM
+## Installing Tart
 
 ```bash
-vagrant init hashicorp/bionic64 # First time only; creates Vagrantfile.
-vagrant up
-vagrant ssh
+brew install cirruslabs/cli/tart
 ```
 
-### Trouble-shooting Vagrant issues
-
-There are lots of things that can go wrong, so here are a few links:
-
-- ["There was an error while executing `VBoxManage`"](https://stackoverflow.com/a/51356705/2103996).
-- ["Vagrant up error while executing ‘VBoxManage’"](https://discuss.hashicorp.com/t/vagrant-up-error-while-executing-vboxmanage/16825).
-
-Which, among other things suggest these possible fixes:
+## Creating a VM
 
 ```bash
-sudo "/Library/Application Support/VirtualBox/LaunchDaemons/VirtualBoxStartup.sh" restart
-vagrant destroy -f
-vagrant box remove hashicorp/bionic64
-rm ~/Library/VirtualBox
+tart clone ghcr.io/cirruslabs/ubuntu:latest command-t-sandbox
+tart run --no-graphics command-t-sandbox
 ```
 
-For me, removing `~/Library/VirtualBox` did the trick.
+In a separate terminal, SSH in (default credentials are `admin`/`admin`):
+
+```bash
+ssh admin@$(tart ip command-t-sandbox)
+```
 
 ## Setting up Neovim on the VM
 
+The current Ubuntu image (at the time of writing, that's 24.04) ships Neovim 0.9.5 via apt, which is relatively ancient:
+
 ```bash
 sudo apt-get update
-sudo apt-get install -y neovim # It's v0.2.2 🤦 — not going to be much help, so...
+sudo apt-get install -y neovim build-essential
+```
 
-sudo apt-get install -y cmake gettext libtool libtool-bin pkg-config unzip # instead...
-git clone https://github.com/neovim/neovim
+If a newer version is needed, build from source:
+
+```bash
+sudo apt-get install -y ninja-build gettext cmake curl build-essential
+git clone --depth=1 https://github.com/neovim/neovim
 cd neovim
 make CMAKE_BUILD_TYPE=RelWithDebInfo
 sudo make install
@@ -69,52 +61,51 @@ sudo make install
 
 ## Installing Command-T and other dependencies manually
 
-Manual install:
-
 ```bash
 BUNDLE=$HOME/.config/nvim/pack/bundle/start
 mkdir -p $BUNDLE
 git clone --depth 1 https://github.com/wincent/command-t $BUNDLE/command-t
 echo "require('wincent.commandt').setup()" > ~/.config/nvim/init.lua
-(cd $BUNDLE/command-t/lua/wincent/commandt/lib && make)
+(cd $BUNDLE/command-t && make)
 
 # Also install any other plug-ins that might be needed to reproduce a problem; eg:
 
 git clone --depth 1 https://github.com/jiangmiao/auto-pairs $BUNDLE/auto-pairs
 ```
 
-## Installing Command-T using Packer
+## Installing Command-T using lazy.nvim
 
-For reproducing reports like [this one](https://github.com/wincent/command-t/issues/393#issuecomment-1229541720).
+For reproducing reports that involve a plugin manager:
 
 ```bash
-BUNDLE=$HOME/.config/nvim/pack/bundle/start
-mkdir -p $BUNDLE
-git clone --depth 1 https://github.com/wbthomason/packer.nvim $BUNDLE/packer.nvim
+# Note we need `--filter=blob:none` here instead of `--depth=1` because lazy.nvim
+# needs the metadata about the Git history for its lockfile implementation.
+git clone --filter=blob:none --branch=stable \
+  https://github.com/folke/lazy.nvim ~/.local/share/nvim/lazy/lazy.nvim
 ```
 
 Then, in `~/.config/nvim/init.lua`:
 
-```
-require('packer').startup(function(use)
-  use {
+```lua
+vim.opt.rtp:prepend(vim.fn.stdpath('data') .. '/lazy/lazy.nvim')
+
+require('lazy').setup({
+  {
     'wincent/command-t',
-    run = 'cd lua/wincent/commandt/lib && make',
+    build = 'make',
     config = function()
       require('wincent.commandt').setup()
     end,
-  }
-end)
+  },
+})
 ```
-
-and run `:PackerInstall`.
 
 ## Cleaning up after testing is done
 
 ```bash
-exit
-vagrant halt
-vagrant destroy
+exit                            # Leave the SSH session.
+tart stop command-t-sandbox     # Stop the VM.
+tart delete command-t-sandbox   # Delete the VM image.
 ```
 
 # Profiling
