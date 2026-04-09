@@ -82,7 +82,8 @@ local function finder(name, directory)
     finder = require('wincent.commandt.private.finders.exec')(directory, config.command, options, name)
   end
   if config.fallback then
-    finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, directory, options)
+    -- Always '.', because all callers pushd into the target directory.
+    finder.fallback = require('wincent.commandt.private.finders.fallback')(finder, '.', options)
   end
 
   ui = UI.new()

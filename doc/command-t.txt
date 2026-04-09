@@ -913,7 +913,7 @@ HISTORY                                                     *command-t-history*
 
 main (not yet released) ~
 
-- ...
+- fix: show relative paths when falling back to the built-in file scanner.
 
 8.1 (19 March 2026) ~
 

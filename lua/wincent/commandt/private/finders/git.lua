@@ -3,16 +3,13 @@
 
 local get_directory = require('wincent.commandt.get_directory')
 local on_open = require('wincent.commandt.on_open')
+local popd = require('wincent.commandt.popd')
+local pushd = require('wincent.commandt.pushd')
 
 local git = {
   command = function(directory, options)
-    if directory ~= '' then
-      directory = vim.fn.shellescape(directory)
-    end
+    pushd(directory)
     local command = 'git ls-files --exclude-standard --cached -z'
-    if directory ~= '' then
-      command = 'git -C ' .. directory .. ' ls-files --exclude-standard --cached -z'
-    end
     if options.scanners.git.submodules then
       command = command .. ' --recurse-submodules'
     elseif options.scanners.git.untracked then
@@ -26,6 +23,7 @@ local git = {
   max_files = function(options)
     return options.scanners.git.max_files
   end,
+  on_close = popd,
   on_directory = get_directory,
   open = on_open,
 }
