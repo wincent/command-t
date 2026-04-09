@@ -291,6 +291,9 @@ return {
       end,
       stub = function()
         mocks.vim({
+          fn = {
+            chdir = true,
+          },
           startswith = true,
           uv = {
             cwd = true,
