@@ -321,6 +321,15 @@ static void *get_matches(void *worker_args) {
     unsigned worker_index = ((worker_args_t *)worker_args)->worker_index;
     matcher_t *matcher = ((worker_args_t *)worker_args)->matcher;
     bool ignore_case = ((worker_args_t *)worker_args)->ignore_case;
+    size_t needle_length = matcher->needle_length;
+
+    // The empty query and the lone "." query are ordered alphabetically rather
+    // than by score (see the `qsort()` call in `commandt_matcher_run()`); the
+    // score-based bound below is only a valid basis for discarding candidates
+    // when results are actually ranked by score.
+    bool score_sorted =
+        !(needle_length == 0 ||
+          (needle_length == 1 && matcher->needle[0] == '.'));
 
     // Reserve one extra slot so that we can do an insert-then-extract even
     // when "full" (effectively allows use of min-heap to maintain a
@@ -346,6 +355,31 @@ static void *get_matches(void *worker_args) {
                 // Skip over this candidate because it didn't match last
                 // time and it can't match this time either.
                 continue;
+            }
+
+            // Branch and bound: once the heap is full, the smallest score it
+            // holds is the threshold a candidate must reach to displace
+            // anything. Each matched character contributes at most
+            // `max_score_per_char` to the score (every proximity bonus is a
+            // factor <= 1.0), so `needle_length * max_score_per_char` is an
+            // upper bound on any score this candidate could achieve. When even
+            // that ceiling falls below the threshold, the candidate cannot
+            // enter the heap, so we skip the (comparatively expensive) call to
+            // `commandt_score()` entirely. The small relative slack absorbs
+            // floating-point rounding between this closed-form bound and the
+            // iterated summation performed by the scorer, so we never discard a
+            // candidate that could legitimately reach the threshold.
+            if (score_sorted && heap->count == matcher->limit) {
+                size_t candidate_length = haystack->candidate->length;
+                if (candidate_length > 0) {
+                    float threshold = ((haystack_t *)HEAP_PEEK(heap))->score;
+                    float max_score_per_char =
+                        (1.0f / candidate_length + 1.0f / needle_length) / 2.0f;
+                    float upper_bound = needle_length * max_score_per_char;
+                    if (upper_bound * (1.0f + 1.0e-4f) < threshold) {
+                        continue;
+                    }
+                }
             }
 
             haystack->score = commandt_score(haystack, matcher, ignore_case);
