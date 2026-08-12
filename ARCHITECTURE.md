@@ -2,7 +2,7 @@
 
 "finders" use "scanners" to generate a list of haystacks to search (usually but not always files).
 
-There are two generic classes of "finders", that are paired with corresponding generic classes of scanners:
+There are two generic classes of "finder", each paired with a corresponding generic class of scanner:
 
 1. **"List"-based finders and scanners.** These take a list of candidate haystacks, like a list of buffers, a list of help tags, or a list of search patterns. These are accessed by commands like `:CommandTBuffer`, `:CommandTHelp`, and `:CommandTSearch`.
 2. **"Exec"-based finders and scanners.** These run a command to generate the list of candidate haystacks. These are accessed by commands like `:CommandTGit` and `:CommandTRipgrep`.
