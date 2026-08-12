@@ -12,14 +12,6 @@ ffi.cdef([[
       ssize_t capacity;
   } str_t;
 
-  // The structs below are allocated and owned by the C library; Lua only ever
-  // holds pointers to them (it never allocates, `sizeof`s, or array-indexes
-  // them), so the cdef only needs to declare the fields Lua actually reads. The
-  // internal/private fields are omitted: in the real C structs they all sort
-  // after the public ones, so leaving them out here doesn't perturb any offset.
-  // (`benchmark_t` is the exception, being returned by value, so it mirrors the
-  // C layout exactly.)
-
   // Opaque: Lua reads no `matcher_t` fields, it only passes the pointer around.
   typedef struct matcher matcher_t;
 
@@ -47,6 +39,7 @@ ffi.cdef([[
       const char *error;
   } watchman_watch_project_t;
 
+  // Returned by value.
   typedef struct {
     uint32_t seconds;
     uint32_t microseconds;
