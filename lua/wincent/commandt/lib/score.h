@@ -6,6 +6,7 @@
 #ifndef SCORE_H
 #define SCORE_H
 
+#include <float.h> /* for FLT_MAX */
 #include <stdbool.h> /* for bool */
 #include <stdint.h> /* for uint32_t */
 
@@ -31,41 +32,18 @@ static inline uint32_t commandt_haystack_char_bit(unsigned char c) {
     return UINT32_C(1) << index;
 }
 
-// Raw byte for use with memset(), so we can initialize the entire memoization
-// matrix in a single highly-optimized call.
-#define UNSET_SCORE_BYTE 0x7f
-
-// Repeated bytes (repeating pattern used because it's the same on any endianness).
-#define UNSET_SCORE_BITS 0x7f7f7f7f
-
-// Compile-time check. Use byte-replication trick to prove UNSET_SCORE_BITS
-// stays in sync with UNSET_SCORE_BYTE.
-_Static_assert(
-    UNSET_SCORE_BITS == (uint32_t)UNSET_SCORE_BYTE * 0x01010101u,
-    "UNSET_SCORE_BITS must be 4 bytes of UNSET_SCORE_BYTE"
-);
-
-// Type-punning via union: allows us to interpret 0x7f7f7f7f as a float.
-// This is a large positive value (~3.39e38), far beyond the scoring range
-// (0.0-1.0), and neither NaN nor infinite (needed when compiling with
-// `-ffast-math`).
-#define UNSET_SCORE \
-    (((union { \
-         uint32_t bits; \
-         float score; \
-     }){.bits = UNSET_SCORE_BITS}) \
-         .score)
-
-// Compile-time check. All of this relies on floats actually being 4 bytes,
-// seeing as we built our float representation using uint32_t.
-_Static_assert(sizeof(float) == 4, "UNSET_SCORE/memset init assumes 4-byte float");
+// Keep unscored candidates eligible: narrowing skips only zero scores.
+// The sentinel is overwritten before a candidate enters the results heap.
+// FLT_MAX is outside the scoring range and finite, as required by -ffast-math.
+#define UNSET_SCORE FLT_MAX
 
 /**
  * Scores `haystack` against `matcher`'s needle. `threshold` is the minimum score
  * the candidate must reach to be useful (the smallest score currently in the
- * results heap); pass 0 to always score in full. When positive, the scorer may
- * return early with a value below `threshold` as soon as it can prove the final
- * score cannot reach it.
+ * results heap); pass 0 to disable threshold pruning. When positive, the scorer
+ * may return early with a value below `threshold` as soon as it can prove the
+ * final score cannot reach it. Regardless of `threshold`, reaching the work cap
+ * switches to a fallback that may under-rank the candidate.
  */
 float commandt_score(
     haystack_t *haystack, matcher_t *matcher, bool ignore_case, float threshold
