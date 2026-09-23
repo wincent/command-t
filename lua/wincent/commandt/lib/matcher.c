@@ -7,7 +7,7 @@
 
 #include <assert.h> /* for assert */
 #include <pthread.h> /* for pthread_create, pthread_join etc */
-#include <stdatomic.h> /* for atomic_bool, atomic_fetch_add(), atomic_load() etc */
+#include <stdatomic.h> /* for atomic_bool, atomic_load_explicit(), atomic_store_explicit() */
 #include <stdbool.h> /* for bool */
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for posix_memalign(), qsort(), NULL */
@@ -122,7 +122,6 @@ typedef struct {
     signal_t done;
     pthread_t thread;
     matcher_pool_t *pool;
-    unsigned index;
 } pool_worker_t;
 
 // A persistent pool of background workers, created once per matcher and reused
@@ -138,7 +137,7 @@ struct matcher_pool {
 static uint32_t calculate_bitmask(const char *str, unsigned long length);
 static int cmp_alpha_p(const void *a, const void *b);
 static int cmp_score_p(const void *a, const void *b);
-static void *get_matches(void *worker_args);
+static heap_t *get_matches(const worker_args_t *worker_args);
 static matcher_pool_t *pool_create(unsigned worker_count);
 static void pool_destroy(matcher_pool_t *pool);
 static void *pool_worker_run(void *arg);
@@ -174,7 +173,6 @@ static matcher_pool_t *pool_create(unsigned worker_count) {
     for (unsigned i = 0; i < worker_count; i++) {
         pool_worker_t *worker = &pool->workers[i];
         worker->pool = pool;
-        worker->index = i;
         worker->result = NULL;
         signal_init(&worker->go);
         signal_init(&worker->done);
@@ -281,7 +279,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
     unsigned candidate_count = __atomic_load_n(&scanner->count, __ATOMIC_ACQUIRE);
     unsigned limit = matcher->limit;
-    atomic_uint matches_count = 0;
+    unsigned matches_count = 0;
 
     // An async scanner may have streamed in more candidates since the last run
     // (or since `matcher_new()`); initialize their haystacks now. `count` only
@@ -400,7 +398,8 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
             .candidate_count = candidate_count,
         };
         heap_t *heap = get_matches(&main_args);
-        unsigned offset = atomic_fetch_add(&matches_count, heap->count);
+        unsigned offset = matches_count;
+        matches_count += heap->count;
         memcpy(
             matches + offset, heap->entries, heap->count * sizeof(haystack_t *)
         );
@@ -412,14 +411,15 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
         pool_worker_t *worker = &pool->workers[i];
         signal_wait(&worker->done);
         heap_t *heap = worker->result;
-        unsigned offset = atomic_fetch_add(&matches_count, heap->count);
+        unsigned offset = matches_count;
+        matches_count += heap->count;
         memcpy(
             matches + offset, heap->entries, heap->count * sizeof(haystack_t *)
         );
         heap_free(heap);
     }
 
-    unsigned count = atomic_load(&matches_count);
+    unsigned count = matches_count;
     if (needle_length == 0 || (needle_length == 1 && matcher->needle[0] == '.')) {
         // Alphabetic order if search string is only "" or "."
         qsort(matches, count, sizeof(haystack_t *), cmp_alpha_p);
@@ -484,12 +484,12 @@ static int cmp_score_p(const void *a, const void *b) {
     return commandt_cmp_score(a_haystack, b_haystack);
 }
 
-static void *get_matches(void *worker_args) {
-    unsigned worker_count = ((worker_args_t *)worker_args)->worker_count;
-    unsigned worker_index = ((worker_args_t *)worker_args)->worker_index;
-    matcher_t *matcher = ((worker_args_t *)worker_args)->matcher;
-    bool ignore_case = ((worker_args_t *)worker_args)->ignore_case;
-    unsigned candidate_count = ((worker_args_t *)worker_args)->candidate_count;
+static heap_t *get_matches(const worker_args_t *worker_args) {
+    unsigned worker_count = worker_args->worker_count;
+    unsigned worker_index = worker_args->worker_index;
+    matcher_t *matcher = worker_args->matcher;
+    bool ignore_case = worker_args->ignore_case;
+    unsigned candidate_count = worker_args->candidate_count;
     size_t needle_length = matcher->needle_length;
     bool narrowing = matcher->last_needle != NULL;
 
