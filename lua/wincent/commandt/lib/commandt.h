@@ -171,11 +171,11 @@ typedef struct {
     unsigned threads;
 
     /**
-     * Note that the matcher doesn't take ownership of the `needle` (ie. it
-     * doesn't make a copy of it) because it only needs it to stick around long
-     * enough to calculate scores with it. These fields are merely here as a
-     * convenience for temporarily threading state through to `commandt_score()`
-     * and friends.
+     * The matcher owns a normalized copy of the caller's needle. These fields
+     * provide the current query to `commandt_score()` and the workers. At the
+     * end of a run, `last_needle` takes ownership of the copy for incremental
+     * narrowing; `needle` aliases it until the next run. The retained copy is
+     * freed when invalidated, replaced, or when the matcher is freed.
      */
     const char *needle;
     size_t needle_length;
