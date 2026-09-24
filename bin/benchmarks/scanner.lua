@@ -43,6 +43,9 @@ benchmark({
   end,
 
   run = function(_config, setup)
+    -- Exec adapters start an async scan and wait for completion here, so the
+    -- timed region includes producer creation, scanning, joining, and cleanup.
+    -- These timings are not directly comparable to the old synchronous scans.
     local scanner = setup.scanner(pwd) -- For now, only Watchman wants pwd.
     assert(scanner.count > 0)
   end,
