@@ -74,6 +74,7 @@ ffi.cdef([[
   scanner_t *commandt_scanner_new_copy(const char **candidates, unsigned count);
   scanner_t *commandt_scanner_new_str(str_t *candidates, unsigned count);
   void commandt_scanner_stop(scanner_t *scanner);
+  void commandt_scanner_wait(scanner_t *scanner);
   bool commandt_scanner_done(scanner_t *scanner);
   void commandt_scanner_free(scanner_t *scanner);
   void commandt_print_scanner(scanner_t *scanner);

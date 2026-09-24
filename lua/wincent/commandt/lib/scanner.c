@@ -141,59 +141,10 @@ static pid_t spawn_command(const char *command, int *read_fd) {
 }
 
 scanner_t *scanner_new_exec(const char *command, unsigned drop, unsigned max_files) {
-    scanner_t *scanner = xcalloc(1, sizeof(scanner_t));
+    // Retain the blocking entry point without a second scanning implementation.
+    scanner_t *scanner = scanner_new_exec_async(command, drop, max_files);
+    scanner_wait(scanner);
     scanner->kind = SCANNER_EAGER;
-    scanner->fd = -1;
-    scanner->pid = -1;
-    scanner->candidates_size = sizeof(str_t) * MAX_FILES;
-    scanner->candidates = xmap(scanner->candidates_size);
-    scanner->buffer_size = buffer_size;
-    scanner->buffer = xmap(scanner->buffer_size);
-
-    int read_fd;
-    pid_t child_pid = spawn_command(command, &read_fd);
-    if (child_pid == -1) {
-        scanner->capacity = scanner->count;
-        return scanner;
-    }
-
-    char *start = scanner->buffer;
-    char *end = scanner->buffer;
-    char *buffer_end = scanner->buffer + buffer_size;
-    unsigned count = 0;
-    ssize_t read_count;
-    while (end < buffer_end) {
-        size_t want = (size_t)(buffer_end - end);
-        if (want > READ_CHUNK) {
-            want = READ_CHUNK;
-        }
-        read_count = read(read_fd, end, want);
-        if (read_count <= 0) {
-            break; // EOF (0) or read error (<0).
-        }
-        end += read_count;
-        tokenize_result_t result =
-            scanner_tokenize(scanner, drop, max_files, &start, end, &count);
-        if (result != TOKENIZE_MORE) {
-            // Negative PID signals the whole process group (see spawn_command).
-            kill(-child_pid, SIGKILL); // max_files reached or malformed input.
-            break;
-        }
-    }
-    scanner->count = count;
-    if (end == buffer_end) {
-        // The slab filled up before the child finished (extremely unlikely
-        // given that the slab is a huge mmap()-ed region). Stop the child so it
-        // doesn't block writing to a pipe we will never drain, which would
-        // otherwise hang the waitpid() below.
-        kill(-child_pid, SIGKILL);
-    }
-
-    if (waitpid(child_pid, NULL, 0) == -1) {
-        // Swallow the error.
-    }
-    close(read_fd);
-
     scanner->capacity = scanner->count;
     return scanner;
 }
@@ -303,6 +254,23 @@ void scanner_stop(scanner_t *scanner) {
         scanner->fd = -1;
     }
     __atomic_store_n(&scanner->done, 1, __ATOMIC_RELEASE);
+}
+
+void scanner_wait(scanner_t *scanner) {
+    if (scanner->kind != SCANNER_EXEC) {
+        return;
+    }
+    // Unlike stop(), join before signalling the command so all output is read.
+    // The producer has already finished inline if pthread_create() failed.
+    if (scanner->thread) {
+        pthread_join(*(pthread_t *)scanner->thread, NULL);
+        free(scanner->thread);
+        scanner->thread = NULL;
+    }
+    // Match the UI's completion cleanup: kill any remaining process-group
+    // members, reap the child, and close the pipe. The child is still unreaped,
+    // so its PID cannot have been recycled while the producer was finishing.
+    scanner_stop(scanner);
 }
 
 bool scanner_done(scanner_t *scanner) {
