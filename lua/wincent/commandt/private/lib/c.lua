@@ -16,6 +16,8 @@ ffi.cdef([[
   typedef struct matcher matcher_t;
 
   typedef struct {
+      // Direct access is safe for eager scanners or after synchronized completion.
+      // During production, use commandt_scanner_count_snapshot().
       unsigned count;
       // Trailing internal fields omitted.
   } scanner_t;
@@ -76,8 +78,8 @@ ffi.cdef([[
   void commandt_scanner_stop(scanner_t *scanner);
   void commandt_scanner_wait(scanner_t *scanner);
   bool commandt_scanner_done(scanner_t *scanner);
+  unsigned commandt_scanner_count_snapshot(const scanner_t *scanner);
   void commandt_scanner_free(scanner_t *scanner);
-  void commandt_print_scanner(scanner_t *scanner);
 
   // Watchman functions.
 
