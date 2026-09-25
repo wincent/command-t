@@ -53,6 +53,8 @@ typedef struct {
     /**
      * Number of candidates currently stored in the scanner. For async scanners
      * this grows over time and is published/read with release/acquire ordering.
+     * Readers that can overlap production must use scanner_count_snapshot()
+     * (or commandt_scanner_count_snapshot() through FFI), not a plain load.
      */
     unsigned count;
 

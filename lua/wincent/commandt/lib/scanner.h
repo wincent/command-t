@@ -13,13 +13,25 @@
 #define scanner_new_copy commandt_scanner_new_copy
 #define scanner_new_str commandt_scanner_new_str
 #define scanner_new commandt_scanner_new
-#define scanner_dump commandt_scanner_dump
 #define scanner_free commandt_scanner_free
 #define scanner_new_exec commandt_scanner_new_exec
 #define scanner_new_exec_async commandt_scanner_new_exec_async
 #define scanner_stop commandt_scanner_stop
 #define scanner_wait commandt_scanner_wait
 #define scanner_done commandt_scanner_done
+
+/**
+ * Snapshot the published candidate count. The acquire pairs with the producer's
+ * release stores: candidates below this count are initialized and immutable.
+ * Keep the scanner alive while using the snapshot and its candidates.
+ * Also valid for eager scanners. Does not wait for production to finish.
+ */
+static inline unsigned scanner_count_snapshot(const scanner_t *scanner) {
+    return __atomic_load_n(&scanner->count, __ATOMIC_ACQUIRE);
+}
+
+// Exported wrapper for FFI callers; C callers use the inline helper above.
+unsigned commandt_scanner_count_snapshot(const scanner_t *scanner);
 
 /**
  * Create a new `scanner_t` struct initialized with `candidates`.
@@ -97,15 +109,6 @@ scanner_t *scanner_new(
     char *buffer,
     size_t buffer_size
 );
-
-/**
- * For debugging, a human-readable string representation of the scanner.
- *
- * Caller should call `str_free()` on the returned string.
- *
- * @internal
- */
-str_t *scanner_dump(scanner_t *scanner);
 
 /**
  * Frees a previously created `scanner_t` structure.

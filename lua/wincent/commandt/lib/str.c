@@ -10,7 +10,7 @@
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memcpy() */
 
-#include "xmalloc.h" /* for xcalloc(), xmalloc(), xrealloc() */
+#include "xmalloc.h" /* for xmalloc(), xrealloc() */
 
 // When allocating memory, reserve a little more than was asked for,
 // which can help to avoid subsequent allocations.
@@ -58,16 +58,6 @@ void str_init_copy(str_t *str, const char *source, size_t length) {
     memcpy((void *)str->contents, source, length);
     char *end = (char *)str->contents + length;
     end[0] = '\0';
-}
-
-// Internal only, so doesn't need to be fast/cheap. This is currently only used
-// by `scanner_dump()` (a debugging function).
-str_t *str_new(void) {
-    str_t *str = xmalloc(sizeof(str_t));
-    str->contents = xcalloc(STR_OVERALLOC, 1);
-    str->length = 0;
-    str->capacity = STR_OVERALLOC;
-    return str;
 }
 
 void str_append(str_t *str, const char *source, size_t length) {

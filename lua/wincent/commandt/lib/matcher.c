@@ -24,6 +24,7 @@
 #include "compare.h" /* for commandt_cmp_alpha(), commandt_cmp_score() */
 #include "die.h" /* for die() */
 #include "heap.h" /* for HEAP_PEEK(), heap_free(), heap_insert(), heap_new(), heap_replace_top() */
+#include "scanner.h" /* for scanner_count_snapshot() */
 #include "score.h" /* for commandt_score() */
 #include "str.h" /* for str_t */
 #include "xmalloc.h" /* for xmalloc() */
@@ -232,7 +233,7 @@ matcher_t *commandt_matcher_new(
     matcher->haystacks_size = (size_t)capacity * sizeof(haystack_t);
     matcher->haystacks = capacity ? xmap(matcher->haystacks_size) : NULL;
 
-    unsigned count = __atomic_load_n(&scanner->count, __ATOMIC_ACQUIRE);
+    unsigned count = scanner_count_snapshot(scanner);
     for (unsigned i = 0; i < count; i++) {
         matcher->haystacks[i].candidate = &scanner->candidates[i];
         matcher->haystacks[i].bitmask = UNSET_HAYSTACK_BITMASK;
@@ -277,7 +278,7 @@ void commandt_matcher_free(matcher_t *matcher) {
 
 result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     scanner_t *scanner = matcher->scanner;
-    unsigned candidate_count = __atomic_load_n(&scanner->count, __ATOMIC_ACQUIRE);
+    unsigned candidate_count = scanner_count_snapshot(scanner);
     unsigned limit = matcher->limit;
     unsigned matches_count = 0;
 

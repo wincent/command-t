@@ -10,13 +10,12 @@
 #include <signal.h> /* for SIGKILL, kill() */
 #include <stdbool.h> /* for bool */
 #include <stddef.h> /* for NULL */
-#include <stdio.h> /* for fprintf(), stderr */
 #include <stdlib.h> /* for free() */
 #include <string.h> /* for memchr(), strlen() */
 #include <sys/wait.h> /* for waitpid() */
 #include <unistd.h> /* _exit(), close(), dup2(), fork(), pipe(), read(), setpgid() */
 
-#include "str.h" /* for str_append(), str_new(), str_init(), str_init_copy() */
+#include "str.h" /* for str_init(), str_init_copy() */
 #include "xmalloc.h" /* for xcalloc(), xmalloc() */
 #include "xmap.h" /* for xmap(), xmunmap() */
 
@@ -273,6 +272,10 @@ void scanner_wait(scanner_t *scanner) {
     scanner_stop(scanner);
 }
 
+unsigned commandt_scanner_count_snapshot(const scanner_t *scanner) {
+    return scanner_count_snapshot(scanner);
+}
+
 bool scanner_done(scanner_t *scanner) {
     if (scanner->kind != SCANNER_EXEC) {
         return true;
@@ -312,30 +315,6 @@ scanner_t *scanner_new(
     return scanner;
 }
 
-static const char *NUL_BYTE = "\0";
-static const char *L_BRACE = "{";
-static const char *R_BRACE = "}";
-static const char *COMMA = ",";
-static const char *INDENT = "  ";
-static const char *NEWLINE = "\n";
-
-str_t *scanner_dump(scanner_t *scanner) {
-    str_t *dump = str_new();
-    str_append(dump, L_BRACE, 1);
-    str_append(dump, NEWLINE, 1);
-    for (unsigned i = 0; i < scanner->count; i++) {
-        str_append(dump, INDENT, strlen(INDENT));
-        str_append(
-            dump, scanner->candidates[i].contents, scanner->candidates[i].length
-        );
-        str_append(dump, COMMA, 1);
-        str_append(dump, NEWLINE, 1);
-    }
-    str_append(dump, R_BRACE, 1);
-    str_append(dump, NUL_BYTE, 1);
-    return dump;
-}
-
 void scanner_free(scanner_t *scanner) {
     // Join the producer thread and reap the child (a no-op for non-async
     // scanners) before releasing the slabs it may still be writing to.
@@ -357,10 +336,4 @@ void scanner_free(scanner_t *scanner) {
     }
 
     free(scanner);
-}
-
-void commandt_print_scanner(scanner_t *scanner) {
-    str_t *dump = scanner_dump(scanner);
-    fprintf(stderr, "\n\n\n%s\n\n\n", dump->contents);
-    str_free(dump);
 }

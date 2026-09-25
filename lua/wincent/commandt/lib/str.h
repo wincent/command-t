@@ -17,7 +17,6 @@
 #define str_new_size commandt_str_new_size
 #define str_init commandt_str_init
 #define str_init_copy commandt_str_init_copy
-#define str_new commandt_str_new
 #define str_append commandt_str_append
 #define str_append_char commandt_str_append_char
 #define str_append_str commandt_str_append_str
@@ -73,13 +72,6 @@ void str_init(str_t *str, const char *source, size_t length);
  * with "slab" allocations.
  */
 void str_init_copy(str_t *str, const char *source, size_t length);
-
-/**
- * For debugging. Creates a new, empty str.
- *
- * @internal
- */
-str_t *str_new(void);
 
 /**
  * Appends `length` bytes of `source` to `str`.

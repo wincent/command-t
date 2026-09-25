@@ -8,9 +8,9 @@
 -- Determinism without relying on timing:
 --   - Tier 1 waits for `commandt_scanner_done()` before asserting, so results
 --     are compared only against the complete candidate set.
---   - Tier 2 drives production through a FIFO and polls `scanner.count` until it
---     reaches a known value before asserting, so the producer can never race
---     ahead of what the test has fed it.
+--   - Tier 2 drives production through a FIFO and acquire-loads the published
+--     count until it reaches a known value before asserting, so the producer
+--     can never race ahead of what the test has fed it.
 
 local ffi = require('ffi')
 
@@ -82,6 +82,13 @@ describe('scanner_new_exec_async', function()
     return retain(matcher_new(scanner, options or {}))
   end
 
+  it('snapshots empty and populated eager scanners', function()
+    for _, paths in ipairs({ {}, { 'alpha', 'beta' } }) do
+      local scanner = retain(scanner_new_copy(paths))
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(#paths)
+    end
+  end)
+
   it('produces the same results as a synchronous scanner', function()
     local paths = { 'foo/bar', 'foo/baz', 'bing', 'foo/qux' }
     local async = async_matcher(nul_command(paths))
@@ -93,7 +100,7 @@ describe('scanner_new_exec_async', function()
 
   it('handles a command that produces no output', function()
     local matcher, scanner = async_matcher('true')
-    expect(tonumber(scanner.count)).to_be(0)
+    expect(c.commandt_scanner_count_snapshot(scanner)).to_be(0)
     expect(match_all(matcher, '')).to_equal({})
     expect(match_all(matcher, 'x')).to_equal({})
   end)
@@ -104,7 +111,7 @@ describe('scanner_new_exec_async', function()
       paths[i] = 'file' .. i
     end
     local _, scanner = async_matcher(nul_command(paths), 0, 5)
-    expect(tonumber(scanner.count)).to_be(5)
+    expect(c.commandt_scanner_count_snapshot(scanner)).to_be(5)
   end)
 
   it('drops the requested prefix', function()
@@ -118,6 +125,7 @@ describe('scanner_new_exec_async', function()
     c.commandt_scanner_stop(scanner)
     c.commandt_scanner_stop(scanner) -- Idempotent.
     expect(not not c.commandt_scanner_done(scanner)).to_be(true)
+    expect(c.commandt_scanner_count_snapshot(scanner)).to_be(2)
     -- Matching reads the slab, not the pipe, so it still works after stop.
     -- ("apple" outscores "banana" for "a": its match is at the start.)
     expect(match_all(matcher, 'a')).to_equal({ 'apple', 'banana' })
@@ -134,7 +142,7 @@ describe('scanner_new_exec_async', function()
     os.execute('sleep 0.2') -- Let it stream.
 
     -- Stop first, so even if an assertion below fails the firehose is gone.
-    local produced = tonumber(scanner.count)
+    local produced = c.commandt_scanner_count_snapshot(scanner)
     local start = now()
     c.commandt_scanner_stop(scanner)
     local elapsed = now() - start
@@ -229,6 +237,8 @@ describe('scanner_new_exec_async', function()
       local writer = assert(io.open(fifo, 'r+'))
       local matcher = retain(matcher_new(scanner, {}))
 
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(0)
+
       local produced = {}
       local function feed(tokens)
         for _, token in ipairs(tokens) do
@@ -239,7 +249,7 @@ describe('scanner_new_exec_async', function()
         writer:flush()
         local target = #produced
         wait_until(function()
-          return tonumber(scanner.count) >= target
+          return c.commandt_scanner_count_snapshot(scanner) >= target
         end, 'count did not reach ' .. target)
       end
 
@@ -251,11 +261,11 @@ describe('scanner_new_exec_async', function()
       end
 
       feed({ 'alpha', 'beta', 'gamma' })
-      expect(tonumber(scanner.count)).to_be(3)
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(3)
       expect_matches_synchronous({ '', 'a', 'e', 'x' })
 
       feed({ 'delta', 'alef', 'echo' })
-      expect(tonumber(scanner.count)).to_be(6)
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(6)
       expect_matches_synchronous({ '', 'a', 'e', 'l', 'x' })
 
       writer:close() -- EOF: `cat` exits and the producer finishes.
