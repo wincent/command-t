@@ -561,6 +561,13 @@ static heap_t *get_matches(const worker_args_t *worker_args) {
                 continue;
             }
 
+            // Alphabetical queries must select, not just display, results in
+            // alphabetical order. Equal positive scores make the heap use its
+            // alphabetical tiebreaker. Preserve negative exclusion scores.
+            if (!sort_by_score && haystack->score > 0.0f) {
+                haystack->score = 1.0f;
+            }
+
             if (heap->count == matcher->limit) {
                 // Full heap: replace the worst entry (root) in place if this
                 // candidate beats it, avoiding an insert-then-extract.

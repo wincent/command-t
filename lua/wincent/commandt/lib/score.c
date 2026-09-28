@@ -641,8 +641,8 @@ float commandt_score(
     // configured policy:
     //
     // - `always_show_dot_files`: no constraint.
-    // - `never_show_dot_files`: any forbidden dot in range excludes the
-    //   candidate outright.
+    // - `never_show_dot_files`: any forbidden dot anywhere in the candidate
+    //   excludes it, even if the match ends before that dot.
     // - default: crossing a forbidden dot requires the current needle character
     //   to be a dot. That query dot may keep searching across any number of
     //   hidden components and match a later dot; after it is consumed, another
@@ -654,7 +654,7 @@ float commandt_score(
     // keeping the common scorer free of hidden-dot checks.
     ssize_t first_dot =
         always_show_dot_files ? -1 : forbidden_dot_index(haystack);
-    if (first_dot >= 0 && (size_t)first_dot < limit) {
+    if (first_dot >= 0 && (never_show_dot_files || (size_t)first_dot < limit)) {
         if (never_show_dot_files) {
             result = 0.0f;
             goto done;
