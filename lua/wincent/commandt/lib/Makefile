@@ -69,8 +69,37 @@ $(eval $(call DEPEND_ON,CCFLAGS))
 commandt.$(DLLEXT): $(HDRS) $(SRCS) Makefile .make/CCFLAGS
 	$(CC) $(CCFLAGS) -shared -fPIC -o commandt.$(DLLEXT) $(SRCS)
 
+# Test-only scorer builds. Keep these out of `all`: bin/test builds them using
+# the saved CCFLAGS, so they match the extension's release/debug/sanitizer mode.
+TEST_SCORE_SRCS = ../test/score.c xmalloc.c die.c
+TEST_SCORE_DEPS = $(TEST_SCORE_SRCS) score.c $(HDRS) Makefile .make/CCFLAGS
+
+.PHONY: test-score
+test-score: \
+	.make/score-default.$(DLLEXT) \
+	.make/score-heap.$(DLLEXT) \
+	.make/score-capped.$(DLLEXT) \
+	.make/score-capped-heap.$(DLLEXT) \
+	.make/score-late-cap-heap.$(DLLEXT)
+
+.make/score-default.$(DLLEXT): $(TEST_SCORE_DEPS)
+	$(CC) $(CCFLAGS) -shared -fPIC -I. -o $@ $(TEST_SCORE_SRCS)
+
+.make/score-heap.$(DLLEXT): $(TEST_SCORE_DEPS)
+	$(CC) $(CCFLAGS) -DSCORE_SCRATCH_STACK=2 -shared -fPIC -I. -o $@ $(TEST_SCORE_SRCS)
+
+.make/score-capped.$(DLLEXT): $(TEST_SCORE_DEPS)
+	$(CC) $(CCFLAGS) -DSCORE_CELL_CAP=0 -shared -fPIC -I. -o $@ $(TEST_SCORE_SRCS)
+
+.make/score-capped-heap.$(DLLEXT): $(TEST_SCORE_DEPS)
+	$(CC) $(CCFLAGS) -DSCORE_CELL_CAP=0 -DSCORE_SCRATCH_STACK=2 -shared -fPIC -I. -o $@ $(TEST_SCORE_SRCS)
+
+.make/score-late-cap-heap.$(DLLEXT): $(TEST_SCORE_DEPS)
+	$(CC) $(CCFLAGS) -DSCORE_CELL_CAP=4 -DSCORE_SCRATCH_STACK=2 -shared -fPIC -I. -o $@ $(TEST_SCORE_SRCS)
+
 .PHONY: clean
 clean:
 	rm -f *.$(DLLEXT)
+	rm -rf .make/*.$(DLLEXT).dSYM
 	rm -f .make/*
 	rm -rf *.so.dSYM

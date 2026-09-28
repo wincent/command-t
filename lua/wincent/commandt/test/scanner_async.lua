@@ -275,4 +275,127 @@ describe('scanner_new_exec_async', function()
       os.remove(fifo)
     end)
   end)
+
+  context('when streaming crosses the 1,000-candidate worker threshold', function()
+    local fifo
+    local writer
+    local scanner
+
+    after(function()
+      -- Clean up even if a comparison fails while the producer is waiting for
+      -- more input. Closing the writer alone is not a substitute for stop().
+      if writer then
+        writer:close()
+        writer = nil
+      end
+      if scanner then
+        c.commandt_scanner_stop(scanner)
+        scanner = nil
+      end
+      if fifo then
+        os.remove(fifo)
+        fifo = nil
+      end
+    end)
+
+    it('matches fresh snapshots before, at, and after the threshold with one and four threads', function()
+      fifo = os.tmpname()
+      os.remove(fifo)
+      local status = os.execute('mkfifo ' .. fifo)
+      if status ~= 0 and status ~= true then
+        error('mkfifo failed')
+      end
+
+      scanner = retain(scanner_new_exec_async('cat ' .. fifo, 0, 2048))
+      writer = assert(io.open(fifo, 'r+'))
+      local single = retain(matcher_new(scanner, { height = 3, threads = 1 }))
+      local pooled = retain(matcher_new(scanner, { height = 3, threads = 4 }))
+      local paths = {}
+
+      -- This helper only feeds the pipe and waits for publication. All query
+      -- sequences and comparisons are spelled out at each snapshot below.
+      local function feed(tokens)
+        for _, token in ipairs(tokens) do
+          writer:write(token, '\0')
+          paths[#paths + 1] = token
+        end
+        writer:flush()
+        wait_until(function()
+          return c.commandt_scanner_count_snapshot(scanner) == #paths
+        end, 'streaming snapshot did not reach ' .. #paths)
+      end
+
+      expect(match_all(single, 'ab')).to_equal({})
+      expect(match_all(pooled, 'ab')).to_equal({})
+
+      local first_batch = {}
+      for i = 1, 999 do
+        first_batch[i] = string.format('filler-%04d', i)
+      end
+      first_batch[1] = 'z.ab'
+      first_batch[65] = 'y.ab'
+      first_batch[129] = 'x.ab'
+      first_batch[193] = 'w.ab'
+      first_batch[998] = 'a/b'
+      first_batch[999] = 'a_b'
+      feed(first_batch)
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(999)
+
+      -- Both matchers still run entirely on the calling thread. Populate cached
+      -- zeros, then replace the query and extend it before activating the pool.
+      expect(match_all(single, '!')).to_equal({})
+      expect(match_all(pooled, '!')).to_equal({})
+      expect(match_all(pooled, 'a')).to_equal(match_all(single, 'a'))
+      local fresh_999 = copy_matcher(paths, { height = 3, threads = 1 })
+      local expected_999 = match_all(fresh_999, 'ab')
+      expect(match_all(single, 'ab')).to_equal(expected_999)
+      expect(match_all(pooled, 'ab')).to_equal(expected_999)
+
+      -- Candidate 1,000 activates the pool and is a new best match. Repeating
+      -- the query must include it despite all the earlier cached state.
+      feed({ 'ab' })
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(1000)
+      local fresh_1000 = copy_matcher(paths, { height = 3, threads = 1 })
+      local expected_1000 = match_all(fresh_1000, 'ab')
+      expect(expected_1000[1]).to_be('ab')
+      expect(match_all(single, 'ab')).to_equal(expected_1000)
+      expect(match_all(pooled, 'ab')).to_equal(expected_1000)
+
+      -- The only match for the extended query is a newly published candidate.
+      feed({ 'abc' })
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(1001)
+      local fresh_1001 = copy_matcher(paths, { height = 3, threads = 1 })
+      expect(match_all(fresh_1001, 'abc')).to_equal({ 'abc' })
+      expect(match_all(single, 'abc')).to_equal({ 'abc' })
+      expect(match_all(pooled, 'abc')).to_equal({ 'abc' })
+
+      -- A replacement dot query uses alphabetical rather than score ordering.
+      local fresh_dot = copy_matcher(paths, { height = 3, threads = 1 })
+      local expected_dot = match_all(fresh_dot, '.')
+      expect(match_all(single, '.')).to_equal(expected_dot)
+      expect(match_all(pooled, '.')).to_equal(expected_dot)
+
+      -- Cross another stripe boundary and switch smart-case mode. Position
+      -- 1,089 belongs to a background worker, not the calling thread.
+      local last_batch = {}
+      for i = 1002, 1088 do
+        last_batch[#last_batch + 1] = string.format('filler-%04d', i)
+      end
+      last_batch[#last_batch + 1] = 'aB'
+      feed(last_batch)
+      expect(c.commandt_scanner_count_snapshot(scanner)).to_be(1089)
+      local fresh_1089 = copy_matcher(paths, { height = 3, threads = 1 })
+      expect(match_all(fresh_1089, 'aB')).to_equal({ 'aB' })
+      expect(match_all(single, 'aB')).to_equal({ 'aB' })
+      expect(match_all(pooled, 'aB')).to_equal({ 'aB' })
+
+      writer:close()
+      writer = nil
+      wait_until_done(scanner)
+      local completed = copy_matcher(paths, { height = 3, threads = 1 })
+      local expected_completed = match_all(completed, 'ab')
+      expect(match_all(single, 'ab')).to_equal(expected_completed)
+      expect(match_all(pooled, 'ab')).to_equal(expected_completed)
+    end)
+  end)
 end)

@@ -146,6 +146,15 @@ _G.expect = function(value)
       end
     end,
 
+    to_be_close_to = function(other, tolerance)
+      tolerance = tolerance or 1e-5
+      if not (math.abs(value - other) <= tolerance) then
+        print('\nExpected within ' .. tolerance .. ':\n\n' .. inspect(other, 2) .. '\n')
+        print('Actual:\n\n' .. inspect(value, 2) .. '\n')
+        error('not close', 2)
+      end
+    end,
+
     to_equal = function(other)
       if not equal(value, other) then
         print('\nExpected:\n\n' .. inspect(other, 2) .. '\n')

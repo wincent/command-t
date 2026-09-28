@@ -3,9 +3,19 @@
 # SPDX-FileCopyrightText: Copyright 2022-present Greg Hurrell and contributors.
 # SPDX-License-Identifier: BSD-2-Clause
 
+set -euo pipefail
+
 REPO_ROOT="${BASH_SOURCE%/*}/.."
 
 cd "$REPO_ROOT"
+
+# Match the already-built extension, including DEBUG and sanitizer flags.
+FLAGS=lua/wincent/commandt/lib/.make/CCFLAGS
+if [[ ! -f "$FLAGS" ]]; then
+  echo 'Build the extension with make build before running tests.' >&2
+  exit 1
+fi
+make -C lua/wincent/commandt/lib test-score CCFLAGS="$(<"$FLAGS")"
 
 find lua -type f -path '*/test/*' -name '*.lua' -print0 | \
   xargs -0 bin/test.lua
