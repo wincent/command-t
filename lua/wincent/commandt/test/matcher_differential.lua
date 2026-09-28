@@ -58,26 +58,56 @@ describe('matcher differential tests', function()
     local one_result = get_matcher(paths, { height = 1 })
 
     -- A lone dot requests alphabetical ordering, so reducing the limit should
-    -- retain "a.b". Currently the heap selects the higher-scoring "z." first,
-    -- and only sorts the selected results alphabetically afterward.
+    -- retain "a.b", even though the shorter "z." would have a higher score.
     expect(two_results.match('.')).to_equal({ 'a.b', 'z.' })
     expect(one_result.match('.')).to_equal({ 'a.b' })
   end)
 
-  it('returns "a.b/." for ".b" after ".", just as a fresh never_show_dot_files matcher does', function()
+  it('selects the alphabetical top three for a dot query even when shorter matches arrive first', function()
+    local paths = { 'z.', 'y.', 'x.', 'a.b', 'b.c', 'c.d', 'no_dot' }
+    local unpruned = get_matcher(paths, { height = #paths })
+    local limited = get_matcher(paths, { height = 3 })
+
+    -- Exercise replacement and reordering inside a multi-entry heap, not just
+    -- the one-result case. "no_dot" must still be excluded as a non-match.
+    expect(unpruned.match('.')).to_equal({ 'a.b', 'b.c', 'c.d', 'x.', 'y.', 'z.' })
+    expect(limited.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
+  end)
+
+  it('reconsiders an unselected dot match when the query is extended', function()
+    local paths = { 'a.b', 'z.c' }
+    local fresh = get_matcher(paths, { height = 1 })
+    local reused = get_matcher(paths, { height = 1 })
+
+    expect(reused.match('.')).to_equal({ 'a.b' })
+    expect(fresh.match('.c')).to_equal({ 'z.c' })
+    expect(reused.match('.c')).to_equal({ 'z.c' })
+  end)
+
+  it('excludes "a.b/." for ".b" in both fresh and reused never_show_dot_files matchers', function()
     local paths = { 'a.b/.' }
     local fresh = get_matcher(paths, { height = 1, never_show_dot_files = true })
     local reused = get_matcher(paths, { height = 1, never_show_dot_files = true })
 
-    -- This documents current fresh-matcher behavior, not a claim that a hidden
-    -- candidate ought to be visible: ".b" finishes before the hidden component.
-    expect(fresh.match('.b')).to_equal({ 'a.b/.' })
-
-    -- The earlier "." query reaches the hidden component and caches a zero.
-    -- Extending to ".b" must agree with the fresh matcher, but currently the
-    -- cached zero makes the reused matcher skip this candidate entirely.
+    -- never_show_dot_files excludes the entire candidate, even though ".b"
+    -- finishes before the hidden component. Previously the fresh matcher
+    -- accepted it, while the reused matcher skipped it because "." cached zero.
+    expect(fresh.match('.b')).to_equal({})
     expect(reused.match('.')).to_equal({})
-    expect(reused.match('.b')).to_equal({ 'a.b/.' })
+    expect(reused.match('.b')).to_equal({})
+  end)
+
+  it('never shows hidden components after the matched text, including named components', function()
+    local paths = { 'src/.hidden/file', 'src/file', '.src/file', 'src/file/.hidden' }
+    local fresh = get_matcher(paths, { height = #paths, never_show_dot_files = true })
+    local reused = get_matcher(paths, { height = #paths, never_show_dot_files = true })
+
+    -- The visible candidate is a control: this must not reject every candidate.
+    expect(fresh.match('src')).to_equal({ 'src/file' })
+    expect(reused.match('')).to_equal({ 'src/file' })
+    expect(reused.match('src')).to_equal({ 'src/file' })
+    expect(reused.match('src.')).to_equal({})
+    expect(reused.match('src')).to_equal({ 'src/file' })
   end)
 
   -- A fresh matcher whose limit equals the candidate count cannot fill its heap
