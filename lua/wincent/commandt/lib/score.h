@@ -32,18 +32,30 @@ static inline uint32_t commandt_haystack_char_bit(unsigned char c) {
     return UINT32_C(1) << index;
 }
 
-// Keep unscored candidates eligible: narrowing skips only zero scores.
-// The sentinel is overwritten before a candidate enters the results heap.
+// No cached score usable for narrowing. Also replaces an old zero when
+// pre-score pruning skips a candidate after a query replacement.
+// Overwritten by scoring before a candidate enters the results heap.
 // FLT_MAX is outside the scoring range and finite, as required by -ffast-math.
 #define UNSET_SCORE FLT_MAX
 
 /**
- * Scores `haystack` against `matcher`'s needle. `threshold` is the minimum score
- * the candidate must reach to be useful (the smallest score currently in the
- * results heap); pass 0 to disable threshold pruning. When positive, the scorer
- * may return early with a value below `threshold` as soon as it can prove the
- * final score cannot reach it. Regardless of `threshold`, reaching the work cap
- * switches to a fallback that may under-rank the candidate.
+ * Scores `haystack` against `matcher`'s normalized needle.
+ *
+ * Returns 0 for a non-match, or -1 for a hidden candidate excluded by an empty
+ * query. With `threshold` set to 0, a positive return value proves a complete
+ * match. It is either the exact score or a lower bound from the work-cap
+ * fallback; disabling threshold pruning does not disable the work cap.
+ *
+ * A positive `threshold` is the minimum score needed to enter the full results
+ * heap. If the candidate cannot reach it, scoring may stop early and return a
+ * positive partial score below the threshold, without proving a complete match.
+ * Do not replace that partial score with zero: later query extensions must be
+ * able to reconsider the candidate.
+ *
+ * May fill the candidate's bitmask and dot-index caches, but does not assign
+ * `haystack->score`. The matcher stores the return value, using 1.0f for positive
+ * results on alphabetical queries. Never returns UNSET_SCORE; see the field's
+ * contract for cached values retained by pre-score pruning.
  */
 float commandt_score(
     haystack_t *haystack, matcher_t *matcher, bool ignore_case, float threshold

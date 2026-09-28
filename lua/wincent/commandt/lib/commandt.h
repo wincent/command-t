@@ -12,6 +12,10 @@
 
 #include "str.h" /* for str_t */
 
+// Sentinel values for haystack_t.first_dot.
+#define UNSET_FIRST_DOT (-2)
+#define NO_FORBIDDEN_DOT (-1)
+
 /**
  * @internal
  *
@@ -20,14 +24,38 @@
 typedef struct {
     str_t *candidate;
     uint32_t bitmask;
+
+    /**
+     * Cached score and match state:
+     *
+     * - UNSET_SCORE: not yet checked for this query, or an old zero invalidated
+     *   by pre-score pruning. Must not be skipped as a known non-match.
+     * - 0.0f: a proven non-match. Can be skipped when the query is repeated or
+     *   extended, but must be reconsidered when the query is replaced.
+     * - -1.0f: a hidden candidate excluded for the empty query. Kept nonzero so
+     *   a later non-empty query can reconsider it.
+     * - Other positive values: an exact score, a work-cap fallback score, or a
+     *   partial score from threshold pruning. Alphabetical queries store 1.0f
+     *   for every match, so the heap selects by its alphabetical tiebreaker.
+     *
+     * Only zero allows narrowing to skip a candidate. Nonzero does not prove a
+     * complete match: threshold pruning may stop before one is established.
+     *
+     * Pre-score pruning can leave an earlier value unchanged. If the query was
+     * replaced, an old zero must become UNSET_SCORE before taking that shortcut;
+     * otherwise a later extension could incorrectly skip this candidate.
+     *
+     * Before heap insertion, scoring replaces the cached value for the current
+     * query. Neither UNSET_SCORE nor a stale value may enter the heap.
+     */
     float score;
 
     /**
      * Index of the leftmost "forbidden" dot (a "." beginning a hidden path
-     * component: at index 0 or immediately after a "/"), or -1 if there is none;
-     * the sentinel -2 means "not yet computed". This is a property of the
-     * candidate alone, so it is computed lazily once and cached for reuse across
-     * searches (including repeated empty-query passes during streaming).
+     * component: at index 0 or immediately after a "/"), or NO_FORBIDDEN_DOT if
+     * there is none. UNSET_FIRST_DOT means it has not been scanned yet.
+     * This is a property of the candidate alone, so it is computed lazily and
+     * reused across queries, including empty queries during streaming.
      */
     ssize_t first_dot;
 } haystack_t;
