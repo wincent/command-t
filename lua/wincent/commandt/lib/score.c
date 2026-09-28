@@ -44,14 +44,13 @@
 #define SCORE_SCRATCH_STACK 2048
 #endif
 
-// Work cap. The exact DP visits one cell per (needle character, matching
-// haystack position) pair, so a single degenerate candidate (a long, very
-// low-diversity line: minified/generated/base64 buffer content) can make one
-// score cost O(needle_length * length). Past this many matched positions we
-// abandon the exact DP for a cheap greedy pass, bounding the per-candidate work.
-// The threshold is ~25x the worst realistic candidate (a 196-char path scores
-// ~250), so no real path or line is ever approximated; only genuinely
-// pathological input is. (Overridable at build time so tests can force it.)
+// Work cap. Count both matching DP cells and interior-gap predecessor checks.
+// Counting only cells misses the potentially quadratic predecessor searches in
+// low-diversity candidates (eg. long runs of a's followed by long runs of b's).
+// Past this budget, abandon the exact DP for the fallback. This limits matching
+// and predecessor work; string scans and fallback still depend on input length.
+// Ordinary paths fit comfortably within the budget. (Overridable at build time
+// so tests can force it.)
 #ifndef SCORE_CELL_CAP
 #define SCORE_CELL_CAP 16384
 #endif
@@ -706,9 +705,9 @@ float commandt_score(
     // has not been proved. It is below `threshold`, so it cannot be selected.
     float row_max = 0.0f;
 
-    // Running count of matched positions processed; past `SCORE_CELL_CAP` we bail
-    // to the greedy fallback. See `SCORE_CELL_CAP`.
-    size_t cells = 0;
+    // Shared budget for matching cells and interior-gap predecessor checks.
+    // Once exhausted, any further work takes the greedy fallback.
+    size_t work_remaining = SCORE_CELL_CAP;
 
     // Row 0: place needle[0] at each matching position.
     char needle_0 = needle_p[0];
@@ -718,7 +717,7 @@ float commandt_score(
         if (d_cmp != needle_0) {
             continue;
         }
-        if (++cells > SCORE_CELL_CAP) {
+        if (work_remaining-- == 0) {
             goto capped;
         }
         float c = base * factor_for(haystack_p, j, 0);
@@ -774,7 +773,7 @@ float commandt_score(
             if (d_cmp != needle_i) {
                 continue;
             }
-            if (++cells > SCORE_CELL_CAP) {
+            if (work_remaining-- == 0) {
                 goto capped;
             }
 
@@ -814,6 +813,9 @@ float commandt_score(
                     // longer beat the best found so far.
                     float k = base * 0.75f;
                     for (size_t t = pk; t-- > 0;) {
+                        if (work_remaining-- == 0) {
+                            goto capped;
+                        }
                         size_t p = prev_list[t];
                         float gap_term = k / (float)(j - p);
                         if (prefix_max + gap_term <= best) {
