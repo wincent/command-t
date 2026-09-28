@@ -277,7 +277,8 @@ local function run(runnable, indent)
       print(indent .. yellow_bg(' SKIP ') .. ' ' .. description)
     else
       stats.failed = stats.failed + 1
-      print(indent .. red_bg(' FAIL ') .. ' ' .. err)
+      print(indent .. red_bg(' FAIL ') .. ' ' .. runnable.description)
+      print(indent .. INDENT .. err)
     end
     current_test = nil
     for _, callback in ipairs(teardown) do
