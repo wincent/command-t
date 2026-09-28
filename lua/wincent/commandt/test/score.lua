@@ -41,7 +41,8 @@ end
 -- Compare the C scorer with an independent enumeration of every legal alignment.
 -- The heap build lowers SCORE_SCRATCH_STACK to 2. The capped builds lower
 -- SCORE_CELL_CAP to 0, so any attempt to score a DP cell enters the fallback.
--- A separate cap-4 heap build exercises fallback after partial DP work.
+-- Cells and interior-gap predecessor checks share the work budget. A separate
+-- cap-4 heap build exercises fallback after partial DP work.
 -- All calls disable threshold pruning. Float comparisons allow rounding error
 -- because the Lua oracle uses doubles while the C scorer uses floats.
 describe('score.c against an exhaustive alignment oracle', function()
@@ -246,17 +247,77 @@ describe('forced work-cap fallback', function()
     expect(capped_heap_library.commandt_test_allocation_count()).to_be(1)
   end)
 
-  it('still scores exactly below the four-cell cap instead of falling back immediately', function()
+  it('still scores exactly at the four-unit work cap instead of falling back immediately', function()
     local exact = reference_score('a/ab', 'ab')
     local immediate = score(capped_library, 'a/ab', 'ab')
     local delayed = score(late_cap_heap_library, 'a/ab', 'ab')
 
-    -- Two a positions and one b position fit below the cap. Immediate greedy
-    -- fallback takes the wrong a; this build must finish the exact alignment.
+    -- Two a positions, one b position, and one predecessor check exactly fill
+    -- the budget. Immediate greedy fallback takes the wrong a; this build must
+    -- finish the exact alignment without treating the exhausted budget as exceeded.
     expect(immediate).to_be_close_to(0.46875)
     expect(delayed).to_be_close_to(exact)
     expect(delayed > immediate).to_be(true)
     expect(late_cap_heap_library.commandt_test_allocation_count()).to_be(1)
+  end)
+
+  it('counts ordinary predecessor checks even when matching cells fit below the cap', function()
+    local exact = reference_score('aaxb', 'ab')
+    local capped = score(late_cap_heap_library, 'aaxb', 'ab')
+
+    -- Only three cells match: two a's and one b. Checking the a at index 1
+    -- fills the four-unit budget; checking the a at index 0 must trigger the
+    -- fallback, even though that check would have stopped the predecessor loop.
+    expect(exact).to_be_close_to(0.515625)
+    expect(capped).to_be_close_to(0.46875)
+    expect(capped > 0 and capped < exact).to_be(true)
+    expect(late_cap_heap_library.commandt_test_allocation_count()).to_be(1)
+    expect(score(capped_library, 'aaxb', 'ab')).to_be_close_to(capped)
+  end)
+
+  it('caps ordinary predecessor work with stack scratch at the default work limit', function()
+    local candidate = string.rep('a', 128) .. string.rep('b', 128)
+    local exact = reference_score(candidate, 'ab')
+    local capped = score(default_library, candidate, 'ab')
+
+    -- Just 256 cells match, but the later b's search back through the a's.
+    -- Those predecessor checks must exhaust the default 16,384-unit budget.
+    expect(default_library.commandt_test_allocation_count()).to_be(0)
+    expect(capped > 0 and capped < exact).to_be(true)
+    expect(score(capped_library, candidate, 'ab')).to_be_close_to(capped)
+    expect(score(heap_library, candidate, 'ab')).to_be_close_to(capped)
+    expect(heap_library.commandt_test_allocation_count()).to_be(1)
+  end)
+
+  it('caps ordinary predecessor work on a long line and frees heap scratch', function()
+    local candidate = string.rep('a', 8192) .. string.rep('b', 8192)
+    local capped = score(default_library, candidate, 'ab')
+
+    -- Exactly 16,384 cells match, so counting cells alone never exceeds the cap
+    -- and permits roughly 64 million predecessor checks. Do not enumerate all
+    -- alignments here: the best one takes the last a and the first b, while the
+    -- greedy fallback takes the first a and the first b.
+    local base = (1 / #candidate + 1 / 2) / 2
+    local exact = base * (0.75 / 8191 + 1.3)
+    local greedy = base * (1 + 0.75 / 8192)
+    expect(default_library.commandt_test_allocation_count()).to_be(1)
+    expect(capped > 0 and capped < exact).to_be(true)
+    expect(capped).to_be_close_to(greedy)
+    expect(score(capped_library, candidate, 'ab')).to_be_close_to(capped)
+  end)
+
+  it('finishes an exact match when the last budgeted predecessor check proves the rest unnecessary', function()
+    local candidate = string.rep('a', 16381) .. 'b'
+    local exact = score(default_library, candidate, 'ab')
+    local base = (1 / #candidate + 1 / 2) / 2
+
+    -- The matching cells spend 16,382 units. The consecutive last ab wins, and
+    -- the second predecessor check proves that every earlier a is worse. That
+    -- proof exactly fills the budget: unvisited predecessors do not require
+    -- fallback once they have been ruled out.
+    expect(default_library.commandt_test_allocation_count()).to_be(1)
+    expect(exact).to_be_close_to(base * (0.75 / 16380 + 1.3))
+    expect(score(capped_library, candidate, 'ab') < exact).to_be(true)
   end)
 
   it('can abandon a later ordinary DP row and free heap scratch', function()
