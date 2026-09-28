@@ -207,6 +207,13 @@ static void pool_destroy(matcher_pool_t *pool) {
     free(pool);
 }
 
+static inline void haystack_init(haystack_t *haystack, str_t *candidate) {
+    haystack->candidate = candidate;
+    haystack->bitmask = UNSET_HAYSTACK_BITMASK;
+    haystack->score = UNSET_SCORE;
+    haystack->first_dot = UNSET_FIRST_DOT;
+}
+
 matcher_t *commandt_matcher_new(
     scanner_t *scanner,
     bool always_show_dot_files,
@@ -235,10 +242,7 @@ matcher_t *commandt_matcher_new(
 
     unsigned count = scanner_count_snapshot(scanner);
     for (unsigned i = 0; i < count; i++) {
-        matcher->haystacks[i].candidate = &scanner->candidates[i];
-        matcher->haystacks[i].bitmask = UNSET_HAYSTACK_BITMASK;
-        matcher->haystacks[i].score = UNSET_SCORE;
-        matcher->haystacks[i].first_dot = -2;
+        haystack_init(&matcher->haystacks[i], &scanner->candidates[i]);
     }
     matcher->initialized = count;
 
@@ -287,10 +291,7 @@ result_t *commandt_matcher_run(matcher_t *matcher, const char *needle) {
     // grows and every entry below `candidate_count` is immutable, so no further
     // synchronization is needed.
     for (unsigned i = matcher->initialized; i < candidate_count; i++) {
-        matcher->haystacks[i].candidate = &scanner->candidates[i];
-        matcher->haystacks[i].bitmask = UNSET_HAYSTACK_BITMASK;
-        matcher->haystacks[i].score = UNSET_SCORE;
-        matcher->haystacks[i].first_dot = -2;
+        haystack_init(&matcher->haystacks[i], &scanner->candidates[i]);
     }
     matcher->initialized = candidate_count;
 
@@ -527,7 +528,8 @@ static heap_t *get_matches(const worker_args_t *worker_args) {
             // smallest score it holds is the threshold a candidate must reach to
             // displace anything. Passing it to `commandt_score()` lets the
             // scorer abandon a candidate as soon as its best achievable score
-            // provably falls short; a threshold of 0 means "score in full".
+            // provably falls short. A threshold of 0 disables this pruning,
+            // but not the work-cap fallback.
             float threshold = 0.0f;
             if (sort_by_score && heap->count == matcher->limit) {
                 threshold = HEAP_PEEK(heap)->score;

@@ -9,6 +9,8 @@
 
 #include "xmalloc.h"
 
+_Static_assert(sizeof(haystack_t) == 24, "Keep per-candidate storage at 24 bytes");
+
 static unsigned allocation_count;
 
 static void *counted_malloc(size_t size) {
@@ -51,7 +53,7 @@ float commandt_test_score(
         .candidate = &string,
         .bitmask = UNSET_HAYSTACK_BITMASK,
         .score = UNSET_SCORE,
-        .first_dot = -2,
+        .first_dot = UNSET_FIRST_DOT,
     };
     matcher_t matcher = {
         .needle = needle,

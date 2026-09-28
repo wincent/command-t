@@ -60,16 +60,15 @@ static inline char downcase(char c) {
     return c >= 'A' && c <= 'Z' ? (char)(c | 0x20) : c;
 }
 
-// Index of the leftmost "forbidden" dot (a "." at index 0 or after a "/"), or -1
-// if the candidate has none. Computed lazily and cached on the haystack (the
-// sentinel -2 means "not yet computed"), since it depends only on the candidate
-// string and is consulted by both the empty-query dot filter and the scorer's
-// dot gate.
+// Index of the leftmost "forbidden" dot (a "." at index 0 or after a "/"), or
+// NO_FORBIDDEN_DOT if there is none. UNSET_FIRST_DOT triggers the initial scan.
+// The result depends only on the candidate and is reused by both the empty-query
+// dot filter and the scorer's dot gate.
 static inline ssize_t forbidden_dot_index(haystack_t *haystack) {
-    if (haystack->first_dot == -2) {
+    if (haystack->first_dot == UNSET_FIRST_DOT) {
         const char *s = haystack->candidate->contents;
         size_t len = haystack->candidate->length;
-        ssize_t found = -1;
+        ssize_t found = NO_FORBIDDEN_DOT;
         for (size_t k = 0; k < len; k++) {
             if (s[k] == '.' && (k == 0 || s[k - 1] == '/')) {
                 found = (ssize_t)k;
@@ -519,7 +518,7 @@ float commandt_score(
         // to build the masks itself.
         if (compute_bitmasks) {
             uint32_t mask = HAYSTACK_BITMASK_COMPUTED;
-            ssize_t first_dot = -1;
+            ssize_t first_dot = NO_FORBIDDEN_DOT;
             for (size_t i = 0; i < haystack_len; i++) {
                 char c = haystack_p[i];
                 char lower = c >= 'A' && c <= 'Z' ? c | 0x20 : c;
@@ -652,8 +651,8 @@ float commandt_score(
     // matchable range) O(1). When a forbidden dot does fall in `[0, limit)`,
     // gather the forbidden positions and route to the separate dot-aware DP,
     // keeping the common scorer free of hidden-dot checks.
-    ssize_t first_dot =
-        always_show_dot_files ? -1 : forbidden_dot_index(haystack);
+    ssize_t first_dot = always_show_dot_files ? NO_FORBIDDEN_DOT
+                                              : forbidden_dot_index(haystack);
     if (first_dot >= 0 && (never_show_dot_files || (size_t)first_dot < limit)) {
         if (never_show_dot_files) {
             result = 0.0f;
@@ -702,9 +701,9 @@ float commandt_score(
     // (every full alignment's partial through row `i` is at most `row_max`, and
     // each remaining character adds at most `BONUS_CONSECUTIVE * base`). So once
     // that bound falls below `threshold` the candidate cannot enter the results
-    // heap and we abandon it, returning `row_max` (positive, so the caller still
-    // treats the candidate as a match, but below `threshold`, so it is not
-    // selected).
+    // heap and we abandon it, returning `row_max`. Keep it positive so later
+    // query extensions can reconsider the candidate, even if a complete match
+    // has not been proved. It is below `threshold`, so it cannot be selected.
     float row_max = 0.0f;
 
     // Running count of matched positions processed; past `SCORE_CELL_CAP` we bail
