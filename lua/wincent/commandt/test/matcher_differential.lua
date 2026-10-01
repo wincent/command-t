@@ -16,6 +16,7 @@ local scanner_new_copy = require('wincent.commandt.private.lib.scanner_new_copy'
 describe('matcher differential tests', function()
   local matchers = {}
   local scanners = {}
+  local buffers = {}
 
   -- This adapter only manages C resources and converts results to Lua strings.
   -- Candidates, options, query history, and assertions belong in each test.
@@ -50,6 +51,7 @@ describe('matcher differential tests', function()
     end
     matchers = {}
     scanners = {}
+    buffers = {}
   end)
 
   it('selects "a.b", not the higher-scoring "z.", when a dot query has only one result slot', function()
@@ -82,6 +84,123 @@ describe('matcher differential tests', function()
     expect(reused.match('.')).to_equal({ 'a.b' })
     expect(fresh.match('.c')).to_equal({ 'z.c' })
     expect(reused.match('.c')).to_equal({ 'z.c' })
+  end)
+
+  it('agrees on cold and warmed dot queries, including nested hidden components and empty strings', function()
+    local paths = { 'plain', 'z.', 'a.b', '.root', 'a/.one/.two/x', 'a.b/.tail', '' }
+    local fresh = get_matcher(paths, { height = 7 })
+    local warmed = get_matcher(paths, { height = 7 })
+
+    expect(warmed.match('')).to_equal({ '', 'a.b', 'plain', 'z.' })
+    expect(fresh.match('.')).to_equal({ '.root', 'a.b', 'a.b/.tail', 'a/.one/.two/x', 'z.' })
+    expect(warmed.match('.')).to_equal({ '.root', 'a.b', 'a.b/.tail', 'a/.one/.two/x', 'z.' })
+    expect(warmed.match('.')).to_equal({ '.root', 'a.b', 'a.b/.tail', 'a/.one/.two/x', 'z.' })
+  end)
+
+  it('agrees on cold and warmed dot queries when hidden components are always allowed', function()
+    local paths = { 'plain', '.root', 'a/.one/.two/x', 'b.c', '' }
+    local fresh = get_matcher(paths, { height = 5, always_show_dot_files = true })
+    local warmed = get_matcher(paths, { height = 5, always_show_dot_files = true })
+
+    expect(warmed.match('')).to_equal({ '', '.root', 'a/.one/.two/x', 'b.c', 'plain' })
+    expect(fresh.match('.')).to_equal({ '.root', 'a/.one/.two/x', 'b.c' })
+    expect(warmed.match('.')).to_equal({ '.root', 'a/.one/.two/x', 'b.c' })
+    expect(warmed.match('.')).to_equal({ '.root', 'a/.one/.two/x', 'b.c' })
+  end)
+
+  it('keeps never_show_dot_files filtering after warming and repeating a dot query', function()
+    local paths = { '.root', 'a.b/.tail', 'a/.one/.two/x', 'plain', 'z.', 'a.b', '' }
+    local fresh = get_matcher(paths, { height = 7, never_show_dot_files = true })
+    local warmed = get_matcher(paths, { height = 7, never_show_dot_files = true })
+
+    expect(warmed.match('')).to_equal({ '', 'a.b', 'plain', 'z.' })
+    expect(fresh.match('.')).to_equal({ 'a.b', 'z.' })
+    expect(warmed.match('.')).to_equal({ 'a.b', 'z.' })
+    expect(warmed.match('.')).to_equal({ 'a.b', 'z.' })
+    expect(warmed.match('.tail')).to_equal({})
+  end)
+
+  it('reconsiders unselected matches and cached non-matches after a warmed dot query', function()
+    local paths = { 'a.b', 'z.c', 'plain', '.root' }
+    local fresh = get_matcher(paths, { height = 1 })
+    local warmed = get_matcher(paths, { height = 1 })
+
+    expect(warmed.match('')).to_equal({ 'a.b' })
+    expect(warmed.match('.')).to_equal({ '.root' })
+    expect(warmed.match('.')).to_equal({ '.root' })
+    expect(fresh.match('.c')).to_equal({ 'z.c' })
+    expect(warmed.match('.c')).to_equal({ 'z.c' })
+    expect(warmed.match('.')).to_equal({ '.root' })
+    expect(warmed.match('plain')).to_equal({ 'plain' })
+    expect(warmed.match('')).to_equal({ 'a.b' })
+  end)
+
+  it('handles a dot query after a failed query initialized masks without scanning hidden dots', function()
+    local paths = { 'plain', 'a.b/.c', 'a/.b/.c/z', 'a.c', '.root' }
+    local fresh = get_matcher(paths, { height = 5 })
+    local reused = get_matcher(paths, { height = 5 })
+
+    expect(reused.match('!')).to_equal({})
+    expect(reused.match('.')).to_equal({ '.root', 'a.b/.c', 'a.c', 'a/.b/.c/z' })
+    expect(fresh.match('.c')).to_equal({ 'a.c', 'a.b/.c', 'a/.b/.c/z' })
+    expect(reused.match('.c')).to_equal({ 'a.c', 'a.b/.c', 'a/.b/.c/z' })
+    expect(reused.match('.z')).to_equal({ 'a/.b/.c/z' })
+  end)
+
+  it('recognizes a normalized dot query when spaces are ignored', function()
+    local paths = { 'a.b', 'plain', 'z.c', '.root' }
+    local fresh = get_matcher(paths, { height = 4, ignore_spaces = true })
+    local warmed = get_matcher(paths, { height = 4, ignore_spaces = true })
+
+    expect(warmed.match('')).to_equal({ 'a.b', 'plain', 'z.c' })
+    expect(fresh.match(' . ')).to_equal({ '.root', 'a.b', 'z.c' })
+    expect(warmed.match(' . ')).to_equal({ '.root', 'a.b', 'z.c' })
+    expect(warmed.match('. c')).to_equal({ 'z.c' })
+  end)
+
+  it('preserves smart-case changes after extending a warmed dot query', function()
+    local paths = { 'a.c', 'a.C', 'plain', '.cache' }
+    local fresh = get_matcher(paths, { height = 4, ignore_case = true, smart_case = true })
+    local warmed = get_matcher(paths, { height = 4, ignore_case = true, smart_case = true })
+
+    expect(warmed.match('')).to_equal({ 'a.C', 'a.c', 'plain' })
+    expect(warmed.match('.')).to_equal({ '.cache', 'a.C', 'a.c' })
+    expect(fresh.match('.C')).to_equal({ 'a.C' })
+    expect(warmed.match('.C')).to_equal({ 'a.C' })
+    expect(warmed.match('.c')).to_equal({ 'a.C', 'a.c', '.cache' })
+  end)
+
+  it('does not find a dot beyond the recorded candidate length', function()
+    local storage = ffi.new('char[8]', 'plain.x')
+    local candidates = ffi.new('str_t[1]')
+    candidates[0].contents = storage
+    candidates[0].length = 5
+    candidates[0].capacity = -1
+    -- The scanner borrows both allocations. Keep them alive until teardown.
+    buffers[#buffers + 1] = { storage, candidates }
+    local scanner = ffi.gc(c.commandt_scanner_new_str(candidates, 1), c.commandt_scanner_free)
+    local matcher = matcher_new(scanner, { height = 1, threads = 1 })
+    scanners[#scanners + 1] = scanner
+    matchers[#matchers + 1] = matcher
+
+    local warmup = matcher_run(matcher, '')
+    expect(warmup.match_count).to_be(1)
+    c.commandt_result_free(ffi.gc(warmup, nil))
+    local result = matcher_run(matcher, '.')
+    expect(result.match_count).to_be(0)
+    c.commandt_result_free(ffi.gc(result, nil))
+  end)
+
+  it('agrees on a long candidate before and after warming a dot query', function()
+    local long_candidate = string.rep('x', 8192) .. '.tail'
+    local paths = { 'z.', 'a.b', long_candidate, 'plain' }
+    local fresh = get_matcher(paths, { height = 2 })
+    local warmed = get_matcher(paths, { height = 2 })
+
+    expect(warmed.match('')).to_equal({ 'a.b', 'plain' })
+    expect(fresh.match('.')).to_equal({ 'a.b', long_candidate })
+    expect(warmed.match('.')).to_equal({ 'a.b', long_candidate })
+    expect(warmed.match('.tail')).to_equal({ long_candidate })
   end)
 
   it('excludes "a.b/." for ".b" in both fresh and reused never_show_dot_files matchers', function()

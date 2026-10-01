@@ -96,7 +96,7 @@ describe('single-threaded versus pooled matchers', function()
     expect(pooled.match('')).to_equal(single.match(''))
   end)
 
-  it('selects the same alphabetical top three for a dot query across worker stripes', function()
+  it('selects the same alphabetical top three for cold and repeated dot queries across worker stripes', function()
     local paths = {}
     for i = 1, 1025 do
       paths[i] = string.format('filler-%04d', i)
@@ -111,6 +111,12 @@ describe('single-threaded versus pooled matchers', function()
     local single = get_matcher(paths, { height = 3, threads = 1 })
     local pooled = get_matcher(paths, { height = 3, threads = 4 })
 
+    expect(single.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
+    expect(pooled.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
+    expect(single.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
+    expect(pooled.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
+    expect(single.match('.c')).to_equal({ 'b.c' })
+    expect(pooled.match('.c')).to_equal({ 'b.c' })
     expect(single.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
     expect(pooled.match('.')).to_equal({ 'a.b', 'b.c', 'c.d' })
   end)

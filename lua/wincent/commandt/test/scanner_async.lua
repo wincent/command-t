@@ -381,9 +381,21 @@ describe('scanner_new_exec_async', function()
       for i = 1002, 1088 do
         last_batch[#last_batch + 1] = string.format('filler-%04d', i)
       end
+      last_batch[24] = '.ac' -- Position 1,025, in a background worker's stripe.
       last_batch[#last_batch + 1] = 'aB'
       feed(last_batch)
       expect(c.commandt_scanner_count_snapshot(scanner)).to_be(1089)
+
+      -- The repeated dot query mixes warmed candidates with an unscored tail.
+      -- The new hidden candidate must initialize its mask and win a result slot;
+      -- extending the query must then find its c instead of trusting stale state.
+      expect(match_all(single, '.')).to_equal({ '.ac', 'w.ab', 'x.ab' })
+      expect(match_all(pooled, '.')).to_equal({ '.ac', 'w.ab', 'x.ab' })
+      expect(match_all(single, '.')).to_equal({ '.ac', 'w.ab', 'x.ab' })
+      expect(match_all(pooled, '.')).to_equal({ '.ac', 'w.ab', 'x.ab' })
+      expect(match_all(single, '.c')).to_equal({ '.ac' })
+      expect(match_all(pooled, '.c')).to_equal({ '.ac' })
+
       local fresh_1089 = copy_matcher(paths, { height = 3, threads = 1 })
       expect(match_all(fresh_1089, 'aB')).to_equal({ 'aB' })
       expect(match_all(single, 'aB')).to_equal({ 'aB' })
