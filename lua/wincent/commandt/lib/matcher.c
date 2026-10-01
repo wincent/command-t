@@ -11,7 +11,7 @@
 #include <stdbool.h> /* for bool */
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for posix_memalign(), qsort(), NULL */
-#include <string.h> /* for memcpy(), strcpy(), strlen() */
+#include <string.h> /* for memchr(), memcpy(), strcpy(), strlen() */
 
 #ifdef __APPLE__
 #include <dispatch/dispatch.h> /* for dispatch_semaphore_t and friends */
@@ -556,8 +556,24 @@ static heap_t *get_matches(const worker_args_t *worker_args) {
                 }
             }
 
-            haystack->score =
-                commandt_score(haystack, matcher, ignore_case, threshold);
+            // A lone query dot can match any literal dot under the default or
+            // always-show policy; alphabetical ordering discards its numeric
+            // score. Keep using the scorer to initialize caches needed by later
+            // queries, and for never-show's whole-path filtering. The dot-index
+            // cache is not needed when hidden components are always allowed.
+            if (!sort_by_score && needle_length == 1 &&
+                !matcher->never_show_dot_files &&
+                commandt_haystack_bitmask_computed(haystack->bitmask) &&
+                (matcher->always_show_dot_files ||
+                 haystack->first_dot != UNSET_FIRST_DOT)) {
+                const str_t *candidate = haystack->candidate;
+                haystack->score =
+                    memchr(candidate->contents, '.', candidate->length) ? 1.0f
+                                                                        : 0.0f;
+            } else {
+                haystack->score =
+                    commandt_score(haystack, matcher, ignore_case, threshold);
+            }
 
             if (haystack->score == 0.0f) {
                 continue;
