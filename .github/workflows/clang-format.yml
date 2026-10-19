@@ -13,11 +13,11 @@ permissions:
 
 jobs:
   style:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: jidicula/clang-format-action@3a18028048f01a66653b4e3bf8d968d2e7e2cb8b # v4.17.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jidicula/clang-format-action@654a770daa28443dd111d133e4083e21c1075674 # v4.18.0
         with:
           clang-format-version: "22"
           check-path: lua
